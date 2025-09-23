@@ -1,0 +1,119 @@
+
+
+$(document).ready(function(){
+    $('.select2').select2({})
+	$('.select2').on('select2:open', function () {
+		$('input.select2-search__field')[0].focus();
+	})
+
+    $('.number2').on('keyup', function(event) {
+		if (event.which >= 37 && event.which <= 40) return;
+		$(this).val(function(index, value) {
+			return value
+				.replace(/\D/g, "")
+				.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+		});
+	});
+
+    $('.date-picker').datepicker({
+        format:"d MM yyyy",
+        orientation: "top auto",
+		autoclose: true,
+		todayHighlight: true,
+		language: 'id',
+		clearBtn:true
+    })
+
+	$('.month-picker').datepicker({
+		format:"MM yyyy",
+		orientation: "top auto",
+		autoclose: true,
+		startView: "months",
+		minViewMode: "months",
+		language: 'id',
+		clearBtn:true
+	});
+
+    $('.year-picker').datepicker({
+		format: "yyyy",
+		orientation: "top auto",
+		autoclose: true,
+		viewMode: "years",
+		minViewMode: "years",
+		language: 'id'
+	});
+
+    $('.time-picker').timepicker({
+        timeFormat: 'HH:mm',
+        interval: 30,
+        minTime: '00:00',
+        maxTime: '23:59',
+        dynamic: true,
+        dropdown: true,
+        scrollbar: false
+    });
+
+    $('.modal').on('hidden.bs.modal', function (event) {
+		resetForm($('.modal form'))
+	})
+
+})
+
+function toastify(type = 'success', message) {
+    Toastify({
+        text: message,
+        duration: 3000,
+        close: true,
+        gravity: "top",
+    position: "right",
+    backgroundColor: type === 'success' ? "#4fbe87" : "#f44336",
+  }).showToast();
+}
+
+
+function ajax(data, url, method, callback, callbackError) {
+    $.ajax({
+        url: url,
+        data: data,
+        type: method,
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function (json, text) {
+            json = json;
+            callback(json);
+        },
+        error: function (err) {
+            callbackError == null ?
+            toastify("Error", err?.responseJSON?.message ?? "Please try again later", "error")
+                : callbackError(err);
+        }
+    });
+}
+
+function reloadJsonDataTable(dtable, json) {
+    dtable.clear().draw();
+    dtable.rows.add(json).draw();
+}
+
+function diffTime(start,end) {
+    let startTime = moment(start, 'HH:mm');
+    let endTime = moment(end, 'HH:mm');
+
+    let duration = moment.duration(endTime.diff(startTime));
+
+    let hours = duration.hours();
+    let minutes = duration.minutes();
+
+    return `${hours}h ${minutes}m`
+}
+
+function resetForm(form) {
+	form.find("input").val("");
+	form.find("input[type='checkbox']").prop("checked", false);
+	form.find("textarea").val("");
+	form.find("select").prop('selectedIndex', 0).trigger('change');
+	form.find(".error").removeClass("error");
+	form.find("#handling-error").remove();
+}
+
