@@ -1,5 +1,5 @@
 
-
+$(document).ajaxStop($.unblockUI); 
 $(document).ready(function(){
     $('.select2').select2({})
 	$('.select2').on('select2:open', function () {
@@ -115,5 +115,13 @@ function resetForm(form) {
 	form.find("select").prop('selectedIndex', 0).trigger('change');
 	form.find(".error").removeClass("error");
 	form.find("#handling-error").remove();
+}
+
+function blockUI(message=null){
+    $.blockUI({ message: message??'<h1><i class="fa fa-spinner fa-spin"></i> Just a moment...</h1>' }); 
+}
+
+function unBlockUI(){
+    $.unblockUI()
 }
 

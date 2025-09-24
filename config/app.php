@@ -176,6 +176,8 @@ return [
         App\Providers\RouteServiceProvider::class,
         App\Providers\ObservationDateProvifer::class,
         App\Providers\ObservationProvider::class,
+        App\Providers\GradeProvider::class,
+        App\Providers\LevelProvider::class,
 
     ],
 

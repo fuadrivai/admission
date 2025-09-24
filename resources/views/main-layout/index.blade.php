@@ -52,6 +52,17 @@
 
                         <li class="sidebar-item  has-sub">
                             <a href="#" class='sidebar-link'>
+                                <i class="fa fa-graduation-cap"></i>
+                                <span>Level</span>
+                            </a>
+                            <ul class="submenu ">
+                                <li class="submenu-item"><a href="/level" class="submenu-link">Level</a></li>
+                                <li class="submenu-item"><a href="/level/grade" class="submenu-link">Grade</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="sidebar-item  has-sub">
+                            <a href="#" class='sidebar-link'>
                                 <i class="bi bi-stack"></i>
                                 <span>Observation</span>
                             </a>
@@ -93,6 +104,7 @@
     </div>
     <script src="/assets/compiled/js/app.js"></script>
     <script src="/assets/extensions/jquery/jquery.min.js"></script>
+    <script src="/assets/extensions/jquery-blockUI/jquery.blockUI.js"></script>
     <script src="/assets/extensions/moment/moment.js"></script>
     <script src="/assets/extensions/select2/dist/js/select2.full.min.js"></script>
     <script src="/assets/extensions/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>

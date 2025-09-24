@@ -1,4 +1,5 @@
 let observationDateId;
+let levels=null;
 $(document).ready(function(){
     $('#date').on('changeDate',function(){
         $('#list-time').empty()
@@ -15,7 +16,23 @@ $(document).ready(function(){
         $("#selectedTime").removeClass("is-invalid").addClass("is-valid");
     })
 
+    $('#level').on('change',function(){
+        $('#grade').attr('disabled',false)
+        let levelId = $(this).val();
+        const level =  levels.find(l => l.id == levelId);
+        $('#grade').empty()
+        $('#grade').append(`
+                <option value="" selected disabled>Pilih Grade</option>  
+            `)
+        level.grades.forEach(val=>{
+            $('#grade').append(`
+                <option value="${val.id}">${val.name}</option>    
+            `)
+        })
+    })
+
     $('#observationForm').on('submit',function(e){
+        blockUI();
         e.preventDefault();
         const form = this;
         
@@ -35,6 +52,8 @@ $(document).ready(function(){
                 dataJSON[this.name] = this.value;
             });
             dataJSON.observation_time_id = observationDateId;
+            dataJSON.level = $('#level option:selected').text();
+            dataJSON.grade = $('#grade option:selected').text();
             dataJSON.date = moment(dataJSON.date,"DD MMMM YYYY").format("YYYY-MM-DD")
             postObservation(dataJSON)
         } else {
@@ -43,25 +62,68 @@ $(document).ready(function(){
             $('#btn-submit').attr('disabled',false)
         }
     })
+
+    getLevel();
 })
 
-function getObservationDate(date){
+function getObservationDate(date) {
     ajax(null, `/observation/get/date/${date}`, 'GET', function(json) {
         $('#list-time').empty()
-        if ((json?.times??[]).length <1) {
+
+        if ((json?.times ?? []).length < 1) {
             $('#list-time').append(`
                 <span class="time-badge disabled">No Time Available</span>
             `)
             return false
         }
+
+        let today = moment().format('YYYY-MM-DD');
+        let now = moment();
+        let selectedDate = moment(date, 'YYYY-MM-DD');
+
         json.times.forEach(e => {
-            let time = moment(e.time,"HH:mm:ss").format('HH:mm')
+            let time = moment(e.time, "HH:mm:ss");
+            let formattedTime = time.format('HH:mm');
             let rest = parseInt(e.rest);
+
+            let isDisabled = false;
+
+            // 1. Jika tanggal yang dipilih sudah lewat
+            if (selectedDate.isBefore(today)) {
+                isDisabled = true;
+            }
+            // 2. Jika tanggal yang dipilih adalah hari ini dan jam sudah lewat
+            else if (date === today && time.isBefore(now)) {
+                isDisabled = true;
+            }
+            // 3. Jika quota habis
+            else if (rest < 1) {
+                isDisabled = true;
+            }
+
             $('#list-time').append(`
-                <span class="time-badge ${(rest <1)?'disabled':''}" data-id="${e.id}" data-time="${time}">${time}</span>
+                <span class="time-badge ${isDisabled ? 'disabled' : ''}" 
+                      data-id="${e.id}" 
+                      data-time="${formattedTime}">
+                      ${formattedTime}
+                </span>
             `)
         });
+
         $('#selectedTime').val("")
+    }, function(err) {
+        toastify("Error", err?.responseJSON?.message ?? "Please try again later", "error");
+    });
+}
+
+function getLevel(){
+    ajax(null, `/level/get`, 'GET', function(json) {
+        levels = json
+        levels.forEach(val=>{
+            $('#level').append(`
+                <option value="${val.id}">${val.name}</option>
+            `)
+        })
     }, function(err) {
         toastify("Error", err?.responseJSON?.message ?? "Please try again later", "error");
     });

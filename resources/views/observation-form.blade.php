@@ -252,18 +252,24 @@
                                     </div>
                                 </div>
                             </div>
-
-                            <div class="mb-4">
-                                <label for="level" class="form-label required-label">Level</label>
-                                <select name="level" class="form-select" id="level" required>
-                                    <option value="" selected disabled>Pilih Level Pendidikan</option>
-                                    <option value="Preschool">Preschool</option>
-                                    <option value="Primary">Primary</option>
-                                    <option value="Secondary">Secondary</option>
-                                    <option value="Development Class">Development Class</option>
-                                </select>
-                                <div class="invalid-feedback">
-                                    Harap pilih level pendidikan.
+                            <div class="row">
+                                <div class="col-md-6 col-12">
+                                    <label for="level" class="form-label required-label">Level</label>
+                                    <select name="level_id" class="form-select" id="level" required>
+                                        <option value="" selected disabled>Pilih Level Pendidikan</option>
+                                    </select>
+                                    <div class="invalid-feedback">
+                                        Harap pilih level pendidikan.
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-12">
+                                    <label for="grade" class="form-label required-label">Grade</label>
+                                    <select disabled name="grade_id" class="form-select" id="grade" required>
+                                        <option value="" selected disabled>Pilih Grade</option>
+                                    </select>
+                                    <div class="invalid-feedback">
+                                        Harap pilih grade.
+                                    </div>
                                 </div>
                             </div>
 
@@ -360,6 +366,7 @@
     <!-- Bootstrap 5 JS Bundle with Popper -->
     <script src="/assets/compiled/js/app.js"></script>
     <script src="/assets/extensions/jquery/jquery.min.js"></script>
+    <script src="/assets/extensions/jquery-blockUI/jquery.blockUI.js"></script>
     <script src="/assets/extensions/moment/moment.js"></script>
     <script src="/assets/extensions/select2/dist/js/select2.full.min.js"></script>
     <script src="/assets/extensions/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>

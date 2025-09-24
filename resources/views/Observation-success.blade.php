@@ -106,7 +106,7 @@
                 </p>
 
                 <a href="{{ url('/observation-form') }}" class="btn btn-primary">
-                    <i class="fas fa-home me-2"></i>Kembali ke Beranda
+                    <i class="fas fa-home me-2"></i>Kembali ke Form
                 </a>
 
                 <div class="support-text">

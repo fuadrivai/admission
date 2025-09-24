@@ -144,23 +144,27 @@
                         mRender: function(data, type, full) {
                             let bg = ""
                             switch (full.level) {
-                                case "Preschool":
+                                case "Playgroup":
+                                case "Kindergarten":
                                     bg = "bg-warning"
                                     break;
                                 case "Primary":
                                     bg = "bg-success"
                                     break;
-                                case "Secondary":
+                                case "Lower Secondary":
                                     bg = "bg-info"
+                                    break;
+                                case "Upper Secondary":
+                                    bg = "bg-danger"
                                     break;
                                 case "Development Class":
                                     bg = "bg-primary"
                                     break;
                                 default:
-                                    bg = "bg-danger"
+                                    bg = "bg-primary"
                                     break;
                             }
-                            return `<label>${data}</label><br> <small class="badge ${bg}">${full.level}</small>`
+                            return `<label>${data}</label><br><small class="badge ${bg}">${full.level}</small><br><small class="badge ${bg}">${full.grade}</small>`
                         }
                     },
                     {
@@ -194,13 +198,13 @@
                         mRender: function(data, type, full) {
                             let bg = "";
                             switch (data) {
-                                case "Terdaftar":
-                                    bg = "bg-primary"
+                                case "Registered":
+                                    bg = "bg-info"
                                     break;
-                                case "Hadir":
+                                case "Present":
                                     bg = "bg-success"
                                     break;
-                                case "Tidak Hadir":
+                                case "Absent":
                                     bg = "bg-danger"
                                     break;
                                 default:
@@ -248,6 +252,7 @@
             })
 
             $('#form-date').on('submit', function(e) {
+
                 e.preventDefault();
                 const form = this;
 
@@ -269,6 +274,8 @@
                     dataJSON.observation_time_id = observationDateId;
                     dataJSON.id = $('#id').val();
                     dataJSON.date = moment(dataJSON.date, "DD MMMM YYYY").format("YYYY-MM-DD")
+                    $('.modal').modal('hide')
+                    blockUI();
                     postObservation(dataJSON);
                 } else {
                     $(form).addClass("was-validated");
@@ -281,19 +288,47 @@
         function getObservationDate(date) {
             ajax(null, `/observation/get/date/${date}`, 'GET', function(json) {
                 $('#list-time').empty()
+
                 if ((json?.times ?? []).length < 1) {
                     $('#list-time').append(`
-                            <span class="time-badge disabled">No Time Available</span>
-                        `)
+                <span class="time-badge disabled">No Time Available</span>
+            `)
                     return false
                 }
+
+                let today = moment().format('YYYY-MM-DD');
+                let now = moment();
+                let selectedDate = moment(date, 'YYYY-MM-DD');
+
                 json.times.forEach(e => {
-                    let time = moment(e.time, "HH:mm:ss").format('HH:mm')
+                    let time = moment(e.time, "HH:mm:ss");
+                    let formattedTime = time.format('HH:mm');
                     let rest = parseInt(e.rest);
+
+                    let isDisabled = false;
+
+                    // 1. Jika tanggal yang dipilih sudah lewat
+                    if (selectedDate.isBefore(today)) {
+                        isDisabled = true;
+                    }
+                    // 2. Jika tanggal yang dipilih adalah hari ini dan jam sudah lewat
+                    else if (date === today && time.isBefore(now)) {
+                        isDisabled = true;
+                    }
+                    // 3. Jika quota habis
+                    else if (rest < 1) {
+                        isDisabled = true;
+                    }
+
                     $('#list-time').append(`
-                        <span class="time-badge ${(rest <1)?'disabled':''}" data-id="${e.id}" data-time="${time}">${time}</span>
-                    `)
+                <span class="time-badge ${isDisabled ? 'disabled' : ''}" 
+                      data-id="${e.id}" 
+                      data-time="${formattedTime}">
+                      ${formattedTime}
+                </span>
+            `)
                 });
+
                 $('#selectedTime').val("")
             }, function(err) {
                 toastify("Error", err?.responseJSON?.message ?? "Please try again later", "error");

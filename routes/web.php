@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\GradeController;
+use App\Http\Controllers\LevelController;
 use App\Http\Controllers\ObservationController;
 use App\Http\Controllers\ObservationDateController;
 use App\Models\ObservationDate;
@@ -33,4 +35,11 @@ Route::prefix('observation')->name('observation.')->group(function () {
     Route::get('get/date/{date}', [ObservationDateController::class, 'date'])->name('byDate');
     Route::resource('/', ObservationController::class)->parameters(['' => 'observation']);
     Route::resource('/date', ObservationDateController::class)->parameters(['' => 'observationDate']);
+});
+
+Route::prefix('level')->name('level.')->group(function () {
+    Route::get('datatables', [LevelController::class, 'datatables'])->name('datatables');
+    Route::get('get', [LevelController::class, 'get'])->name('get');
+    Route::resource('/', LevelController::class)->parameters(['' => 'level']);
+    Route::resource('grades', GradeController::class)->parameters(['grades' => 'grade']);
 });

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateObservationsTable extends Migration
+class CreateObservationTable extends Migration
 {
     /**
      * Run the migrations.
@@ -18,8 +18,11 @@ class CreateObservationsTable extends Migration
             $table->foreignId('observation_time_id')->constrained()->onDelete('cascade');
             $table->string('child_name');
             $table->enum('gender', ['Laki-laki', 'Perempuan']);
-            $table->enum('level', ['Preschool', 'Primary', 'Secondary', 'Development Class']);
-            $table->enum('status', ['Terdaftar', 'Hadir', 'Tidak Hadir'])->comment('registration status');
+            $table->string('level');
+            $table->foreignId('level_id')->constrained()->onDelete('cascade');
+            $table->string('grade');
+            $table->foreignId('grade_id')->constrained()->onDelete('cascade');
+            $table->enum('status', ['Registered', 'Present', 'Absent'])->comment('registration status');
             $table->string('parent_name');
             $table->enum('relationship', ['Ayah', 'Ibu', 'Wali']);
             $table->string('phone');

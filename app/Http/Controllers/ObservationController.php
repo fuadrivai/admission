@@ -70,6 +70,10 @@ class ObservationController extends Controller
             'email' => 'required',
             'date' => 'required|date',
             'time' => 'required',
+            'grade' => 'required',
+            'level' => 'required',
+            'grade_id' => 'required|integer',
+            'level_id' => 'required|integer',
             'observation_time_id' => 'required|integer',
         ]);
 
