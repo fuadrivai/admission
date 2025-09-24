@@ -27,7 +27,7 @@ class ObservationDateController extends Controller
     }
     public function datatables(UtilitiesRequest $request)
     {
-        $datesQuery = ObservationDate::with(['times', 'times.observations'])
+        $datesQuery = ObservationDate::with(['times', 'times.observations'])->where(['type' => 1])
             ->orderBy('date', 'desc');
 
         if ($request->ajax()) {
@@ -99,7 +99,7 @@ class ObservationDateController extends Controller
      * @param  \App\Models\ObservationDate  $observationDate
      * @return \Illuminate\Http\Response
      */
-    public function show($id, $type)
+    public function show($id)
     {
         $observationDate = $this->observationDateService->show($id);
         return response()->json($observationDate);

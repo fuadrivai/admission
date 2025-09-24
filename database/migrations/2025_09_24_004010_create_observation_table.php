@@ -17,7 +17,7 @@ class CreateObservationTable extends Migration
             $table->id();
             $table->foreignId('observation_time_id')->constrained()->onDelete('cascade');
             $table->string('child_name');
-            $table->enum('gender', ['Laki-laki', 'Perempuan']);
+            $table->enum('gender', ['Male', 'Female']);
             $table->string('level');
             $table->foreignId('level_id')->constrained()->onDelete('cascade');
             $table->string('grade');

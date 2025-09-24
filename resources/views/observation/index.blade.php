@@ -40,6 +40,10 @@
             box-shadow: none;
             transform: none;
         }
+
+        .ob:hover {
+            color: blue !important;
+        }
     </style>
 @endsection
 
@@ -53,9 +57,10 @@
                             <thead>
                                 <tr class="text-center">
                                     <th>Child's Name</th>
+                                    <th>Level</th>
+                                    <th>Grade</th>
                                     <th>Gender</th>
                                     <th>Parent's name</th>
-                                    <th>Contact</th>
                                     <th>Date Time</th>
                                     <th>Status</th>
                                     <th>Action</th>
@@ -141,6 +146,11 @@
                 columns: [{
                         data: "child_name",
                         defaultContent: "--",
+                    },
+                    {
+                        data: 'level',
+                        defaultContent: "-",
+                        className: "text-center",
                         mRender: function(data, type, full) {
                             let bg = ""
                             switch (full.level) {
@@ -164,7 +174,37 @@
                                     bg = "bg-primary"
                                     break;
                             }
-                            return `<label>${data}</label><br><small class="badge ${bg}">${full.level}</small><br><small class="badge ${bg}">${full.grade}</small>`
+                            return `<small class="badge ${bg}">${full.level}</small>`
+                        }
+                    },
+                    {
+                        data: 'grade',
+                        defaultContent: "-",
+                        className: "text-center",
+                        mRender: function(data, type, full) {
+                            let bg = ""
+                            switch (full.level) {
+                                case "Playgroup":
+                                case "Kindergarten":
+                                    bg = "bg-warning"
+                                    break;
+                                case "Primary":
+                                    bg = "bg-success"
+                                    break;
+                                case "Lower Secondary":
+                                    bg = "bg-info"
+                                    break;
+                                case "Upper Secondary":
+                                    bg = "bg-danger"
+                                    break;
+                                case "Development Class":
+                                    bg = "bg-primary"
+                                    break;
+                                default:
+                                    bg = "bg-primary"
+                                    break;
+                            }
+                            return `<small class="badge ${bg}">${full.grade}</small>`
                         }
                     },
                     {
@@ -175,13 +215,6 @@
                     {
                         data: "parent_name",
                         defaultContent: "--",
-                    },
-                    {
-                        data: "email",
-                        defaultContent: "--",
-                        mRender: function(data, type, full) {
-                            return `<label>${data}</label><br> <label>${full.phone}</label>`
-                        }
                     },
                     {
                         data: "date",
@@ -216,8 +249,18 @@
                     {
                         data: 'id',
                         mRender: function(data, type, full) {
-                            return `<a title="Edit" class="btn btn-sm btn-primary text-white btn-edit">
-                                <i class="fa fa-pencil"></i>Edit</a>`
+                            return `
+                            <div class="dropdown dropdown-color-icon">
+                                    <button class="btn btn-primary dropdown-toggle" type="button"
+                                        id="dropdownMenuButtonEmoji" data-bs-toggle="dropdown" aria-haspopup="true"
+                                        aria-expanded="false">Actions
+                                    </button>
+                                    <div class="dropdown-menu bg-danger ob" aria-labelledby="dropdownMenuButtonEmoji">
+                                        <a class="dropdown-item text-white btn-edit" href="#"><i class="fa fa-pencil"></i> Reschedule</a>
+                                        <a class="dropdown-item text-white btn-confirm" href="#"><i class="bi bi-star"></i> Confirm</a>
+                                        <a class="dropdown-item text-white btn-detail" href="#"><i class="fa fa-eye"></i> Details</a>
+                                    </div>
+                                </div>`
                         }
                     }
                 ],

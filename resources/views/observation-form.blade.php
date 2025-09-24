@@ -238,12 +238,12 @@
                                     <div class="d-flex gap-4 mt-2">
                                         <div class="form-check">
                                             <input class="form-check-input" type="radio" name="gender" id="male"
-                                                value="Laki-laki" required>
+                                                value="Male" required>
                                             <label class="form-check-label" for="male">Laki-laki</label>
                                         </div>
                                         <div class="form-check">
                                             <input class="form-check-input" type="radio" name="gender" id="female"
-                                                value="Perempuan" required>
+                                                value="Female" required>
                                             <label class="form-check-label" for="female">Perempuan</label>
                                         </div>
                                     </div>

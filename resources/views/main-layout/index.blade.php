@@ -41,16 +41,14 @@
                     <ul class="menu">
                         <li class="sidebar-title">Menu</li>
 
-                        <li class="sidebar-item active ">
+                        <li class="sidebar-item {{ Request::is('/') ? 'active' : '' }} ">
                             <a href="/" class='sidebar-link'>
                                 <i class="bi bi-grid-fill"></i>
                                 <span>Dashboard</span>
                             </a>
-
-
                         </li>
 
-                        <li class="sidebar-item  has-sub">
+                        <li class="sidebar-item has-sub {{ Request::is('level*') ? 'active' : '' }}">
                             <a href="#" class='sidebar-link'>
                                 <i class="fa fa-graduation-cap"></i>
                                 <span>Level</span>
@@ -61,7 +59,7 @@
                                 </li>
                             </ul>
                         </li>
-                        <li class="sidebar-item  has-sub">
+                        <li class="sidebar-item has-sub {{ Request::is('observation*') ? 'active' : '' }}">
                             <a href="#" class='sidebar-link'>
                                 <i class="bi bi-stack"></i>
                                 <span>Observation</span>
@@ -69,7 +67,7 @@
                             <ul class="submenu ">
                                 <li class="submenu-item"><a href="/observation" class="submenu-link">user</a></li>
                                 <li class="submenu-item"><a href="/observation/setting"
-                                        class="submenu-link">Settings</a>
+                                        class="submenu-link {{ Request::is('observation/setting') ? 'text-red' : '' }}">Settings</a>
                                 </li>
                                 <li class="submenu-item"><a href="/observation-form" class="submenu-link">Form</a>
                                 </li>
