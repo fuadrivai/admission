@@ -178,6 +178,7 @@ return [
         App\Providers\ObservationProvider::class,
         App\Providers\GradeProvider::class,
         App\Providers\LevelProvider::class,
+        App\Providers\DivisionProvider::class,
 
     ],
 

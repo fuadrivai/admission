@@ -55,7 +55,7 @@
                             </a>
                             <ul class="submenu ">
                                 <li class="submenu-item"><a href="/level" class="submenu-link">Level</a></li>
-                                <li class="submenu-item"><a href="/level/grade" class="submenu-link">Grade</a>
+                                <li class="submenu-item"><a href="/division" class="submenu-link">Division</a>
                                 </li>
                             </ul>
                         </li>

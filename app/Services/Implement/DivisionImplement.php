@@ -3,47 +3,47 @@
 namespace App\Services\Implement;
 
 use App\Models\Division;
-use App\Models\Grade;
-use App\Services\GradeService;
+use App\Services\DivisionService;
 
-class GradeImplement implements GradeService
+class DivisionImplement implements DivisionService
 {
     public function get()
     {
         // Ambil semua grades dengan relasi level
-        return Grade::with('level')->get();
+        return Division::with('level')->get();
     }
 
     public function show($id)
     {
         // Detail grade by id
-        return Grade::with('level')->findOrFail($id);
+        return Division::with('level')->findOrFail($id);
     }
 
     public function post($data)
     {
         // Simpan grade baru
-        $division = Division::create([
+        $grade = Division::create([
             'name'     => $data['name'],
         ]);
 
-        return $division->load('level');
+        return $grade->load('level');
     }
 
     public function put($data)
     {
-        $division = Division::findOrFail($data['id']);
+        $grade = Grade::findOrFail($data['id']);
 
-        $division->update([
+        $grade->update([
+            'level_id' => $data['level_id'],
             'name'     => $data['name'],
         ]);
 
-        return $division->load('level');
+        return $grade->load('level');
     }
 
     public function delete($id)
     {
-        $division = Division::findOrFail($id);
-        return $division->delete();
+        $grade = Grade::findOrFail($id);
+        return $grade->delete();
     }
 }

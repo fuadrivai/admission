@@ -204,7 +204,9 @@
                     <div class="logo-title-container">
                         <!-- Logo Sekolah -->
                         <div class="logo-placeholder">
-                            <i class="fas fa-school" style="font-size: 2rem; color: var(--fandango);"></i>
+                            {{-- <i class="fas fa-school" style="font-size: 2rem; color: var(--fandango);"></i> --}}
+                            <img src="/assets/images/logo.png" width="100%" height="100%" class="img"
+                                alt="">
                         </div>
 
                         <!-- Judul Form -->

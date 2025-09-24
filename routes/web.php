@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DivisionController;
 use App\Http\Controllers\GradeController;
 use App\Http\Controllers\LevelController;
 use App\Http\Controllers\ObservationController;
@@ -40,6 +41,10 @@ Route::prefix('observation')->name('observation.')->group(function () {
 Route::prefix('level')->name('level.')->group(function () {
     Route::get('datatables', [LevelController::class, 'datatables'])->name('datatables');
     Route::get('get', [LevelController::class, 'get'])->name('get');
-    Route::resource('/', LevelController::class)->parameters(['' => 'level']);
-    Route::resource('grades', GradeController::class)->parameters(['grades' => 'grade']);
+    Route::resource('', LevelController::class)->parameters(['' => 'level']);
+});
+Route::prefix('division')->name('division.')->group(function () {
+    // Route::get('datatables', [LevelController::class, 'datatables'])->name('datatables');
+    // Route::get('get', [LevelController::class, 'get'])->name('get');
+    Route::resource('', DivisionController::class)->parameters(['' => 'division']);
 });

@@ -5,18 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ObservationDate extends Model
+class Division extends Model
 {
     use HasFactory;
     protected $guarded = ['id'];
 
-    public function times()
+    public function observationDates()
     {
-        return $this->hasMany(ObservationTime::class);
+        return $this->hasMany(ObservationDate::class);
     }
 
-    public function division()
+    public function levels()
     {
-        return $this->belongsTo(Division::class);
+        return $this->hasMany(Level::class);
     }
 }
