@@ -9,22 +9,31 @@
         <div class="card">
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-4 mb-4">
-                        <form autocomplete="off">
-                            <label for="date" class="form-label required-label">Observation date</label>
-                            <input type="text" class="d-none" id="observation-date"
-                                value="{{ isset($observationDate) ? $observationDate->id : '' }}">
-                            <div class="form-group has-icon-left">
-                                <div class="position-relative">
-                                    <input type="text" class="form-control date-picker"id="date" readonly required
-                                        placeholder="Enter observation date"
-                                        value="{{ isset($observationDate) ? date('d F Y', strtotime($observationDate->date)) : '' }}">
-                                    <div class="form-control-icon">
-                                        <i class="fa fa-calendar"></i>
-                                    </div>
+                    <div class="col-md-6 mb-4">
+                        <label for="date" class="form-label required-label">Observation date</label>
+                        <input type="text" class="d-none" id="observation-date"
+                            value="{{ isset($observationDate) ? $observationDate->id : '' }}">
+                        <div class="form-group has-icon-left">
+                            <div class="position-relative">
+                                <input type="text" class="form-control date-picker"id="date" readonly required
+                                    placeholder="Enter observation date"
+                                    value="{{ isset($observationDate) ? date('d F Y', strtotime($observationDate->date)) : '' }}">
+                                <div class="form-control-icon">
+                                    <i class="fa fa-calendar"></i>
                                 </div>
                             </div>
-                        </form>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <label for="date" class="form-label required-label">Division</label>
+                        <select name="division" id="division" class="choices form-select">
+                            <option selected disabled value="">-- Choose division --</option>
+                            @foreach ($divisions as $div)
+                                <option
+                                    {{ isset($observationDate) ? ($div->id == optional($observationDate->division)->id ? 'selected' : '') : '' }}
+                                    value="{{ $div->id }}"> {{ $div->name }} </option>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
                 <div class="row mb-2">
@@ -170,6 +179,7 @@
             });
             observationDate.date = moment($('#date').val(), 'DD MMMM YYYY').format('YYYY-MM-DD');
             observationDate.type = 1;
+            observationDate.division = $('#division').val();
             let method = "POST";
             let url = '/observation/date';
             if (ObservationDateId != '') {

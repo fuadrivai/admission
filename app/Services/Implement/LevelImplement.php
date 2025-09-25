@@ -10,7 +10,7 @@ class LevelImplement implements LevelService
 {
     public function get()
     {
-        return Level::with('grades')->get();
+        return Level::with(['grades', 'division'])->get();
     }
 
     public function show($id)
@@ -22,7 +22,8 @@ class LevelImplement implements LevelService
     {
         return DB::transaction(function () use ($data) {
             $level = Level::create([
-                'name' => $data['name']
+                'name' => $data['name'],
+                'division_id' => $data['division']
             ]);
 
             $grades = collect($data['grades'])->map(function ($grade) use ($level) {
@@ -43,6 +44,7 @@ class LevelImplement implements LevelService
 
             $level->update([
                 'name' => $data['name'],
+                'division_id' => $data['division']
             ]);
 
             $existingGradeIds = $level->grades()->pluck('id')->toArray();

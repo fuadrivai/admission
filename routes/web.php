@@ -34,6 +34,7 @@ Route::prefix('observation')->name('observation.')->group(function () {
     Route::get('datatables', [ObservationController::class, 'datatables'])->name('user-datatables');
     Route::get('setting', [ObservationDateController::class, 'datatables'])->name('datatables');
     Route::get('get/date/{date}', [ObservationDateController::class, 'date'])->name('byDate');
+    Route::get('get/date/division/{date}/{divisionId}', [ObservationDateController::class, 'dateAndDivision'])->name('byDateAndDivision');
     Route::resource('/', ObservationController::class)->parameters(['' => 'observation']);
     Route::resource('/date', ObservationDateController::class)->parameters(['' => 'observationDate']);
 });
@@ -44,7 +45,7 @@ Route::prefix('level')->name('level.')->group(function () {
     Route::resource('', LevelController::class)->parameters(['' => 'level']);
 });
 Route::prefix('division')->name('division.')->group(function () {
-    // Route::get('datatables', [LevelController::class, 'datatables'])->name('datatables');
-    // Route::get('get', [LevelController::class, 'get'])->name('get');
+    Route::get('datatables', [DivisionController::class, 'datatables'])->name('datatables');
+    Route::get('get', [DivisionController::class, 'get'])->name('get');
     Route::resource('', DivisionController::class)->parameters(['' => 'division']);
 });

@@ -3,8 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Level;
-use App\Http\Requests\StoreLevelRequest;
-use App\Http\Requests\UpdateLevelRequest;
+use App\Services\DivisionService;
 use App\Services\LevelService;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Utilities\Request as UtilitiesRequest;
@@ -18,10 +17,12 @@ class LevelController extends Controller
      */
 
     private LevelService $levelService;
+    private DivisionService $divisionService;
 
-    public function __construct(LevelService $levelService)
+    public function __construct(LevelService $levelService, DivisionService $divisionService)
     {
         $this->levelService = $levelService;
+        $this->divisionService = $divisionService;
     }
     public function index()
     {
@@ -32,7 +33,11 @@ class LevelController extends Controller
     {
         $level = Level::query();
         if ($request->ajax()) {
-            return datatables()->of($level->with('grades'))->make(true);
+            return datatables()->of($level->with(['grades', 'division']))
+                ->addColumn('division_name', function ($row) {
+                    return $row->division ? $row->division->name : '-';
+                })
+                ->make(true);
         }
     }
 
@@ -44,7 +49,8 @@ class LevelController extends Controller
      */
     public function create()
     {
-        return view('level.form', ["title" => "Form Level"]);
+        $divisions = $this->divisionService->get();
+        return view('level.form', ["title" => "Form Level", "divisions" => $divisions]);
     }
 
     /**
@@ -57,6 +63,7 @@ class LevelController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required',
+            'division' => 'required',
             'grades.*.name' => 'required',
         ]);
         $level = $this->levelService->post($validated);
@@ -89,7 +96,8 @@ class LevelController extends Controller
     public function edit($id)
     {
         $level = $this->levelService->show($id);
-        return view('level.form', ["title" => "Form Level", "level" => $level]);
+        $divisions = $this->divisionService->get();
+        return view('level.form', ["title" => "Form Level", "level" => $level, 'divisions' => $divisions]);
     }
 
     /**
@@ -104,6 +112,7 @@ class LevelController extends Controller
         $validated = $request->validate([
             'id' => 'required',
             'name' => 'required',
+            'division' => 'required',
             'grades' => 'required|array|min:1',
             'grades.*.name' => 'required',
         ]);

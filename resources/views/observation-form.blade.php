@@ -328,8 +328,8 @@
                             <div class="row">
                                 <div class="col-md-6 mb-4">
                                     <label for="date" class="form-label required-label">Tanggal Tersedia</label>
-                                    <input type="text"name="date" class="form-control date-picker" required
-                                        id="date">
+                                    <input disabled type="text"name="date" class="form-control date-picker"
+                                        required id="date">
                                     <div class="invalid-feedback">
                                         Harap pilih tanggal observasi.
                                     </div>

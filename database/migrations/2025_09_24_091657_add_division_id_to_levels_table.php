@@ -14,7 +14,7 @@ class AddDivisionIdToLevelsTable extends Migration
     public function up()
     {
         Schema::table('levels', function (Blueprint $table) {
-            $table->foreignId('division_id');
+            $table->foreignId('division_id')->nullable();
         });
     }
 

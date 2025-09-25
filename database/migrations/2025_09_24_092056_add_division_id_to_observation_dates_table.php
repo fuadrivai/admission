@@ -14,7 +14,7 @@ class AddDivisionIdToObservationDatesTable extends Migration
     public function up()
     {
         Schema::table('observation_dates', function (Blueprint $table) {
-            $table->foreignId('division_id')->constrained('divisions')->onDelete('cascade');
+            $table->foreignId('division_id')->nullable();
         });
     }
 

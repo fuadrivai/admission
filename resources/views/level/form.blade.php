@@ -10,20 +10,33 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-6 mb-6">
-                        <form autocomplete="off">
-                            <label for="date" class="form-label required-label">Level</label>
-                            <input type="text" class="d-none" id="id" name="id"
-                                value="{{ isset($level) ? $level->id : '' }}">
-                            <div class="form-group has-icon-left">
-                                <div class="position-relative">
-                                    <input type="text" class="form-control" id="name" name="name" required
-                                        placeholder="Enter level" value="{{ isset($level) ? $level->name : '' }}">
-                                    <div class="form-control-icon">
-                                        <i class="fa fa-graduation-cap"></i>
-                                    </div>
+                        <label for="name" class="form-label required-label">Level</label>
+                        <input type="text" class="d-none" id="id" name="id"
+                            value="{{ isset($level) ? $level->id : '' }}">
+                        <div class="form-group has-icon-left">
+                            <div class="position-relative">
+                                <input type="text" class="form-control" id="name" name="name" required
+                                    placeholder="Enter level" value="{{ isset($level) ? $level->name : '' }}">
+                                <div class="form-control-icon">
+                                    <i class="fa fa-graduation-cap"></i>
                                 </div>
                             </div>
-                        </form>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-6">
+                        <label for="division" class="form-label required-label">Division</label>
+                        <div class="form-group has-icon-left">
+                            <div class="position-relative">
+                                <select name="division" id="division" class="choices form-select">
+                                    <option selected disabled value="">-- Choose division --</option>
+                                    @foreach ($divisions as $div)
+                                        <option
+                                            {{ isset($level) ? ($div->id == optional($level->division)->id ? 'selected' : '') : '' }}
+                                            value="{{ $div->id }}"> {{ $div->name }} </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="row mb-2">
@@ -123,6 +136,7 @@
 
         function saveLevel() {
             level.name = $('#name').val()
+            level.division = $('#division').val()
             if (level.name == '') {
                 toastify("Error", "Name of level is required");
                 return false;

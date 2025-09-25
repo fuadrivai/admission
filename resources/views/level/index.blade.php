@@ -21,6 +21,7 @@
                             <thead>
                                 <tr class="text-center">
                                     <th>Level</th>
+                                    <th>Division</th>
                                     <th>Grade</th>
                                     <th>Action</th>
                                 </tr>
@@ -73,11 +74,16 @@
                         defaultContent: "--",
                     },
                     {
-                        data: 'grades',
+                        data: 'division_name',
+                        defaultContent: "-",
+                        className: "text-center"
+                    },
+                    {
+                        data: 'id',
                         defaultContent: "-",
                         className: "text-center",
                         mRender: function(data, type, full) {
-                            return `<a title="grades"  >${ data?.length ?? 0}</a>`
+                            return `<a title="grades"  >${ full?.grades?.length}</a>`
                         }
                     },
                     {

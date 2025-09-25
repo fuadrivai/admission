@@ -26,6 +26,7 @@
                             <thead>
                                 <tr class="text-center">
                                     <th>Date</th>
+                                    <th>Division</th>
                                     <th>Times</th>
                                     <th>Quota</th>
                                     <th>Available</th>
@@ -80,9 +81,34 @@
                 columns: [{
                         data: "date",
                         defaultContent: "--",
-                        className: "text-center",
                         mRender: function(data, type, full) {
                             return moment(data).format('DD MMMM YYYY');
+                        }
+                    },
+                    {
+                        data: 'division_name',
+                        defaultContent: "-",
+                        className: "text-center",
+                        mRender: function(data, type, full) {
+                            let bg = ""
+                            switch (data) {
+                                case "Preschool":
+                                    bg = "bg-warning"
+                                    break;
+                                case "Primary":
+                                    bg = "bg-success"
+                                    break;
+                                case "Secondary":
+                                    bg = "bg-info"
+                                    break;
+                                case "Development Class":
+                                    bg = "bg-primary"
+                                    break;
+                                default:
+                                    bg = "bg-danger"
+                                    break;
+                            }
+                            return `<small class="badge ${bg}">${data}</small>`;
                         }
                     },
                     {
@@ -93,7 +119,7 @@
                             let arr = data.split(',');
                             if (arr.length > 0) {
                                 let times = arr.map(item => {
-                                    return `<span class="badge bg-success">${moment(item, 'HH:mm:ss').format('HH:mm')}</span>`;
+                                    return `<span class="badge bg-secondary">${moment(item, 'HH:mm:ss').format('HH:mm')}</span>`;
                                 });
                                 return times.join('<br>');
                             } else {
@@ -109,7 +135,7 @@
                             let arr = data.split(',');
                             if (arr.length > 0) {
                                 let times = arr.map(item => {
-                                    return `<span class="badge bg-success">${item}</span>`;
+                                    return `<span class="badge bg-secondary">${item}</span>`;
                                 });
                                 return times.join('<br>');
                             } else {
@@ -129,7 +155,7 @@
                                     if (int <= 0) {
                                         return `<span class="badge bg-danger">${item}</span>`;
                                     }
-                                    return `<span class="badge bg-success">${item}</span>`;
+                                    return `<span class="badge bg-secondary">${item}</span>`;
                                 });
                                 return times.join('<br>');
                             } else {

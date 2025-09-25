@@ -14,4 +14,8 @@ class Level extends Model
     {
         return $this->hasMany(Grade::class);
     }
+    public function division()
+    {
+        return $this->belongsTo(Division::class);
+    }
 }

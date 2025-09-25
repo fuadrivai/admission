@@ -4,7 +4,8 @@ $(document).ready(function(){
     $('#date').on('changeDate',function(){
         $('#list-time').empty()
         let date = moment($(this).val(),"DD MMMM YYYY").format("YYYY-MM-DD")
-        getObservationDate(date);
+        let divisionId= $('#level option:selected').attr('data-id')
+        getObservationDate(date,divisionId);
     })
 
     $('#list-time').on('click','.time-badge',function(){
@@ -18,6 +19,11 @@ $(document).ready(function(){
 
     $('#level').on('change',function(){
         $('#grade').attr('disabled',false)
+        $('#date').attr('disabled',false)
+        $('#date').val("");
+        $('#selectedTime').val("")
+        $('#list-time').empty()
+
         let levelId = $(this).val();
         const level =  levels.find(l => l.id == levelId);
         $('#grade').empty()
@@ -32,7 +38,6 @@ $(document).ready(function(){
     })
 
     $('#observationForm').on('submit',function(e){
-        blockUI();
         e.preventDefault();
         const form = this;
         
@@ -43,6 +48,7 @@ $(document).ready(function(){
             if ($("#selectedTime").val() == "" || $("#selectedTime").val() == null) {
                 $("#selectedTime").addClass("is-invalid");
                 form.reportValidity();
+                $('#btn-submit').attr('disabled',false)
                 return false;
             }
 
@@ -55,8 +61,10 @@ $(document).ready(function(){
             dataJSON.level = $('#level option:selected').text();
             dataJSON.grade = $('#grade option:selected').text();
             dataJSON.date = moment(dataJSON.date,"DD MMMM YYYY").format("YYYY-MM-DD")
+            blockUI();
             postObservation(dataJSON)
         } else {
+            unBlockUI();
             $(form).addClass("was-validated");
             form.reportValidity();
             $('#btn-submit').attr('disabled',false)
@@ -66,8 +74,8 @@ $(document).ready(function(){
     getLevel();
 })
 
-function getObservationDate(date) {
-    ajax(null, `/observation/get/date/${date}`, 'GET', function(json) {
+function getObservationDate(date,divisionId) {
+    ajax(null, `/observation/get/date/division/${date}/${divisionId}`, 'GET', function(json) {
         $('#list-time').empty()
 
         if ((json?.times ?? []).length < 1) {
@@ -121,7 +129,7 @@ function getLevel(){
         levels = json
         levels.forEach(val=>{
             $('#level').append(`
-                <option value="${val.id}">${val.name}</option>
+                <option data-id="${val.division.id}" value="${val.id}">${val.name}</option>
             `)
         })
     }, function(err) {

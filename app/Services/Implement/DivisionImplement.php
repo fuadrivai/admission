@@ -9,41 +9,38 @@ class DivisionImplement implements DivisionService
 {
     public function get()
     {
-        // Ambil semua grades dengan relasi level
-        return Division::with('level')->get();
+        return Division::with('levels')->get();
     }
 
     public function show($id)
     {
-        // Detail grade by id
-        return Division::with('level')->findOrFail($id);
+        return Division::with('levels')->findOrFail($id);
     }
 
     public function post($data)
     {
         // Simpan grade baru
-        $grade = Division::create([
+        $divsision = Division::create([
             'name'     => $data['name'],
         ]);
 
-        return $grade->load('level');
+        return $divsision->load('levels');
     }
 
     public function put($data)
     {
-        $grade = Grade::findOrFail($data['id']);
+        $division = Division::findOrFail($data['id']);
 
-        $grade->update([
-            'level_id' => $data['level_id'],
+        $division->update([
             'name'     => $data['name'],
         ]);
 
-        return $grade->load('level');
+        return $division->load('levels');
     }
 
     public function delete($id)
     {
-        $grade = Grade::findOrFail($id);
-        return $grade->delete();
+        $division = Division::findOrFail($id);
+        return $division->delete();
     }
 }

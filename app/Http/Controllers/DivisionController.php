@@ -5,6 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Division;
 use App\Http\Requests\StoreDivisionRequest;
 use App\Http\Requests\UpdateDivisionRequest;
+use App\Services\DivisionService;
+use App\Services\LevelService;
+use Illuminate\Auth\Events\Validated;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redirect;
+use Yajra\DataTables\Utilities\Request as UtilitiesRequest;
 
 class DivisionController extends Controller
 {
@@ -13,9 +19,23 @@ class DivisionController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    private DivisionService $divisionService;
+
+    public function __construct(DivisionService $divisionService)
+    {
+        $this->divisionService = $divisionService;
+    }
+
     public function index()
     {
-        return view('division.index', ["title" => "Division"]);
+        return view('division.index2', ["title" => "Division"]);
+    }
+    public function datatables(UtilitiesRequest $request)
+    {
+        $division = Division::query();
+        if ($request->ajax()) {
+            return datatables()->of($division->with('levels'))->make(true);
+        }
     }
 
     /**
@@ -25,7 +45,7 @@ class DivisionController extends Controller
      */
     public function create()
     {
-        //
+        return view('division.form', ["title" => "From Division"]);
     }
 
     /**
@@ -34,9 +54,25 @@ class DivisionController extends Controller
      * @param  \App\Http\Requests\StoreDivisionRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(StoreDivisionRequest $request)
+    public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'name' => 'required',
+            'id' => 'nullable'
+        ]);
+        if ($request->filled('id')) {
+            $division = $this->divisionService->put($validated);
+        } else {
+            $division = $this->divisionService->post($validated);
+        }
+
+        return redirect('/division');
+    }
+
+    public function get()
+    {
+        $divisions = $this->divisionService->get();
+        return response()->json($divisions);
     }
 
     /**

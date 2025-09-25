@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ObservationDate;
+use App\Services\DivisionService;
 use App\Services\ObservationDateService;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Utilities\Request as UtilitiesRequest;
@@ -16,10 +17,12 @@ class ObservationDateController extends Controller
      */
 
     private ObservationDateService $observationDateService;
+    private DivisionService $divisionService;
 
-    public function __construct(ObservationDateService $observationDateService)
+    public function __construct(ObservationDateService $observationDateService, DivisionService $divisionService)
     {
         $this->observationDateService = $observationDateService;
+        $this->divisionService = $divisionService;
     }
     public function index()
     {
@@ -27,7 +30,7 @@ class ObservationDateController extends Controller
     }
     public function datatables(UtilitiesRequest $request)
     {
-        $datesQuery = ObservationDate::with(['times', 'times.observations'])->where(['type' => 1])
+        $datesQuery = ObservationDate::with(['times', 'times.observations', 'division'])->where(['type' => 1])
             ->orderBy('date', 'desc');
 
         if ($request->ajax()) {
@@ -58,6 +61,9 @@ class ObservationDateController extends Controller
                         }
                     })->implode(',');
                 })
+                ->addColumn('division_name', function ($row) {
+                    return $row->division ? $row->division->name : '-';
+                })
                 ->rawColumns(['times', 'status', 'available'])
                 ->make(true);
         }
@@ -72,7 +78,8 @@ class ObservationDateController extends Controller
      */
     public function create()
     {
-        return view('observation.form', ["title" => "Create Observation Date"]);
+        $divisions = $this->divisionService->get();
+        return view('observation.form', ["title" => "Create Observation Date", 'divisions' => $divisions]);
     }
 
     /**
@@ -85,6 +92,7 @@ class ObservationDateController extends Controller
     {
         $validated = $request->validate([
             'date' => 'required|date',
+            'division' => 'required',
             'times' => 'required|array|min:1',
             'times.*.time' => 'required',
             'times.*.max_quota' => 'required|integer|min:1',
@@ -109,6 +117,11 @@ class ObservationDateController extends Controller
         $observationDate = $this->observationDateService->getByDate($date);
         return response()->json($observationDate);
     }
+    public function dateAndDivision($date, $divisionId)
+    {
+        $observationDate = $this->observationDateService->getByDateAndDivision($date, $divisionId);
+        return response()->json($observationDate);
+    }
 
     /**
      * Show the form for editing the specified resource.
@@ -119,7 +132,8 @@ class ObservationDateController extends Controller
     public function edit($id)
     {
         $observationDate = $this->observationDateService->show($id);
-        return view('observation.form', ["title" => "Edit Observation Date", "observationDate" => $observationDate]);
+        $divisions = $this->divisionService->get();
+        return view('observation.form', ["title" => "Edit Observation Date", "observationDate" => $observationDate, 'divisions' => $divisions]);
     }
 
     /**
@@ -134,6 +148,7 @@ class ObservationDateController extends Controller
         $validated = $request->validate([
             'id' => 'required',
             'date' => 'required|date',
+            'division' => 'required',
             'times' => 'required|array|min:1',
             'times.*.time' => 'required',
             'times.*.max_quota' => 'required|integer|min:1',

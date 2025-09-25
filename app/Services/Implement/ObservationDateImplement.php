@@ -21,7 +21,7 @@ class ObservationDateImplement implements ObservationDateService
     public function post($data)
     {
         return DB::transaction(function () use ($data) {
-            $existing = ObservationDate::where('date', $data['date'])->first();
+            $existing = ObservationDate::where('date', $data['date'])->where('division_id', $data['division'])->first();
 
             if ($existing) {
                 throw new \Exception("Observation date {$data['date']} already exists.");
@@ -29,6 +29,7 @@ class ObservationDateImplement implements ObservationDateService
 
             $observationDate = ObservationDate::create([
                 'date' => $data['date'],
+                'division_id' => $data['division'],
                 'type' => 1
             ]);
 
@@ -51,6 +52,7 @@ class ObservationDateImplement implements ObservationDateService
 
             $observationDate->update([
                 'date' => $data['date'],
+                'division_id' => $data['division'],
             ]);
 
             $existingTimeIds = $observationDate->times()->pluck('id')->toArray();
@@ -89,5 +91,9 @@ class ObservationDateImplement implements ObservationDateService
     public function getByDate($date)
     {
         return ObservationDate::with('times')->where('date', $date)->where('type', 1)->first();
+    }
+    public function getByDateAndDivision($date, $divisionId)
+    {
+        return ObservationDate::with('times')->where('date', $date)->where('type', 1)->where('division_id', $divisionId)->first();
     }
 }
