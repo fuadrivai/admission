@@ -5,6 +5,7 @@
 /storage/google
 /vendor
 .env
+.user.ini
 .htaccess
 .env.backup
 .phpunit.result.cache
