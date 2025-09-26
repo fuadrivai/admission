@@ -100,7 +100,7 @@ class AuthController extends Controller
                 $session->save();
 
                 session(['Authorization' => $session->token]);
-                return redirect()->intended('/');
+                return redirect('/');
             }
             return back()->with('LoginError', 'Email is not valid');
         } catch (\Throwable $th) {
