@@ -30,6 +30,7 @@
                                     <th>Times</th>
                                     <th>Quota</th>
                                     <th>Available</th>
+                                    <th>Active</th>
                                     <th>Status</th>
                                     <th>Action</th>
                                 </tr>
@@ -164,6 +165,18 @@
                         }
                     },
                     {
+                        data: "is_active",
+                        className: "text-center",
+                        defaultContent: "--",
+                        mRender: function(data, type, full) {
+                            return `
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" data-id="${full.id}" ${data==1?"checked":""}>
+                                </div>
+                            `
+                        }
+                    },
+                    {
                         data: "status",
                         className: "text-center",
                         mRender: function(data, type, full) {
@@ -190,6 +203,19 @@
                 ]
             });
 
+            $('#tbl-setting-date').on('click', '.form-check-input', function() {
+                let data = tbldate.row($(this).parents('tr')).data();
+                let _this = $(this);
+                console.log(data);
+                blockUI();
+                ajax(null, `/observation/setting/active/${data.id}`, "POST", function(json) {
+                    toastify("success", "Status is changed successfully");
+                }, function(err) {
+                    _this.prop('checked', data.is_active == 1 ? "checked" : "");
+                    toastify("Error", err?.responseJSON?.message ?? "Please try again later",
+                        "error");
+                });
+            })
         });
     </script>
 @endsection

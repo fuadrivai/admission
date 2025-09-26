@@ -73,6 +73,28 @@
                                 </li>
                             </ul>
                         </li>
+                        <li class="sidebar-title">Setting</li>
+                        <li class="sidebar-item has-sub {{ Request::is('setting*') ? 'active' : '' }}">
+                            <a href="#" class='sidebar-link'>
+                                <i class="fa fa-gear"></i>
+                                <span>Setting</span>
+                            </a>
+                            <ul class="submenu ">
+                                <li class="submenu-item"><a href="/setting/password/change"
+                                        class="submenu-link">Users</a></li>
+                                <li class="submenu-item"><a href="/setting/password/change" class="submenu-link">Change
+                                        Password</a></li>
+                                <li class="submenu-item">
+                                    <form action="/logout" method="POST">
+                                        @csrf
+                                        <button type="submit" style="text-decoration: none"
+                                            class="submenu-link btn btn-link align-baseline">
+                                            Logout
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </li>
                     </ul>
                 </div>
             </div>

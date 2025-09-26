@@ -45,7 +45,8 @@
                         <table class="table" id="tbl-time">
                             <thead>
                                 <tr class="text-center">
-                                    <th>Times</th>
+                                    <th>Start time</th>
+                                    <th>End time</th>
                                     <th>Max quota</th>
                                     <th>Action</th>
                                 </tr>
@@ -89,7 +90,17 @@
                         mRender: function(data, type, row) {
                             let formattedTime = data ? moment(data, 'HH:mm:ss').format('HH:mm') :
                                 '';
-                            return ` <input type="text" class="form-control time-picker text-center" value="${data?formattedTime:""}" required
+                            return ` <input type="text" class="form-control time-picker start-time text-center" value="${data?formattedTime:""}" required
+                            placeholder="HH:mm">`;
+                        }
+                    },
+                    {
+                        data: 'end_time',
+                        className: 'text-center',
+                        mRender: function(data, type, row) {
+                            let formattedTime = data ? moment(data, 'HH:mm:ss').format('HH:mm') :
+                                '';
+                            return ` <input type="text" class="form-control time-picker end-time text-center" value="${data?formattedTime:""}" required
                             placeholder="HH:mm">`;
                         }
                     },
@@ -108,7 +119,7 @@
                             return `<button class="btn btn-danger btn-sm btn-delete-time" data-time="${data.time}"><i class="fa fa-trash"></i></button>`;
                         }
                     }
-                ]
+                ],
             });
 
             $('#btn-add-time').on('click', function() {
@@ -119,9 +130,14 @@
                 reloadJsonDataTable(tblTime, observationDate.times);
             });
 
-            $('#tbl-time').on('change', '.time-picker', function() {
+            $('#tbl-time').on('change', '.start-time', function() {
                 let time = tblTime.row($(this).parents('tr')).data();
                 time.time = $(this).val();
+                reloadJsonDataTable(tblTime, observationDate.times);
+            });
+            $('#tbl-time').on('change', '.end-time', function() {
+                let time = tblTime.row($(this).parents('tr')).data();
+                time.end_time = $(this).val();
                 reloadJsonDataTable(tblTime, observationDate.times);
             });
 

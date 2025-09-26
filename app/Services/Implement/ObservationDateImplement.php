@@ -4,7 +4,9 @@ namespace App\Services\Implement;
 
 use App\Models\ObservationDate;
 use App\Services\ObservationDateService;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class ObservationDateImplement implements ObservationDateService
 {
@@ -37,6 +39,7 @@ class ObservationDateImplement implements ObservationDateService
                 return [
                     'observation_date_id' => $observationDate->id,
                     'time'   => $time['time'],
+                    'end_time'   => $time['end_time'],
                     'max_quota'  => $time['max_quota'],
                 ];
             })->toArray();
@@ -69,11 +72,13 @@ class ObservationDateImplement implements ObservationDateService
                         ->where('id', $time['id'])
                         ->update([
                             'time' => $time['time'],
+                            'end_time'   => $time['end_time'],
                             'max_quota'  => $time['max_quota'],
                         ]);
                 } else {
                     $observationDate->times()->create([
                         'time' => $time['time'],
+                        'end_time'   => $time['end_time'],
                         'max_quota'  => $time['max_quota'],
                     ]);
                 }
@@ -82,18 +87,60 @@ class ObservationDateImplement implements ObservationDateService
         });
     }
 
+    public function active($id)
+    {
+        // $observationDate = ObservationDate::findOrFail($id);
+        // $observationDate->update([
+        //     "is_active" => !$observationDate->is_active
+        // ]);
+        // return $observationDate;
+
+        // Jika admin ingin nonaktifkan
+        $observationDate = ObservationDate::with('times.observations')->findOrFail($id);
+        $date = Carbon::parse($observationDate->date);
+
+        if ($observationDate->is_active == 1) {
+            $hasObservation = $observationDate->times->some(function ($time) {
+                return $time->observations()->exists();
+            });
+
+            if ($date->isFuture() && $hasObservation) {
+                throw new \Exception('Tanggal ini sudah dipilih oleh user, tidak bisa dinonaktifkan sebelum tanggal lewat.');
+            }
+
+            if ($hasObservation) {
+                throw new \Exception('Tanggal ini sudah dipilih oleh user, tidak bisa dinonaktifkan.');
+            }
+
+            $observationDate->is_active = 0;
+            $observationDate->save();
+            return response()->json(['message' => 'Tanggal berhasil dinonaktifkan.']);
+        }
+
+        if ($observationDate->is_active == 0) {
+            if (Carbon::parse($observationDate->date)->isPast()) {
+                throw new \Exception('Tanggal ini sudah lewat, tidak bisa diaktifkan lagi.');
+            }
+
+            $observationDate->is_active = 1;
+            $observationDate->save();
+            return response()->json(['message' => 'Tanggal berhasil diaktifkan kembali.']);
+        }
+    }
+
     public function delete($id)
     {
         $observationDate = ObservationDate::findOrFail($id);
         $observationDate->delete();
         return true;
     }
+
     public function getByDate($date)
     {
         return ObservationDate::with('times')->where('date', $date)->where('type', 1)->first();
     }
     public function getByDateAndDivision($date, $divisionId)
     {
-        return ObservationDate::with('times')->where('date', $date)->where('type', 1)->where('division_id', $divisionId)->first();
+        return ObservationDate::with('times')->where('date', $date)->where('type', 1)->where('is_active', 1)->where('division_id', $divisionId)->first();
     }
 }

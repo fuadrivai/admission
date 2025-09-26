@@ -95,6 +95,7 @@ class ObservationDateController extends Controller
             'division' => 'required',
             'times' => 'required|array|min:1',
             'times.*.time' => 'required',
+            'times.*.end_time' => '',
             'times.*.max_quota' => 'required|integer|min:1',
         ]);
         $date = $this->observationDateService->post($validated);
@@ -120,6 +121,12 @@ class ObservationDateController extends Controller
     public function dateAndDivision($date, $divisionId)
     {
         $observationDate = $this->observationDateService->getByDateAndDivision($date, $divisionId);
+        return response()->json($observationDate);
+    }
+
+    public function active($id)
+    {
+        $observationDate = $this->observationDateService->active($id);
         return response()->json($observationDate);
     }
 
@@ -151,6 +158,7 @@ class ObservationDateController extends Controller
             'division' => 'required',
             'times' => 'required|array|min:1',
             'times.*.time' => 'required',
+            'times.*.end_time' => '',
             'times.*.max_quota' => 'required|integer|min:1',
         ]);
         $date = $this->observationDateService->put($validated);

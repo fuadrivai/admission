@@ -5,10 +5,12 @@ namespace App\Services\Implement;
 use App\Mail\AdmissionEmail;
 use App\Models\Observation;
 use App\Models\ObservationDate;
+use App\Models\ObservationTime;
 use App\Services\ObservationService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Validation\ValidationException;
 
 class ObservationImplement implements ObservationService
 {
@@ -25,6 +27,13 @@ class ObservationImplement implements ObservationService
     public function post($data)
     {
         return DB::transaction(function () use ($data) {
+            $observationTime = ObservationTime::find($data['observation_time_id']);
+            $observationDate = ObservationDate::find($observationTime->observation_date_id);
+            if ($observationDate->is_active != 1) {
+                throw ValidationException::withMessages([
+                    'date' => 'Tanggal observasi tidak aktif, silahkan hubungi admission'
+                ]);
+            }
             $observation = Observation::create([
                 'child_name' => $data['child_name'],
                 'gender' => $data['gender'],

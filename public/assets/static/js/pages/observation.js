@@ -84,6 +84,13 @@ function getObservationDate(date,divisionId) {
             `)
             return false
         }
+        
+        if (json.is_active!=1) {
+            $('#list-time').append(`
+                <span class="time-badge disabled">No Time Available</span>
+            `)
+            return false
+        }
 
         let today = moment().format('YYYY-MM-DD');
         let now = moment();
