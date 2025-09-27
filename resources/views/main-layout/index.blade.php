@@ -48,7 +48,8 @@
                             </a>
                         </li>
 
-                        <li class="sidebar-item has-sub {{ Request::is('level*') ? 'active' : '' }}">
+                        <li
+                            class="sidebar-item has-sub {{ Request::is('level*') || Request::is('division*') ? 'active' : '' }}">
                             <a href="#" class='sidebar-link'>
                                 <i class="fa fa-graduation-cap"></i>
                                 <span>Level</span>
