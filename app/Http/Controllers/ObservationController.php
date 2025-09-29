@@ -60,6 +60,10 @@ class ObservationController extends Controller
      */
     public function store(Request $request)
     {
+        //code
+    }
+    public function post(Request $request)
+    {
         $validated = $request->validate([
             'child_name' => 'required',
             'gender' => 'required',

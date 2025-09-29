@@ -145,7 +145,7 @@ function getLevel(){
 }
 
 function postObservation(data) {
-    ajax(data, `/observation`, 'POST', function(json) {
+    ajax(data, `/observation-post`, 'POST', function(json) {
         $('#btn-submit').attr('disabled',false)
         toastify("success","Observasi Berhasil");
          setTimeout(() => {

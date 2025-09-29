@@ -28,7 +28,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
     Route::get('observation-success', [ObservationController::class, 'success'])->name('success');
     Route::get('/level/get', [LevelController::class, 'get']);
     Route::get('/observation/get/date/division/{date}/{divisionId}', [ObservationDateController::class, 'dateAndDivision']);
-    Route::post('/observation', [ObservationController::class, 'store']);
+    Route::post('/observation-post', [ObservationController::class, 'post']);
 
     Route::group(['middleware' => 'auth'], function () {
         Route::get('/', function () {
