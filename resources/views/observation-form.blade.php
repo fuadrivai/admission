@@ -374,8 +374,8 @@
     <script src="/assets/extensions/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
     <script src="/assets/extensions/bootstrap-datepicker/js/jquery.timepicker.min.js"></script>
     <script src="/assets/extensions/toastify-js/src/toastify.js"></script>
-    <script src="/assets/compiled/js/script.js?v=1.1.1"></script>
-    <script src="/assets/static/js/pages/observation.js?v=1.1.1"></script>
+    <script src="/assets/compiled/js/script.js?v=1.1.2"></script>
+    <script src="/assets/static/js/pages/observation.js?v=1.1.2"></script>
 
 </body>
 
