@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 
+use function App\Helpers\codeGenerator;
+
 class ObservationImplement implements ObservationService
 {
     public function get()
@@ -35,6 +37,7 @@ class ObservationImplement implements ObservationService
                 ]);
             }
             $observation = Observation::create([
+                'code' => codeGenerator('OBV'),
                 'child_name' => $data['child_name'],
                 'gender' => $data['gender'],
                 'level' => $data['level'],
