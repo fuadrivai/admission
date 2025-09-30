@@ -56,6 +56,7 @@
                         <table class="table" id="tbl-setting-date">
                             <thead>
                                 <tr class="text-center">
+                                    <th>Code</th>
                                     <th>Child's Name</th>
                                     <th>Level</th>
                                     <th>Grade</th>
@@ -144,6 +145,10 @@
                     type: "GET",
                 },
                 columns: [{
+                        data: "code",
+                        defaultContent: "--",
+                    },
+                    {
                         data: "child_name",
                         defaultContent: "--",
                     },
@@ -265,7 +270,7 @@
                     }
                 ],
                 order: [
-                    [4, "asc"]
+                    [6, "asc"]
                 ]
             });
 
