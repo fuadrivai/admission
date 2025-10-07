@@ -2,6 +2,7 @@
 
 namespace App\Services\Implement;
 
+use App\Google\GoogleSheetService;
 use App\Mail\AdmissionEmail;
 use App\Models\Observation;
 use App\Models\ObservationDate;
@@ -52,12 +53,14 @@ class ObservationImplement implements ObservationService
                 'level' => $data['level'],
                 'grade_id' => $data['grade_id'],
                 'grade' => $data['grade'],
+                'status' => "Registered"
             ]);
 
             $observation->time = Carbon::parse($observation->time)->format('H:i');
             $observation['subject'] = "Observation Schedule for $observation->child_name - $observation->level MHIS";
             $observation['day'] = Carbon::parse($observation->date)->locale('en')->translatedFormat('l, d F Y');
             Mail::to($observation->email)->send(new AdmissionEmail($observation));
+            $this->sendToGsheet($observation);
             return $observation;
         });
     }
@@ -104,6 +107,9 @@ class ObservationImplement implements ObservationService
                 ->locale('en')
                 ->translatedFormat('l, d F Y');
             Mail::to($observation->email)->send(new AdmissionEmail($observation));
+
+            $sheetService = new GoogleSheetService();
+            $sheetService->updateDateTimeByCode($observation->code, $data['date'], $data['time']);
             return $observation;
         });
     }
@@ -117,5 +123,32 @@ class ObservationImplement implements ObservationService
     public function getByDate($date)
     {
         return ObservationDate::with('times')->where('date', $date)->first();
+    }
+
+    private function sendToGsheet($observation)
+    {
+        $sheetService = new GoogleSheetService();
+
+        // Data dummy untuk testing
+        $data = [
+            '',                                         // ID dummy
+            (string) $observation->code,                // Observation Code
+            (string) $observation->child_name,          // Nama anak
+            (string) $observation->gender,              // Gender
+            (string) $observation->level,               // Level
+            (string) $observation->grade,               // Grade
+            (string) $observation->parent_name,         // Nama orang tua
+            (string) $observation->relationship,        // Relationship
+            (string) $observation->phone,               // Phone
+            (string) $observation->email,               // Email
+            (string) $observation->date,                // Date
+            (string) $observation->time,                // Time
+            (string) $observation->status,              // Status
+            (string) $observation->created_at->toDateTimeString(), //
+        ];
+
+        $data = array_map('strval', $data);
+
+        $sheetService->appendRow($data);
     }
 }

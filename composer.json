@@ -15,7 +15,8 @@
         "php-open-source-saver/jwt-auth": "2.2",
         "spatie/laravel-permission": "4.0",
         "yajra/laravel-datatables": "^1.5",
-        "yajra/laravel-datatables-oracle": "~9.0"
+        "yajra/laravel-datatables-oracle": "~9.0",
+        "doctrine/dbal": "3.10.1"
     },
     "require-dev": {
         "facade/ignition": "^2.5",
