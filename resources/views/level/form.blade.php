@@ -38,6 +38,33 @@
                             </div>
                         </div>
                     </div>
+                    <div class="col-md-6 mb-6">
+                        <label for="branch" class="form-label required-label">Branch</label>
+                        <div class="form-group has-icon-left">
+                            <div class="position-relative">
+                                <select name="branch" id="branch" class="choices form-select">
+                                    <option selected disabled value="">-- Choose branch --</option>
+                                    @foreach ($branches as $div)
+                                        <option
+                                            {{ isset($level) ? ($div->id == optional($level->branch)->id ? 'selected' : '') : '' }}
+                                            value="{{ $div->id }}"> {{ $div->name }} </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-6">
+                        <label for="principal" class="form-label required-label">Principal</label>
+                        <div class="form-group has-icon-left">
+                            <div class="position-relative">
+                                <input type="text" class="form-control" id="principal" name="principal" required
+                                    placeholder="Enter level" value="{{ isset($level) ? $level->principal : '' }}">
+                                <div class="form-control-icon">
+                                    <i class="fa fa-user"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="row mb-2">
                     <div class="col-12"><button id="btn-add-grade" class="btn btn-danger"> Add Grade</button></div>
@@ -137,6 +164,10 @@
         function saveLevel() {
             level.name = $('#name').val()
             level.division = $('#division').val()
+            level.branch = $('#branch').val()
+            level.branchName = $('#branch option:selected').text();
+            level.principal = $('#principal').val()
+
             if (level.name == '') {
                 toastify("Error", "Name of level is required");
                 return false;

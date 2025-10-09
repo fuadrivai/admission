@@ -22,7 +22,9 @@
                                 <tr class="text-center">
                                     <th>Level</th>
                                     <th>Division</th>
-                                    <th>Grade</th>
+                                    <th>Branch</th>
+                                    <th>Principal</th>
+                                    <th>Total Grade</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -75,6 +77,16 @@
                     },
                     {
                         data: 'division_name',
+                        defaultContent: "-",
+                        className: "text-center"
+                    },
+                    {
+                        data: 'branch_name',
+                        defaultContent: "-",
+                        className: "text-center"
+                    },
+                    {
+                        data: 'principal',
                         defaultContent: "-",
                         className: "text-center"
                     },

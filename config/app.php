@@ -179,6 +179,7 @@ return [
         App\Providers\GradeProvider::class,
         App\Providers\LevelProvider::class,
         App\Providers\DivisionProvider::class,
+        App\Providers\BranchProvider::class,
 
     ],
 

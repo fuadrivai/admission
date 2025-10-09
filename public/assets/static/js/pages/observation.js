@@ -1,5 +1,6 @@
 let observationDateId;
 let levels=null;
+let principal=null;
 $(document).ready(function(){
     $('#date').on('changeDate',function(){
         $('#list-time').empty()
@@ -23,6 +24,8 @@ $(document).ready(function(){
         $('#date').val("");
         $('#selectedTime').val("")
         $('#list-time').empty()
+
+        principal = $('#level option:selected').attr('data-principal');
 
         let levelId = $(this).val();
         const level =  levels.find(l => l.id == levelId);
@@ -60,6 +63,7 @@ $(document).ready(function(){
             dataJSON.observation_time_id = observationDateId;
             dataJSON.level = $('#level option:selected').text();
             dataJSON.grade = $('#grade option:selected').text();
+            dataJSON.principal = principal;
             dataJSON.date = moment(dataJSON.date,"DD MMMM YYYY").format("YYYY-MM-DD")
             blockUI();
             postObservation(dataJSON)
@@ -136,7 +140,7 @@ function getLevel(){
         levels = json
         levels.forEach(val=>{
             $('#level').append(`
-                <option data-id="${val.division.id}" value="${val.id}">${val.name}</option>
+                <option data-principal="${val.principal}" data-id="${val.division.id}" value="${val.id}">${val.name}</option>
             `)
         })
     }, function(err) {

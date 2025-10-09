@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Level;
+use App\Services\BranchService;
 use App\Services\DivisionService;
 use App\Services\LevelService;
 use Illuminate\Http\Request;
@@ -18,11 +19,13 @@ class LevelController extends Controller
 
     private LevelService $levelService;
     private DivisionService $divisionService;
+    private BranchService $branchService;
 
-    public function __construct(LevelService $levelService, DivisionService $divisionService)
+    public function __construct(LevelService $levelService, DivisionService $divisionService, BranchService $branchService)
     {
         $this->levelService = $levelService;
         $this->divisionService = $divisionService;
+        $this->branchService = $branchService;
     }
     public function index()
     {
@@ -37,6 +40,9 @@ class LevelController extends Controller
                 ->addColumn('division_name', function ($row) {
                     return $row->division ? $row->division->name : '-';
                 })
+                ->addColumn('branch_name', function ($row) {
+                    return $row->branch ? $row->branch->name : '-';
+                })
                 ->make(true);
         }
     }
@@ -50,7 +56,8 @@ class LevelController extends Controller
     public function create()
     {
         $divisions = $this->divisionService->get();
-        return view('level.form', ["title" => "Form Level", "divisions" => $divisions]);
+        $branches = $this->branchService->get();
+        return view('level.form', ["title" => "Form Level", "divisions" => $divisions, "branches" => $branches]);
     }
 
     /**
@@ -64,6 +71,9 @@ class LevelController extends Controller
         $validated = $request->validate([
             'name' => 'required',
             'division' => 'required',
+            'branch' => '',
+            'branch_name' => '',
+            'principal' => '',
             'grades.*.name' => 'required',
         ]);
         $level = $this->levelService->post($validated);
@@ -97,7 +107,8 @@ class LevelController extends Controller
     {
         $level = $this->levelService->show($id);
         $divisions = $this->divisionService->get();
-        return view('level.form', ["title" => "Form Level", "level" => $level, 'divisions' => $divisions]);
+        $branches = $this->branchService->get();
+        return view('level.form', ["title" => "Form Level", "level" => $level, 'divisions' => $divisions, "branches" => $branches]);
     }
 
     /**
@@ -115,6 +126,9 @@ class LevelController extends Controller
             'division' => 'required',
             'grades' => 'required|array|min:1',
             'grades.*.name' => 'required',
+            'branch' => '',
+            'branch_name' => '',
+            'principal' => '',
         ]);
         $level = $this->levelService->put($validated);
         return response()->json($level);

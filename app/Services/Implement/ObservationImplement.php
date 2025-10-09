@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 
 use function App\Helpers\codeGenerator;
+use function App\Helpers\generateNoLetter;
 
 class ObservationImplement implements ObservationService
 {
@@ -39,6 +40,8 @@ class ObservationImplement implements ObservationService
             }
             $observation = Observation::create([
                 'code' => codeGenerator('OBV'),
+                'no_letter' => generateNoLetter($data['level']),
+                'principal' => $data['principal'],
                 'child_name' => $data['child_name'],
                 'gender' => $data['gender'],
                 'level' => $data['level'],
@@ -144,6 +147,8 @@ class ObservationImplement implements ObservationService
             (string) $observation->date,                // Date
             (string) $observation->time,                // Time
             (string) $observation->status,              // Status
+            (string) $observation->no_letter,              // Status
+            (string) $observation->principal,              // Status
             (string) $observation->created_at->toDateTimeString(), //
         ];
 

@@ -29,7 +29,7 @@ class ObservationSyncOnce extends Command
         $this->info("=== Memulai proses sinkronisasi observation ===");
 
         // Langkah 1: Update field code yang masih null
-        $this->updateMissingCodes();
+        // $this->updateMissingCodes();
 
         // Langkah 2: Sinkronisasi semua data ke Google Sheets
         $this->syncToGoogleSheet();
@@ -110,6 +110,8 @@ class ObservationSyncOnce extends Command
                 $dateFormatted,
                 $timeFormatted,
                 (string) $o->status,
+                (string) $o->no_letter,
+                (string) $o->principal,
                 (string) $o->created_at->toDateTimeString(),
             ];
 

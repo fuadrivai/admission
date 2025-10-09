@@ -18,4 +18,8 @@ class Level extends Model
     {
         return $this->belongsTo(Division::class);
     }
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class);
+    }
 }

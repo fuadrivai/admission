@@ -76,6 +76,7 @@ class ObservationController extends Controller
             'time' => 'required',
             'grade' => 'required',
             'level' => 'required',
+            'principal' => 'required',
             'grade_id' => 'required|integer',
             'level_id' => 'required|integer',
             'observation_time_id' => 'required|integer',
