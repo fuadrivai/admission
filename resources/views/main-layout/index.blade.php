@@ -60,6 +60,20 @@
                                 </li>
                             </ul>
                         </li>
+                        <li class="sidebar-item has-sub {{ Request::is('schoolvisit*') ? 'active' : '' }}">
+                            <a href="#" class='sidebar-link'>
+                                <i class="bi bi-building"></i>
+                                <span>School Visit</span>
+                            </a>
+                            <ul class="submenu ">
+                                <li class="submenu-item"><a href="/schoolvisit" class="submenu-link">user</a></li>
+                                <li class="submenu-item"><a href="/schoolvisit/setting"
+                                        class="submenu-link {{ Request::is('schoolvisit/setting') ? 'text-red' : '' }}">Settings</a>
+                                </li>
+                                <li class="submenu-item"><a href="/schoolvisit-form" class="submenu-link">Form</a>
+                                </li>
+                            </ul>
+                        </li>
                         <li class="sidebar-item has-sub {{ Request::is('observation*') ? 'active' : '' }}">
                             <a href="#" class='sidebar-link'>
                                 <i class="bi bi-stack"></i>

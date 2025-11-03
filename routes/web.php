@@ -6,6 +6,7 @@ use App\Http\Controllers\GradeController;
 use App\Http\Controllers\LevelController;
 use App\Http\Controllers\ObservationController;
 use App\Http\Controllers\ObservationDateController;
+use App\Http\Controllers\SchoolVisitController;
 use App\Models\ObservationDate;
 use Illuminate\Support\Facades\Route;
 
@@ -24,7 +25,9 @@ use Illuminate\Support\Facades\Route;
 Route::group(['middleware' => 'prevent-back-history'], function () {
     Route::get('auth', [AuthController::class, 'index'])->middleware('guest')->name('login');
     Route::post('auth', [AuthController::class, 'authenticate']);
-    Route::get('observation-form', [ObservationController::class, 'form'])->name('form');
+    Route::get('schoolvisit-form', [SchoolVisitController::class, 'form'])->name('schoolvisit-form');
+
+    Route::get('observation-form', [ObservationController::class, 'form'])->name('observation-form');
     Route::get('observation-success', [ObservationController::class, 'success'])->name('success');
     Route::get('/level/get', [LevelController::class, 'get']);
     Route::get('/observation/get/date/division/{date}/{divisionId}', [ObservationDateController::class, 'dateAndDivision']);
