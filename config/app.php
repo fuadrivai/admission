@@ -180,6 +180,7 @@ return [
         App\Providers\LevelProvider::class,
         App\Providers\DivisionProvider::class,
         App\Providers\BranchProvider::class,
+        App\Providers\SchoolVisitProvider::class,
 
     ],
 

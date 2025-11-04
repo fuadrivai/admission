@@ -66,7 +66,7 @@
                                 <span>School Visit</span>
                             </a>
                             <ul class="submenu ">
-                                <li class="submenu-item"><a href="/schoolvisit" class="submenu-link">user</a></li>
+                                <li class="submenu-item"><a href="/schoolvisit" class="submenu-link">List</a></li>
                                 <li class="submenu-item"><a href="/schoolvisit/setting"
                                         class="submenu-link {{ Request::is('schoolvisit/setting') ? 'text-red' : '' }}">Settings</a>
                                 </li>

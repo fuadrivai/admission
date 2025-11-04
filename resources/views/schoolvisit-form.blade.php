@@ -114,7 +114,7 @@
                 <div class="col-lg-10">
                     <div class="form-card">
                         <h3 class="form-title">School Visit Registration Form</h3>
-                        <form id="visit-form" novalidate>
+                        <form id="visit-form" autocomplete="off" class="needs-validation" novalidate>
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
