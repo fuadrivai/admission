@@ -16,8 +16,9 @@
     <link rel="stylesheet" href="/assets/extensions/font-awesome/css/font-awesome.min.css">
     <link rel="stylesheet" href="/assets/extensions/toastify-js/src/toastify.css">
 
-
+    @livewireStyles
     @yield('content-style')
+    @stack('styles')
 </head>
 
 <body>
@@ -146,8 +147,27 @@
     <script src="/assets/extensions/bootstrap-datepicker/js/jquery.timepicker.min.js"></script>
     <script src="/assets/extensions/toastify-js/src/toastify.js"></script>
     <script src="/assets/compiled/js/script.js"></script>
-    @yield('content-script')
+    @livewireScripts
+    <script>
+        window.callLivewire = function(method, params = []) {
+            const lwComponent = document.querySelector('[wire\\:id]');
+            if (!lwComponent) {
+                console.error('Livewire component belum ditemukan di DOM.');
+                return;
+            }
 
+            const componentId = lwComponent.getAttribute('wire:id');
+            const lw = Livewire.find(componentId);
+            if (lw) {
+                lw.call(method, ...params);
+            } else {
+                console.error('Livewire instance tidak ditemukan untuk ID:', componentId);
+            }
+        };
+    </script>
+
+    @yield('content-script')
+    @stack('scripts')
 </body>
 
 </html>

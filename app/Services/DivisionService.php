@@ -9,4 +9,5 @@ interface DivisionService
     public function post($data);
     public function put($data);
     public function delete($id);
+    public function paginate($int);
 }

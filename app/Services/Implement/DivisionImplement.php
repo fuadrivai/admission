@@ -11,6 +11,10 @@ class DivisionImplement implements DivisionService
     {
         return Division::with('levels')->get();
     }
+    public function paginate($int)
+    {
+        return Division::withCount('levels')->paginate($int);
+    }
 
     public function show($id)
     {

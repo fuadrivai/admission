@@ -3,13 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Division;
-use App\Http\Requests\StoreDivisionRequest;
 use App\Http\Requests\UpdateDivisionRequest;
 use App\Services\DivisionService;
-use App\Services\LevelService;
-use Illuminate\Auth\Events\Validated;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Redirect;
 use Yajra\DataTables\Utilities\Request as UtilitiesRequest;
 
 class DivisionController extends Controller

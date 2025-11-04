@@ -7,6 +7,7 @@ use App\Http\Controllers\LevelController;
 use App\Http\Controllers\ObservationController;
 use App\Http\Controllers\ObservationDateController;
 use App\Http\Controllers\SchoolVisitController;
+use App\Livewire\Division\DivisionIndex;
 use App\Models\ObservationDate;
 use Illuminate\Support\Facades\Route;
 
@@ -53,11 +54,14 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
             // Route::get('get', [LevelController::class, 'get'])->name('get');
             Route::resource('', LevelController::class)->parameters(['' => 'level']);
         });
-        Route::prefix('division')->name('division.')->group(function () {
-            Route::get('datatables', [DivisionController::class, 'datatables'])->name('datatables');
-            Route::get('get', [DivisionController::class, 'get'])->name('get');
-            Route::resource('', DivisionController::class)->parameters(['' => 'division']);
-        });
+        // Route::prefix('division')->name('division.')->group(function () {
+        //     Route::get('datatables', [DivisionController::class, 'datatables'])->name('datatables');
+        //     Route::get('get', [DivisionController::class, 'get'])->name('get');
+        //     Route::resource('', DivisionController::class)->parameters(['' => 'division']);
+        // });
+
+        Route::get('division', DivisionIndex::class)->name('datatables');
+
         Route::prefix('setting')->name('setting.')->group(function () {
             Route::get('/password/change', [AuthController::class, 'edit']);
             Route::post('/password/change', [AuthController::class, 'update']);
