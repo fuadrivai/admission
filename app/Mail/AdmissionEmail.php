@@ -21,7 +21,7 @@ class AdmissionEmail extends Mailable
     {
         $data = $this->data;
         return $this->subject($data['subject'])
-            ->view('email-template.observation')
+            ->view($data['template'])
             ->with('data', $this->data);
     }
 }

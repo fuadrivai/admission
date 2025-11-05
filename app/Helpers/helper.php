@@ -4,6 +4,8 @@ namespace App\Helpers;
 
 use App\Models\Observation;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 function codeGenerator($prefix)
 {
@@ -22,6 +24,17 @@ function codeGenerator($prefix)
 
     return "{$prefix}{$currDate}{$n}";
 }
+
+function generateUniqueCode()
+{
+    do {
+        // generate 5 karakter (huruf/angka) lalu uppercase
+        $code = strtoupper(Str::random(5));
+    } while (DB::table('school_visits')->where('code', $code)->exists());
+
+    return $code;
+}
+
 
 function generateNoLetter($level)
 {

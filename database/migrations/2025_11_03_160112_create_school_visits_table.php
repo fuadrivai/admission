@@ -33,11 +33,12 @@ class CreateSchoolVisitsTable extends Migration
             $table->string('academic_year')->comment('2024/2025, 2025/2026');
             $table->string('current_school');
             $table->string('info_from')->comment('How did you hear about booking schedules for our School Visits?');
+            $table->string('info_from_message')->nullable()->comment('it will filled if choose other form info_form field');
             $table->date('date');
             $table->time('time');
             $table->integer('number_visitor')->comment('example : 2 people, 3 people');
             $table->enum('already_enrol', ['yes', 'no', 'will']);
-            $table->string('roles')->comment('I declare that I am willing to follow the school rules ');
+            $table->json('roles')->comment('I declare that I am willing to follow the school rules ');
             $table->enum('status', ['present', 'registered','absent','cancelled']);
             $table->timestamps();
         });

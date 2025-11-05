@@ -70,7 +70,8 @@
                                 <li class="submenu-item"><a href="/schoolvisit/setting"
                                         class="submenu-link {{ Request::is('schoolvisit/setting') ? 'text-red' : '' }}">Settings</a>
                                 </li>
-                                <li class="submenu-item"><a href="/schoolvisit-form" class="submenu-link">Form</a>
+                                <li class="submenu-item"><a target="blank" href="/schoolvisit-form"
+                                        class="submenu-link">Form</a>
                                 </li>
                             </ul>
                         </li>
@@ -84,7 +85,8 @@
                                 <li class="submenu-item"><a href="/observation/setting"
                                         class="submenu-link {{ Request::is('observation/setting') ? 'text-red' : '' }}">Settings</a>
                                 </li>
-                                <li class="submenu-item"><a href="/observation-form" class="submenu-link">Form</a>
+                                <li class="submenu-item"><a target="blank" href="/observation-form"
+                                        class="submenu-link">Form</a>
                                 </li>
                             </ul>
                         </li>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\SchoolVisit;
+use App\Services\BranchService;
 use App\Services\SchoolVisitService;
 use Illuminate\Http\Request;
 
@@ -15,10 +16,12 @@ class SchoolVisitController extends Controller
      */
 
     private SchoolVisitService $schooolVisitService;
+    private BranchService $branchService;   
 
-    public function __construct(SchoolVisitService $schooolVisitService)
+    public function __construct(SchoolVisitService $schooolVisitService,BranchService $branchService)
     {
         $this->schooolVisitService = $schooolVisitService;
+        $this->branchService = $branchService;
     }
     public function index()
     {
@@ -27,7 +30,12 @@ class SchoolVisitController extends Controller
 
      public function form()
     {
-        return view('schoolvisit-form', ["title" => "School Visit Form"]);
+        $branches = $this->branchService->get();
+        return view('schoolvisit-form', ["title" => "School Visit Form","branches"=>$branches]);
+    }
+    public function success()
+    {
+        return view('schoolvisit-success', ["title" => "School Visit Form"]);
     }
 
     /**
@@ -111,10 +119,17 @@ class SchoolVisitController extends Controller
             'grade_id' => 'required|integer',
             'grade_name' => '',
             'academic_year' => 'required|string',
+            'current_school' => 'required|string',
+            'info_from' => 'required|string',
+            'info_from_message' => '',
             'date' => 'required|date',
             'time' => 'required',
             'number_visitor' => 'required|integer|min:1',
             'already_enrol' => 'required|in:yes,no,will',
+            'roles' => 'required|array',
+            'roles.*.rule' => 'required|string',
+            'roles.*.checked' => 'required|in:true,false,1,0',
+            'roles.*.value' => 'required|string',
         ]);
 
         $observation = $this->schooolVisitService->post($validated);

@@ -62,6 +62,7 @@ class ObservationImplement implements ObservationService
             $observation->time = Carbon::parse($observation->time)->format('H:i');
             $observation['subject'] = "Observation Schedule for $observation->child_name - $observation->level MHIS";
             $observation['day'] = Carbon::parse($observation->date)->locale('en')->translatedFormat('l, d F Y');
+            $observation['template'] = 'email-template.observation';
             Mail::to($observation->email)->send(new AdmissionEmail($observation));
             $this->sendToGsheet($observation);
             return $observation;
