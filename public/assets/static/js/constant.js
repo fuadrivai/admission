@@ -20,6 +20,11 @@ let schoolVisitForm = {
             checked: false,
             value: "I will not visit certain areas without Admissions guidance",
         },
+        {
+            rule: "rule5",
+            checked: false,
+            value: "Dress modestly; long trousers for men, and long trousers or ankle-length skirts/dresses for women, with at least short sleeves.",
+        },
     ],
     times: ["07:30", "09:00", "10:30", "13:00"],
 };

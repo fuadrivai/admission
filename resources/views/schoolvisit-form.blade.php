@@ -69,7 +69,7 @@
                             </p>
                             <ol>
                                 <li>
-                                    Visiting hours: Monday–Saturday: 07.30 a.m.–03.00 p.m.
+                                    Visiting hours: Monday–Saturday, 07.30 a.m.–03.00 p.m.
                                 </li>
                                 <li>
                                     Comply with school rules.
@@ -387,9 +387,9 @@
     <script src="/assets/extensions/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
     <script src="/assets/extensions/bootstrap-datepicker/js/jquery.timepicker.min.js"></script>
     <script src="/assets/extensions/toastify-js/src/toastify.js"></script>
-    <script src="/assets/compiled/js/script.js?v=1.1.3"></script>
-    <script src="/assets/static/js/constant.js?v=1.1.1"></script>
-    <script src="/assets/static/js/pages/school-visit.js?v=1.1.3"></script>
+    <script src="/assets/compiled/js/script.js?v=1.1.4"></script>
+    <script src="/assets/static/js/constant.js?v=1.1.4"></script>
+    <script src="/assets/static/js/pages/school-visit.js?v=1.1.4"></script>
 </body>
 
 </html>

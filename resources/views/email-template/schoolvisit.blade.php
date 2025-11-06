@@ -10,7 +10,7 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: "Arial", serif;
+            font-family: Arial, sans-serif;
             background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
             min-height: 100%;
             padding: 20px;
@@ -298,7 +298,7 @@
             </p>
             <p class="salutation" id="salutation">Dear Mr./Mrs. {{ $data['parent_name'] }},</p>
             <p class="intro-text" id="intro-text">
-                warm greetings from Mutiara Harapan Islamic School. We are pleased to
+                Warm greetings from Mutiara Harapan Islamic School. We are pleased to
                 confirm that we have received your request to visit our {{ $data['level'] }} MHIS
                 on:
             </p>

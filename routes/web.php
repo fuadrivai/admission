@@ -28,7 +28,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
     Route::post('auth', [AuthController::class, 'authenticate']);
     Route::get('schoolvisit-form', [SchoolVisitController::class, 'form'])->name('schoolvisit-form');
     Route::get('schoolvisit-success', [SchoolVisitController::class, 'success'])->name('success');
-    Route::get('schoolvisit-success', [SchoolVisitController::class, 'success'])->name('success');
+    Route::post('/school-visit-post', [SchoolVisitController::class, 'post']);
     Route::get('/school-visit/capacity/check', [SchoolVisitController::class, 'checkCapacity']);
 
     Route::get('observation-form', [ObservationController::class, 'form'])->name('observation-form');
