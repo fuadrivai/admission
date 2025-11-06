@@ -3,6 +3,7 @@
 namespace App\Services\Implement;
 
 use App\Mail\AdmissionEmail;
+use App\Models\MaxCapacity;
 use App\Models\SchoolVisit;
 use App\Services\SchoolVisitService;
 use Carbon\Carbon;
@@ -32,6 +33,12 @@ class SchoolVisitIMplement implements SchoolVisitService
     public function post($data)
     {
         return DB::transaction(function () use ($data) {
+            $isMax = $this-> getByDateTime($data);
+
+            if ($isMax) {
+                throw new \Exception("The selected time slot for the school visit is already full. Kindly choose a different time.");
+            }
+
             $code = generateUniqueCode();
             $schoolVisit = SchoolVisit::create([
                 'code' => "SVC-$code",
@@ -88,6 +95,30 @@ class SchoolVisitIMplement implements SchoolVisitService
             return response()->json(['message' => 'Data not found'], 404);
         }
         $visit->delete();
+    }
+    
+    public function maxCapacity()
+    {
+        return MaxCapacity::get()->first();
+    }
+
+    public function postMax($data)
+    {
+        $max = MaxCapacity::find($data['id']);
+        if (!$max) {
+            return response()->json(['message' => 'Data not found'], 404);
+        }
+        $max->update($data);
+        return $max;
+    }
+    public function getByDateTime($data)
+    {
+        $visitorsCount = SchoolVisit::where('date', $data['date'])
+            ->where('time', $data['time'])
+            ->count();
+        $max = MaxCapacity::first();
+
+        return ($visitorsCount >= $max->max);
     }
     
 }

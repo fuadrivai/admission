@@ -22,7 +22,12 @@ $(document).ready(function () {
         }
     });
 
+    $("#visit-date").datepicker("setStartDate", new Date());
+
     $("#visit-date").on("changeDate", function () {
+        let visitDate = moment($(this).val(), "DD MMMM YYYY").format(
+            "YYYY-MM-DD"
+        );
         const selectedDate = new Date(this.value);
         const dayOfWeek = selectedDate.getDay();
         if (dayOfWeek === 0) {
@@ -32,9 +37,7 @@ $(document).ready(function () {
             $(this).addClass("is-invalid");
             changeVisitTime(true);
         } else {
-            this.setCustomValidity("");
-            $(this).removeClass("is-invalid");
-            changeVisitTime(false);
+            checkHoliday(visitDate, this);
         }
     });
 
@@ -46,8 +49,10 @@ $(document).ready(function () {
             );
             $(this).addClass("is-invalid");
         } else {
-            this.setCustomValidity("");
-            $(this).removeClass("is-invalid");
+            let date = moment($("#visit-date").val(), "DD MMMM YYYY").format(
+                "YYYY-MM-DD"
+            );
+            checkCapacity(date, `${time}:00`, this);
         }
     });
 
@@ -201,6 +206,43 @@ function getLevel() {
                 err?.responseJSON?.message ?? "Please try again later",
                 "error"
             );
+        }
+    );
+}
+
+function checkHoliday(date, dataThis) {
+    ajax(null, `/holiday/check/${date}`, "GET", function (json) {
+        if (Object.keys(json).length === 0) {
+            changeVisitTime(false);
+            dataThis.setCustomValidity("");
+            $(dataThis).removeClass("is-invalid");
+        } else {
+            $(dataThis)
+                .siblings(".invalid-feedback")
+                .text("The selected date is a holiday and cannot be selected.");
+            $(dataThis).addClass("is-invalid");
+            changeVisitTime(true);
+        }
+    });
+}
+function checkCapacity(date, time, dataThis) {
+    ajax(
+        null,
+        `school-visit/capacity/check?date=${date}&time=${time}`,
+        "GET",
+        function (json) {
+            if (json == true || json == "true") {
+                $(dataThis)
+                    .siblings(".invalid-feedback")
+                    .text(
+                        "The selected time slot for the school visit is already full. Kindly choose a different time."
+                    );
+                $(dataThis).addClass("is-invalid");
+                $("#visit-time").val("").trigger("change");
+            } else {
+                dataThis.setCustomValidity("");
+                $(dataThis).removeClass("is-invalid");
+            }
         }
     );
 }

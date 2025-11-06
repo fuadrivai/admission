@@ -181,6 +181,7 @@ return [
         App\Providers\DivisionProvider::class,
         App\Providers\BranchProvider::class,
         App\Providers\SchoolVisitProvider::class,
+        App\Providers\HolidayProvider::class,
 
     ],
 

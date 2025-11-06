@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DivisionController;
 use App\Http\Controllers\GradeController;
+use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\LevelController;
 use App\Http\Controllers\ObservationController;
 use App\Http\Controllers\ObservationDateController;
@@ -27,13 +28,16 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
     Route::post('auth', [AuthController::class, 'authenticate']);
     Route::get('schoolvisit-form', [SchoolVisitController::class, 'form'])->name('schoolvisit-form');
     Route::get('schoolvisit-success', [SchoolVisitController::class, 'success'])->name('success');
-    Route::post('/school-visit-post', [SchoolVisitController::class, 'post']);
+    Route::get('schoolvisit-success', [SchoolVisitController::class, 'success'])->name('success');
+    Route::get('/school-visit/capacity/check', [SchoolVisitController::class, 'checkCapacity']);
 
     Route::get('observation-form', [ObservationController::class, 'form'])->name('observation-form');
     Route::get('observation-success', [ObservationController::class, 'success'])->name('success');
     Route::get('/level/get', [LevelController::class, 'get']);
     Route::get('/observation/get/date/division/{date}/{divisionId}', [ObservationDateController::class, 'dateAndDivision']);
     Route::post('/observation-post', [ObservationController::class, 'post']);
+    
+    Route::get('/holiday/check/{date}', [HolidayController::class, 'isHoliday']);
 
     Route::group(['middleware' => 'auth'], function () {
         Route::get('/', function () {
@@ -41,6 +45,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
         });
 
         Route::post('/logout', [AuthController::class, 'logout']);
+
         Route::prefix('observation')->name('observation.')->group(function () {
             Route::get('datatables', [ObservationController::class, 'datatables'])->name('user-datatables');
             Route::get('setting', [ObservationDateController::class, 'datatables'])->name('datatables');
@@ -48,6 +53,12 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
             Route::get('get/date/{date}', [ObservationDateController::class, 'date'])->name('byDate');
             Route::resource('/', ObservationController::class)->parameters(['' => 'observation']);
             Route::resource('/date', ObservationDateController::class)->parameters(['' => 'observationDate']);
+        });
+
+        Route::prefix('schoolvisit')->name('schoolvisit.')->group(function () {
+            Route::get('datatables', [SchoolVisitController::class, 'datatables'])->name('user-datatables');
+            Route::get('setting', [SchoolVisitController::class, 'setting'])->name('schoolvisit-setting');
+            Route::post('max-capacity', [SchoolVisitController::class, 'postMax'])->name('post-max');
         });
 
         Route::prefix('level')->name('level.')->group(function () {
@@ -65,5 +76,6 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
             Route::post('/password/change', [AuthController::class, 'update']);
             // Route::resource('', DivisionController::class)->parameters(['' => 'division']);
         });
+        Route::resource('holiday', HolidayController::class)->parameters(['' => 'holiday']);
     });
 });

@@ -2,15 +2,13 @@
 
 namespace App\Services;
 
-interface SchoolVisitService
+interface HolidayService
 {
     public function get();
-    public function getByDateTime($request);
+    public function isHoliday($date);
     public function show($id);
     public function post($data);
     public function put($data);
-    public function fetch($data);
     public function delete($id);
-    public function maxCapacity();
-    public function postMax($data);
+    public function nextHoliday();
 }

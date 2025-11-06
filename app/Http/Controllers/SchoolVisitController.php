@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\SchoolVisit;
 use App\Services\BranchService;
+use App\Services\HolidayService;
 use App\Services\SchoolVisitService;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class SchoolVisitController extends Controller
 {
@@ -16,12 +18,14 @@ class SchoolVisitController extends Controller
      */
 
     private SchoolVisitService $schooolVisitService;
-    private BranchService $branchService;   
+    private BranchService $branchService;
+    private HolidayService $holidayService;
 
-    public function __construct(SchoolVisitService $schooolVisitService,BranchService $branchService)
+    public function __construct(SchoolVisitService $schooolVisitService,BranchService $branchService,HolidayService $holidayService)
     {
         $this->schooolVisitService = $schooolVisitService;
         $this->branchService = $branchService;
+        $this->holidayService = $holidayService;
     }
     public function index()
     {
@@ -36,6 +40,31 @@ class SchoolVisitController extends Controller
     public function success()
     {
         return view('schoolvisit-success', ["title" => "School Visit Form"]);
+    }
+
+    public function setting()
+    {
+        $max = $this->schooolVisitService->maxCapacity();
+        $holidays = $this->holidayService->nextHoliday();
+        return view('schoolvisit.setting', ["title" => "School Visit Setting","max"=>$max,"holidays"=>$holidays]);
+    }
+
+    public function checkCapacity(Request $request)
+    {
+        $isFull =$this->schooolVisitService->getByDateTime($request);
+        return response()->json($isFull);
+    }
+
+    public function postMax(Request $request)
+    {
+        $validated = $request->validate([
+            'id'=>'required',
+            'max'=>'required|numeric',
+        ]);
+        $max = $this->schooolVisitService->postMax($validated);
+        return redirect()
+        ->back()
+        ->with('success', 'Maximum capacity has been updated successfully.');
     }
 
     /**
