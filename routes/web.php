@@ -2,13 +2,11 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DivisionController;
-use App\Http\Controllers\GradeController;
 use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\LevelController;
 use App\Http\Controllers\ObservationController;
 use App\Http\Controllers\ObservationDateController;
 use App\Http\Controllers\SchoolVisitController;
-use App\Models\ObservationDate;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -56,9 +54,10 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
         });
 
         Route::prefix('schoolvisit')->name('schoolvisit.')->group(function () {
-            Route::get('datatables', [SchoolVisitController::class, 'datatables'])->name('user-datatables');
+            Route::get('datatables', [SchoolVisitController::class, 'datatables'])->name('list-schoolvisit');
             Route::get('setting', [SchoolVisitController::class, 'setting'])->name('schoolvisit-setting');
             Route::post('max-capacity', [SchoolVisitController::class, 'postMax'])->name('post-max');
+            Route::resource('/', SchoolVisitController::class)->parameters(['' => 'schoolvisit']);
         });
 
         Route::prefix('level')->name('level.')->group(function () {

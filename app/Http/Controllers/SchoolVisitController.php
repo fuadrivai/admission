@@ -7,7 +7,7 @@ use App\Services\BranchService;
 use App\Services\HolidayService;
 use App\Services\SchoolVisitService;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use Yajra\DataTables\Utilities\Request as UtilitiesRequest;
 
 class SchoolVisitController extends Controller
 {
@@ -29,7 +29,7 @@ class SchoolVisitController extends Controller
     }
     public function index()
     {
-        //
+        return view('schoolvisit.index', ["title" => "School Visit List"]);
     }
 
      public function form()
@@ -65,6 +65,17 @@ class SchoolVisitController extends Controller
         return redirect()
         ->back()
         ->with('success', 'Maximum capacity has been updated successfully.');
+    }
+
+    public function datatables(UtilitiesRequest $request)
+    {
+
+        $schoolVisits = SchoolVisit::query();
+        if ($request->ajax()) {
+            return datatables()->of($schoolVisits)->make(true);
+        }
+
+        return view('schoolvisit.index', ["title" => "School Visit List"]);
     }
 
     /**
