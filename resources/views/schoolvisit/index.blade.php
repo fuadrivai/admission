@@ -101,6 +101,7 @@
                                     <th>Parent's name</th>
                                     <th>Child's Name</th>
                                     <th>Level</th>
+                                    <th>Grade</th>
                                     <th>Branch</th>
                                     <th>Date Time</th>
                                     <th>Status</th>
@@ -236,6 +237,36 @@
                                     break;
                             }
                             return `<small class="badge ${bg}">${full.level_name}</small>`
+                        }
+                    },
+                    {
+                        data: 'grade_name',
+                        defaultContent: "-",
+                        className: "text-center",
+                        mRender: function(data, type, full) {
+                            let bg = ""
+                            switch (full.level_name) {
+                                case "Playgroup":
+                                case "Kindergarten":
+                                    bg = "bg-warning"
+                                    break;
+                                case "Primary":
+                                    bg = "bg-success"
+                                    break;
+                                case "Lower Secondary":
+                                    bg = "bg-info"
+                                    break;
+                                case "Upper Secondary":
+                                    bg = "bg-danger"
+                                    break;
+                                case "Development Class":
+                                    bg = "bg-primary"
+                                    break;
+                                default:
+                                    bg = "bg-primary"
+                                    break;
+                            }
+                            return `<small class="badge ${bg}">${full.grade_name}</small>`
                         }
                     },
                     {
