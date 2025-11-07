@@ -269,9 +269,9 @@
                                         <label for="visitors-count" class="form-label">Number of Visitors
                                             <span class="required">*</span></label>
                                         <input type="number" name="number_visitor" class="form-control"
-                                            id="visitors-count" min="1" required />
+                                            id="visitors-count" min="1" max="5" required />
                                         <div class="invalid-feedback">
-                                            Please specify number of visitors (minimum 1).
+                                            Please specify number of visitors (minimum 1 and maximum 5).
                                         </div>
                                     </div>
                                 </div>
