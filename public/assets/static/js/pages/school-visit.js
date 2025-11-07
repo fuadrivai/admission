@@ -63,7 +63,7 @@ $(document).ready(function () {
         const level = levels.find((l) => l.id == levelId);
         $("#grade").empty();
         $("#grade").append(`
-                <option value="" selected disabled>Pilih Grade</option>  
+                <option value="" selected disabled>Select a grade</option>  
             `);
         level.grades.forEach((val) => {
             $("#grade").append(`

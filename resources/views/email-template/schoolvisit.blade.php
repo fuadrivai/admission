@@ -19,6 +19,7 @@
 
         * {
             box-sizing: border-box;
+            font-family: Arial, sans-serif !important;
         }
 
         .email-container {
@@ -34,7 +35,6 @@
             background: linear-gradient(135deg,
                     rgb(128, 0, 0) 0%,
                     rgb(153, 27, 27) 100%);
-            padding: 40px 30px;
             display: flex;
             align-items: center;
             justify-content: flex-start;
@@ -43,9 +43,6 @@
         }
 
         .logo {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
             background: white;
             display: flex;
             height: auto;
@@ -113,7 +110,7 @@
         }
 
         .unique-code {
-            font-family: 'Courier New', monospace;
+            font-family: "Courier New", monospace;
             font-weight: bold;
             font-size: 16px;
             letter-spacing: 2px;
@@ -211,30 +208,6 @@
             font-size: 14px;
         }
 
-        .social-media {
-            margin-top: 20px;
-            display: flex;
-            justify-content: center;
-            text-align: center;
-            gap: 15px;
-        }
-
-        .social-link {
-            display: inline-block;
-            transition: transform 0.3s ease, opacity 0.3s ease;
-        }
-
-        .social-link:hover {
-            transform: translateY(-3px);
-            opacity: 0.8;
-        }
-
-        .social-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-        }
-
         @media (max-width: 600px) {
             .email-container {
                 border-radius: 0;
@@ -288,19 +261,19 @@
 <body>
     <div class="email-container">
         <div class="header">
-            <img src="https://admission.mhis.link/assets/images/logo.png" alt="MHIS Logo" height="100%" width="100%"
+            <img src="https://admission.mhis.link/assets/images/header.png" alt="MHIS Logo" height="100%" width="100%"
                 class="logo" onerror="this.style.display='none';" />
-            <h1 class="subject">MHIS School Visit Confirmation</h1>
         </div>
         <div class="content">
             <p class="greeting" id="greeting">
                 Assalamualaikum Warahmatullahi Wabarakatuh
             </p>
-            <p class="salutation" id="salutation">Dear Mr./Mrs. {{ $data['parent_name'] }},</p>
+            <p class="salutation" id="salutation">
+                Dear Mr./Mrs. {{ $data['parent_name'] }},
+            </p>
             <p class="intro-text" id="intro-text">
                 Warm greetings from Mutiara Harapan Islamic School. We are pleased to
-                confirm that we have received your request to visit our {{ $data['level'] }} MHIS
-                on:
+                confirm that we have received your request to visit our {{ $data['level'] }} MHIS on:
             </p>
             <div class="visit-details">
                 <div class="detail-row">
@@ -358,8 +331,8 @@
                             unwell during your visit.
                         </div>
                         <div class="rule-indonesian">
-                            Demi kenyamanan dan keamanan bersama, mohon gunakan masker apabila
-                            Ayah/Bunda merasa kurang sehat pada saat berkunjung.
+                            Demi kenyamanan dan keamanan bersama, mohon gunakan masker
+                            apabila Ayah/Bunda merasa kurang sehat pada saat berkunjung.
                         </div>
                     </li>
                 </ul>
@@ -380,21 +353,21 @@
             <p class="contact">
                 +62 812 9182 3247 (Monday - Saturday, 8 a.m. - 3 p.m.)
             </p>
-            <table role="presentation" style="margin: 0 auto; margin-top: 20px; text-align: center;">
+            <table role="presentation" style="margin: 0 auto; margin-top: 20px; text-align: center">
                 <tr>
-                    <td style="padding: 0 8px;">
+                    <td style="padding: 0 8px">
                         <a href="https://www.instagram.com/mutiara_harapan_islamic_school/?hl=en" target="_blank">
                             <img src="https://s7768615.sendpul.se/img/constructor/social/round/instagram.png"
                                 width="24" height="24" alt="Instagram" />
                         </a>
                     </td>
-                    <td style="padding: 0 8px;">
+                    <td style="padding: 0 8px">
                         <a href="https://www.facebook.com/mutiaraharapanislamicschool/" target="_blank">
                             <img src="https://s7768615.sendpul.se/img/constructor/social/round/facebook.png"
                                 width="24" height="24" alt="Facebook" />
                         </a>
                     </td>
-                    <td style="padding: 0 8px;">
+                    <td style="padding: 0 8px">
                         <a href="https://www.youtube.com/channel/UCQF7LfijHASD7dHwHK_88gw" target="_blank">
                             <img src="https://s7768615.sendpul.se/img/constructor/social/round/youtube.png"
                                 width="24" height="24" alt="YouTube" />

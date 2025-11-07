@@ -118,7 +118,7 @@
                         <h3 class="form-title">School Visit Registration Form</h3>
                         <form id="visit-form" autocomplete="off" class="needs-validation" novalidate>
                             @csrf
-                            <h4 class="mb-4">Parent Form</h4>
+                            <h4 class="mb-4">Parent's Form</h4>
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
