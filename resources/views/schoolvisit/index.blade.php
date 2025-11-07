@@ -9,9 +9,9 @@
     <section class="section">
         <div class="card">
             <div class="card-body">
-                <p class="d-inline-flex gap-1 justify-content-end">
-                    <a class="btn btn-primary" data-bs-toggle="collapse" href="#collapse-filter" role="button"
-                        aria-expanded="false" aria-controls="collapse-filter">
+                <p class="d-inline-flex gap-1">
+                    <a data-bs-toggle="collapse" href="#collapse-filter" aria-expanded="false"
+                        aria-controls="collapse-filter">
                         Insert Filter <i class="fa fa-caret-down"></i>
                     </a>
                 </p>
@@ -279,16 +279,16 @@
                         mRender: function(data, type, full) {
                             return `
                             <div class="dropdown dropdown-color-icon">
-                                    <button class="btn btn-primary dropdown-toggle" type="button"
-                                        id="dropdownMenuButtonEmoji" data-bs-toggle="dropdown" aria-haspopup="true"
-                                        aria-expanded="false">Actions
-                                    </button>
-                                    <div class="dropdown-menu bg-danger ob" aria-labelledby="dropdownMenuButtonEmoji">
-                                        <a class="dropdown-item text-white btn-edit" href="#"><i class="fa fa-pencil"></i> Reschedule</a>
-                                        <a class="dropdown-item text-white btn-confirm" href="#"><i class="bi bi-star"></i> Confirm</a>
-                                        <a class="dropdown-item text-white btn-detail" href="#"><i class="fa fa-eye"></i> Details</a>
-                                    </div>
-                                </div>`
+                                <button class="btn btn-primary dropdown-toggle" type="button"
+                                    id="dropdownMenuButtonEmoji" data-bs-toggle="dropdown" aria-haspopup="true"
+                                    aria-expanded="false">Actions
+                                </button>
+                                <div class="dropdown-menu bg-danger ob" aria-labelledby="dropdownMenuButtonEmoji">
+                                    <a class="dropdown-item text-white btn-edit" href="#"><i class="fa fa-pencil"></i> Reschedule</a>
+                                    <a class="dropdown-item text-white btn-confirm" href="#"><i class="bi bi-star"></i> Confirm</a>
+                                    <a class="dropdown-item text-white btn-detail" href="#"><i class="fa fa-eye"></i> Details</a>
+                                </div>
+                            </div>`
                         }
                     }
                 ],
