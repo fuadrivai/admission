@@ -8,6 +8,7 @@ use App\Services\GradeService;
 use App\Services\HolidayService;
 use App\Services\LevelService;
 use App\Services\SchoolVisitService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Utilities\Request as UtilitiesRequest;
 
@@ -93,12 +94,10 @@ class SchoolVisitController extends Controller
         if ($request->code && $request->level_id != '') {
             $schoolVisits->where('code', 'like', '%' . $request->code . '%');
         }
-
         if ($request->name && $request->name != '') {
             $schoolVisits->where('parent_name', 'like', '%' .$request->name . '%')
                 ->orWhere('child_name', 'like', '%' .$request->name . '%');
         }
-
         if ($request->level_id && $request->level_id != 'all') {
             $schoolVisits->where('level_id', $request->level_id);
         }
@@ -110,6 +109,17 @@ class SchoolVisitController extends Controller
         }
         if ($request->status && $request->status != 'all') {
             $schoolVisits->where('status', $request->status);
+        }
+
+        if ($request->startDate && $request->startDate != '') {
+            $startDate = Carbon::createFromFormat('d F Y', $request->startDate)->format('Y-m-d');
+            $endate = null;
+            if ($request->endDate && $request->endDate != '') {
+                $endate = Carbon::createFromFormat('d F Y', $request->endDate)->format('Y-m-d');
+                $schoolVisits->whereBetween('date', [$startDate, $endate]);
+            }else{
+                $schoolVisits->where('date', $startDate);
+            }
         }
 
         if ($request->ajax()) {
