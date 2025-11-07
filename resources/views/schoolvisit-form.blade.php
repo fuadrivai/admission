@@ -296,7 +296,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label class="form-label">Is your child already enrolled in our school?</label>
+                                        <label class="form-label">Is your child already enroled in our school?</label>
                                         <div class="radio-group">
                                             <div class="radio-item">
                                                 <input type="radio" class="required-radio" id="enrolled-yes"

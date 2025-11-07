@@ -3,52 +3,93 @@
 @section('content-style')
     <link rel="stylesheet" href="/assets/extensions/datatables.net-bs5/css/dataTables.bootstrap5.min.css">
     <link rel="stylesheet" href="/assets/compiled/css/table-datatable-jquery.css">
-    <style>
-        .time-badge {
-            cursor: pointer;
-            padding: 12px 24px;
-            margin: 6px;
-            border-radius: 12px;
-            background-color: #f8f9fa;
-            color: #495057;
-            transition: all 0.3s ease;
-            display: inline-block;
-            font-weight: 500;
-            border: 1.5px solid #e2e8f0;
-        }
-
-        .time-badge:hover {
-            background-color: #b3294c;
-            color: white;
-            transform: translateY(-2px);
-            border-color: #b3294c;
-        }
-
-        .time-badge.selected {
-            background-color: #9B1134;
-            color: white;
-            border-color: #9B1134;
-            box-shadow: 0 4px 8px rgba(181, 51, 137, 0.25);
-        }
-
-        .time-badge.disabled {
-            background-color: #e9ecef;
-            color: #adb5bd;
-            border-color: #dee2e6;
-            cursor: not-allowed;
-            pointer-events: none;
-            box-shadow: none;
-            transform: none;
-        }
-
-        .ob:hover {
-            color: blue !important;
-        }
-    </style>
 @endsection
 
 @section('content-child')
     <section class="section">
+        <div class="card">
+            <div class="card-body">
+                <p class="d-inline-flex gap-1 justify-content-end">
+                    <a class="btn btn-primary" data-bs-toggle="collapse" href="#collapse-filter" role="button"
+                        aria-expanded="false" aria-controls="collapse-filter">
+                        Insert Filter <i class="fa fa-caret-down"></i>
+                    </a>
+                </p>
+                <div class="collapse" id="collapse-filter">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <lable for="filter-code">Code</lable>
+                                <input type="text" class="form-control" id="filter-code" name="filter-code">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <lable for="filter-name">Parent / Child name</lable>
+                                <input type="text" class="form-control" id="filter-name" name="filter-name">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="filter-start-date">Start date</label>
+                                <input type="text"name="filter-start-date" class="form-control date-picker"
+                                    id="filter-start-date">
+
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <lable for="filter-end-date">End date</lable>
+                                <input disabled type="text" class="form-control date-picker" id="filter-end-date"
+                                    name="filter-end-date">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="filter-branch">Branch</label>
+                                <select id="filter-branch" name="filter-branch" class="form-select" style="width: 100%">
+                                    <option value="all">All Branches</option>
+                                    @foreach ($branches as $branch)
+                                        <option value="${{ $branch->id }}">{{ $branch->name }}</option>
+                                    @endforeach
+
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="filter-level">Level</label>
+                                <select id="filter-level" name="filter-level" class="form-select" style="width: 100%">
+                                    <option value="all">All Levels</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="filter-grade">Grade</label>
+                                <select id="filter-grade" disabled name="filter-grade" class="form-select"
+                                    style="width: 100%">
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="filter-status">Status</label>
+                                <select id="filter-status" name="filter-status" class="form-select" style="width: 100%">
+                                    <option value="all">All status</option>
+                                    <option value="registered">Registered</option>
+                                    <option value="present">Present</option>
+                                    <option value="absent">Absent</option>
+                                    <option value="cancelled">Cancelled</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="card">
             <div class="card-body">
                 <div class="row">
@@ -134,14 +175,26 @@
     <script src="/assets/extensions/datatables.net-bs5/js/dataTables.bootstrap5.min.js"></script>
     <script src="/assets/extensions/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
     <script>
-        let observationDateId;
+        let levels = [];
         $(document).ready(function() {
+            getLevel();
             tblVisit = $('#tbl-visit').DataTable({
+                searching: false,
                 processing: true,
                 serverSide: true,
                 ajax: {
-                    url: "{{ route('schoolvisit.list-schoolvisit') }}",
+                    url: "schoolvisit/datatables",
                     type: "GET",
+                    data: function(d) {
+                        d.level_id = $('#filter-level').val();
+                        d.grade_id = $('#filter-grade').val();
+                        d.startDate = $('#filter-start-date').val();
+                        d.endDate = $('#filter-end-date').val();
+                        d.name = $('#filter-name').val();
+                        d.code = $('#filter-code').val();
+                        d.branch_id = $('#filter-branch').val();
+                        d.status = $('#filter-status').val();
+                    }
                 },
                 columns: [{
                         data: "code",
@@ -240,130 +293,83 @@
                     }
                 ],
                 order: [
-                    [6, "asc"]
+                    [5, "asc"]
                 ]
             });
 
-            $('#tbl-setting-date').on('click', '.btn-edit', function() {
-                let data = tblVisit.row($(this).parents('tr')).data();
-                $('#id').val(data.id);
-                $('#primary').modal('show')
-            })
-
-            $('#date').on('changeDate', function() {
-                $('#list-time').empty()
-                let date = moment($(this).val(), "DD MMMM YYYY").format("YYYY-MM-DD")
-                getObservationDate(date);
-            })
-
-            $('#list-time').on('click', '.time-badge', function() {
-                $('.time-badge').removeClass('selected');
-                $(this).addClass('selected');
-                let time = $(this).attr("data-time");
-                observationDateId = $(this).attr("data-id");
-                $('#selectedTime').val(time)
-                $("#selectedTime").removeClass("is-invalid").addClass("is-valid");
-            })
-
-            $('.modal').on('hidden.bs.modal', function(event) {
-                $('#list-time').empty()
-            })
-
-            $('#form-date').on('submit', function(e) {
-
-                e.preventDefault();
-                const form = this;
-
-                if (form.checkValidity()) {
-                    $('#btn-accept').attr('disabled', true)
-                    $(form).addClass("was-validated");
-
-                    if ($("#selectedTime").val() == "" || $("#selectedTime").val() == null) {
-                        $("#selectedTime").addClass("is-invalid");
-                        form.reportValidity();
-                        return false;
-                    }
-
-                    let data = $(form).serializeArray();
-                    let dataJSON = {};
-                    $.each(data, function() {
-                        dataJSON[this.name] = this.value;
-                    });
-                    dataJSON.observation_time_id = observationDateId;
-                    dataJSON.id = $('#id').val();
-                    dataJSON.date = moment(dataJSON.date, "DD MMMM YYYY").format("YYYY-MM-DD")
-                    $('.modal').modal('hide')
-                    blockUI();
-                    postObservation(dataJSON);
-                } else {
-                    $(form).addClass("was-validated");
-                    form.reportValidity();
-                    $('#btn-accept').attr('disabled', false)
-                }
-            })
-        });
-
-        function getObservationDate(date) {
-            ajax(null, `/observation/get/date/${date}`, 'GET', function(json) {
-                $('#list-time').empty()
-
-                if ((json?.times ?? []).length < 1) {
-                    $('#list-time').append(`
-                <span class="time-badge disabled">No Time Available</span>
-            `)
-                    return false
-                }
-
-                let today = moment().format('YYYY-MM-DD');
-                let now = moment();
-                let selectedDate = moment(date, 'YYYY-MM-DD');
-
-                json.times.forEach(e => {
-                    let time = moment(e.time, "HH:mm:ss");
-                    let formattedTime = time.format('HH:mm');
-                    let rest = parseInt(e.rest);
-
-                    let isDisabled = false;
-
-                    // 1. Jika tanggal yang dipilih sudah lewat
-                    if (selectedDate.isBefore(today)) {
-                        isDisabled = true;
-                    }
-                    // 2. Jika tanggal yang dipilih adalah hari ini dan jam sudah lewat
-                    else if (date === today && time.isBefore(now)) {
-                        isDisabled = true;
-                    }
-                    // 3. Jika quota habis
-                    else if (rest < 1) {
-                        isDisabled = true;
-                    }
-
-                    $('#list-time').append(`
-                <span class="time-badge ${isDisabled ? 'disabled' : ''}" 
-                      data-id="${e.id}" 
-                      data-time="${formattedTime}">
-                      ${formattedTime}
-                </span>
-            `)
+            $('#filter-level, #filter-grade, #filter-start-date, #filter-end-date, #filter-name, #filter-code, #filter-branch, #filter-status')
+                .on('change keyup', function() {
+                    tblVisit.ajax.reload();
                 });
 
-                $('#selectedTime').val("")
-            }, function(err) {
-                toastify("Error", err?.responseJSON?.message ?? "Please try again later", "error");
-            });
-        }
+            // $('#collapse-filter').on('hidden.bs.collapse', function() {
+            //     $(this).find('input, select').val('');
+            //     $('#filter-end-date, #filter-grade').attr('disabled', true)
+            // });
 
-        function postObservation(data) {
-            ajax(data, `/observation/${data.id}`, 'PUT', function(json) {
-                $('#btn-accept').attr('disabled', false)
-                toastify("success", "Observasi Berhasil di rubah");
-                setTimeout(() => {
-                    window.location.href = "/observation";
-                }, 1500);
-            }, function(err) {
-                $('#btn-accept').attr('disabled', false)
-                toastify("Error", err?.responseJSON?.message ?? "Please try again later", "error");
+            $("#filter-start-date").on("changeDate", function() {
+                let value = $(this).val();
+
+                if (value == "") {
+                    $("#filter-end-date").prop('disabled', true);
+                    $("#filter-end-date").val('');
+                    return;
+                }
+
+                let startDate = moment(value, "DD MMMM YYYY").format("YYYY-MM-DD");
+
+                $("#filter-end-date").prop('disabled', false);
+                $("#filter-end-date").val('');
+                $("#filter-end-date").datepicker("setStartDate", new Date(startDate));
             });
+
+
+            $("#filter-level").on("change", function() {
+                let levelVal = $(this).val()
+                if (levelVal == "all") {
+                    $("#filter-grade").attr("disabled", true);
+                    $("#filter-grade").val("all").trigger('change');
+                    return;
+                }
+
+                $("#filter-grade").attr("disabled", false);
+
+                let levelId = $(this).val();
+                const level = levels.find((l) => l.id == levelId);
+                $("#filter-grade").empty();
+                $("#filter-grade").append(`
+                    <option value="all">All grades</option>  
+                `);
+                level.grades.forEach((val) => {
+                    $("#filter-grade").append(`
+                        <option value="${val.id}">${val.name}</option>    
+                    `);
+                });
+                $("#filter-grade").val("all").trigger('change');
+            });
+        });
+
+        function getLevel() {
+            ajax(
+                null,
+                `/level/get`,
+                "GET",
+                function(json) {
+                    levels = json;
+                    levels.forEach((val) => {
+                        $("#filter-level").append(`
+                            <option value="${val.id}">${val.name}</option>
+                        `);
+                    });
+                },
+                function(err) {
+                    toastify(
+                        "Error",
+                        err?.responseJSON?.message ?? "Please try again later",
+                        "error"
+                    );
+                }
+            );
         }
     </script>
 @endsection

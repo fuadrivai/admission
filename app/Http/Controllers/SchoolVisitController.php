@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\SchoolVisit;
 use App\Services\BranchService;
+use App\Services\GradeService;
 use App\Services\HolidayService;
+use App\Services\LevelService;
 use App\Services\SchoolVisitService;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Utilities\Request as UtilitiesRequest;
@@ -20,16 +22,32 @@ class SchoolVisitController extends Controller
     private SchoolVisitService $schooolVisitService;
     private BranchService $branchService;
     private HolidayService $holidayService;
+    private LevelService $levelService;
+    private GradeService $gradeService;
 
-    public function __construct(SchoolVisitService $schooolVisitService,BranchService $branchService,HolidayService $holidayService)
+    public function __construct(
+        SchoolVisitService $schooolVisitService,
+        BranchService $branchService,
+        HolidayService $holidayService,
+        LevelService $levelService,
+        GradeService $gradeService
+    )
     {
         $this->schooolVisitService = $schooolVisitService;
         $this->branchService = $branchService;
         $this->holidayService = $holidayService;
+        $this->levelService = $levelService;
+        $this->gradeService = $gradeService;
     }
     public function index()
     {
-        return view('schoolvisit.index', ["title" => "School Visit List"]);
+        $branches = $this->branchService->get();
+        return view('schoolvisit.index', 
+        [
+            "title" => "School Visit List",
+            "branches"=>$branches,
+
+        ]);
     }
 
      public function form()
@@ -71,6 +89,29 @@ class SchoolVisitController extends Controller
     {
 
         $schoolVisits = SchoolVisit::query();
+
+        if ($request->code && $request->level_id != '') {
+            $schoolVisits->where('code', 'like', '%' . $request->code . '%');
+        }
+
+        if ($request->name && $request->name != '') {
+            $schoolVisits->where('parent_name', 'like', '%' .$request->name . '%')
+                ->orWhere('child_name', 'like', '%' .$request->name . '%');
+        }
+
+        if ($request->level_id && $request->level_id != 'all') {
+            $schoolVisits->where('level_id', $request->level_id);
+        }
+        if ($request->grade_id && $request->grade_id != 'all') {
+            $schoolVisits->where('grade_id', $request->grade_id);
+        }
+        if ($request->branch_id && $request->branch_id != 'all') {
+            $schoolVisits->where('branch_id', $request->branch_id);
+        }
+        if ($request->status && $request->status != 'all') {
+            $schoolVisits->where('status', $request->status);
+        }
+
         if ($request->ajax()) {
             return datatables()->of($schoolVisits)->make(true);
         }
