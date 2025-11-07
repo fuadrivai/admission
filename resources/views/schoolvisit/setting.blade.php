@@ -87,8 +87,7 @@
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
             <div class="modal-content">
-                <form id="form-holiday" action="/holiday" method="POST" autocomplete="off" class="needs-validation"
-                    novalidate>
+                <form id="form-holiday" action="/holiday" method="POST" autocomplete="off" class="needs-validation">
                     @csrf
                     <div class="modal-header bg-primary">
                         <h5 class="modal-title white" id="myModalLabel160">Holiday Form</h5>
@@ -124,7 +123,7 @@
                                 </div>
                             </div>
                             <div class="col-md-12">
-                                <label for="description" class="form-label required-label">Description</label>
+                                <label for="description" class="form-label required-label">Description*</label>
                                 <input type="text" class="form-control" required name="description" id="description">
                             </div>
                         </div>
