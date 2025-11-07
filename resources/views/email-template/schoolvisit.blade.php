@@ -214,16 +214,20 @@
             }
 
             .header {
-                padding: 30px 20px;
-                flex-direction: column;
-                text-align: center;
-                gap: 20px;
+                display: flex;
+                align-items: center;
+                justify-content: flex-start;
+                vertical-align: middle;
+                width: 100%;
             }
 
             .logo {
                 background: white;
                 display: flex;
+                height: auto;
+                flex-shrink: 0;
             }
+
 
             .subject {
                 text-align: center;
