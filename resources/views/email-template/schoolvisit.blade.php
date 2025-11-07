@@ -273,7 +273,7 @@
             </p>
             <p class="intro-text" id="intro-text">
                 Warm greetings from Mutiara Harapan Islamic School. We are pleased to
-                confirm that we have received your request to visit our {{ $data['level'] }} MHIS on:
+                confirm that we have received your request to visit our {{ $data['level_name'] }} MHIS on:
             </p>
             <div class="visit-details">
                 <div class="detail-row">
