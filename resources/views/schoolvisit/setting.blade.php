@@ -125,7 +125,7 @@
                             </div>
                             <div class="col-md-12">
                                 <label for="description" class="form-label required-label">Description</label>
-                                <input type="text" class="form-control" name="description" id="description">
+                                <input type="text" class="form-control" required name="description" id="description">
                             </div>
                         </div>
                     </div>
