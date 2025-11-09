@@ -11,7 +11,6 @@
             margin: 0;
             padding: 0;
             font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
             min-height: 100%;
             padding: 20px;
             text-align: justify;
@@ -31,23 +30,20 @@
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
         }
 
-        .header {
-            background: linear-gradient(135deg,
-                    rgb(128, 0, 0) 0%,
-                    rgb(153, 27, 27) 100%);
-            display: flex;
-            align-items: center;
-            justify-content: flex-start;
-            vertical-align: middle;
-            width: 100%;
-        }
+        /* .header {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        vertical-align: middle;
+        width: 100%;
+      }
 
-        .logo {
-            background: white;
-            display: flex;
-            height: auto;
-            flex-shrink: 0;
-        }
+      .logo {
+        background: white;
+        display: flex;
+        height: auto;
+        flex-shrink: 0;
+      } */
 
         .subject {
             color: #ffffff;
@@ -69,6 +65,7 @@
             color: #991b1b;
             margin-bottom: 20px;
             font-size: 16px;
+            text-align: left;
         }
 
         .salutation {
@@ -177,6 +174,7 @@
             color: #991b1b;
             margin: 25px 0;
             font-size: 15px;
+            text-align: left;
         }
 
         .divider {
@@ -210,24 +208,23 @@
 
         @media (max-width: 600px) {
             .email-container {
-                border-radius: 0;
+                border-radius: 10;
             }
 
-            .header {
-                display: flex;
-                align-items: center;
-                justify-content: flex-start;
-                vertical-align: middle;
-                width: 100%;
-            }
+            /* .header {
+          display: flex;
+          align-items: center;
+          justify-content: flex-start;
+          vertical-align: middle;
+          width: 100%;
+        }
 
-            .logo {
-                background: white;
-                display: flex;
-                height: auto;
-                flex-shrink: 0;
-            }
-
+        .logo {
+          background: white;
+          display: flex;
+          height: auto;
+          flex-shrink: 0;
+        } */
 
             .subject {
                 text-align: center;
@@ -237,7 +234,7 @@
             }
 
             .content {
-                padding: 30px 20px;
+                padding: 20px 20px;
             }
 
             .visit-details {
@@ -262,8 +259,8 @@
 <body>
     <div class="email-container">
         <div class="header">
-            <img src="https://admission.mhis.link/assets/images/header.png" alt="MHIS Logo" height="100%" width="100%"
-                class="logo" onerror="this.style.display='none';" />
+            <img src="https://admission.mhis.link/assets/images/new-header.png" alt="MHIS Logo" height="100%"
+                width="100%" class="logo" onerror="this.style.display='none';" />
         </div>
         <div class="content">
             <p class="greeting" id="greeting">
