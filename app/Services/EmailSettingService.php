@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-interface BranchService
+interface EmailSettingService
 {
     public function get($with=[]);
     public function show($id,$with=[]);

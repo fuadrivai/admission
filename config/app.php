@@ -182,6 +182,8 @@ return [
         App\Providers\BranchProvider::class,
         App\Providers\SchoolVisitProvider::class,
         App\Providers\HolidayProvider::class,
+        App\Providers\WhatsappCodeProvider::class,
+        App\Providers\EmailSettingProvider::class,
 
     ],
 

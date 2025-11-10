@@ -7,19 +7,18 @@ use App\Services\BranchService;
 
 class BranchImplement implements BranchService
 {
-    public function get()
+    public function get($with= [])
     {
-        return Branch::all();
+        return Branch::with($with)->get();
     }
 
-    public function show($id)
+    public function show($id,$with=[])
     {
-        return Branch::findOrFail($id);
+        return Branch::with($with)-> findOrFail($id);
     }
 
     public function post($data)
     {
-        // Simpan grade baru
         $branch = Branch::create([
             'name'     => $data['name'],
         ]);

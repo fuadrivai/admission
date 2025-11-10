@@ -7,6 +7,7 @@ use App\Http\Controllers\LevelController;
 use App\Http\Controllers\ObservationController;
 use App\Http\Controllers\ObservationDateController;
 use App\Http\Controllers\SchoolVisitController;
+use App\Http\Controllers\SettingController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -73,6 +74,15 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
         Route::prefix('setting')->name('setting.')->group(function () {
             Route::get('/password/change', [AuthController::class, 'edit']);
             Route::post('/password/change', [AuthController::class, 'update']);
+
+            Route::get('/form', [SettingController::class, 'index']);
+            Route::post('/form/wa', [SettingController::class, 'postWA']);
+            Route::put('/form/wa', [SettingController::class, 'putWA']);
+
+            Route::get('/form/email', [SettingController::class, 'emailCreateForm']);
+            Route::get('/form/email/{id}', [SettingController::class, 'emailEditForm']);
+            Route::put('/form/email', [SettingController::class, 'putEmail']);
+            Route::post('/form/email', [SettingController::class, 'postEmail']);
             // Route::resource('', DivisionController::class)->parameters(['' => 'division']);
         });
         Route::resource('holiday', HolidayController::class)->parameters(['' => 'holiday']);

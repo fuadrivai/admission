@@ -97,6 +97,7 @@
                                 <span>Setting</span>
                             </a>
                             <ul class="submenu ">
+                                <li class="submenu-item"><a href="/setting/form" class="submenu-link">General</a></li>
                                 <li class="submenu-item"><a href="/setting/password/change"
                                         class="submenu-link">Users</a></li>
                                 <li class="submenu-item"><a href="/setting/password/change" class="submenu-link">Change

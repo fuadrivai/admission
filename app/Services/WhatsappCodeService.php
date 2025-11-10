@@ -2,10 +2,10 @@
 
 namespace App\Services;
 
-interface BranchService
+interface WhatsappCodeService
 {
-    public function get($with=[]);
-    public function show($id,$with=[]);
+    public function get($data=[]);
+    public function show($id,$data=[]);
     public function post($data);
     public function put($data);
     public function delete($id);

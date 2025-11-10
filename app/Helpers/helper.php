@@ -6,6 +6,7 @@ use App\Models\Observation;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Http;
 
 function codeGenerator($prefix)
 {
@@ -28,7 +29,6 @@ function codeGenerator($prefix)
 function generateUniqueCode()
 {
     do {
-        // generate 5 karakter (huruf/angka) lalu uppercase
         $code = strtoupper(Str::random(5));
     } while (DB::table('school_visits')->where('code', $code)->exists());
 
@@ -38,7 +38,6 @@ function generateUniqueCode()
 
 function generateNoLetter($level)
 {
-    // 🧭 Pemetaan level ke divisi besar
     $divisionMap = [
         'Playgroup' => 'Preschool',
         'Kindergarten' => 'Preschool',
@@ -50,7 +49,6 @@ function generateNoLetter($level)
         'Junior High Development Class' => 'Secondary',
     ];
 
-    // 🧭 Pemetaan level ke kode yang muncul di surat
     $levelCodeMap = [
         'Playgroup' => 'PGKG - MH',
         'Kindergarten' => 'PGKG - MH',
@@ -65,16 +63,13 @@ function generateNoLetter($level)
     $division = $divisionMap[$level] ?? 'Other';
     $levelCode = $levelCodeMap[$level] ?? 'MH';
 
-    // 📅 Waktu aktif
     $now = Carbon::now();
     $month = $now->month;
     $year = $now->year;
 
-    // 🔢 Konversi bulan ke angka Romawi
     $romanMonths = [1 => 'I', 2 => 'II', 3 => 'III', 4 => 'IV', 5 => 'V', 6 => 'VI', 7 => 'VII', 8 => 'VIII', 9 => 'IX', 10 => 'X', 11 => 'XI', 12 => 'XII'];
     $romanMonth = $romanMonths[$month];
 
-    // 🧮 Cari nomor terakhir untuk divisi & tahun yang sama
     $latest = Observation::whereYear('created_at', $year)
         ->where(function ($q) use ($division) {
             if ($division === 'Preschool') {
@@ -89,7 +84,6 @@ function generateNoLetter($level)
         ->orderByDesc('id')
         ->first();
 
-    // 🧩 Ambil nomor terakhir dari no_letter (format: "63/PSB/...")
     if ($latest && preg_match('/^(\d+)\//', $latest->no_letter, $match)) {
         $number = (int)$match[1] + 1;
     } else {
@@ -99,4 +93,16 @@ function generateNoLetter($level)
     $noLetter = sprintf("%d/PSB/%s/B/%s/%d", $number, $levelCode, $romanMonth, $year);
 
     return $noLetter;
+}
+
+function sendWhatsapp($phonenumber, $message)
+{
+    return Http::withHeaders(['Content-Type' => 'application/json'])
+        ->post('https://whatsapp.mhis.link/apiv2/send-message.php', [
+            "api_key" => "ApiKey",
+            "sender" => env('WHATSAPP_KEY'),
+            "number" => $phonenumber,
+            "message" => $message,
+        ])
+        ->json();
 }
