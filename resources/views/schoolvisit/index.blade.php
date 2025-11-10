@@ -52,7 +52,7 @@
                                 <select id="filter-branch" name="filter-branch" class="form-select" style="width: 100%">
                                     <option value="all">All Branches</option>
                                     @foreach ($branches as $branch)
-                                        <option value="${{ $branch->id }}">{{ $branch->name }}</option>
+                                        <option value="{{ $branch->id }}">{{ $branch->name }}</option>
                                     @endforeach
 
                                 </select>

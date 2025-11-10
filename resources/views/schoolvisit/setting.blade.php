@@ -2,6 +2,13 @@
 @section('content-style')
     <link rel="stylesheet" href="/assets/extensions/datatables.net-bs5/css/dataTables.bootstrap5.min.css">
     <link rel="stylesheet" href="/assets/compiled/css/table-datatable-jquery.css">
+
+    <style>
+        .dt-button {
+            margin-left: 0.5rem;
+            margin-bottom: 0.5rem
+        }
+    </style>
 @endsection
 
 @section('content-child')
@@ -81,6 +88,43 @@
 
             </div>
         </div>
+        {{-- @if (session('message-success'))
+            <small>
+                <i class="text-success">{{ session('message-success') }}</i>
+            </small>
+        @endif
+        <div class="card">
+            <div class="card-header">
+                <i class="fa fa-message me-2"></i>Registration Confirmation message</i>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <table class="table table-striped" id="tbl-message">
+                        <thead>
+                            <tr>
+                                <th>Branch</th>
+                                <th>Whatsapp</th>
+                                <th>Email</th>
+                                <th>#</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($messages as $message)
+                                <tr>
+                                    <td>{{ $message->branch->name ?? '' }}</td>
+                                    <td>{{ $message->Whatsapp_message ?? '' }}</td>
+                                    <td>{{ $message->email_message ?? '' }}</td>
+                                    <td>
+
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div> --}}
     </section>
 
     <div class="modal fade text-left" id="modal-holiday" tabindex="-1" role="dialog" aria-labelledby="myModalLabel160"
@@ -152,7 +196,7 @@
 
     <script>
         $(document).ready(function() {
-            tblTime = $('#tbl-holiday').DataTable({
+            tblHoliday = $('#tbl-holiday').DataTable({
                 responsive: true,
                 dom: `<"row"<"col-sm-6 d-flex align-items-center"lB><"col-sm-6"f>>tip`,
                 buttons: [{
@@ -172,6 +216,27 @@
                     searchPlaceholder: "Search.."
                 },
             });
+
+            // tblMessage = $('#tbl-message').DataTable({
+            //     responsive: true,
+            //     paging: false,
+            //     searching: false,
+            //     dom: `<"row"<"col-sm-6 d-flex align-items-center"lB><"col-sm-6"f>>tip`,
+            //     buttons: [{
+            //         text: 'Add Template Message <i class="fa fa-plus-circle"></i>',
+            //         attr: {
+            //             id: 'btn-message'
+            //         },
+            //         className: 'btn btn-success btn-md font-weight-bold',
+            //         action: function() {}
+            //     }],
+            //     language: {
+            //         info: "Page _PAGE_ of _PAGES_",
+            //         lengthMenu: "_MENU_ ",
+            //         search: "",
+            //         searchPlaceholder: "Search.."
+            //     },
+            // });
         });
     </script>
 @endsection

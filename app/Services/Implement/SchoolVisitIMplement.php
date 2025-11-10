@@ -3,14 +3,19 @@
 namespace App\Services\Implement;
 
 use App\Mail\AdmissionEmail;
+use App\Models\EmailSetting;
 use App\Models\MaxCapacity;
 use App\Models\SchoolVisit;
+use App\Models\WhatsappCode;
 use App\Services\SchoolVisitService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Config;
 
 use function App\Helpers\generateUniqueCode;
+use function App\Helpers\normalizePhoneNumber;
+use function App\Helpers\sendWhatsapp;
 
 class SchoolVisitIMplement implements SchoolVisitService
 {
@@ -40,10 +45,11 @@ class SchoolVisitIMplement implements SchoolVisitService
             }
 
             $code = generateUniqueCode();
+            $phone = normalizePhoneNumber($data['phone_number']);
             $schoolVisit = SchoolVisit::create([
                 'code' => "SVC-$code",
                 'parent_name' => $data['parent_name'],
-                'phone_number' => $data['phone_number'],
+                'phone_number' => $phone,
                 'email' => $data['email'],
                 'zipcode' => $data['zipcode'],
                 'child_name' => $data['child_name'],
@@ -68,7 +74,29 @@ class SchoolVisitIMplement implements SchoolVisitService
             $schoolVisit['dateDate'] = Carbon::parse($schoolVisit['date'])->format('l, F j, Y');
             $schoolVisit['subject'] = "MHIS Visit Confirmation";
             $schoolVisit['template'] = 'email-template.schoolvisit';
+
+
+
+            $setting = EmailSetting::where('branch_id',$data['branch_id'])->first();
+            Config::set('mail.default', 'smtp');
+            Config::set('mail.mailers.smtp', [
+                'transport' => $setting->mailer,
+                'host' => $setting->host,
+                'port' => $setting->port,
+                'encryption' => $setting->encryption,
+                'username' => $setting->username,
+                'password' => $setting->app_password,
+                'timeout' => null,
+            ]);
+            Config::set('mail.from', [
+                'address' => $setting->from_address,
+                'name' => $setting->from_name,
+            ]);
+
             Mail::to($schoolVisit->email)->send(new AdmissionEmail($schoolVisit));
+
+            $sender = WhatsappCode::where('branch_id',$data['branch_id'])->first();
+            sendWhatsapp($phone,$sender->code, $this->bintaroMessage($data['parent_name'],$schoolVisit['dateDate'],$data['time'],$data['level_name']));
             return $schoolVisit;
         });
     }
@@ -119,6 +147,21 @@ class SchoolVisitIMplement implements SchoolVisitService
         $max = MaxCapacity::first();
 
         return ($visitorsCount >= $max->max);
+    }
+
+    function bintaroMessage($parentName,$date,$time,$level){
+        return "Assalamualaikum Warahmatullahi Wabarakatuh\n
+Dear Mr./Mrs. $parentName, warm greetings from Mutiara Harapan Islamic School. Your visit to our $level MHIS is scheduled on:\n
+Date: $date
+Time: $time\n
+By confirming your visit, you agree to:
+- Comply with school regulations.
+- Refrain from taking photos/videos of students and staff.
+- Dress modestly (men: long trousers; women: long trousers or ankle-length skirts/dresses; min. short sleeves).
+- Wear a mask if feeling unwell.\n
+We look forward to welcoming you to our warm and friendly school environment.\n
+Wassalamualaikum Warahmatullahi Wabarakatuh
+Mutiara Harapan Islamic School";
     }
     
 }

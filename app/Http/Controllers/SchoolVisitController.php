@@ -4,9 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\SchoolVisit;
 use App\Services\BranchService;
-use App\Services\GradeService;
 use App\Services\HolidayService;
-use App\Services\LevelService;
+use App\Services\SchoolVisitMessageService;
 use App\Services\SchoolVisitService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -23,31 +22,28 @@ class SchoolVisitController extends Controller
     private SchoolVisitService $schooolVisitService;
     private BranchService $branchService;
     private HolidayService $holidayService;
-    private LevelService $levelService;
-    private GradeService $gradeService;
+    private SchoolVisitMessageService $messageService;
 
     public function __construct(
         SchoolVisitService $schooolVisitService,
         BranchService $branchService,
         HolidayService $holidayService,
-        LevelService $levelService,
-        GradeService $gradeService
+        SchoolVisitMessageService $messageService
     )
     {
         $this->schooolVisitService = $schooolVisitService;
         $this->branchService = $branchService;
         $this->holidayService = $holidayService;
-        $this->levelService = $levelService;
-        $this->gradeService = $gradeService;
+        $this->messageService = $messageService;
     }
     public function index()
     {
         $branches = $this->branchService->get();
+        
         return view('schoolvisit.index', 
         [
             "title" => "School Visit List",
             "branches"=>$branches,
-
         ]);
     }
 
@@ -65,7 +61,8 @@ class SchoolVisitController extends Controller
     {
         $max = $this->schooolVisitService->maxCapacity();
         $holidays = $this->holidayService->nextHoliday();
-        return view('schoolvisit.setting', ["title" => "School Visit Setting","max"=>$max,"holidays"=>$holidays]);
+        $messages = $this->messageService->get(['branch']);
+        return view('schoolvisit.setting', ["title" => "School Visit Setting","max"=>$max,"holidays"=>$holidays,"messages"=>$messages]);
     }
 
     public function checkCapacity(Request $request)

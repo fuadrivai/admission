@@ -95,14 +95,31 @@ function generateNoLetter($level)
     return $noLetter;
 }
 
-function sendWhatsapp($phonenumber, $message)
+function sendWhatsapp($phonenumber,$sender, $message)
 {
+
+    $phone = normalizePhoneNumber($phonenumber);
     return Http::withHeaders(['Content-Type' => 'application/json'])
         ->post('https://whatsapp.mhis.link/apiv2/send-message.php', [
-            "api_key" => "ApiKey",
-            "sender" => env('WHATSAPP_KEY'),
-            "number" => $phonenumber,
+            "api_key" => env('WHATSAPP_KEY'),
+            "sender" => $sender,
+            "number" => $phone,
             "message" => $message,
         ])
         ->json();
+}
+
+function normalizePhoneNumber($phone)
+{
+    $phone = preg_replace('/\D+/', '', $phone);
+    if (strpos($phone, '62') === 0) {
+        return $phone;
+    }
+    if (strpos($phone, '0') === 0) {
+        return '62' . substr($phone, 1);
+    }
+    if (strpos($phone, '8') === 0) {
+        return '62' . $phone;
+    }
+    return $phone;
 }
