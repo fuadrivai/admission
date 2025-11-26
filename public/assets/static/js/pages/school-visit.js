@@ -157,20 +157,6 @@ function changeVisitTime(isDisabled) {
     $("#visit-time").val("").trigger("change");
 }
 
-function getAcademicYear() {
-    const currentYear = new Date().getFullYear();
-    const academicYearSelect = $("#academic-year");
-
-    for (let i = 0; i <= 3; i++) {
-        const startYear = currentYear + i;
-        const endYear = startYear + 1;
-        const yearOption = `${startYear}/${endYear}`;
-        academicYearSelect.append(
-            `<option value="${yearOption}">${yearOption}</option>`
-        );
-    }
-}
-
 function setAnimationFadeout() {
     $("#next-btn").click(function () {
         $("#intro-section").fadeOut(400, function () {

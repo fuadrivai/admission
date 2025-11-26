@@ -13,6 +13,13 @@ class LevelImplement implements LevelService
         return Level::with(['grades', 'division', 'branch'])->get();
     }
 
+    public function getByBranch($branchId)
+    {
+        return Level::with(['grades', 'division', 'branch'])
+            ->where('branch_id', $branchId)
+            ->get();
+    }
+
     public function show($id)
     {
         return Level::with('grades')->findOrFail($id);
@@ -27,6 +34,7 @@ class LevelImplement implements LevelService
                 'branch_id' => $data['branch'],
                 'branch_name' => $data['branch_name'],
                 'principal' => $data['principal'],
+                'branch_code' => $data['code'],
             ]);
 
             $grades = collect($data['grades'])->map(function ($grade) use ($level) {
@@ -50,6 +58,7 @@ class LevelImplement implements LevelService
                 'division_id' => $data['division'],
                 'branch_id' => $data['branch'],
                 'branch_name' => $data['branch_name'],
+                'branch_code' => $data['code'],
                 'principal' => $data['principal'],
             ]);
 

@@ -10,9 +10,21 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-6 mb-6">
-                        <label for="name" class="form-label required-label">Level</label>
+                        <label for="code" class="form-label required-label">Code</label>
                         <input type="text" class="d-none" id="id" name="id"
                             value="{{ isset($level) ? $level->id : '' }}">
+                        <div class="form-group has-icon-left">
+                            <div class="position-relative">
+                                <input type="text" class="form-control" id="code" name="code" required
+                                    placeholder="Enter level" value="{{ isset($level) ? $level->branch_code : '' }}">
+                                <div class="form-control-icon">
+                                    <i class="fa fa-graduation-cap"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-6">
+                        <label for="name" class="form-label required-label">Level</label>
                         <div class="form-group has-icon-left">
                             <div class="position-relative">
                                 <input type="text" class="form-control" id="name" name="name" required
@@ -167,6 +179,8 @@
             level.branch = $('#branch').val()
             level.branchName = $('#branch option:selected').text();
             level.principal = $('#principal').val()
+            level.principal = $('#principal').val()
+            level.code = $('#code').val()
 
             if (level.name == '') {
                 toastify("Error", "Name of level is required");

@@ -71,6 +71,7 @@ class LevelController extends Controller
         $validated = $request->validate([
             'name' => 'required',
             'division' => 'required',
+            'code' => 'required',
             'branch' => '',
             'branch_name' => '',
             'principal' => '',
@@ -91,10 +92,17 @@ class LevelController extends Controller
         $levels = $this->levelService->get();
         return response()->json($levels);
     }
+
     public function show($id)
     {
         $level = $this->levelService->show($id);
         return response()->json($level);
+    }
+
+    public function getByBranch($id)
+    {
+        $levels = $this->levelService->getByBranch($id);
+        return response()->json($levels);
     }
 
     /**
@@ -124,6 +132,7 @@ class LevelController extends Controller
             'id' => 'required',
             'name' => 'required',
             'division' => 'required',
+            'code' => 'required',
             'grades' => 'required|array|min:1',
             'grades.*.name' => 'required',
             'branch' => '',

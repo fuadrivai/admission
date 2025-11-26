@@ -39,7 +39,7 @@ class ObservationImplement implements ObservationService
                 ]);
             }
             $observation = Observation::create([
-                'code' => codeGenerator('OBV'),
+                'code' =>codeGenerator('observations','code','OBV'),
                 'no_letter' => generateNoLetter($data['level']),
                 'principal' => $data['principal'],
                 'child_name' => $data['child_name'],

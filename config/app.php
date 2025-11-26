@@ -185,11 +185,15 @@ return [
         App\Providers\WhatsappCodeProvider::class,
         App\Providers\EmailSettingProvider::class,
         App\Providers\SchoolVisitMessageProvider::class,
+        App\Providers\EnrolmentPriceProvider::class,
+        App\Providers\EnrolmentProvider::class,
+        App\Providers\ProspectProvider::class,
+        App\Providers\BankChargerProvider::class,
 
     ],
 
     /*
-    |--------------------------------------------------------------------------
+    |
     | Class Aliases
     |--------------------------------------------------------------------------
     |

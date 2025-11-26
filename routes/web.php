@@ -1,13 +1,18 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BankChargerController;
 use App\Http\Controllers\DivisionController;
+use App\Http\Controllers\EnrolmentController;
+use App\Http\Controllers\EnrolmentPriceController;
 use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\LevelController;
 use App\Http\Controllers\ObservationController;
 use App\Http\Controllers\ObservationDateController;
+use App\Http\Controllers\ProspectController;
 use App\Http\Controllers\SchoolVisitController;
 use App\Http\Controllers\SettingController;
+use App\Models\Prospects;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -25,6 +30,7 @@ use Illuminate\Support\Facades\Route;
 Route::group(['middleware' => 'prevent-back-history'], function () {
     Route::get('auth', [AuthController::class, 'index'])->middleware('guest')->name('login');
     Route::post('auth', [AuthController::class, 'authenticate']);
+
     Route::get('schoolvisit-form', [SchoolVisitController::class, 'form'])->name('schoolvisit-form');
     Route::get('schoolvisit-success', [SchoolVisitController::class, 'success'])->name('success');
     Route::post('/school-visit-post', [SchoolVisitController::class, 'post']);
@@ -36,7 +42,20 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
     Route::get('/observation/get/date/division/{date}/{divisionId}', [ObservationDateController::class, 'dateAndDivision']);
     Route::post('/observation-post', [ObservationController::class, 'post']);
     
+    Route::get('enrolment/external', [EnrolmentController::class, 'external'])->name('enrolment.external');
+    Route::post('enrolment/external', [EnrolmentController::class, 'postExternal'])->name('enrolment.postExternal');
+
+    Route::get('enrolment/internal', [EnrolmentController::class, 'internal'])->name('enrolment.internal');
+    
+    Route::get('/level/branch/{id}', [LevelController::class, 'getByBranch'])->name('getByBranch');
     Route::get('/holiday/check/{date}', [HolidayController::class, 'isHoliday']);
+    Route::get('/prospect/code/{code}', [ProspectController::class, 'getByCode']);
+
+    Route::get('/bank/single', [BankChargerController::class, 'getSingle']);
+    
+
+
+    Route::get('/price/branch/level/{branchId}/{levelId}', [EnrolmentPriceController::class, 'getRegistrationPrice']);
 
     Route::group(['middleware' => 'auth'], function () {
         Route::get('/', function () {
@@ -61,9 +80,19 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
             Route::resource('/', SchoolVisitController::class)->parameters(['' => 'schoolvisit']);
         });
 
+        Route::prefix('enrolment')->name('enrolment.')->group(function () {
+            Route::get('datatables', [EnrolmentController::class, 'datatables'])->name('list-enrolment');
+            Route::get('setting', [EnrolmentController::class, 'setting'])->name('enrolment-setting');
+            Route::post('max-capacity', [EnrolmentController::class, 'postMax'])->name('post-max');
+            Route::resource('/', EnrolmentController::class)->parameters(['' => 'enrolment']);
+        });
+
+        Route::prefix('price')->name('price.')->group(function () {
+            Route::resource('', EnrolmentPriceController::class)->parameters(['' => 'enrolment-price']);
+        });
+
         Route::prefix('level')->name('level.')->group(function () {
             Route::get('datatables', [LevelController::class, 'datatables'])->name('datatables');
-            // Route::get('get', [LevelController::class, 'get'])->name('get');
             Route::resource('', LevelController::class)->parameters(['' => 'level']);
         });
         Route::prefix('division')->name('division.')->group(function () {

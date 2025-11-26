@@ -166,3 +166,25 @@ function validateRadio() {
 
     return isValid;
 }
+
+function formatNumber(total) {
+    return parseFloat(total)
+        .toFixed(2)
+        .replace(/(\d)(?=(\d{3})+\.)/g, "$1,")
+        .toString()
+        .replace(".00", "");
+}
+
+function getAcademicYear() {
+    const currentYear = new Date().getFullYear();
+    const academicYearSelect = $("#academic-year");
+
+    for (let i = 0; i <= 3; i++) {
+        const startYear = currentYear + i;
+        const endYear = startYear + 1;
+        const yearOption = `${startYear}/${endYear}`;
+        academicYearSelect.append(
+            `<option value="${yearOption}">${yearOption}</option>`
+        );
+    }
+}

@@ -2,10 +2,9 @@
 
 namespace App\Services;
 
-interface LevelService
+interface EnrolmentService
 {
     public function get();
-    public function getByBranch($branchId);
     public function show($id);
     public function post($data);
     public function put($data);

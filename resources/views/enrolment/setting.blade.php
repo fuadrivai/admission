@@ -14,18 +14,23 @@
 @section('content-child')
     <section class="section">
         <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">
+                    Enrolment Price
+                </h5>
+            </div>
             <div class="card-body">
                 <div class="row">
                     <div class="table-responsive datatable-minimal table-striped">
-                        <table class="table" id="tbl-level">
+                        <table class="table" id="tbl-setting-price">
                             <thead>
                                 <tr class="text-center">
-                                    <th>Branch Code</th>
-                                    <th>Level</th>
-                                    <th>Division</th>
                                     <th>Branch</th>
-                                    <th>Principal</th>
-                                    <th>Total Grade</th>
+                                    <th>Level</th>
+                                    <th>Name</th>
+                                    <th>Price</th>
+                                    <th>Type</th>
+                                    <th>Status</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -46,18 +51,19 @@
     <script src="/assets/extensions/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
     <script>
         $(document).ready(function() {
-            tbldate = $('#tbl-level').DataTable({
+            getPrices()
+            tblPrice = $('#tbl-setting-price').DataTable({
                 responsive: true,
                 pagingType: 'simple',
                 dom: `<"row"<"col-sm-6 d-flex align-items-center"lB><"col-sm-6"f>>tip`,
                 buttons: [{
-                    text: 'Add Level <i class="fa fa-plus-circle"></i>',
+                    text: 'Add enrolment price <i class="fa fa-plus-circle"></i>',
                     attr: {
-                        id: 'btn-level'
+                        id: 'btn-assign'
                     },
                     className: 'btn btn-success btn-sm font-weight-bold',
                     action: function() {
-                        window.location.href = "/level/create";
+                        window.location.href = "/price/create";
                     }
                 }],
                 language: {
@@ -66,55 +72,72 @@
                     search: "",
                     searchPlaceholder: "Search.."
                 },
-                processing: true,
-                serverSide: true,
-                ajax: {
-                    url: "{{ route('level.datatables') }}",
-                    type: "GET",
-                },
                 columns: [{
-                        data: "branch_code",
+                        data: "branch",
                         defaultContent: "--",
+                        mRender: function(data, type, full) {
+                            return data.name;
+                        }
                     },
                     {
-                        data: "name",
-                        defaultContent: "--",
-                    },
-                    {
-                        data: 'division_name',
-                        defaultContent: "-",
-                        className: "text-center"
-                    },
-                    {
-                        data: 'branch_name',
-                        defaultContent: "-",
-                        className: "text-center"
-                    },
-                    {
-                        data: 'principal',
-                        defaultContent: "-",
-                        className: "text-center"
-                    },
-                    {
-                        data: 'id',
+                        data: 'level',
                         defaultContent: "-",
                         className: "text-center",
                         mRender: function(data, type, full) {
-                            return `<a title="grades"  >${ full?.grades?.length}</a>`
+                            return data.name;
+                        }
+                    },
+                    {
+                        data: 'name',
+                        defaultContent: "-",
+                    },
+                    {
+                        data: "price",
+                        defaultContent: "--",
+                        className: "text-end",
+                        mRender: function(data, type, full) {
+                            return formatNumber(data);
+                        }
+                    },
+                    {
+                        data: "type",
+                        defaultContent: "--",
+                        className: "text-center",
+                        mRender: function(data, type, full) {
+                            return data == "form" ? `<span class="badge bg-info">Form</span>` :
+                                `<span class="badge bg-primary">Enrolment</span>`;
+                        }
+                    },
+                    {
+                        data: "is_active",
+                        className: "text-center",
+                        defaultContent: "--",
+                        mRender: function(data, type, full) {
+                            return data == 1 ? `<span class="badge bg-success">Active</span>` :
+                                `<span class="badge bg-danger">Inactive</span>`;
                         }
                     },
                     {
                         data: 'id',
                         mRender: function(data, type, full) {
-                            return `<a title="Edit" href="/level/${data}/edit" class="btn btn-sm btn-primary text-white"><i class="fa fa-pencil"></i> Edit</a>`
+                            return `<a title="Edit" href="/price/${data}/edit" class="btn btn-sm btn-primary text-white"><i class="fa fa-pencil"></i> Edit</a>`
                         }
                     }
                 ],
                 order: [
-                    [2, "asc"]
+                    [0, "asc"]
                 ]
             });
-
         });
+
+        function getPrices() {
+            blockUI();
+            ajax(null, "/price", "GET", function(json) {
+                reloadJsonDataTable(tblPrice, json)
+            }, function(err) {
+                toastify("Error", err?.responseJSON?.message ?? "Please try again later",
+                    "error");
+            });
+        }
     </script>
 @endsection

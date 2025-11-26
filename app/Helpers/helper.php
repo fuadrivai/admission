@@ -3,16 +3,17 @@
 namespace App\Helpers;
 
 use App\Models\Observation;
+use App\Models\Prospects;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Http;
 
-function codeGenerator($prefix)
+function codeGenerator($table,$column,$prefix)
 {
     $currDate = date("ymd");
 
-    $last = Observation::where('code', 'like', "{$prefix}{$currDate}%")
+    $last = DB::table($table)-> where($column, 'like', "{$prefix}{$currDate}%")
         ->orderBy('code', 'desc')
         ->first();
 
@@ -24,6 +25,20 @@ function codeGenerator($prefix)
     }
 
     return "{$prefix}{$currDate}{$n}";
+}
+
+function generate($prefix, $table = 'prospects', $column = 'code')
+{
+    $lastCode = DB::table($table)
+        ->where($column, 'like', $prefix . '%')
+        ->orderBy($column, 'desc')
+        ->value($column);
+    if (!$lastCode) {
+        return $prefix . '20';
+    }
+    $number = (int) str_replace($prefix, '', $lastCode);
+    $nextNumber = $number + 1;
+    return $prefix . $nextNumber;
 }
 
 function generateUniqueCode()
@@ -123,3 +138,23 @@ function normalizePhoneNumber($phone)
     }
     return $phone;
 }
+
+function createXenditInvoice(array $payload)
+    {
+        $apiKey = env('XENDIT_API_KEY');
+        $response = Http::withBasicAuth($apiKey, '')
+            ->withHeaders([
+                'Content-Type' => 'application/json'
+            ])
+            ->post('https://api.xendit.co/v2/invoices', $payload);
+
+        if ($response->failed()) {
+            return [
+                'success' => false,
+                'status' => $response->status(),
+                'message' => $response->json()['message'] ?? 'Failed creating invoice',
+            ];
+        }
+
+        return $response->json();
+    }

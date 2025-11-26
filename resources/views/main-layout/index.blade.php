@@ -75,6 +75,25 @@
                                 </li>
                             </ul>
                         </li>
+                        <li
+                            class="sidebar-item has-sub {{ Request::is('enrolment*') || Request::is('price*') ? 'active' : '' }}">
+                            <a href="#" class='sidebar-link'>
+                                <i class="bi bi-currency-exchange"></i>
+                                <span>Enrolment</span>
+                            </a>
+                            <ul class="submenu ">
+                                <li class="submenu-item"><a href="/enrolment" class="submenu-link">List</a></li>
+                                <li class="submenu-item"><a href="/enrolment/setting"
+                                        class="submenu-link {{ Request::is('enrolment/setting') ? 'text-red' : '' }}">Settings</a>
+                                </li>
+                                <li class="submenu-item"><a target="blank" href="/enrolment/internal/"
+                                        class="submenu-link">Form Internal</a>
+                                </li>
+                                <li class="submenu-item"><a target="blank" href="/enrolment/external/"
+                                        class="submenu-link">Form External</a>
+                                </li>
+                            </ul>
+                        </li>
                         <li class="sidebar-item has-sub {{ Request::is('observation*') ? 'active' : '' }}">
                             <a href="#" class='sidebar-link'>
                                 <i class="bi bi-stack"></i>
@@ -97,10 +116,12 @@
                                 <span>Setting</span>
                             </a>
                             <ul class="submenu ">
-                                <li class="submenu-item"><a href="/setting/form" class="submenu-link">General</a></li>
+                                <li class="submenu-item"><a href="/setting/form" class="submenu-link">General</a>
+                                </li>
                                 <li class="submenu-item"><a href="/setting/password/change"
                                         class="submenu-link">Users</a></li>
-                                <li class="submenu-item"><a href="/setting/password/change" class="submenu-link">Change
+                                <li class="submenu-item"><a href="/setting/password/change"
+                                        class="submenu-link">Change
                                         Password</a></li>
                                 <li class="submenu-item">
                                     <form action="/logout" method="POST">
