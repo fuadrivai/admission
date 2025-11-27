@@ -57,9 +57,10 @@
                         <div class="section-title">
                             <i class="fas fa-school"></i> Visit Confirmation
                         </div>
-                        <p class="section-subtitle">
+                        <label class="form-label">
                             Have you visited our school before?
-                        </p>
+                            <span class="required-asterisk">*</span>
+                        </label>
                         <div class="radio-group">
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="visitedBefore" id="visitYes"
@@ -89,6 +90,57 @@
                                     placeholder="e.g., VISIT2024001" />
                             </div>
                         </div>
+                        <br>
+                        <label class="form-label">
+                            Is your child currently studying at MHIS?
+                            <span class="required-asterisk">*</span>
+                        </label>
+                        <div class="radio-group">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="currentMHIS" id="currentYes"
+                                    value="yes" required />
+                                <label class="form-check-label" for="currentYes">
+                                    <i class="fas fa-check-circle"></i> Yes
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="currentMHIS" id="currentNo"
+                                    value="no" />
+                                <label class="form-check-label" for="currentNo">
+                                    <i class="fas fa-times-circle"></i> No
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="currentMHIS"
+                                    id="yesSiblingRegistration" value="yes_sibling_registration" />
+                                <label class="form-check-label" for="yesSiblingRegistration">
+                                    <i class="fas fa-times-circle"></i> Yes, but I want to register a sibling
+                                </label>
+                            </div>
+                        </div>
+                        <div id="codeInputPortal" style="display: none">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="code-input-wrapper">
+                                        <label for="mhis-portal" class="form-label">
+                                            Enter your MHIS Portal Username
+                                            <span class="required-asterisk">*</span>
+                                        </label>
+                                        <input type="text" class="form-control" id="mhis-portal-username"
+                                            placeholder="P0xx / PB0xx / PS0xx" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="code-input-wrapper">
+                                        <label for="mhis-portal" class="form-label">
+                                            Enter your MHIS Portal Password
+                                            <span class="required-asterisk">*</span>
+                                        </label>
+                                        <input type="password" class="form-control" id="mhis-portal-password" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <!-- Section 2: Level Enrollment -->
                     <div class="section-step" data-step="2">
@@ -105,7 +157,7 @@
                                     <span class="required-asterisk">*</span>
                                 </label>
                                 <select class="form-select required-select2" name="branch" id="branch" required>
-                                    <option disabled selected value="">Select a branch</option>
+                                    <option disabled selected value="">Select branch...</option>
                                     @foreach ($branches as $item)
                                         <option value="{{ $item->id }}">{{ $item->name }}</option>
                                     @endforeach
@@ -117,10 +169,7 @@
                                     <span class="required-asterisk">*</span>
                                 </label>
                                 <select disabled class="form-select required-select2" id="level" required>
-                                    <option value="preschool">Preschool</option>
-                                    <option value="primary">Primary</option>
-                                    <option value="lower_secondary">Lower Secondary</option>
-                                    <option value="upper_secondary">Upper Secondary</option>
+                                    <option disabled selected value="">Select level...</option>
                                 </select>
                             </div>
                             <div class="col-md-6">
@@ -175,13 +224,15 @@
                                 <label for="email" class="form-label">
                                     E-mail <span class="required-asterisk">*</span>
                                 </label>
-                                <input type="email" class="form-control" id="email" required />
+                                <input type="email" name="email" class="form-control" id="email" required />
+                                <div class="invalid-feedback">Please enter a valid email address.</div>
                             </div>
                             <div class="col-md-6">
                                 <label for="phone" class="form-label">
                                     Phone Number <span class="required-asterisk">*</span>
                                 </label>
-                                <input type="tel" class="form-control" id="phone" required />
+                                <input type="tel" class="form-control" name="phone" id="phone" required />
+                                <div class="invalid-feedback">Please enter a valid phone number.</div>
                             </div>
                             <div class="col-md-6">
                                 <label for="Relationship" class="form-label">
@@ -198,7 +249,7 @@
                                 <label for="zipCode" class="form-label">
                                     Zip Code <span class="required-asterisk">*</span>
                                 </label>
-                                <input type="text" class="form-control" id="zipCode" required />
+                                <input type="number" class="form-control" id="zipCode" required />
                             </div>
                             <div class="col-md-9">
                                 <label for="address" class="form-label">

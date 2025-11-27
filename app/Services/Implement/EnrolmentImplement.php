@@ -12,6 +12,7 @@ use App\Services\ProspectService;
 use Illuminate\Support\Str;
 
 use function App\Helpers\codeGenerator;
+use function App\Helpers\createXenditInvoice;
 use function App\Helpers\generate;
 
 class EnrolmentImplement implements EnrolmentService
@@ -117,7 +118,16 @@ class EnrolmentImplement implements EnrolmentService
             $data['code'] = $request->code;
             $data['prospects_id'] = $request->prospectsId;
         }
-
+        $payload = [
+            "external_id"=> $data['invoice_id'],
+            "amount"=> $data['amount_paid'],
+            "payer_email"=> $data['email'],
+            "description"=> "Enrolment payment -". $data['child_name'],
+            "invoice_duration"=> (60*60*24*3)
+        ];
+        $xendit = createXenditInvoice($payload);
+        $data['payment_status'] = $xendit['status'];
+        $data['payment_url'] = $xendit['invoice_url'];
         $enrolment = Enrolment::create($data);
         return $enrolment;
     }

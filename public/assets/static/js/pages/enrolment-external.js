@@ -67,11 +67,38 @@ $(document).ready(function () {
         }
     });
 
+    $('input[name="currentMHIS"]').change(function () {
+        if (
+            $(this).val() === "yes" ||
+            $(this).val() === "yes_sibling_registration"
+        ) {
+            $("#codeInputPortal").slideDown(300);
+            $("#mhis-portal-username").prop("required", true);
+            $("#mhis-portal-password").prop("required", true);
+        } else {
+            $("#codeInputPortal").slideUp(300);
+            $("#mhis-portal-username").prop("required", false).val("");
+            $("#mhis-portal-password").prop("required", false).val("");
+        }
+    });
+
     // Navigation
     $("#nextBtn").click(function () {
         if (validateStep(currentStep)) {
-            if (currentStep === 1 && $("#visitCode").val() != "") {
-                getProspectByCode($("#visitCode").val());
+            if (currentStep === 1) {
+                if ($("#visitCode").val() != "") {
+                    getProspectByCode($("#visitCode").val());
+                }
+                if (
+                    $("#mhis-portal-username").val() != "" &&
+                    $("#mhis-portal-password").val() != ""
+                ) {
+                    const username = $("#mhis-portal-username").val();
+                    const password = $("#mhis-portal-password").val();
+                    getParentMHPortal(username, password);
+                }
+                currentStep++;
+                showStep(currentStep);
             } else {
                 if (currentStep < totalSteps) {
                     currentStep++;
@@ -157,13 +184,21 @@ function validateStep(step) {
                     isValid = false;
                     $(`input[name="${name}"]`).first().addClass("is-invalid");
                 }
-            } else if (field.is("select[multiple]")) {
-                if (!field.val() || field.val().length === 0) {
-                    isValid = false;
-                    field
-                        .next(".select2")
-                        .find(".select2-selection")
-                        .addClass("is-invalid");
+            } else if (field.attr("type") === "email") {
+                isValid = false;
+                if (!validateEmail(field.val())) {
+                    field.addClass("is-invalid");
+                } else {
+                    isValid = true;
+                    field.removeClass("is-invalid");
+                }
+            } else if (field.attr("type") === "tel") {
+                isValid = false;
+                if (!validatePhone(field.val())) {
+                    field.addClass("is-invalid");
+                } else {
+                    isValid = true;
+                    field.removeClass("is-invalid");
                 }
             } else if (!field.val()) {
                 isValid = false;
@@ -194,6 +229,16 @@ function validateStep(step) {
     }
 
     return isValid;
+}
+
+function validateEmail(email) {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+}
+
+function validatePhone(phone) {
+    const regex = /^(?:\+62|62|0)[0-9]{9,13}$/;
+    return regex.test(phone);
 }
 
 function submitForm() {
@@ -298,8 +343,6 @@ function getProspectByCode(code) {
                 moment(json.date_of_birth).format("DD MMMM YYYY")
             );
             $("#currentSchool").val(json.current_school);
-            currentStep++;
-            showStep(currentStep);
         },
         function (err) {
             toastify(
@@ -307,8 +350,24 @@ function getProspectByCode(code) {
                 err?.responseJSON?.message ?? "Please try again later",
                 "bottom"
             );
-            currentStep++;
-            showStep(currentStep);
+        }
+    );
+}
+function getParentMHPortal(username, password) {
+    blockUI();
+    ajax(
+        null,
+        `/mhis/portal/parent?username=${username}&password=${password}`,
+        "GET",
+        function (json) {
+            console.log(json);
+        },
+        function (err) {
+            toastify(
+                "Error",
+                err?.responseJSON?.message ?? "Please try again later",
+                "bottom"
+            );
         }
     );
 }

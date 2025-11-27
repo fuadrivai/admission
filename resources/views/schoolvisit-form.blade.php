@@ -322,9 +322,8 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="hear-about" class="form-label">How did you hear about booking
-                                            schedules for our School
-                                            Visits? <span class="required">*</span></label>
+                                        <label for="hear-about" class="form-label">How did you heard about MHIS? <span
+                                                class="required">*</span></label>
                                         <select style="width: 100%" name="info_from"
                                             class="form-select required-select2 select2" id="hear-about" required>
                                             <option disabled selected value="">Select an option</option>
@@ -332,6 +331,7 @@
                                             <option value="instagram">Instagram</option>
                                             <option value="facebook">Facebook</option>
                                             <option value="friends">Friends/Family</option>
+                                            <option value="mhisparent">MHIS Parent</option>
                                             <option value="google">Google Search</option>
                                             <option value="others">Others</option>
                                         </select>

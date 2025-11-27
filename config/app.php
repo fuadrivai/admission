@@ -189,6 +189,7 @@ return [
         App\Providers\EnrolmentProvider::class,
         App\Providers\ProspectProvider::class,
         App\Providers\BankChargerProvider::class,
+        App\Providers\ParentsStudentProvider::class,
 
     ],
 

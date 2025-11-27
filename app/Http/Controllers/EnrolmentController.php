@@ -6,6 +6,7 @@ use App\Models\Enrolment;
 use App\Services\BranchService;
 use App\Services\EnrolmentService;
 use Illuminate\Http\Request;
+use Yajra\DataTables\Utilities\Request as UtilitiesRequest;
 
 class EnrolmentController extends Controller
 {
@@ -24,9 +25,29 @@ class EnrolmentController extends Controller
     }
     public function index()
     {
-        //
+        return view('enrolment.index', ["title" => "Enrolment"]);
     }
 
+   public function datatables(UtilitiesRequest $request)
+    {
+
+        $enrolment = Enrolment::query();
+        if ($request->ajax()) {
+            return datatables()->of($enrolment->with(['branch','grade', 'level']))
+                ->addColumn('branch_name', function ($row) {
+                    return $row->branch ? $row->branch->name : '-';
+                })
+                ->addColumn('level_name', function ($row) {
+                    return $row->level ? $row->level->name : '-';
+                })
+                ->addColumn('grade_name', function ($row) {
+                    return $row->grade ? $row->grade->name : '-';
+                })
+                ->make(true);
+        }
+
+        return view('enrolment.index', ["title" => "Enrolment"]);
+    }
     public function setting()
     {
         return view('enrolment.setting');

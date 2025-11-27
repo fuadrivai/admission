@@ -3,7 +3,6 @@
 namespace App\Helpers;
 
 use App\Models\Observation;
-use App\Models\Prospects;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -13,12 +12,14 @@ function codeGenerator($table,$column,$prefix)
 {
     $currDate = date("ymd");
 
-    $last = DB::table($table)-> where($column, 'like', "{$prefix}{$currDate}%")
-        ->orderBy('code', 'desc')
+    $last = DB::table($table)
+        ->where($column, 'like', "{$prefix}{$currDate}%")
+        ->orderBy($column, 'desc')
+        ->lockForUpdate()
         ->first();
 
     if ($last) {
-        $n = (int) substr($last->code, -4);
+        $n = (int) substr($last->$column, -4);
         $n = str_pad($n + 1, 4, '0', STR_PAD_LEFT);
     } else {
         $n = '0001';

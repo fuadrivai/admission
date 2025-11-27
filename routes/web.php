@@ -9,6 +9,7 @@ use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\LevelController;
 use App\Http\Controllers\ObservationController;
 use App\Http\Controllers\ObservationDateController;
+use App\Http\Controllers\ParentsStudentController;
 use App\Http\Controllers\ProspectController;
 use App\Http\Controllers\SchoolVisitController;
 use App\Http\Controllers\SettingController;
@@ -52,6 +53,8 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
     Route::get('/prospect/code/{code}', [ProspectController::class, 'getByCode']);
 
     Route::get('/bank/single', [BankChargerController::class, 'getSingle']);
+
+    Route::get('/mhis/portal/parent', [ParentsStudentController::class, 'getParentStudent']);
     
 
 
