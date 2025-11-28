@@ -13,6 +13,7 @@ use App\Http\Controllers\ParentsStudentController;
 use App\Http\Controllers\ProspectController;
 use App\Http\Controllers\SchoolVisitController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\SiswaEreportController;
 use App\Models\Prospects;
 use Illuminate\Support\Facades\Route;
 
@@ -43,10 +44,8 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
     Route::get('/observation/get/date/division/{date}/{divisionId}', [ObservationDateController::class, 'dateAndDivision']);
     Route::post('/observation-post', [ObservationController::class, 'post']);
     
-    Route::get('enrolment/external', [EnrolmentController::class, 'external'])->name('enrolment.external');
-    Route::post('enrolment/external', [EnrolmentController::class, 'postExternal'])->name('enrolment.postExternal');
-
-    Route::get('enrolment/internal', [EnrolmentController::class, 'internal'])->name('enrolment.internal');
+    Route::get('enrolment/form', [EnrolmentController::class, 'form'])->name('enrolment.form');
+    Route::post('enrolment/post', [EnrolmentController::class, 'post'])->name('enrolment.postForm');
     
     Route::get('/level/branch/{id}', [LevelController::class, 'getByBranch'])->name('getByBranch');
     Route::get('/holiday/check/{date}', [HolidayController::class, 'isHoliday']);
@@ -55,6 +54,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
     Route::get('/bank/single', [BankChargerController::class, 'getSingle']);
 
     Route::get('/mhis/portal/parent', [ParentsStudentController::class, 'getParentStudent']);
+    Route::get('/ereport/siswa', [SiswaEreportController::class, 'getSiswaByNis']);
     
 
 

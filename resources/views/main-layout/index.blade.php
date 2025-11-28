@@ -86,11 +86,8 @@
                                 <li class="submenu-item"><a href="/enrolment/setting"
                                         class="submenu-link {{ Request::is('enrolment/setting') ? 'text-red' : '' }}">Settings</a>
                                 </li>
-                                <li class="submenu-item"><a target="blank" href="/enrolment/internal/"
-                                        class="submenu-link">Form Internal</a>
-                                </li>
-                                <li class="submenu-item"><a target="blank" href="/enrolment/external/"
-                                        class="submenu-link">Form External</a>
+                                <li class="submenu-item"><a target="blank" href="/enrolment/form/"
+                                        class="submenu-link">Enrolment Form</a>
                                 </li>
                             </ul>
                         </li>

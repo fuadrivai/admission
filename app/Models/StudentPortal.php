@@ -6,8 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class StudentPortal extends Model
 {
-    protected $connection = 'mysql_school';
     protected $table = 'student';
     protected $primaryKey = 'id';
 
+    public function getConnectionName()
+    {
+        return session('school_branch').'_school';
+    }
 }

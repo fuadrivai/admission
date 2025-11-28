@@ -22,8 +22,7 @@ class ParentsStudentImplement implements ParentsStudentService
             ], 404);
         }
 
-        // Ambil RFID dari pivot
-        $rawRfid = DB::connection('mysql_school')
+        $rawRfid = DB::connection($request['branch'].'_school')
             ->table('parents_students')
             ->where('parents_id', $parent->parents_id)
             ->pluck('rfidid')
@@ -38,10 +37,10 @@ class ParentsStudentImplement implements ParentsStudentService
         $students = StudentPortal::whereIn('rfidid', $formattedRfid)->get();
 
         $levelNames = [
-            1 => 'Preschool',
-            2 => 'Primary',
-            3 => 'Secondary',
-            4 => 'DC'
+            1 => 'preschool',
+            2 => 'primary',
+            3 => 'secondary',
+            4 => 'dc'
         ];
 
         return response()->json([

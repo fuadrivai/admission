@@ -19,8 +19,10 @@ class ParentsStudentController extends Controller
     {
         $validated = $request->validate([
             "username"=>"required",
-            "password"=>"required"
+            "password"=>"required",
+            "branch"=>"required",
         ]);
+        session(['school_branch' => $request->branch]);
 
         $parent = $this->parentsServise->get($validated);
         return $parent;

@@ -190,6 +190,7 @@ return [
         App\Providers\ProspectProvider::class,
         App\Providers\BankChargerProvider::class,
         App\Providers\ParentsStudentProvider::class,
+        App\Providers\SiswaEreportProvider::class,
 
     ],
 

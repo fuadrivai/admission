@@ -18,6 +18,9 @@ class AddEnrolmentsTable extends Migration
             $table->foreignId('prospects_id')->nullable()->constrained('prospects')->onDelete('set null');
             $table->boolean('already_visit')->default(false);
             $table->string('code')->unique();
+            $table->string('is_current_student')->comment('Is your child currently studying at MHIS?');
+            $table->string('student_branch')->nullable();
+            $table->string('mhis_portal_username')->nullable();
             $table->foreignId('branch_id');
             $table->foreignId('level_id');
             $table->foreignId('grade_id');

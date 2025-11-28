@@ -20,8 +20,8 @@
         <div class="form-container">
             <!-- Header -->
             <div class="form-header">
-                <img src="https://mutiaraharapan.sch.id/wp-content/uploads/logo-white.png" alt="MHIS Logo"
-                    class="header-logo" onerror="this.style.display='none';" />
+                <img src="/assets/images/logo mh menyamping putih-01-01.png" alt="MHIS Logo" class="header-logo"
+                    onerror="this.style.display='none';" />
                 <h2 class="text-white">MHIS Enrolment Form</h2>
                 <p>Please complete all steps to enrol your child</p>
                 <!-- Step Progress -->
@@ -88,6 +88,7 @@
                                 <input type="hidden" id="prospects_id" name="prospects_id">
                                 <input type="text" class="form-control" id="visitCode"
                                     placeholder="e.g., VISIT2024001" />
+                                <div class="invalid-feedback" id="visitCodeTextError">Invalid School Visit Code</div>
                             </div>
                         </div>
                         <br>
@@ -120,25 +121,45 @@
                         </div>
                         <div id="codeInputPortal" style="display: none">
                             <div class="row">
-                                <div class="col-md-6">
+                                <div class="col-md-4">
+                                    <div class="code-input-wrapper">
+                                        <label for="branch-portal" class="form-label">
+                                            Which MHIS branch is your child currently attending?
+                                            <span class="required-asterisk">*</span>
+                                        </label>
+                                        <select class="form-select required-select2" name="branch-portal"
+                                            id="branch-portal">
+                                            <option disabled selected value="">Select branch...</option>
+                                            @foreach ($branches as $item)
+                                                <option value="{{ $item->name }}">{{ $item->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
                                     <div class="code-input-wrapper">
                                         <label for="mhis-portal" class="form-label">
-                                            Enter your MHIS Portal Username
+                                            Enter MHIS Portal Username
                                             <span class="required-asterisk">*</span>
                                         </label>
                                         <input type="text" class="form-control" id="mhis-portal-username"
                                             placeholder="P0xx / PB0xx / PS0xx" />
+                                        <div class="invalid-feedback mhPortalTextError">Invalid username or
+                                            password</div>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class="code-input-wrapper">
                                         <label for="mhis-portal" class="form-label">
-                                            Enter your MHIS Portal Password
+                                            Enter MHIS Portal Password
                                             <span class="required-asterisk">*</span>
                                         </label>
                                         <input type="password" class="form-control" id="mhis-portal-password" />
+                                        <div class="invalid-feedback">Invalid username or
+                                            password</div>
                                     </div>
                                 </div>
+
                             </div>
                         </div>
                     </div>
@@ -240,6 +261,7 @@
                                 </label>
                                 <select name="relationship" class="form-select required-select2" id="relationship"
                                     required>
+                                    <option disabled selected value="">Select relationship...</option>
                                     <option value="father">Father</option>
                                     <option value="mother">Mother</option>
                                     <option value="guardian">Guardian</option>
@@ -354,6 +376,8 @@
                                 <option value="facebook">Facebook</option>
                                 <option value="friends">Friends/Family</option>
                                 <option value="google">Google Search</option>
+                                <option value="parent">I am MHIS Parent</option>
+                                <option value="mhis_parent">Recommendation from MHIS Parent</option>
                                 <option value="others">Others</option>
                             </select>
                             <div class="form-group mt-2" id="hear-other-group" style="display:none;">
@@ -397,42 +421,44 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="section-title mt-5">
-                            <i class="fas fa-handshake"></i> Recommendations
-                        </div>
-                        <p class="section-subtitle">Optional but helpful information</p>
-                        <div class="info-box">
-                            <p>
-                                <strong>If you receive a recommendation from a colleague,</strong>
-                                kindly inform us by whom and fill in their phone number. If
-                                they are MHIS parents, please state their child's name and
-                                class. Thank you parents!
-                            </p>
-                        </div>
-                        <div class="row g-4">
-                            <div class="col-md-6">
-                                <label for="recommenderName" class="form-label">
-                                    Recommender Name
-                                </label>
-                                <input type="text" class="form-control" id="recommenderName" />
+                        <div class="recommender">
+                            <div class="section-title mt-5">
+                                <i class="fas fa-handshake"></i> Recommendations
                             </div>
-                            <div class="col-md-6">
-                                <label for="recommenderPhone" class="form-label">
-                                    Recommender Phone Number
-                                </label>
-                                <input type="tel" class="form-control" id="recommenderPhone" />
+                            <p class="section-subtitle">Optional but helpful information</p>
+                            <div class="info-box">
+                                <p>
+                                    <strong>If you receive a recommendation from a colleague,</strong>
+                                    kindly inform us by whom and fill in their phone number. If
+                                    they are MHIS parents, please state their child's name and
+                                    class. Thank you parents!
+                                </p>
                             </div>
-                            <div class="col-md-6">
-                                <label for="recommenderChildName" class="form-label">
-                                    Recommender Child Name
-                                </label>
-                                <input type="text" class="form-control" id="recommenderChildName" />
-                            </div>
-                            <div class="col-md-6">
-                                <label for="recommenderChildClass" class="form-label">
-                                    Recommender Child Class
-                                </label>
-                                <input type="text" class="form-control" id="recommenderChildClass" />
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <label for="recommenderName" class="form-label">
+                                        Recommender Name
+                                    </label>
+                                    <input type="text" class="form-control" id="recommenderName" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="recommenderPhone" class="form-label">
+                                        Recommender Phone Number
+                                    </label>
+                                    <input type="tel" class="form-control" id="recommenderPhone" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="recommenderChildName" class="form-label">
+                                        Recommender Child Name
+                                    </label>
+                                    <input type="text" class="form-control" id="recommenderChildName" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="recommenderChildClass" class="form-label">
+                                        Recommender Child Class
+                                    </label>
+                                    <input type="text" class="form-control" id="recommenderChildClass" />
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -68,37 +68,82 @@ $(document).ready(function () {
     });
 
     $('input[name="currentMHIS"]').change(function () {
-        if (
-            $(this).val() === "yes" ||
-            $(this).val() === "yes_sibling_registration"
-        ) {
+        const val = $(this).val();
+
+        $("#hearAbout").val("").trigger("change");
+
+        const parentOption = $('#hearAbout option[value="parent"]');
+        const mhisParentOption = $('#hearAbout option[value="mhis_parent"]');
+
+        if (val === "yes" || val === "yes_sibling_registration") {
             $("#codeInputPortal").slideDown(300);
             $("#mhis-portal-username").prop("required", true);
             $("#mhis-portal-password").prop("required", true);
+            $("#branch-portal").prop("required", true);
+            $(".recommender").addClass("d-none");
+            parentOption.show();
+            mhisParentOption.hide();
         } else {
             $("#codeInputPortal").slideUp(300);
             $("#mhis-portal-username").prop("required", false).val("");
             $("#mhis-portal-password").prop("required", false).val("");
+            $("#branch-portal").prop("required", false).val("");
+            $(".recommender").removeClass("d-none");
+            parentOption.hide();
+            mhisParentOption.show();
         }
     });
 
     // Navigation
-    $("#nextBtn").click(function () {
+    $("#nextBtn").click(async function () {
         if (validateStep(currentStep)) {
             if (currentStep === 1) {
+                let tasks = [];
                 if ($("#visitCode").val() != "") {
-                    getProspectByCode($("#visitCode").val());
+                    tasks.push(
+                        new Promise((resolve, reject) => {
+                            getProspectByCode(
+                                $("#visitCode").val(),
+                                resolve,
+                                reject
+                            );
+                        })
+                    );
                 }
                 if (
                     $("#mhis-portal-username").val() != "" &&
                     $("#mhis-portal-password").val() != ""
                 ) {
+                    const branch = $("#branch-portal").val().toLowerCase();
                     const username = $("#mhis-portal-username").val();
                     const password = $("#mhis-portal-password").val();
-                    getParentMHPortal(username, password);
+                    tasks.push(
+                        new Promise((resolve, reject) => {
+                            getParentMHPortal(
+                                branch,
+                                username,
+                                password,
+                                resolve,
+                                reject
+                            );
+                        })
+                    );
                 }
-                currentStep++;
-                showStep(currentStep);
+                if (tasks.length === 0) {
+                    currentStep++;
+                    showStep(currentStep);
+                    return;
+                }
+                blockUI();
+                try {
+                    await Promise.all(tasks);
+                    currentStep++;
+                    showStep(currentStep);
+                } catch (err) {
+                    console.error("Ada error dari salah satu request:", err);
+                } finally {
+                    unBlockUI();
+                }
             } else {
                 if (currentStep < totalSteps) {
                     currentStep++;
@@ -246,6 +291,9 @@ function submitForm() {
         alreadyVisit: $('input[name="visitedBefore"]:checked').val(),
         code: $("#visitCode").val(),
         prospectsId: $("#prospects_id").val(),
+        isCurrentStudent: $('input[name="currentMHIS"]:checked').val(),
+        studentBranch: $("#branch-portal").val(),
+        mhisPortalUsername: $("#mhis-portal-username").val(),
         branch: $("#branch").val(),
         level: $("#level").val(),
         grade: $("#grade").val(),
@@ -323,8 +371,7 @@ function getLevelsAndGrades(branchId) {
     );
 }
 
-function getProspectByCode(code) {
-    blockUI();
+function getProspectByCode(code, resolve, reject) {
     ajax(
         null,
         `/prospect/code/${code}`,
@@ -343,31 +390,68 @@ function getProspectByCode(code) {
                 moment(json.date_of_birth).format("DD MMMM YYYY")
             );
             $("#currentSchool").val(json.current_school);
+
+            $("#visitCode").removeClass("is-invalid");
+            resolve(json);
         },
         function (err) {
-            toastify(
-                "Error",
-                err?.responseJSON?.message ?? "Please try again later",
-                "bottom"
+            $("#visitCode").addClass("is-invalid");
+            $("#visitCodeTextError").text(
+                err?.responseJSON?.message ?? "Please try again later"
             );
+            reject(err);
         }
     );
 }
-function getParentMHPortal(username, password) {
-    blockUI();
+function getParentMHPortal(branch, username, password, resolve, reject) {
     ajax(
         null,
-        `/mhis/portal/parent?username=${username}&password=${password}`,
+        `/mhis/portal/parent?branch=${branch}&username=${username}&password=${password}`,
+        "GET",
+        function (json) {
+            if (
+                $('input[name="currentMHIS"]:checked').val() ==
+                "yes_sibling_registration"
+            ) {
+                if (json.children.length > 0) {
+                    let siswa = json.children[0];
+                    getSiswaEreport(
+                        branch,
+                        siswa.level,
+                        siswa.nis,
+                        resolve,
+                        reject
+                    );
+                }
+            } else {
+                console.log(json);
+                resolve(json);
+            }
+        },
+        function (err) {
+            $("#mhis-portal-username, #mhis-portal-password").addClass(
+                "is-invalid"
+            );
+            $(".mhPortalTextError").text(
+                err?.responseJSON?.message ?? "Please try again later"
+            );
+            reject(err);
+        }
+    );
+}
+
+function getSiswaEreport(branch, level, nis, resolve, reject) {
+    ajax(
+        null,
+        `/ereport/siswa?branch=${branch}&level=${level}&nis=${nis}`,
         "GET",
         function (json) {
             console.log(json);
+            resolve(json);
         },
         function (err) {
-            toastify(
-                "Error",
-                err?.responseJSON?.message ?? "Please try again later",
-                "bottom"
-            );
+            console.log(err);
+            reject(err);
         }
     );
 }

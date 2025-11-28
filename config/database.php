@@ -91,16 +91,126 @@ return [
             'prefix_indexes' => true,
         ],
 
-        'mysql_school' => [
+        'bintaro_school' => [
             'driver' => 'mysql',
-            'host' => env('SCHOOL_DB_HOST', '127.0.0.1'),
-            'port' => env('SCHOOL_DB_PORT', '3306'),
-            'database' => env('SCHOOL_DB_DATABASE', 'school'),
-            'username' => env('SCHOOL_DB_USERNAME', 'root'),
-            'password' => env('SCHOOL_DB_PASSWORD', ''),
+            'host' => env('BINTARO_SCHOOL_DB_HOST', '127.0.0.1'),
+            'port' => env('BINTARO_SCHOOL_DB_PORT', '3306'),
+            'database' => env('BINTARO_SCHOOL_DB_DATABASE', 'school'),
+            'username' => env('BINTARO_SCHOOL_DB_USERNAME', 'root'),
+            'password' => env('BINTARO_SCHOOL_DB_PASSWORD', ''),
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
-        ]
+        ],
+
+        'bangka_school' => [
+            'driver' => 'mysql',
+            'host' => env('BANGKA_SCHOOL_DB_HOST', '127.0.0.1'),
+            'port' => env('BANGKA_SCHOOL_DB_PORT', '3306'),
+            'database' => env('BANGKA_SCHOOL_DB_DATABASE', 'school'),
+            'username' => env('BANGKA_SCHOOL_DB_USERNAME', 'root'),
+            'password' => env('BANGKA_SCHOOL_DB_PASSWORD', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+        ],
+
+        'semarang_school' => [
+            'driver' => 'mysql',
+            'host' => env('SEMARANG_SCHOOL_DB_HOST', '127.0.0.1'),
+            'port' => env('SEMARANG_SCHOOL_DB_PORT', '3306'),
+            'database' => env('SEMARANG_SCHOOL_DB_DATABASE', 'school'),
+            'username' => env('SEMARANG_SCHOOL_DB_USERNAME', 'root'),
+            'password' => env('SEMARANG_SCHOOL_DB_PASSWORD', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+        ],
+
+        'bintaro_ereport_preschool' => [
+            'driver' => 'mysql',
+            'host' => env('BINTARO_EREPORT_PRESCHOOL_DB_HOST', '127.0.0.1'),
+            'port' => env('BINTARO_EREPORT_PRESCHOOL_DB_PORT', '3306'),
+            'database' => env('BINTARO_EREPORT_PRESCHOOL_DB_DATABASE', 'school'),
+            'username' => env('BINTARO_EREPORT_PRESCHOOL_DB_USERNAME', 'root'),
+            'password' => env('BINTARO_EREPORT_PRESCHOOL_DB_PASSWORD', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+        ],
+        
+        'bangka_ereport_preschool' => [
+            'driver' => 'mysql',
+            'host' => env('BANGKA_EREPORT_PRESCHOOL_DB_HOST', '127.0.0.1'),
+            'port' => env('BANGKA_EREPORT_PRESCHOOL_DB_PORT', '3306'),
+            'database' => env('BANGKA_EREPORT_PRESCHOOL_DB_DATABASE', 'school'),
+            'username' => env('BANGKA_EREPORT_PRESCHOOL_DB_USERNAME', 'root'),
+            'password' => env('BANGKA_EREPORT_PRESCHOOL_DB_PASSWORD', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+        ],
+
+        'bintaro_ereport_seconday' => [
+            'driver' => 'mysql',
+            'host' => env('BINTARO_EREPORT_SECONDARY_DB_HOST', '127.0.0.1'),
+            'port' => env('BINTARO_EREPORT_SECONDARY_DB_PORT', '3306'),
+            'database' => env('BINTARO_EREPORT_SECONDARY_DB_DATABASE', 'school'),
+            'username' => env('BINTARO_EREPORT_SECONDARY_DB_USERNAME', 'root'),
+            'password' => env('BINTARO_EREPORT_SECONDARY_DB_PASSWORD', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+        ],
+        
+        'bangka_ereport_secondary' => [
+            'driver' => 'mysql',
+            'host' => env('BANGKA_EREPORT_SECONDARY_DB_HOST', '127.0.0.1'),
+            'port' => env('BANGKA_EREPORT_SECONDARY_DB_PORT', '3306'),
+            'database' => env('BANGKA_EREPORT_SECONDARY_DB_DATABASE', 'school'),
+            'username' => env('BANGKA_EREPORT_SECONDARY_DB_USERNAME', 'root'),
+            'password' => env('BANGKA_EREPORT_SECONDARY_DB_PASSWORD', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+        ],
+
+        'bintaro_ereport_primary' => [
+            'driver' => 'mysql',
+            'host' => env('BINTARO_EREPORT_PRIMARY_DB_HOST', '127.0.0.1'),
+            'port' => env('BINTARO_EREPORT_PRIMARY_DB_PORT', '3306'),
+            'database' => env('BINTARO_EREPORT_PRIMARY_DB_DATABASE', 'school'),
+            'username' => env('BINTARO_EREPORT_PRIMARY_DB_USERNAME', 'root'),
+            'password' => env('BINTARO_EREPORT_PRIMARY_DB_PASSWORD', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+        ],
+        
+        'bangka_ereport_primary' => [
+            'driver' => 'mysql',
+            'host' => env('BANGKA_EREPORT_PRIMARY_DB_HOST', '127.0.0.1'),
+            'port' => env('BANGKA_EREPORT_PRIMARY_DB_PORT', '3306'),
+            'database' => env('BANGKA_EREPORT_PRIMARY_DB_DATABASE', 'school'),
+            'username' => env('BANGKA_EREPORT_PRIMARY_DB_USERNAME', 'root'),
+            'password' => env('BANGKA_EREPORT_PRIMARY_DB_PASSWORD', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+        ],
+
+        'semarang_ereport_primary' => [
+            'driver' => 'mysql',
+            'host' => env('SEMARANG_EREPORT_PRIMARY_DB_HOST', '127.0.0.1'),
+            'port' => env('SEMARANG_EREPORT_PRIMARY_DB_PORT', '3306'),
+            'database' => env('SEMARANG_EREPORT_PRIMARY_DB_DATABASE', 'school'),
+            'username' => env('SEMARANG_EREPORT_PRIMARY_DB_USERNAME', 'root'),
+            'password' => env('SEMARANG_EREPORT_PRIMARY_DB_PASSWORD', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+        ],
+
+        'bintaro_ereport_dc' => [
+            'driver' => 'mysql',
+            'host' => env('BINATRO_EREPORT_DC_DB_HOST', '127.0.0.1'),
+            'port' => env('BINATRO_EREPORT_DC_DB_PORT', '3306'),
+            'database' => env('BINATRO_EREPORT_DC_DB_DATABASE', 'school'),
+            'username' => env('BINATRO_EREPORT_DC_DB_USERNAME', 'root'),
+            'password' => env('BINATRO_EREPORT_DC_DB_PASSWORD', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+        ],
 
     ],
 

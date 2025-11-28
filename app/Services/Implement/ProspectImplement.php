@@ -30,7 +30,7 @@ class ProspectImplement implements ProspectService
             ], 404);
         }
 
-        return $prospect;
+        return response()->json($prospect);
     }
 
     public function post($data)

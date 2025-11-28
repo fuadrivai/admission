@@ -125,7 +125,7 @@ function blockUI(message = null) {
     $.blockUI({
         message:
             message ??
-            '<h1><i class="fa fa-spinner fa-spin"></i> Just a moment...</h1>',
+            '<label><i class="fa fa-spinner fa-spin"></i> Just a moment...</label>',
     });
 }
 

@@ -118,23 +118,22 @@ class EnrolmentController extends Controller
     {
         //
     }
-    public function internal(Enrolment $enrolment)
-    {
-        return view('enrolment.form.internal', compact('enrolment'));
-    }
-
-    public function external()
+    public function form()
     {
         $branches = $this->branchService->get();
         return view('enrolment.form.external', compact('branches'));
     }
 
-    public function postExternal(Request $request)
+    public function post(Request $request)
     {
+        
         $rules = [
             'alreadyVisit' => 'required',
             'code'         => 'nullable|string',
             'prospectsId'  => 'nullable|string',
+            'isCurrentStudent'=>'required',
+            'studentBranch' => 'nullable|string',
+            'mhisPortalUsername' => 'nullable|string',
             'branch'       => 'required',
             'level'        => 'required',
             'grade'        => 'required',

@@ -45,10 +45,14 @@ class EnrolmentImplement implements EnrolmentService
 
     public function post($request)
     {
+
         $data = [
             'prospects_id'             => null,
             'already_visit'            => $request->alreadyVisit === 'true'?1:0,
             'code'                     => null,
+            'is_current_student'       => $request->isCurrentStrundet,
+            'student_branch'           => $request->studentBranch,
+            'mhis_portal_username'     => $request->mhisPortalUsername,
             'branch_id'                => $request->branch,
             'level_id'                 => $request->level,
             'grade_id'                 => $request->grade,
@@ -76,14 +80,8 @@ class EnrolmentImplement implements EnrolmentService
             'recommender_phone'        => $request->recommenderPhone,
             'recommender_child_name'   => $request->recommenderChildName,
             'recommender_child_class'  => $request->recommenderChildClass,
-            'registration_fee'         => 0,
-            'amount_paid'              => 0,
-            'bank_charger'             => 0,
-            'invoice_id'               => null,
-            'payment_status'           => 'unpaid',
             'payment_date'             => null,
-            'payment_url'              => null,
-            'source_data'              => 'external',
+            'source_data'              => $request->isCurrentStrundet == "yes"? "internal":"external",
         ];
 
         $bank = $this->bankChargerService->get();

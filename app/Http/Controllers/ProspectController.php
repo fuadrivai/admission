@@ -92,6 +92,6 @@ class ProspectController extends Controller
     public function getByCode($code)
     {
         $prospect = $this->prospectService->getbyCode($code);
-        return response()->json($prospect);
+        return $prospect;
     }
 }
