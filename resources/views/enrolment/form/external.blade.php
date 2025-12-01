@@ -159,7 +159,15 @@
                                             password</div>
                                     </div>
                                 </div>
+                            </div>
+                            <div class="row justify-content-center pt-3" id="row-button" style="display: none">
+                                <div class="col-md-4 text-center">
+                                    <button type="button" id="btn-portal"
+                                        class="btn btn-lg btn-primary">Enter</button>
+                                </div>
+                                <div class="col-md-12 pt-2" id="list-student">
 
+                                </div>
                             </div>
                         </div>
                     </div>

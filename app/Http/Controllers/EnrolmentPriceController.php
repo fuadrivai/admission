@@ -43,8 +43,7 @@ class EnrolmentPriceController extends Controller
     public function create()
     {
         $branches = $this->branchService->get();
-        $levels = $this->levelService->get();
-        return view('enrolment.price-form', compact('branches', 'levels'));
+        return view('enrolment.price-form', compact('branches'));
     }
 
     public function getRegistrationPrice($branchId,$levelId)

@@ -32,7 +32,7 @@ class LevelImplement implements LevelService
                 'name' => $data['name'],
                 'division_id' => $data['division'],
                 'branch_id' => $data['branch'],
-                'branch_name' => $data['branch_name'],
+                'branch_name' => $data['branchName'],
                 'principal' => $data['principal'],
                 'branch_code' => $data['code'],
             ]);

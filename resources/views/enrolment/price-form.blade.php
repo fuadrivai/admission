@@ -17,7 +17,7 @@
                     <div class="row">
                         <div class="col-md-6 mb-6">
                             <div class="form-group">
-                                <label for="name" class="form-label required-label">Enrolment Price</label>
+                                <label for="name" class="form-label required-label">Enrolment Price Name</label>
                                 <input type="text" class="d-none" id="id" name="id"
                                     value="{{ isset($price) ? $price->id : '' }}">
                                 <input type="text" class="form-control" id="name" name="name" required
@@ -51,13 +51,8 @@
                         <div class="col-md-4 mb-6">
                             <div class="form-group">
                                 <label for="level" class="form-label required-label">Level</label>
-                                <select name="level" id="level" class="form-select">
+                                <select disabled name="level" id="level" class="form-select">
                                     <option selected disabled value="">Select level</option>
-                                    @foreach ($levels as $level)
-                                        <option
-                                            {{ isset($price) ? ($level->id == optional($price->level)->id ? 'selected' : '') : '' }}
-                                            value="{{ $level->id }}"> {{ $level->name }} </option>
-                                    @endforeach
                                 </select>
                             </div>
                         </div>
@@ -87,4 +82,30 @@
     </section>
 @endsection
 @section('content-script')
+    <script>
+        $(document).ready(function() {
+            $('#branch').on('change', function() {
+                let id = $(this).val();
+                getLevelByBranch(id);
+            })
+        })
+
+        function getLevelByBranch(id) {
+            blockUI();
+            ajax(null, `/level/branch/${id}`, 'GET', function(json) {
+                $("#level").attr("disabled", false);
+                $("#level")
+                    .empty()
+                    .append('<option value="">Select level...</option>');
+                levels = json;
+                levels.forEach((level) => {
+                    $("#level").append(
+                        `<option value="${level.id}">${level.name}</option>`
+                    );
+                });
+            }, function(err) {
+                console.log(err)
+            })
+        }
+    </script>
 @endsection

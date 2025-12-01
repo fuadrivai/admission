@@ -73,7 +73,7 @@ class LevelController extends Controller
             'division' => 'required',
             'code' => 'required',
             'branch' => '',
-            'branch_name' => '',
+            'branchName' => '',
             'principal' => '',
             'grades.*.name' => 'required',
         ]);

@@ -188,3 +188,27 @@ function getAcademicYear() {
         );
     }
 }
+
+function normalizePhone(phone) {
+    phone = phone.replace(/\D/g, "");
+    phone = phone.replace(/^\+/, "");
+    if (phone.startsWith("0")) {
+        phone = "62" + phone.substring(1);
+    } else if (phone.startsWith("62")) {
+        // nothing
+    } else if (phone.startsWith("8")) {
+        phone = "62" + phone;
+    }
+
+    return phone;
+}
+
+function validateEmail(email) {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+}
+
+function validatePhone(phone) {
+    const regex = /^(?:\+62|62|0)[0-9]{9,13}$/;
+    return regex.test(phone);
+}
