@@ -137,6 +137,7 @@ $(document).ready(function () {
                     );
                 }
                 if ($('input[name="currentMHIS"]:checked').val() == "yes") {
+                    //
                 } else {
                     if (
                         $("#mhis-portal-username").val() != "" &&
