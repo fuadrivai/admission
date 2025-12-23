@@ -191,11 +191,12 @@ return [
         App\Providers\BankChargerProvider::class,
         App\Providers\ParentsStudentProvider::class,
         App\Providers\SiswaEreportProvider::class,
+        App\Providers\XenditCallBackProvider::class,
+        App\Providers\AdmissionProvider::class,
 
     ],
 
     /*
-    |
     | Class Aliases
     |--------------------------------------------------------------------------
     |

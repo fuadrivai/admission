@@ -141,21 +141,31 @@ function normalizePhoneNumber($phone)
 }
 
 function createXenditInvoice(array $payload)
-    {
-        $apiKey = env('XENDIT_API_KEY');
-        $response = Http::withBasicAuth($apiKey, '')
-            ->withHeaders([
-                'Content-Type' => 'application/json'
-            ])
-            ->post('https://api.xendit.co/v2/invoices', $payload);
-
-        if ($response->failed()) {
-            return [
-                'success' => false,
-                'status' => $response->status(),
-                'message' => $response->json()['message'] ?? 'Failed creating invoice',
-            ];
-        }
-
-        return $response->json();
+{
+    $apiKey = env('XENDIT_API_KEY');
+    $response = Http::withBasicAuth($apiKey, '')
+        ->withHeaders([
+            'Content-Type' => 'application/json'
+        ])
+        ->post('https://api.xendit.co/v2/invoices', $payload);
+    if ($response->failed()) {
+        return [
+            'success' => false,
+            'status' => $response->status(),
+            'message' => $response->json()['message'] ?? 'Failed creating invoice',
+        ];
     }
+    return $response->json();
+}
+
+function imageToBase64($path)
+{
+    if (!file_exists($path)) {
+        return null;
+    }
+
+    $type = pathinfo($path, PATHINFO_EXTENSION);
+    $data = file_get_contents($path);
+
+    return 'data:image/' . $type . ';base64,' . base64_encode($data);
+}

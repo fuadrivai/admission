@@ -2,10 +2,15 @@
     "name": "laravel/laravel",
     "type": "project",
     "description": "The Laravel Framework.",
-    "keywords": ["framework", "laravel"],
+    "keywords": [
+        "framework",
+        "laravel"
+    ],
     "license": "MIT",
     "require": {
         "php": "^7.3|^8.0",
+        "doctrine/dbal": "3.10.1",
+        "dompdf/dompdf": "3.1.4",
         "fruitcake/laravel-cors": "^2.0",
         "google/apiclient": "^2.16",
         "guzzlehttp/guzzle": "^7.0.1",
@@ -15,8 +20,7 @@
         "php-open-source-saver/jwt-auth": "2.2",
         "spatie/laravel-permission": "4.0",
         "yajra/laravel-datatables": "^1.5",
-        "yajra/laravel-datatables-oracle": "~9.0",
-        "doctrine/dbal": "3.10.1"
+        "yajra/laravel-datatables-oracle": "~9.0"
     },
     "require-dev": {
         "facade/ignition": "^2.5",

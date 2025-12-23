@@ -100,6 +100,7 @@
                                     <th>Code</th>
                                     <th>Parent's name</th>
                                     <th>Child's Name</th>
+                                    <th>Contact</th>
                                     <th>Level</th>
                                     <th>Grade</th>
                                     <th>Branch</th>
@@ -208,6 +209,13 @@
                     {
                         data: "child_name",
                         defaultContent: "--",
+                    },
+                    {
+                        data: "email",
+                        defaultContent: "--",
+                        mRender: function(data, type, full) {
+                            return `${data} <br> ${full.phone_number}`
+                        }
                     },
                     {
                         data: 'level_name',

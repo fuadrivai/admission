@@ -2,23 +2,24 @@
 
 namespace App\Providers;
 
-use App\Services\Implement\WhatsappCodeImplement;
-use App\Services\WhatsappCodeService;
+use App\Services\Implement\XenditCallBackImplement;
+use App\Services\XenditCallBackService;
 use Illuminate\Support\ServiceProvider;
 
-class WhatsappCodeProvider extends ServiceProvider
+class XenditCallBackProvider extends ServiceProvider
 {
     /**
      * Register services.
      *
      * @return void
      */
+
     public array $singletons = [
-        WhatsappCodeService::class => WhatsappCodeImplement::class
+        XenditCallBackService::class => XenditCallBackImplement::class
     ];
     public function provides(): array
     {
-        return [WhatsappCodeService::class];
+        return [XenditCallBackService::class];
     }
     public function register()
     {

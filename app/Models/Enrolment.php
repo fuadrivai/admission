@@ -9,6 +9,7 @@ class Enrolment extends Model
 {
     use HasFactory;
     protected $guarded = ['id'];
+    protected $hidden = ['branch_id', 'grade_id', 'branch_id', 'level_id', 'prospects_id', 'created_at', 'updated_at'];
 
     protected $casts = [
         'already_visit'      => 'boolean',

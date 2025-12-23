@@ -2,18 +2,21 @@
 
 namespace App\Services\Implement;
 
+use App\Mail\AdmissionEmail;
+use App\Models\EmailSetting;
 use App\Models\Enrolment;
 use App\Models\Level;
-use App\Models\Prospects;
 use App\Services\BankChargerService;
 use App\Services\EnrolmentPriceService;
 use App\Services\EnrolmentService;
 use App\Services\ProspectService;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Mail;
 
 use function App\Helpers\codeGenerator;
 use function App\Helpers\createXenditInvoice;
 use function App\Helpers\generate;
+use function App\Helpers\normalizePhoneNumber;
 
 class EnrolmentImplement implements EnrolmentService
 {
@@ -50,7 +53,7 @@ class EnrolmentImplement implements EnrolmentService
             'prospects_id'             => null,
             'already_visit'            => $request->alreadyVisit === 'true'?1:0,
             'code'                     => null,
-            'is_current_student'       => $request->isCurrentStrundet,
+            'is_current_student'       => $request->isCurrentStudent,
             'student_branch'           => $request->studentBranch,
             'mhis_portal_username'     => $request->mhisPortalUsername,
             'branch_id'                => $request->branch,
@@ -59,7 +62,7 @@ class EnrolmentImplement implements EnrolmentService
             'academic_year'            => $request->academicYear,
             'parent_name'              => $request->parentName,
             'email'                    => $request->email,
-            'phone_number'             => $request->phone,
+            'phone_number'             => normalizePhoneNumber($request->phone),
             'relationship'             => $request->relationship,
             'zipcode'                  => $request->zipCode,
             'address'                  => $request->address,
@@ -81,7 +84,7 @@ class EnrolmentImplement implements EnrolmentService
             'recommender_child_name'   => $request->recommenderChildName,
             'recommender_child_class'  => $request->recommenderChildClass,
             'payment_date'             => null,
-            'source_data'              => $request->isCurrentStrundet == "yes"? "internal":"external",
+            'source_data'              => $request->isCurrentStudent == "yes"? "internal":"external",
         ];
 
         $bank = $this->bankChargerService->get();
@@ -127,7 +130,32 @@ class EnrolmentImplement implements EnrolmentService
         $data['payment_status'] = $xendit['status'];
         $data['payment_url'] = $xendit['invoice_url'];
         $enrolment = Enrolment::create($data);
+
+        $enrolment['subject'] = "Enrolment Payment of $enrolment->child_name - Mutiara Harapan Islamic School";
+        $enrolment['template'] = 'email-template.enrolment';
+        $setting = EmailSetting::where('branch_id',$data['branch_id'])->first();
+        Config::set('mail.default', 'smtp');
+        Config::set('mail.mailers.smtp', [
+            'transport' => $setting->mailer,
+            'host' => $setting->host,
+            'port' => $setting->port,
+            'encryption' => $setting->encryption,
+            'username' => $setting->username,
+            'password' => $setting->app_password,
+            'timeout' => null,
+        ]);
+        Config::set('mail.from', [
+            'address' => $setting->from_address,
+            'name' => $setting->from_name,
+        ]);
+
+        Mail::to($enrolment->email)->send(new AdmissionEmail($enrolment));
         return $enrolment;
+    }
+
+    public function showByCode($code, $with = [])
+    {
+        return Enrolment::with($with)->where('code', $code)->firstOrFail();
     }
 
     public function put($data)

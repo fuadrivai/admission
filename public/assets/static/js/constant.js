@@ -28,3 +28,37 @@ let schoolVisitForm = {
     ],
     times: ["07:30", "09:00", "10:30", "13:00"],
 };
+
+const religions = [
+    "Islam",
+    "Kristen Protestan",
+    "Katolik",
+    "Hindu",
+    "Buddha",
+    "Konghucu",
+    "lainnya",
+];
+
+const educations = [
+    "SD",
+    "SMP",
+    "SMA",
+    "SMK",
+    "D1",
+    "D2",
+    "D3",
+    "D4/S1",
+    "S2",
+    "S3",
+    "Lainnya",
+];
+const jobs = [
+    "Wiraswasta",
+    "Pegawai Negeri Sipil",
+    "Karyawan Swasta",
+    "Profesional",
+    "TNI/POLRI",
+    "Ibu Rumah Tangga",
+    "pensiunan",
+    "Lainnya",
+];

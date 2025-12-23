@@ -67,7 +67,9 @@ function toastify(type = "success", message, position = "top") {
         close: true,
         gravity: position,
         position: "right",
-        backgroundColor: type === "success" ? "#4fbe87" : "#f44336",
+        style: {
+            background: type === "success" ? "#4fbe87" : "#f44336",
+        },
     }).showToast();
 }
 
@@ -93,6 +95,20 @@ function ajax(data, url, method, callback, callbackError) {
                 : callbackError(err);
         },
     });
+}
+
+function getQueryString() {
+    location.queryString = {};
+    location.search
+        .substring(1)
+        .split("&")
+        .forEach(function (pair) {
+            if (pair === "") return;
+            var parts = pair.split("=");
+            location.queryString[parts[0]] =
+                parts[1] && decodeURIComponent(parts[1].replace(/\+/g, " "));
+        });
+    return location.queryString;
 }
 
 function reloadJsonDataTable(dtable, json) {
@@ -211,4 +227,51 @@ function validateEmail(email) {
 function validatePhone(phone) {
     const regex = /^(?:\+62|62|0)[0-9]{9,13}$/;
     return regex.test(phone);
+}
+
+function toTitleCase(text) {
+    return text.toLowerCase().replace(/\b\w/g, function (letter) {
+        return letter.toUpperCase();
+    });
+}
+
+function ajaxPromise(data, url, method = "GET") {
+    return new Promise((resolve, reject) => {
+        ajax(
+            data,
+            url,
+            method,
+            function (json) {
+                resolve(json);
+            },
+            function (err) {
+                reject(err);
+            }
+        );
+    });
+}
+
+function calculateAge(date) {
+    const dob = new Date(date);
+    if (isNaN(dob.getTime())) {
+        return "Masukkan tanggal lahir untuk menghitung usia";
+    }
+
+    const today = new Date();
+    let years = today.getFullYear() - dob.getFullYear();
+    let months = today.getMonth() - dob.getMonth();
+    let days = today.getDate() - dob.getDate();
+
+    if (days < 0) {
+        months--;
+        const prevMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+        days += prevMonth.getDate();
+    }
+
+    if (months < 0) {
+        years--;
+        months += 12;
+    }
+
+    return `${years} tahun, ${months} bulan, ${days} hari`;
 }

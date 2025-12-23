@@ -151,6 +151,13 @@ body {
     display: block;
 }
 
+.arabic-text {
+    font-size: 1.2rem;
+    text-align: right;
+    direction: rtl;
+    margin-bottom: 1rem;
+}
+
 @keyframes fadeInUp {
     from {
         opacity: 0;

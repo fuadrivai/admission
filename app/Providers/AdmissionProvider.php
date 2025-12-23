@@ -2,11 +2,11 @@
 
 namespace App\Providers;
 
-use App\Services\Implement\WhatsappCodeImplement;
-use App\Services\WhatsappCodeService;
+use App\Services\AdmissionService;
+use App\Services\Implement\AdmissionImplement;
 use Illuminate\Support\ServiceProvider;
 
-class WhatsappCodeProvider extends ServiceProvider
+class AdmissionProvider extends ServiceProvider
 {
     /**
      * Register services.
@@ -14,11 +14,11 @@ class WhatsappCodeProvider extends ServiceProvider
      * @return void
      */
     public array $singletons = [
-        WhatsappCodeService::class => WhatsappCodeImplement::class
+        AdmissionService::class => AdmissionImplement::class
     ];
     public function provides(): array
     {
-        return [WhatsappCodeService::class];
+        return [AdmissionService::class];
     }
     public function register()
     {

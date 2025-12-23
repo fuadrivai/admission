@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="/assets/compiled/css/iconly.css">
     <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css"
         rel="stylesheet" />
+    <link rel="stylesheet" href="/assets/extensions/toastify-js/src/toastify.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link rel="stylesheet" href="/assets/extensions/bootstrap-datepicker/css/bootstrap-datepicker.css">
     <link rel="stylesheet" href="/assets/static/css/enrolment-external.css?v=1.0.0">

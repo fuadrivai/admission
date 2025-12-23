@@ -137,7 +137,22 @@ $(document).ready(function () {
                     );
                 }
                 if ($('input[name="currentMHIS"]:checked').val() == "yes") {
-                    //
+                    const branch = $("#branch-portal").val().toLowerCase();
+                    const nis = $('input[name="student-portal"]:checked').val();
+                    const level = $(
+                        'input[name="student-portal"]:checked'
+                    ).data("level");
+                    tasks.push(
+                        new Promise((resolve, reject) => {
+                            getSiswaEreport(
+                                branch,
+                                level,
+                                nis,
+                                resolve,
+                                reject
+                            );
+                        })
+                    );
                 } else {
                     if (
                         $("#mhis-portal-username").val() != "" &&
@@ -170,7 +185,11 @@ $(document).ready(function () {
                     currentStep++;
                     showStep(currentStep);
                 } catch (err) {
-                    console.error("Ada error dari salah satu request:", err);
+                    toastify(
+                        "Error",
+                        err?.responseJSON?.message ?? "Please try again later",
+                        "bottom"
+                    );
                 } finally {
                     unBlockUI();
                 }
@@ -326,10 +345,22 @@ function getSiswaEreport(branch, level, nis, resolve, reject) {
             );
             $("#phone").val(normalizePhone(json.ortu_notelp));
             $("#address").val(json.ortu_alamat);
+            if ($('input[name="currentMHIS"]:checked').val() == "yes") {
+                $("#childName").val(json.nama);
+                $("#birthPlace").val(json.tmp_lahir);
+                $("#birthDate").val(
+                    moment(json.tgl_lahir).format("DD MMMM YYYY")
+                );
+                $("#currentSchool").val("Mutiara Harapan Islamic School");
+            }
             resolve(json);
         },
         function (err) {
-            console.log(err);
+            toastify(
+                "Error",
+                err?.responseJSON?.message ?? "Please try again later",
+                "bottom"
+            );
             reject(err);
         }
     );
@@ -375,7 +406,7 @@ function submitForm() {
     blockUI();
     ajax(
         formData,
-        "/enrolment/external",
+        "/enrolment/post",
         "POST",
         function (json) {
             console.log(json);
@@ -474,13 +505,23 @@ function getParentMHPortal(branch, username, password, resolve, reject) {
                 }
             } else {
                 $("#list-student").empty();
+                $("#list-student").append(`
+                    <label class="form-label">
+                        Select the child you want to enroll.
+                        <span class="required-asterisk">*</span>
+                    </label>
+                `);
                 json.children.forEach((val) => {
                     $("#list-student").append(`
                         <div class="form-check">
                             <input class="form-check-input" type="radio" name="student-portal"
-                                id="${val.nis}" value="${val.nis}" required />
+                                id="${val.nis}" data-level="${
+                        val.level
+                    }" value="${val.nis}" required />
                             <label class="form-check-label" for="${val.nis}">
-                                <i class="fas fa-times-circle"></i> ${val.student_name}
+                                <i class="fas fa-times-circle"></i> ${toTitleCase(
+                                    val.student_name
+                                )} /  ${toTitleCase(val.level)}
                             </label>
                         </div>
                     `);

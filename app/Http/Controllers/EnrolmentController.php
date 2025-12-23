@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Enrolment;
+use App\Models\Level;
 use App\Services\BranchService;
 use App\Services\EnrolmentService;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Utilities\Request as UtilitiesRequest;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class EnrolmentController extends Controller
 {
@@ -80,6 +82,18 @@ class EnrolmentController extends Controller
      * @param  \App\Models\Enrolment  $enrolment
      * @return \Illuminate\Http\Response
      */
+    public function showByCode($code)
+    {
+        try {
+            $enrolment = $this->enrolmentService->showByCode($code,['branch', 'grade', 'level']);
+            return response()->json($enrolment);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'message' => 'Enrollment code not found'
+            ], $e->getCode() ?: 404);
+        }
+    }
+
     public function show(Enrolment $enrolment)
     {
         //
@@ -118,6 +132,8 @@ class EnrolmentController extends Controller
     {
         //
     }
+    
+
     public function form()
     {
         $branches = $this->branchService->get();
