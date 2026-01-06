@@ -275,3 +275,7 @@ function calculateAge(date) {
 
     return `${years} tahun, ${months} bulan, ${days} hari`;
 }
+
+const str = (v) => (v ? v.toString().trim() : null);
+const num = (v) => (v === "" || v === null ? 0 : Number(v));
+const bool = (v) => v === true || v === "true";

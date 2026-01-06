@@ -103,13 +103,14 @@ class AdmissionController extends Controller
             ], $e->getCode() ?: 404);
         }
     }
+
     public function postApplicant(Request $request)
     {
         $data = $request->all();
         $admission = $this->admissionService->post($data);
         return response()->json($admission);
     }
-
+    
     public function studentForm()
     {
         return view('enrolment.form.student-enrolment');
