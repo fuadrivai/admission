@@ -195,7 +195,7 @@ function getAcademicYear() {
     const currentYear = new Date().getFullYear();
     const academicYearSelect = $("#academic-year");
 
-    for (let i = 0; i <= 3; i++) {
+    for (let i = -2; i <= 3; i++) {
         const startYear = currentYear + i;
         const endYear = startYear + 1;
         const yearOption = `${startYear}/${endYear}`;

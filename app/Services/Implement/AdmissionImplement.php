@@ -44,7 +44,7 @@ class AdmissionImplement implements AdmissionService
                 $admission = Admission::create($admissionData);
 
                 $parentData = [
-                    'role'=>$enrolment->role,
+                    'role'=>$enrolment->relationship,
                     'applicant_id'=>$applicant->id,
                     'fullname'=>$enrolment->parent_name,
                     'phone'=>$enrolment->phone_number,
@@ -54,12 +54,13 @@ class AdmissionImplement implements AdmissionService
                 ];
                 ApplicantParent::create($parentData);
 
-                return $admission;
-
+                return Admission::with(['applicant','enrolment','branch','level','grade'])
+                        ->where('code', $code)->first();
             }else{
                 return response()->json(['message'=>"no code found in admission"],404);
             }
         }
+        return $admission;
     }
 
     public function post($data)

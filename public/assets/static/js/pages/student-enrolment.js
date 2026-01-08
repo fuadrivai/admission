@@ -302,7 +302,6 @@ async function nextStep() {
 }
 
 function prevStep() {
-    // Mark current step as not completed
     $(`.step[data-step="${currentStep}"]`)
         .removeClass("active")
         .removeClass("completed");
@@ -619,16 +618,11 @@ async function getData() {
         await getAdmissionByCode(code);
         await getLevelsAndGrades(admission);
     } catch (err) {
-        if (err.status == 404) {
-            await getEnrolmentByCode(code);
-            await getLevelsAndGrades(enrolment);
-        } else {
-            toastify(
-                "Error",
-                err?.responseJSON?.message ?? "Please try again later",
-                "bottom"
-            );
-        }
+        toastify(
+            "Error",
+            err?.responseJSON?.message ?? "Please try again later",
+            "bottom"
+        );
     }
 }
 
@@ -636,51 +630,6 @@ async function getAdmissionByCode(code) {
     admission = await ajaxPromise(null, `/admission/code/${code}`, "GET");
     enrolment = admission.enrolment;
     fillStudent();
-}
-
-async function getEnrolmentByCode(code) {
-    try {
-        blockUI();
-
-        enrolment = await ajaxPromise(
-            null,
-            `/enrolment/student/${code}`,
-            "GET"
-        );
-
-        $("#studentFullName").val(enrolment.child_name);
-        $("#placeOfBirth").val(enrolment.place_of_birth);
-        $("#dateOfBirth").val(
-            moment(enrolment.date_of_birth).format("DD MMMM YYYY")
-        );
-        $("#academic-year").val(enrolment.academic_year).trigger("change");
-        $("#previousSchool").val(enrolment.current_school);
-        $("#postalCode").val(enrolment.zipcode);
-        $("#fullAddress").val(enrolment.address);
-
-        $("#fatherAddress ,#motherAddress").val(enrolment.address);
-
-        if (enrolment.relationship === "father") {
-            $("#fatherFullName").val(enrolment.parent_name);
-            $("#fatherEmail").val(enrolment.email);
-            $("#fatherMobile, #parentPhone").val(enrolment.phone_number);
-        } else if (enrolment.relationship === "mother") {
-            $("#motherFullName").val(enrolment.parent_name);
-            $("#motherEmail").val(enrolment.email);
-            $("#motherMobile, #parentPhone").val(enrolment.phone_number);
-        } else if (enrolment.relationship === "guardian") {
-            $("#guardianFullName").val(enrolment.parent_name);
-            $("#guardianEmail").val(enrolment.email);
-            $("#guardianMobile, #parentPhone").val(enrolment.phone_number);
-        }
-    } catch (err) {
-        toastify(
-            "Error",
-            err?.responseJSON?.message ?? "Please try again later",
-            "bottom"
-        );
-        throw err;
-    }
 }
 
 async function getLevelsAndGrades(data) {

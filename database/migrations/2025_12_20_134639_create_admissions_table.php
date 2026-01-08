@@ -22,6 +22,7 @@ class CreateAdmissionsTable extends Migration
             $table->foreignId('grade_id');
             $table->string('accademic_year');
             $table->string('code')->comment('code from prospect');
+            $table->boolean('is_complete')->default(false)->comment('if it`s true, data cannot be update');
             $table->timestamps();
         });
     }
