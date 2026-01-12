@@ -92,8 +92,8 @@ class AdmissionController extends Controller
         //
     }
 
-    public function showByCode($code)    {
-
+    public function showByCode($code)
+    {
         try {
             $admission = $this->admissionService->showByCode($code);
             return response()->json($admission);
@@ -102,6 +102,19 @@ class AdmissionController extends Controller
                 'message' => 'Admission code not found'
             ], $e->getCode() ?: 404);
         }
+    }
+
+    public function getParent($child_id,$role)
+    {
+        $parent = $this->admissionService->getParent($child_id,$role);
+        return response()->json($parent);
+    }
+
+    public function postParent(Request $request)
+    {
+        $data = $request->all();
+        $parent = $this->admissionService->postParent($data);
+        return response()->json($parent);
     }
 
     public function postApplicant(Request $request)

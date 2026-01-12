@@ -65,66 +65,6 @@ class AdmissionImplement implements AdmissionService
 
     public function post($data)
     {
-        // $exist = Admission::where('code', $data['code'])->exists();
-        // if ($exist) {
-        //     $this->put($data);
-        // }
-        return DB::transaction(function () use ($data) {
-            $app = isset($data['applicant']) ? $data['applicant'] : [];
-            $applicantData = [
-                'fullname' => $app['fullname'] ?? null,
-                'nickname' => $app['nickname'] ?? null,
-                'gender' => $app['gender'] ??null,
-                'date_of_birth' => $app['date_of_birth'] ?? null,
-                'place_of_birth' => $app['place_of_birth'] ?? null,
-                'age' => $app['age'] ?? null,
-                'height' => isset($app['height']) && $app['height'] !== null && $app['height'] !== '' ? (float) $app['height'] : 0,
-                'weight' => isset($app['weight']) && $app['weight'] !== null && $app['weight'] !== '' ? (float) $app['weight'] : 0,
-                'religion' => $app['religion'] ?? null,
-                'ethnicity' => $app['ethnicity'] ?? null,
-                'citizenship' => $app['citizenship'] ?? null,
-                'siblings_count' => isset($app['siblings_count']) ? (int) $app['siblings_count'] : 0,
-                'birth_order' => isset($app['birth_order']) ? (int) $app['birth_order'] : 0,
-                'home_language' => $app['home_language'] ?? null,
-                'other_languages' => $app['other_languages'] ?? null,
-                'address' => $app['address'] ?? null,
-                'zipcode' => $app['zipcode'] ?? null,
-                'home_phone' => $app['home_phone'] ?? null,
-                'parent_phone' => isset($app['parent_phone']) ? normalizePhoneNumber($app['parent_phone']) : null,
-                'living_with' => $app['living_with'] ?? null,
-                'living_with_other' => $app['living_with_other'] ?? null,
-                'distance_km' => isset($app['distance_km']) && $app['distance_km'] !== null && $app['distance_km'] !== '' ? (float) $app['distance_km'] : 0,
-                'previous_school' => $app['previous_school'] ?? null,
-                'previous_school_address' => $app['previous_school_address'] ?? null,
-                'graduation_year' => $app['graduation_year'] ?? null,
-                'ever_not_school' =>  $app['ever_not_schooling'] === true  ? 1 : 0,
-                'not_school_duration' => $app['not_school_duration'] ?? null,
-                'not_school_reason' => $app['not_school_reason'] ?? null,
-                'dev_check' => $app['dev_checked'] ? 1 : 0,
-                'dev_diagnosis' => $app['dev_diagnosis'] ?? null,
-                'therapy_history' => $app['therapy_history'] ? 1 : 0,
-                'therapy_detail' => $app['therapy_detail'] ?? null,
-                'emergency_contact_priority' => $app['emergency_contact_priority'] ?? null,
-            ];
-
-            $applicant = Applicant::create($applicantData);
-            $admissionData = [
-                'applicant_id' => $applicant->id,
-                'enrolment_id' => $data['enrolment_id'] ?? $data['enrollment_id'] ?? null,
-                'branch_id' => $data['branch_id'] ?? null,
-                'level_id' => $data['level_id'] ?? null,
-                'grade_id' => $data['grade_id'] ?? null,
-                'accademic_year' => $data['academic_year'] ?? $data['academicYear'] ?? null,
-                'code' => $data['code'] ?? null,
-                'is_complete' => 0,
-            ];
-            $admission = Admission::create($admissionData);
-            return Admission::with('applicant')->find($admission->id);
-        });
-    }
-
-    public function postV2($data)
-    {
         return DB::transaction(function () use ($data) {
 
             $app = $data['applicant'] ?? [];
@@ -161,8 +101,45 @@ class AdmissionImplement implements AdmissionService
                 ]);
             }
 
-            return Admission::with('applicant')->find($admission->id);
+            return Admission::with(['applicant','branch','level','grade'])->find($admission->id);
         });
+    }
+
+    public function getParent($child_id,$role){
+        return ApplicantParent::where('applicant_id', $child_id)
+            ->where('role', $role)
+            ->firstOrFail();
+    }
+    public function postParent($data)
+    {
+        $parent = ApplicantParent::updateOrCreate(
+            [
+                'id' => $data['id'] ?? null,
+            ],
+            [
+                'applicant_id'   => $data['applicant_id'] ?? null,
+                'role'           => $data['role'] ?? null,
+                'fullname'       => $data['fullname'] ?? null,
+                'phone'          => $data['phone'] ?? null,
+                'home_phone'     => $data['home_phone'] ?? null,
+                'email'          => $data['email'] ?? null,
+                'birth_place'    => $data['birth_place'] ?? null,
+                'birth_date'     => $data['birth_date'] ?? null,
+                'identity_number'=> $data['identity_number'] ?? null,
+                'religion'       => $data['religion'] ?? null,
+                'ethnicity'      => $data['ethnicity'] ?? null,
+                'address'        => $data['address'] ?? null,
+                'zipcode'        => $data['zipcode'] ?? null,
+                'education'      => $data['education'] ?? null,
+                'occupation'     => $data['occupation'] ?? null,
+                'company_name'   => $data['company_name'] ?? null,
+                'company_address'=> $data['company_address'] ?? null,
+                'marital_status' => $data['marital_status'] ?? null,
+                'monthly_income' => $data['monthly_income'] ?? 0,
+            ]
+        );
+
+        return $parent;
     }
 
 
@@ -210,19 +187,18 @@ class AdmissionImplement implements AdmissionService
             'previous_school_address' => $app['previous_school_address'] ?? null,
             'graduation_year' => $app['graduation_year'] ?? null,
 
-            'ever_not_school' => !empty($app['ever_not_schooling']) ? 1 : 0,
+            'ever_not_school' => $app['ever_not_schooling'] == "true"? 1:0,
             'not_school_duration' => $app['not_school_duration'] ?? null,
             'not_school_reason' => $app['not_school_reason'] ?? null,
 
-            'dev_check' => !empty($app['dev_checked']) ? 1 : 0,
+            'dev_check' => $app['dev_checked']=="true" ? 1 : 0,
             'dev_diagnosis' => $app['dev_diagnosis'] ?? null,
 
-            'therapy_history' => !empty($app['therapy_history']) ? 1 : 0,
+            'therapy_history' => $app['therapy_history'] == "true" ? 1 : 0,
             'therapy_detail' => $app['therapy_detail'] ?? null,
 
             'emergency_contact_priority' => $app['emergency_contact_priority'] ?? null,
         ];
     }
-
 
 }

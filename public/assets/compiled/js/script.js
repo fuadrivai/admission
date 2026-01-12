@@ -60,6 +60,10 @@ $(document).ready(function () {
     });
 });
 
+function normalizeCurrency(value) {
+    return value.replace(/,/g, "");
+}
+
 function toastify(type = "success", message, position = "top") {
     Toastify({
         text: message,
@@ -279,3 +283,17 @@ function calculateAge(date) {
 const str = (v) => (v ? v.toString().trim() : null);
 const num = (v) => (v === "" || v === null ? 0 : Number(v));
 const bool = (v) => v === true || v === "true";
+
+function isParentEmpty(parent, excludeKeys = ["id", "applicant_id", "role"]) {
+    return Object.keys(parent)
+        .filter((k) => !excludeKeys.includes(k))
+        .every((k) => {
+            const v = parent[k];
+            return (
+                v === null ||
+                v === undefined ||
+                v === "" ||
+                (typeof v === "number" && isNaN(v))
+            );
+        });
+}

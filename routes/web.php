@@ -53,6 +53,8 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
     Route::get('enrolment/student', [AdmissionController::class, 'studentForm'])->name('admission.studentForm');
     Route::post('admission/applicant', [AdmissionController::class, 'postApplicant'])->name('admission.postApplicant');
     Route::get('admission/code/{code}', [AdmissionController::class, 'showByCode'])->name('admission.showByCode');
+    Route::get('admission/parent/{child_id}/{role}', [AdmissionController::class, 'getParent'])->name('admission.getParent');
+    Route::post('admission/parent', [AdmissionController::class, 'postParent'])->name('admission.postParent');
 
     Route::get('enrolment/file', [AdmissionController::class, 'studentFile'])->name('admission.studentFile');
     Route::get('enrolment/approval', [AdmissionController::class, 'studentAproval'])->name('admission.studentApproval');

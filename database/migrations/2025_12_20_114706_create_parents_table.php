@@ -33,7 +33,7 @@ class CreateParentsTable extends Migration
             $table->string('company_name')->nullable();
             $table->string('company_address')->nullable();
             $table->string('marital_status')->nullable();
-            $table->decimal('monthly_income', 10, 2)->default(0);
+            $table->decimal('monthly_income', 20, 2)->default(0)->nullable();
             $table->timestamps();
         });
     }

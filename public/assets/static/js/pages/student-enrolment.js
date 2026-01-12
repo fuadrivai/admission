@@ -23,7 +23,7 @@ $(document).ready(async function () {
 
     $("#next-btn").on("click", nextStep);
     $("#prev-btn").on("click", prevStep);
-    $("#final-submit-btn").on("click", submitForm);
+    // $("#final-submit-btn").on("click", submitForm);
 
     $("input, select, textarea").on("input change", function () {
         validateCurrentStep();
@@ -276,6 +276,18 @@ async function nextStep() {
     }
     if (currentStep == 2) {
         await postApplicant();
+        await getParent("father");
+    }
+    if (currentStep == 3) {
+        await postParentByRole("father");
+        await getParent("mother");
+    }
+    if (currentStep == 4) {
+        await postParentByRole("mother");
+        await getParent("guardian");
+    }
+    if (currentStep == 5) {
+        await postParentByRole("guardian");
     }
     $(`.step[data-step="${currentStep}"]`)
         .removeClass("active")
@@ -330,287 +342,6 @@ function prevStep() {
     );
 }
 
-function submitForm() {
-    if (!validateCurrentStep()) {
-        alert(
-            "Harap lengkapi semua bidang yang diperlukan sebelum mengirimkan."
-        );
-        return;
-    }
-
-    let dob = moment($("#dateOfBirth").val(), "DD MMMM YYYY").format(
-        "YYYY-MM-DD"
-    );
-
-    let admission = {
-        enrolment_id: enrolment.id,
-        code: enrolment.code,
-        branch_id: enrolment.branch_id,
-        level_id: $("#applyingLevel").val(),
-        grade_id: $("#applyingClass").val(),
-        academic_year: $("#academicYear").val(),
-        applicant: {
-            fullname: $("#studentFullName").val().trim(),
-            nickname: $("#studentNickname").val().trim(),
-            gender: $("input[name='studentGender']:checked").val(),
-            place_of_birth: $("#placeOfBirth").val().trim(),
-            date_of_birth: dob,
-            age: calculateAge(dob),
-            religion: $("#religion").val(),
-            ethnicity: $("#ethnicity").val(),
-            citizenship: $("input[name='citizenship']:checked").val(),
-            height: parseFloat($("#height").val()),
-            weight: parseFloat($("#weight").val()),
-            siblings_count: parseInt($("#siblingsCount").val()),
-            birth_order: parseInt($("#birthOrder").val()),
-            home_language: $("#homeLanguage").val().trim(),
-            other_languages: $("#otherLanguages").val().trim(),
-            address: $("#fullAddress").val().trim(),
-            zipcode: $("#postalCode").val().trim(),
-            home_phone: $("#homePhone").val().trim(),
-            parent_phone: $("#parentPhone").val().trim(),
-            living_with: $("#livingWith").val(),
-            living_with_other:
-                $("#livingWith").val() === "others"
-                    ? $("#livingWithOthers").val().trim()
-                    : null,
-            distance_km: parseFloat($("#distanceToSchool").val()),
-            previous_school: $("#previousSchool").val().trim(),
-            previous_school_address: $("#previousSchoolAddress").val().trim(),
-            graduation_year: $("#graduationYear").val(),
-            ever_not_schooling:
-                $("#notAttendingSchool").val() == "true" ? true : false,
-            not_school_duration:
-                $("#notAttendingSchool").val() == "true"
-                    ? $("#notAttendingDuration").val().trim()
-                    : null,
-            not_school_reason:
-                $("#notAttendingSchool").val() == "true"
-                    ? $("#notAttendingReason").val().trim()
-                    : null,
-            dev_checked:
-                $("#developmentalAssessment").val() == "true" ? true : false,
-            dev_diagnosis:
-                $("#developmentalAssessment").val() == "true"
-                    ? $("#developmentalDiagnosis").val().trim()
-                    : null,
-            therapy_history:
-                $("#therapyHistory").val() == "true" ? true : false,
-            therapy_detail:
-                $("#therapyHistory").val() == "true"
-                    ? $("#therapyType").val().trim()
-                    : null,
-            emergency_contact_priority: $("#emergencyContactPriority").val(),
-            health: {
-                blood_type: $("#bloodType").val(),
-                food_allergy: $("#foodAllergy").val() == "true" ? true : false,
-                food_allergy_note:
-                    $("#foodAllergy").val() == "true"
-                        ? $("#foodAllergyExplanation").val().trim()
-                        : null,
-                drug_allergy: $("#drugAllergy").val() == "true" ? true : false,
-                drug_allergy_note:
-                    $("#drugAllergy").val() == "true"
-                        ? $("#drugAllergyExplanation").val().trim()
-                        : null,
-                uses_glasses:
-                    $('input[name="usesGlasses"]:checked').val() == "true"
-                        ? true
-                        : false,
-                uses_hearing_aid:
-                    $('input[name="usesHearingAid"]:checked').val() == "true"
-                        ? true
-                        : false,
-                routine_medication:
-                    $('input[name="routineMedication"]:checked').val() == "true"
-                        ? true
-                        : false,
-                routine_medication_note:
-                    $('input[name="routineMedication"]:checked').val() == "true"
-                        ? $("#routineMedicationExplanation").val().trim()
-                        : null,
-                family_disease_history: $("#familyDiseaseHistory").val().trim(),
-                referral_health_facility: $("#referralFacility").val().trim(),
-                emergency_contact: $("#emergencyContactInfo").val().trim(),
-            },
-            immunizations: {
-                bcg:
-                    $('input[name="immunizationBCG"]:checked').val() == "true"
-                        ? true
-                        : false,
-                hepatitis:
-                    $('input[name="immunizationHepatitis"]:checked').val() ==
-                    "true"
-                        ? true
-                        : false,
-                dpt:
-                    $('input[name="immunizationDTP"]:checked').val() == "true"
-                        ? true
-                        : false,
-                polio:
-                    $('input[name="immunizationPolio"]:checked').val() == "true"
-                        ? true
-                        : false,
-                measles:
-                    $('input[name="immunizationMeasles"]:checked').val() ==
-                    "true"
-                        ? true
-                        : false,
-                hepatitis_a:
-                    $('input[name="immunizationHepatitisA"]:checked').val() ==
-                    "true"
-                        ? true
-                        : false,
-                mmr:
-                    $('input[name="immunizationMMR"]:checked').val() == "true"
-                        ? true
-                        : false,
-                influenza:
-                    $('input[name="immunizationInfluenza"]:checked').val() ==
-                    "true"
-                        ? true
-                        : false,
-            },
-            medicalHistory: {
-                surgery_history: $("#surgeryHistory").val().trim(),
-                surgery_note:
-                    $("#surgeryHistory").val().trim() === "true"
-                        ? $("#surgeryNote").val().trim()
-                        : null,
-                hospitalization_history: $("#hospitalizationHistory")
-                    .val()
-                    .trim(),
-                hospitalization_note:
-                    $("#hospitalizationHistory").val().trim() === "true"
-                        ? $("#hospitalizationNote").val().trim()
-                        : null,
-                seizure_history: $("#seizureHistory").val().trim(),
-                seizure_note:
-                    $("#seizureHistory").val().trim() === "true"
-                        ? $("#seizureNote").val().trim()
-                        : null,
-                accident_history: $("#accidentHistory").val().trim(),
-                accident_note:
-                    $("#accidentHistory").val().trim() === "true"
-                        ? $("#accidentNote").val().trim()
-                        : null,
-            },
-            pregnancy_histories: {
-                medication_during_pregnancy: $("#pregnancyMedication")
-                    .val()
-                    .trim(),
-                medication_note:
-                    $("#pregnancyMedication").val().trim() === "true"
-                        ? $("#pregnancyMedicationExplanation").val().trim()
-                        : null,
-                illness_during_pregnancy: $("#pregnancyIllness").val().trim(),
-                illness_note:
-                    $("#pregnancyIllness").val().trim() === "true"
-                        ? $("#pregnancyIllnessExplanation").val().trim()
-                        : null,
-                gestational_age: $("#gestationalAge").val(),
-                delivery_method: $("#deliveryMethod").val(),
-                birth_weight: parseFloat($("#birthWeight").val()),
-                birth_height: parseFloat($("#birthHeight").val()),
-                walk_age_month: parseInt($("#walkedAtAge").val()),
-                talk_age_month: parseInt($("#spokeAtAge").val()),
-            },
-            declarations: {
-                agreed: $("#parentDeclaration").is(":checked") ? true : false,
-                agreed_at: new Date().toISOString(),
-            },
-            parents: [
-                {
-                    role: "father",
-                    fullname: $("#fatherFullName").val().trim(),
-                    phone: validatePhone($("#fatherMobile").val().trim()),
-                    home_phone: $("#fatherHomePhone").val().trim(),
-                    email: validateEmail($("#fatherEmail").val().trim()),
-                    birth_place: $("#fatherPlaceOfBirth").val().trim(),
-                    date_of_birth: moment(
-                        $("#fatherDateOfBirth").val().trim(),
-                        "DD MMMM YYYY"
-                    ).format("YYYY-MM-DD"),
-                    identity_number: $("#fatherIdCard").val().trim(),
-                    religion: $("#fatherReligion").val(),
-                    ethnicity: $("#fatherEthnicity").val().trim(),
-                    address: $("#fatherAddress").val().trim(),
-                    zipcode: $("#fatherPostalCode").val().trim(),
-                    education: $("#fatherEducation").val(),
-                    occupation: $("#fatherOccupation").val(),
-                    company_name: $("#fatherInstitution").val().trim(),
-                    company_address: $("#fatherInstitutionAddress")
-                        .val()
-                        .trim(),
-                    marital_status: $(
-                        "input[name='fatherMaritalStatus']:checked"
-                    ).val(),
-                    monthly_income: parseFloat($("#fatherIncome").val()),
-                },
-                {
-                    role: "mother",
-                    fullname: $("#motherFullName").val().trim(),
-                    phone: validatePhone($("#motherMobile").val().trim()),
-                    home_phone: $("#motherHomePhone").val().trim(),
-                    email: validateEmail($("#motherEmail").val().trim()),
-                    birth_place: $("#motherPlaceOfBirth").val().trim(),
-                    date_of_birth: moment(
-                        $("#motherDateOfBirth").val().trim(),
-                        "DD MMMM YYYY"
-                    ).format("YYYY-MM-DD"),
-                    identity_number: $("#motherIdCard").val().trim(),
-                    religion: $("#motherReligion").val(),
-                    ethnicity: $("#motherEthnicity").val().trim(),
-                    address: $("#motherAddress").val().trim(),
-                    zipcode: $("#motherPostalCode").val().trim(),
-                    education: $("#motherEducation").val(),
-                    occupation: $("#motherOccupation").val(),
-                    company_name: $("#motherInstitution").val().trim(),
-                    company_address: $("#motherInstitutionAddress")
-                        .val()
-                        .trim(),
-                    marital_status: $(
-                        "input[name='motherMaritalStatus']:checked"
-                    ).val(),
-                    monthly_income: parseFloat($("#motherIncome").val()),
-                },
-                {
-                    role: "guardian",
-                    fullname: $("#guardianFullName").val().trim(),
-                    phone: validatePhone($("#guardianMobile").val().trim()),
-                    home_phone: $("#guardianHomePhone").val().trim(),
-                    email: validateEmail($("#guardianEmail").val().trim()),
-                    birth_place: $("#guardianPlaceOfBirth").val().trim(),
-                    date_of_birth: moment(
-                        $("#guardianDateOfBirth").val().trim(),
-                        "DD MMMM YYYY"
-                    ).format("YYYY-MM-DD"),
-                    identity_number: $("#guardianIdCard").val().trim(),
-                    religion: $("#guardianReligion").val(),
-                    ethnicity: $("#guardianEthnicity").val().trim(),
-                    address: $("#guardianAddress").val().trim(),
-                    zipcode: $("#guardianPostalCode").val().trim(),
-                    education: $("#guardianEducation").val(),
-                    occupation: $("#guardianOccupation").val(),
-                    company_name: $("#guardianInstitution").val().trim(),
-                    company_address: $("#guardianInstitutionAddress")
-                        .val()
-                        .trim(),
-                    marital_status: $(
-                        "input[name='guardianMaritalStatus']:checked"
-                    ).val(),
-                    monthly_income: parseFloat($("#guardianIncome").val()),
-                },
-            ],
-        },
-    };
-
-    console.log("Formulir dikirim dengan data:", admission);
-    alert(
-        "Formulir berhasil dikirim! Terima kasih telah melengkapi formulir pendaftaran untuk Mutiara Harapan Islamic School."
-    );
-}
-
 async function getData() {
     blockUI();
     const code = $("#enrollmentCode").val().trim();
@@ -630,6 +361,24 @@ async function getAdmissionByCode(code) {
     admission = await ajaxPromise(null, `/admission/code/${code}`, "GET");
     enrolment = admission.enrolment;
     fillStudent();
+}
+
+async function getParent(role) {
+    try {
+        let parent = await ajaxPromise(
+            null,
+            `/admission/parent/${admission.applicant.id}/${role}`,
+            "GET"
+        );
+
+        fillParentByRole(role, parent);
+    } catch (err) {
+        if (err.status === 404) {
+            console.log(`Parent with role ${role} not found, skip.`);
+            return null;
+        }
+        throw err;
+    }
 }
 
 async function getLevelsAndGrades(data) {
@@ -754,7 +503,6 @@ async function postApplicant() {
         );
 
         admission = data;
-        console.log("Saved admission:", admission);
     } catch (err) {
         toastify(
             "Error",
@@ -834,133 +582,90 @@ function fillStudent() {
         .trigger("change");
 }
 
-function fillFather() {
-    if (
-        !admission ||
-        !admission.applicant ||
-        !Array.isArray(admission.applicant.parents)
-    )
-        return;
-    const father =
-        admission.applicant.parents.find((p) => p.role === "father") || {};
+function fillParentByRole(role, parent) {
+    if (!parent) return;
 
-    $("#fatherFullName").val(father.fullname || "");
-    $("#fatherMobile").val(father.phone || "");
-    $("#fatherHomePhone").val(father.home_phone || "");
-    $("#fatherEmail").val(father.email || "");
-    $("#fatherPlaceOfBirth").val(father.birth_place || "");
-    $("#fatherDateOfBirth").val(
-        father.date_of_birth
-            ? moment(father.date_of_birth).format("DD MMMM YYYY")
+    const prefix = `#${role}`;
+
+    $(`${prefix}Id`).val(parent.id || "");
+    $(`${prefix}FullName`).val(parent.fullname || "");
+    $(`${prefix}Mobile`).val(parent.phone || "");
+    $(`${prefix}HomePhone`).val(parent.home_phone || "");
+    $(`${prefix}Email`).val(parent.email || "");
+    $(`${prefix}PlaceOfBirth`).val(parent.birth_place || "");
+    $(`${prefix}DateOfBirth`).val(
+        parent.birth_date
+            ? moment(parent.birth_date).format("DD MMMM YYYY")
             : ""
     );
-    $("#fatherIdCard").val(father.identity_number || "");
-    $("#fatherReligion")
-        .val(father.religion || "")
+    $(`${prefix}IdCard`).val(parent.identity_number || "");
+    $(`${prefix}Religion`)
+        .val(parent.religion || "")
         .trigger("change");
-    $("#fatherEthnicity").val(father.ethnicity || "");
-    $("#fatherAddress").val(father.address || "");
-    $("#fatherPostalCode").val(father.zipcode || "");
-    $("#fatherEducation")
-        .val(father.education || "")
+    $(`${prefix}Ethnicity`).val(parent.ethnicity || "");
+    $(`${prefix}Address`).val(parent.address || "");
+    $(`${prefix}PostalCode`).val(parent.zipcode || "");
+    $(`${prefix}Education`)
+        .val(parent.education || "")
         .trigger("change");
-    $("#fatherOccupation").val(father.occupation || "");
-    $("#fatherInstitution").val(father.company_name || "");
-    $("#fatherInstitutionAddress").val(father.company_address || "");
+    $(`${prefix}Occupation`).val(parent.occupation || "");
+    $(`${prefix}Institution`).val(parent.company_name || "");
+    $(`${prefix}InstitutionAddress`).val(parent.company_address || "");
 
-    if (father.marital_status) {
-        $(`input[name="fatherMaritalStatus"][value="${father.marital_status}"]`)
-            .prop("checked", true)
-            .trigger("change");
-    }
-
-    $("#fatherIncome").val(formatNumber(father.monthly_income || ""));
-}
-
-function fillMother() {
-    if (
-        !admission ||
-        !admission.applicant ||
-        !Array.isArray(admission.applicant.parents)
-    )
-        return;
-    const mother =
-        admission.applicant.parents.find((p) => p.role === "mother") || {};
-
-    $("#motherFullName").val(mother.fullname || "");
-    $("#motherMobile").val(mother.phone || "");
-    $("#motherHomePhone").val(mother.home_phone || "");
-    $("#motherEmail").val(mother.email || "");
-    $("#motherPlaceOfBirth").val(mother.birth_place || "");
-    $("#motherDateOfBirth").val(
-        mother.date_of_birth
-            ? moment(mother.date_of_birth).format("DD MMMM YYYY")
-            : ""
-    );
-    $("#motherIdCard").val(mother.identity_number || "");
-    $("#motherReligion")
-        .val(mother.religion || "")
-        .trigger("change");
-    $("#motherEthnicity").val(mother.ethnicity || "");
-    $("#motherAddress").val(mother.address || "");
-    $("#motherPostalCode").val(mother.zipcode || "");
-    $("#motherEducation")
-        .val(mother.education || "")
-        .trigger("change");
-    $("#motherOccupation").val(mother.occupation || "");
-    $("#motherInstitution").val(mother.company_name || "");
-    $("#motherInstitutionAddress").val(mother.company_address || "");
-
-    if (mother.marital_status) {
-        $(`input[name="motherMaritalStatus"][value="${mother.marital_status}"]`)
-            .prop("checked", true)
-            .trigger("change");
-    }
-
-    $("#motherIncome").val(formatNumber(mother.monthly_income || ""));
-}
-
-function fillGuardian() {
-    if (
-        !admission ||
-        !admission.applicant ||
-        !Array.isArray(admission.applicant.parents)
-    )
-        return;
-    const guardian =
-        admission.applicant.parents.find((p) => p.role === "guardian") || {};
-
-    $("#guardianFullName").val(guardian.fullname || "");
-    $("#guardianMobile").val(guardian.phone || "");
-    $("#guardianHomePhone").val(guardian.home_phone || "");
-    $("#guardianEmail").val(guardian.email || "");
-    $("#guardianPlaceOfBirth").val(guardian.birth_place || "");
-    $("#guardianDateOfBirth").val(
-        guardian.date_of_birth
-            ? moment(guardian.date_of_birth).format("DD MMMM YYYY")
-            : ""
-    );
-    $("#guardianIdCard").val(guardian.identity_number || "");
-    $("#guardianReligion")
-        .val(guardian.religion || "")
-        .trigger("change");
-    $("#guardianEthnicity").val(guardian.ethnicity || "");
-    $("#guardianAddress").val(guardian.address || "");
-    $("#guardianPostalCode").val(guardian.zipcode || "");
-    $("#guardianEducation")
-        .val(guardian.education || "")
-        .trigger("change");
-    $("#guardianOccupation").val(guardian.occupation || "");
-    $("#guardianInstitution").val(guardian.company_name || "");
-    $("#guardianInstitutionAddress").val(guardian.company_address || "");
-
-    if (guardian.marital_status) {
+    if (parent.marital_status) {
         $(
-            `input[name="guardianMaritalStatus"][value="${guardian.marital_status}"]`
+            `input[name="${role}MaritalStatus"][value="${parent.marital_status}"]`
         )
             .prop("checked", true)
             .trigger("change");
     }
 
-    $("#guardianIncome").val(formatNumber(guardian.monthly_income || ""));
+    $(`${prefix}Income`).val(formatNumber(parent.monthly_income || ""));
+}
+async function postParentByRole(role) {
+    const prefix = `#${role}`;
+    const dobRaw = $(`${prefix}DateOfBirth`).val();
+    const strMoney = $(`${prefix}Income`).val();
+    let money =
+        strMoney == ""
+            ? 0
+            : parseFloat(normalizeCurrency($(`${prefix}Income`).val()));
+
+    let parent = {
+        id: $(`${prefix}Id`).val(),
+        applicant_id: admission.applicant.id,
+        role: role,
+        fullname: $(`${prefix}FullName`).val(),
+        phone: $(`${prefix}Mobile`).val(),
+        home_phone: $(`${prefix}HomePhone`).val(),
+        email: $(`${prefix}Email`).val(),
+        birth_place: $(`${prefix}PlaceOfBirth`).val(),
+        birth_date: dobRaw
+            ? moment(dobRaw, "DD MMMM YYYY").format("YYYY-MM-DD")
+            : null,
+        identity_number: $(`${prefix}IdCard`).val(),
+        religion: $(`${prefix}Religion`).val(),
+        ethnicity: $(`${prefix}Ethnicity`).val(),
+        address: $(`${prefix}Address`).val(),
+        zipcode: $(`${prefix}PostalCode`).val(),
+        education: $(`${prefix}Education`).val(),
+        occupation: $(`${prefix}Occupation`).val(),
+        company_name: $(`${prefix}Institution`).val(),
+        company_address: $(`${prefix}InstitutionAddress`).val(),
+        marital_status: $(`input[name="${role}MaritalStatus"]:checked`).val(),
+        monthly_income: money,
+    };
+
+    if (role === "guardian" && isParentEmpty(parent)) {
+        console.log("Guardian empty, skipped saving.");
+        return;
+    }
+
+    if (role === "father" || role === "mother") {
+        if (!parent.fullname || !parent.phone) {
+            throw new Error(`${role} fullname and phone are required`);
+        }
+    }
+
+    await ajaxPromise(parent, `/admission/parent`, "POST");
 }

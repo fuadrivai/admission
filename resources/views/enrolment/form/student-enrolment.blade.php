@@ -424,6 +424,7 @@
             <div class="row">
                 <div class="col-md-4 mb-3">
                     <label for="fatherFullName" class="form-label required">Nama Lengkap</label>
+                    <input type="hidden" class="form-control" id="fatherId">
                     <input type="text" class="form-control" id="fatherFullName" required>
                     <div class="error-message" id="fatherFullName-error">Harap masukkan nama lengkap ayah</div>
                 </div>
@@ -520,8 +521,7 @@
 
                 <div class="col-md-6 mb-3">
                     <label for="fatherIncome" class="form-label required">Kisaran Penghasilan Bulanan (IDR)</label>
-                    <input type="number" class="form-control" id="fatherIncome" step="100000" min="0"
-                        required>
+                    <input type="text" class="form-control number2" id="fatherIncome" required>
                     <div class="error-message" id="fatherIncome-error">Harap masukkan penghasilan bulanan ayah</div>
                 </div>
 
@@ -551,6 +551,7 @@
             <div class="row">
                 <div class="col-md-4 mb-3">
                     <label for="motherFullName" class="form-label required">Nama Lengkap</label>
+                    <input type="hidden" class="form-control" id="motherId">
                     <input type="text" class="form-control" id="motherFullName" required>
                     <div class="error-message" id="motherFullName-error">Harap masukkan nama lengkap ibu</div>
                 </div>
@@ -647,8 +648,7 @@
 
                 <div class="col-md-6 mb-3">
                     <label for="motherIncome" class="form-label required">Kisaran Penghasilan Bulanan (IDR)</label>
-                    <input type="number" class="form-control" id="motherIncome" step="100000" min="0"
-                        required>
+                    <input type="text" class="form-control number2" id="motherIncome" required>
                     <div class="error-message" id="motherIncome-error">Harap masukkan penghasilan bulanan ibu</div>
                 </div>
 
@@ -679,6 +679,7 @@
             <div class="row">
                 <div class="col-md-4 mb-3">
                     <label for="guardianFullName" class="form-label">Nama Lengkap</label>
+                    <input type="hidden" class="form-control" id="guardianId">
                     <input type="text" class="form-control" id="guardianFullName">
                 </div>
 
