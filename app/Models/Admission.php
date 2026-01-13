@@ -11,6 +11,10 @@ class Admission extends Model
     protected $guarded = ['id'];
     protected $hidden = ['applicant_id', 'enrolment_id', 'branch_id', 'level_id', 'grade_id', 'created_at', 'updated_at'];
 
+    protected $casts = [
+        'is_complete' => 'boolean',
+    ];
+
     public function applicant()
     {
         return $this->belongsTo(Applicant::class);
@@ -31,7 +35,6 @@ class Admission extends Model
     {
         return $this->belongsTo(Grade::class);
     }
-
     public function applicantName()
     {
         return $this->applicant->fullname;
@@ -47,5 +50,9 @@ class Admission extends Model
     public function branchName()
     {
         return $this->branch->name;
+    }
+    public function documents()
+    {
+        return $this->hasMany(AdmissionDocument::class);
     }
 }

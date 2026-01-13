@@ -24,7 +24,7 @@ class Applicant extends Model
     {
         return $this->hasOne(Health::class);
     }
-    public function immunizations()
+    public function immunization()
     {
         return $this->hasOne(Immunizations::class);
     }

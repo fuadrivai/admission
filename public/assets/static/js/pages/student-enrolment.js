@@ -23,7 +23,7 @@ $(document).ready(async function () {
 
     $("#next-btn").on("click", nextStep);
     $("#prev-btn").on("click", prevStep);
-    // $("#final-submit-btn").on("click", submitForm);
+    $("#final-submit-btn").on("click", submitForm);
 
     $("input, select, textarea").on("input change", function () {
         validateCurrentStep();
@@ -271,8 +271,9 @@ async function nextStep() {
     if (!validateCurrentStep()) {
         return;
     }
+    blockUI();
     if (currentStep == 1) {
-        getData();
+        await getData();
     }
     if (currentStep == 2) {
         await postApplicant();
@@ -288,6 +289,7 @@ async function nextStep() {
     }
     if (currentStep == 5) {
         await postParentByRole("guardian");
+        await getApplicant();
     }
     $(`.step[data-step="${currentStep}"]`)
         .removeClass("active")
@@ -343,7 +345,6 @@ function prevStep() {
 }
 
 async function getData() {
-    blockUI();
     const code = $("#enrollmentCode").val().trim();
     try {
         await getAdmissionByCode(code);
@@ -668,4 +669,214 @@ async function postParentByRole(role) {
     }
 
     await ajaxPromise(parent, `/admission/parent`, "POST");
+}
+
+async function submitForm() {
+    let _admission = {
+        id: admission.id,
+        applicant: {
+            id: admission.applicant.id,
+            immunization: {
+                bcg: $("input[name='immunizationBCG']:checked").val(),
+                hepatitis: $(
+                    "input[name='immunizationHepatitis']:checked"
+                ).val(),
+                dtp: $("input[name='immunizationDTP']:checked").val(),
+                polio: $("input[name='immunizationPolio']:checked").val(),
+                measles: $("input[name='immunizationMeasles']:checked").val(),
+                hepatitis_a: $(
+                    "input[name='immunizationHepatitisA']:checked"
+                ).val(),
+                mmr: $("input[name='immunizationMMR']:checked").val(),
+                influenza: $(
+                    "input[name='immunizationInfluenza']:checked"
+                ).val(),
+            },
+            health: {
+                food_allergy: $("#foodAllergy").val(),
+                food_allergy_note: $("#foodAllergyExplanation").val(),
+                drug_allergy: $("#drugAllergy").val(),
+                drug_allergy_note: $("#drugAllergyExplanation").val(),
+                blood_type: $("#bloodType").val(),
+                uses_glasses: $("input[name='usesGlasses']:checked").val(),
+                uses_hearing_aid: $(
+                    "input[name='usesHearingAid']:checked"
+                ).val(),
+                family_disease_history: $("#familyDiseaseHistory").val(),
+                referral_health_facility: $("#referralFacility").val(),
+                emergency_contact: $("#emergencyContactInfo").val(),
+                routine_medication: $(
+                    "input[name='routineMedication']:checked"
+                ).val(),
+                routine_medication_note: $(
+                    "#routineMedicationExplanation"
+                ).val(),
+            },
+            pregnancy_history: {
+                medication_during_pregnancy: $("#pregnancyMedication").val(),
+                medication_note: $("#pregnancyMedicationExplanation").val(),
+                illness_during_pregnancy: $("#pregnancyIllness").val(),
+                illness_note: $("#pregnancyIllnessExplanation").val(),
+                gestational_age: $("#gestationalAge").val(),
+                delivery_method: $("#deliveryMethod").val(),
+                birth_weight: $("#birthWeight").val(),
+                birth_height: $("#birthHeight").val(),
+                walk_age_month: $("#walkedAtAge").val(),
+                talk_age_month: $("#spokeAtAge").val(),
+            },
+
+            medical_histories: {
+                surgery_history: $("#surgeryHistory").val(),
+                surgery_note: $("#surgeryNote").val(),
+                hospitalization_history: $("#hospitalizationHistory").val(),
+                hospitalization_note: $("#hospitalizationNote").val(),
+                seizure_history: $("#seizureHistory").val(),
+                seizure_note: $("#seizureNote").val(),
+                accident_history: $("#accidentHistory").val(),
+                accident_note: $("#accidentNote").val(),
+            },
+            parent_declarations: {
+                agreed: $("#parentDeclaration").prop("checked"),
+            },
+        },
+    };
+
+    try {
+        blockUI();
+        let response = await ajaxPromise(
+            _admission,
+            `/admission/health`,
+            "POST"
+        );
+        toastify("success", "Data berhasil disimpan", "bottom");
+        setTimeout(function () {
+            window.location.href = `/admission/file/${admission.code}`;
+        }, 1000);
+    } catch (err) {
+        toastify(
+            "Error",
+            err?.responseJSON?.message ?? "Please try again later",
+            "bottom"
+        );
+    }
+}
+
+async function getApplicant() {
+    let applicant = await ajaxPromise(
+        null,
+        `/admission/applicant/${admission.applicant.id}`,
+        "GET"
+    );
+
+    mapHealth(applicant.health);
+    mapImmunization(applicant.immunization);
+    mapMedicalHistory(applicant.medical_history);
+    mapPregnancyHistory(applicant.pregnancy_history);
+    mapDeclaration(applicant.declaration);
+}
+
+function mapDeclaration(declaration) {
+    if (!declaration) return;
+
+    $("#parentDeclaration").prop("checked", declaration.agreed);
+}
+
+function mapPregnancyHistory(pregnancy) {
+    if (!pregnancy) return;
+
+    $("#pregnancyMedication")
+        .val(pregnancy.medication_during_pregnancy.toString())
+        .trigger("change");
+    $("#pregnancyMedicationExplanation").val(pregnancy.medication_note);
+
+    $("#pregnancyIllness")
+        .val(pregnancy.illness_during_pregnancy.toString())
+        .trigger("change");
+    $("#pregnancyIllnessExplanation").val(pregnancy.illness_note);
+
+    $("#gestationalAge").val(pregnancy.gestational_age).trigger("change");
+    $("#deliveryMethod").val(pregnancy.delivery_method).trigger("change");
+    $("#birthWeight").val(pregnancy.birth_weight);
+    $("#birthHeight").val(pregnancy.birth_height);
+    $("#walkedAtAge").val(pregnancy.walk_age_month);
+    $("#spokeAtAge").val(pregnancy.talk_age_month);
+}
+
+function mapMedicalHistory(history) {
+    if (!history) return;
+
+    $("#surgeryHistory")
+        .val(history.surgery_history.toString())
+        .trigger("change");
+    $("#surgeryNote").val(history.surgery_note);
+
+    $("#hospitalizationHistory")
+        .val(history.hospitalization_history.toString())
+        .trigger("change");
+    $("#hospitalizationNote").val(history.hospitalization_note);
+
+    $("#seizureHistory")
+        .val(history.seizure_history.toString())
+        .trigger("change");
+    $("#seizureNote").val(history.seizure_note);
+
+    $("#accidentHistory")
+        .val(history.accident_history.toString())
+        .trigger("change");
+    $("#accidentNote").val(history.accident_note);
+}
+
+function mapImmunization(immunization) {
+    if (!immunization) return;
+
+    $(`input[name="immunizationBCG"][value="${immunization.bcg}"]`)
+        .prop("checked", true)
+        .trigger("change");
+    $(`input[name="immunizationHepatitis"][value="${immunization.hepatitis}"]`)
+        .prop("checked", true)
+        .trigger("change");
+    $(`input[name="immunizationDTP"][value="${immunization.dtp}"]`)
+        .prop("checked", true)
+        .trigger("change");
+    $(`input[name="immunizationPolio"][value="${immunization.polio}"]`)
+        .prop("checked", true)
+        .trigger("change");
+    $(`input[name="immunizationMeasles"][value="${immunization.measles}"]`)
+        .prop("checked", true)
+        .trigger("change");
+    $(
+        `input[name="immunizationHepatitisA"][value="${immunization.hepatitis_a}"]`
+    )
+        .prop("checked", true)
+        .trigger("change");
+    $(`input[name="immunizationMMR"][value="${immunization.mmr}"]`)
+        .prop("checked", true)
+        .trigger("change");
+    $(`input[name="immunizationInfluenza"][value="${immunization.influenza}"]`)
+        .prop("checked", true)
+        .trigger("change");
+}
+
+function mapHealth(health) {
+    if (!health) return;
+
+    $("#bloodType").val(health.blood_type).trigger("change");
+    $("#foodAllergy").val(health.food_allergy.toString()).trigger("change");
+    $("#foodAllergyExplanation").val(health.food_allergy_note);
+    $("#drugAllergy").val(health.drug_allergy.toString()).trigger("change");
+    $("#drugAllergyExplanation").val(health.drug_allergy_note);
+
+    $(`input[name='usesGlasses'][value="${health.uses_glasses}"]`)
+        .prop("checked", true)
+        .trigger("change");
+    $(`input[name="usesHearingAid"][value="${health.uses_hearing_aid}"]`)
+        .prop("checked", true)
+        .trigger("change");
+    $(`input[name="routineMedication"][value="${health.routine_medication}"]`)
+        .prop("checked", true)
+        .trigger("change");
+    $("#routineMedicationExplanation").val(health.routine_medication_note);
+    $("#familyDiseaseHistory").val(health.family_disease_history);
+    $("#referralFacility").val(health.referral_health_facility);
+    $("#emergencyContactInfo").val(health.emergency_contact);
 }

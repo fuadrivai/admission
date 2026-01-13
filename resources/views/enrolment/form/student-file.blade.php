@@ -419,15 +419,15 @@
                     <div class="card-body-custom">
                         <div class="parent-info">
                             <span class="parent-label">Nama:</span>
-                            <span class="parent-value" id="fatherName">-</span>
+                            <span class="parent-value" id="fatherName">{{ $father->fullname ?? '--' }}</span>
                         </div>
                         <div class="parent-info">
                             <span class="parent-label">HP:</span>
-                            <span class="parent-value" id="fatherPhone">-</span>
+                            <span class="parent-value" id="fatherPhone">{{ $father->phone ?? '--' }}</span>
                         </div>
                         <div class="parent-info">
                             <span class="parent-label">Email:</span>
-                            <span class="parent-value" id="fatherEmail">-</span>
+                            <span class="parent-value" id="fatherEmail">{{ $father->email ?? '--' }}</span>
                         </div>
                     </div>
                 </div>
@@ -439,15 +439,15 @@
                     <div class="card-body-custom">
                         <div class="parent-info">
                             <span class="parent-label">Nama:</span>
-                            <span class="parent-value" id="motherName">-</span>
+                            <span class="parent-value" id="motherName">{{ $mother->fullname ?? '--' }}</span>
                         </div>
                         <div class="parent-info">
                             <span class="parent-label">HP:</span>
-                            <span class="parent-value" id="motherPhone">-</span>
+                            <span class="parent-value" id="motherPhone">{{ $mother->phone ?? '--' }}</span>
                         </div>
                         <div class="parent-info">
                             <span class="parent-label">Email:</span>
-                            <span class="parent-value" id="motherEmail">-</span>
+                            <span class="parent-value" id="motherEmail">{{ $mother->email ?? '--' }}</span>
                         </div>
                     </div>
                 </div>
@@ -459,19 +459,15 @@
                     <div class="card-body-custom">
                         <div class="parent-info">
                             <span class="parent-label">Nama:</span>
-                            <span class="parent-value" id="guardianName">-</span>
+                            <span class="parent-value" id="guardianName">{{ $guardian->fullname ?? '--' }}</span>
                         </div>
                         <div class="parent-info">
                             <span class="parent-label">HP:</span>
-                            <span class="parent-value" id="guardianPhone">-</span>
+                            <span class="parent-value" id="guardianPhone">{{ $guardian->phone ?? '--' }}</span>
                         </div>
                         <div class="parent-info">
                             <span class="parent-label">Email:</span>
-                            <span class="parent-value" id="guardianEmail">-</span>
-                        </div>
-                        <div class="parent-info">
-                            <span class="parent-label">Status:</span>
-                            <span class="parent-value" id="guardianStatus">Tidak ada data wali</span>
+                            <span class="parent-value" id="guardianEmail">{{ $guardian->email ?? '--' }}</span>
                         </div>
                     </div>
                 </div>
@@ -484,19 +480,20 @@
             </h5>
             <div class="student-info-row">
                 <div class="student-label">Nama Lengkap:</div>
-                <div class="student-value" id="studentFullName">-</div>
+                <div class="student-value" id="studentFullName">{{ $admission->applicant->fullname ?? '--' }}</div>
             </div>
             <div class="student-info-row">
-                <div class="student-label">Level Pendidikan:</div>
-                <div class="student-value" id="studentLevel">-</div>
-            </div>
-            <div class="student-info-row">
-                <div class="student-label">Kelas:</div>
-                <div class="student-value" id="studentClass">-</div>
+                <div class="student-label">Level:</div>
+                <div class="student-value" id="studentLevel">{{ $admission->level->name ?? '--' }} /
+                    {{ $admission->grade->name ?? '--' }}</div>
             </div>
             <div class="student-info-row">
                 <div class="student-label">Tahun Akademik:</div>
-                <div class="student-value" id="academicYear">-</div>
+                <div class="student-value" id="academicYear">{{ $admission->accademic_year ?? '--' }}</div>
+            </div>
+            <div class="student-info-row">
+                <div class="student-label">Cabang:</div>
+                <div class="student-value" id="branch">{{ $admission->branch->name ?? '--' }}</div>
             </div>
         </div>
 
@@ -589,57 +586,7 @@
             akte: null,
             kk: null,
         };
-        const sampleData = {
-            father: {
-                name: "Ahmad Sudirman",
-                phone: "0812 3456 7890",
-                email: "ahmad.sudirman@email.com",
-            },
-            mother: {
-                name: "Siti Fatimah",
-                phone: "0813 4567 8901",
-                email: "siti.fatimah@email.com",
-            },
-            guardian: {
-                name: "",
-                phone: "",
-                email: "",
-                hasGuardian: false,
-            },
-            student: {
-                fullName: "Muhammad Al-Fatih Sudirman",
-                level: "SD",
-                class: "Kelas 1",
-                academicYear: "2024/2025",
-            },
-        };
         $(document).ready(function() {
-
-            $("#fatherName").text(sampleData.father.name);
-            $("#fatherPhone").text(sampleData.father.phone);
-            $("#fatherEmail").text(sampleData.father.email);
-
-            $("#motherName").text(sampleData.mother.name);
-            $("#motherPhone").text(sampleData.mother.phone);
-            $("#motherEmail").text(sampleData.mother.email);
-
-            if (sampleData.guardian.hasGuardian) {
-                $("#guardianName").text(sampleData.guardian.name);
-                $("#guardianPhone").text(sampleData.guardian.phone);
-                $("#guardianEmail").text(sampleData.guardian.email);
-                $("#guardianStatus").text("Data wali tersedia");
-            } else {
-                $("#guardianName").text("-");
-                $("#guardianPhone").text("-");
-                $("#guardianEmail").text("-");
-                $("#guardianStatus").text("Tidak ada data wali");
-            }
-
-            $("#studentFullName").text(sampleData.student.fullName);
-            $("#studentLevel").text(sampleData.student.level);
-            $("#studentClass").text(sampleData.student.class);
-            $("#academicYear").text(sampleData.student.academicYear);
-
             $("#ktpAyahInput").on("change", function(e) {
                 handleFileUpload(e, "ktpAyah");
             });
@@ -672,14 +619,12 @@
             const file = event.target.files[0];
             if (!file) return;
 
-            // Check file size (max 5MB)
-            const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+            const maxSize = 5 * 1024 * 1024;
             if (file.size > maxSize) {
                 showError(documentType, "Ukuran file terlalu besar. Maksimal 5MB.");
                 return;
             }
 
-            // Check file type
             const validTypes = [
                 "image/jpeg",
                 "image/jpg",
@@ -699,7 +644,6 @@
             updateCardStatus(documentType, "uploaded");
             checkSubmitButton();
 
-            // Reset file input to allow uploading the same file again if needed
             event.target.value = "";
         }
 
@@ -769,9 +713,7 @@
 
             if (status === "uploaded") {
                 card.addClass("uploaded");
-            } else if (status === "removed") {
-                // Card returns to normal state
-            }
+            } else if (status === "removed") {}
         }
 
         function checkSubmitButton() {
@@ -821,7 +763,6 @@
                 }
             });
 
-            formData.append("studentName", sampleData.student.fullName);
             formData.append("timestamp", new Date().toISOString());
 
             console.log("Submitting documents:", formData);

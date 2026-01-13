@@ -10,19 +10,16 @@ class GradeImplement implements GradeService
 {
     public function get()
     {
-        // Ambil semua grades dengan relasi level
         return Grade::with('level')->get();
     }
 
     public function show($id)
     {
-        // Detail grade by id
         return Grade::with('level')->findOrFail($id);
     }
 
     public function post($data)
     {
-        // Simpan grade baru
         $division = Division::create([
             'name'     => $data['name'],
         ]);

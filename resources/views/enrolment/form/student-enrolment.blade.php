@@ -40,7 +40,7 @@
         <div class="step-indicator">
             <div class="step active" data-step="1">
                 <div class="step-number">1</div>
-                <div class="step-title">Data Awal</div>
+                <div class="step-title">Code</div>
             </div>
             <div class="step" data-step="2">
                 <div class="step-number">2</div>
@@ -761,7 +761,7 @@
 
                 <div class="col-md-6 mb-3">
                     <label for="guardianIncome" class="form-label">Kisaran Penghasilan Bulanan (IDR)</label>
-                    <input type="number" class="form-control" id="guardianIncome" step="100000" min="0">
+                    <input type="text" class="number2 form-control" id="guardianIncome">
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Status Pernikahan</label>
@@ -1177,17 +1177,6 @@
                         </div>
                     </div>
                 </div>
-
-                {{-- <div class="col-md-6 mb-3">
-                    <label for="pastIllness" class="form-label required">Penyakit yang pernah diderita oleh Ananda
-                        sebelumnya</label>
-                    <select class="form-select" id="pastIllness" required>
-                        <option value="" selected disabled>Pilih opsi</option>
-                        <option value="Tidak">Tidak</option>
-                        <option value="Ya">Ya</option>
-                    </select>
-                    <div class="error-message" id="pastIllness-error">Harap pilih opsi</div>
-                </div> --}}
 
                 <div class="col-md-6 mb-3">
                     <label for="seizureHistory" class="form-label required">Apakah anak memiliki riwayat

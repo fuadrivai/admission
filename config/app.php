@@ -193,6 +193,7 @@ return [
         App\Providers\SiswaEreportProvider::class,
         App\Providers\XenditCallBackProvider::class,
         App\Providers\AdmissionProvider::class,
+        App\Providers\AdmissionDocumentProvider::class,
 
     ],
 

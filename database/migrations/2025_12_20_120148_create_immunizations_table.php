@@ -18,7 +18,7 @@ class CreateImmunizationsTable extends Migration
             $table->foreignId('applicant_id')->nullable();
             $table->boolean('bcg')->default(false);
             $table->boolean('hepatitis')->default(false);
-            $table->boolean('dpt')->default(false)->comment('Diphtheria, Pertussis, Tetanus');
+            $table->boolean('dtp')->default(false)->comment('Diphtheria, Tetanus, Pertussis');
             $table->boolean('polio')->default(false);
             $table->boolean('measles')->default(false)->comment('Campak');
             $table->boolean('hepatitis_a')->default(false);

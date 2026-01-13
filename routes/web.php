@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdmissionController;
+use App\Http\Controllers\AdmissionDocumentController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BankChargerController;
 use App\Http\Controllers\DivisionController;
@@ -50,14 +51,16 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
     Route::get('enrolment/student/{code}', [EnrolmentController::class, 'showByCode'])->name('enrolment.studentShowByCode');
     Route::post('enrolment/post', [EnrolmentController::class, 'post'])->name('enrolment.postForm');
     
-    Route::get('enrolment/student', [AdmissionController::class, 'studentForm'])->name('admission.studentForm');
+    Route::get('admission/student', [AdmissionController::class, 'studentForm'])->name('admission.studentForm');
     Route::post('admission/applicant', [AdmissionController::class, 'postApplicant'])->name('admission.postApplicant');
+    Route::get('admission/applicant/{id}', [AdmissionController::class, 'getApplicant'])->name('admission.getApplicant');
     Route::get('admission/code/{code}', [AdmissionController::class, 'showByCode'])->name('admission.showByCode');
     Route::get('admission/parent/{child_id}/{role}', [AdmissionController::class, 'getParent'])->name('admission.getParent');
     Route::post('admission/parent', [AdmissionController::class, 'postParent'])->name('admission.postParent');
+    Route::post('admission/health', [AdmissionController::class, 'postHealth'])->name('admission.postHealth');
 
-    Route::get('enrolment/file', [AdmissionController::class, 'studentFile'])->name('admission.studentFile');
-    Route::get('enrolment/approval', [AdmissionController::class, 'studentAproval'])->name('admission.studentApproval');
+    Route::get('admission/document/{code}', [AdmissionDocumentController::class, 'code'])->name('admissionDocument.code');
+    Route::get('admission/approval/{code}', [AdmissionController::class, 'studentAproval'])->name('admission.studentApproval');
     
     Route::get('/level/branch/{id}', [LevelController::class, 'getByBranch'])->name('getByBranch');
     Route::get('/holiday/check/{date}', [HolidayController::class, 'isHoliday']);

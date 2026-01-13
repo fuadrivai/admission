@@ -6,13 +6,38 @@ use App\Models\Admission;
 use App\Models\Applicant;
 use App\Models\ApplicantParent;
 use App\Models\Enrolment;
+use App\Models\Health;
+use App\Models\Immunizations;
+use App\Models\MedicalHistory;
+use App\Models\ParentDeclaration;
+use App\Models\PregnancyHistory;
 use App\Services\AdmissionService;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 use function App\Helpers\normalizePhoneNumber;
 
 class AdmissionImplement implements AdmissionService
 {
+    public function show($id)
+    {
+        $admission  = Admission::with(
+                [
+                    'enrolment',
+                    'branch',
+                    'level',
+                    'grade',
+                    'applicant',
+                    'applicant.health',
+                    'applicant.immunization',
+                    'applicant.medicalHistory',
+                    'applicant.pregnancyHistory',
+                    'applicant.declaration',
+                    'applicant.parents',
+                ]
+            )->findOrFail($id);
+            return $admission;
+    }
     public function showByCode($code)
     {
         $admission =  Admission::with(['applicant','enrolment','branch','level','grade'])
@@ -57,7 +82,7 @@ class AdmissionImplement implements AdmissionService
                 return Admission::with(['applicant','enrolment','branch','level','grade'])
                         ->where('code', $code)->first();
             }else{
-                return response()->json(['message'=>"no code found in admission"],404);
+                return response()->json(['message'=>"no code found in enrolment or admission"],404);
             }
         }
         return $admission;
@@ -110,6 +135,7 @@ class AdmissionImplement implements AdmissionService
             ->where('role', $role)
             ->firstOrFail();
     }
+
     public function postParent($data)
     {
         $parent = ApplicantParent::updateOrCreate(
@@ -140,6 +166,58 @@ class AdmissionImplement implements AdmissionService
         );
 
         return $parent;
+    }
+
+    public function getApplicant($id){
+        return Applicant:: with([
+            'health',
+            'immunization',
+            'medicalHistory',
+            'pregnancyHistory',
+            'declaration',
+            'parents',
+        ])->findOrFail($id);
+    }
+
+    public function PostHealth($data) {
+        DB::transaction(function () use ($data) {
+            $applicantId = $data['applicant']['id'];
+            $admissionId = $data['id'];
+
+            Immunizations::updateOrCreate(
+                ['applicant_id' => $applicantId],
+                $data['applicant']['immunization']
+            );
+
+            Health::updateOrCreate(
+                ['applicant_id' => $applicantId],
+                $data['applicant']['health']
+            );
+
+            PregnancyHistory::updateOrCreate(
+                ['applicant_id' => $applicantId],
+                $data['applicant']['pregnancy_history']
+            );
+
+            MedicalHistory::updateOrCreate(
+                ['applicant_id' => $applicantId],
+                $data['applicant']['medical_histories']
+            );
+
+            ParentDeclaration::updateOrCreate(
+                ['applicant_id' => $applicantId],
+                $data['applicant']['parent_declarations']
+            );
+
+            Admission::where('id', $admissionId)->update([
+                'is_complete' => 1
+            ]);
+        });
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Data kesehatan berhasil disimpan'
+        ]);
     }
 
 

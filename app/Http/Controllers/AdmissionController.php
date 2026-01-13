@@ -123,16 +123,26 @@ class AdmissionController extends Controller
         $admission = $this->admissionService->post($data);
         return response()->json($admission);
     }
+
+    public function postHealth(Request $request)
+    {
+        $data = $request->all();
+        $admission = $this->admissionService->postHealth($data);
+        return response()->json($admission);
+    }
+
+    public function getApplicant($id)
+    {
+        $applicant = $this->admissionService->getApplicant($id);
+        return response()->json($applicant);
+    }
     
     public function studentForm()
     {
         return view('enrolment.form.student-enrolment');
     }
-    public function studentFile()
-    {
-        return view('enrolment.form.student-file');
-    }
-    public function studentAproval()
+    
+    public function studentAproval($code)
     {
         return view('enrolment.form.student-approval');
     }
