@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdmissionController;
 use App\Http\Controllers\AdmissionDocumentController;
+use App\Http\Controllers\AdmissionStatementController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BankChargerController;
 use App\Http\Controllers\DivisionController;
@@ -60,7 +61,9 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
     Route::post('admission/health', [AdmissionController::class, 'postHealth'])->name('admission.postHealth');
 
     Route::get('admission/document/{code}', [AdmissionDocumentController::class, 'code'])->name('admissionDocument.code');
-    Route::get('admission/approval/{code}', [AdmissionController::class, 'studentAproval'])->name('admission.studentApproval');
+    Route::post('admission/document', [AdmissionDocumentController::class, 'store'])->name('admissionDocument.store');
+
+    Route::get('admission/statement/{code}', [AdmissionStatementController::class, 'index'])->name('admission.index');
     
     Route::get('/level/branch/{id}', [LevelController::class, 'getByBranch'])->name('getByBranch');
     Route::get('/holiday/check/{date}', [HolidayController::class, 'isHoliday']);

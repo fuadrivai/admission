@@ -141,9 +141,4 @@ class AdmissionController extends Controller
     {
         return view('enrolment.form.student-enrolment');
     }
-    
-    public function studentAproval($code)
-    {
-        return view('enrolment.form.student-approval');
-    }
 }

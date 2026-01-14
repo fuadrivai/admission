@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>
         Form Pengumpulan Berkas Pendaftaran - Mutiara Harapan Islamic School
     </title>
@@ -122,6 +123,8 @@
         </div>
 
         <div class="upload-section">
+            <input type="hidden" id="id" value="{{ $admission->id }}">
+            <input type="hidden" id="code" value="{{ $admission->code }}">
             <h3 class="section-title">Upload Dokumen Pendaftaran</h3>
             <p class="mb-4">
                 Silakan upload dokumen-dokumen berikut ini. Pastikan dokumen terlihat

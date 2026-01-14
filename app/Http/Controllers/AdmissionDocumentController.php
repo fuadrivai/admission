@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Admission;
 use App\Models\AdmissionDocument;
-use App\Models\ApplicantParent;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class AdmissionDocumentController extends Controller
@@ -60,7 +60,44 @@ class AdmissionDocumentController extends Controller
      */
     public function store(Request $request)
     {
-        //
+
+    try {
+        $mapping = [
+            'ktp_father' => 'father',
+            'ktp_mother' => 'mother',
+            'birth_certificate' => 'child',
+            'family_card' => 'family',
+        ];
+        foreach ($mapping as $field => $type) {
+            if ($request->hasFile($field)) {
+                $file = $request->file($field);
+
+                $path = $file->store(
+                    "admission/{$request->admission_id}",
+                    'public'
+                );
+
+                AdmissionDocument::updateOrCreate(
+                    [
+                        'admission_id' => $request->admission_id,
+                        'type' => $field,
+                    ],
+                    [
+                        'file_path'     => $path,
+                        'original_name' => $file->getClientOriginalName(),
+                        'mime_type'     => $file->getClientMimeType(),
+                        'file_size'     => $file->getSize(),
+                        'owner_role'    => $type,
+                        'verified_at'   => Carbon::now()
+                    ]
+                );
+            }
+        }
+        return response()->json(["message"=>"Data berhasil di simpan"],201);
+    } catch (\Throwable $th) {
+        return response()->json($th->getMessage(), $th->getCode());
+    }
+        
     }
 
     /**

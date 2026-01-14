@@ -30,6 +30,13 @@ $(document).ready(function () {
         checkSubmitButton();
     };
     checkSubmitButton();
+
+    $("html, body").animate(
+        {
+            scrollTop: 0,
+        },
+        300
+    );
 });
 
 function handleFileUpload(event, documentType) {
@@ -173,27 +180,46 @@ function showSuccessMessage(message) {
 
 function submitDocuments() {
     const formData = new FormData();
-    Object.keys(uploadedFiles).forEach((key) => {
-        if (uploadedFiles[key]) {
-            formData.append(key, uploadedFiles[key]);
+    const admissionCode = $("#code").val();
+
+    formData.append("admission_id", $("#id").val());
+    const files = [
+        { key: "ktp_father", data: "ktpAyah", type: "ktp_father" },
+        { key: "ktp_mother", data: "ktpIbu", type: "ktp_mother" },
+        { key: "birth_certificate", data: "akte", type: "birth_certificate" },
+        { key: "family_card", data: "kk", type: "family_card" },
+    ];
+
+    files.forEach((item) => {
+        const file = uploadedFiles[item.data];
+        if (file) {
+            formData.append(item.key, file);
         }
     });
 
-    formData.append("timestamp", new Date().toISOString());
+    blockUI();
 
-    console.log("Submitting documents:", formData);
-
-    $("#submitBtn").html(
-        '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Mengupload...'
-    );
-    $("#submitBtn").prop("disabled", true);
-
-    setTimeout(() => {
-        $("#submitBtn").html(
-            '<i class="bi bi-send-check"></i> Kirim Semua Berkas'
-        );
-        $("#submitBtn").prop("disabled", false);
-
-        showSuccessMessage("Semua dokumen berhasil diupload! Terima kasih.");
-    }, 2000);
+    $.ajax({
+        url: `/admission/document`,
+        type: "POST",
+        data: formData,
+        processData: false,
+        contentType: false,
+        headers: {
+            "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
+        },
+        success: function (res) {
+            toastify("success", "Data berhasil disimpan", "bottom");
+            setTimeout(function () {
+                window.location.href = `/admission/statement/${admissionCode}`;
+            }, 1000);
+        },
+        error: function (err) {
+            toastify(
+                "Error",
+                err?.responseJSON?.message ?? "Please try again later",
+                "bottom"
+            );
+        },
+    });
 }

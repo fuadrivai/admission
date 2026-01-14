@@ -194,6 +194,7 @@ return [
         App\Providers\XenditCallBackProvider::class,
         App\Providers\AdmissionProvider::class,
         App\Providers\AdmissionDocumentProvider::class,
+        App\Providers\AdmissionStatementProvider::class,
 
     ],
 

@@ -297,3 +297,94 @@ function isParentEmpty(parent, excludeKeys = ["id", "applicant_id", "role"]) {
             );
         });
 }
+
+function convertToTerbilang(number) {
+    const ones = [
+        "",
+        "satu",
+        "dua",
+        "tiga",
+        "empat",
+        "lima",
+        "enam",
+        "tujuh",
+        "delapan",
+        "sembilan",
+    ];
+    const teens = [
+        "sepuluh",
+        "sebelas",
+        "dua belas",
+        "tiga belas",
+        "empat belas",
+        "lima belas",
+        "enam belas",
+        "tujuh belas",
+        "delapan belas",
+        "sembilan belas",
+    ];
+    const tens = [
+        "",
+        "",
+        "dua puluh",
+        "tiga puluh",
+        "empat puluh",
+        "lima puluh",
+        "enam puluh",
+        "tujuh puluh",
+        "delapan puluh",
+        "sembilan puluh",
+    ];
+    const thousands = ["", "ribu", "juta", "miliar", "triliun"];
+
+    if (number === 0) return "nol";
+
+    let result = "";
+    let groupIndex = 0;
+
+    while (number > 0) {
+        const group = number % 1000;
+
+        if (group > 0) {
+            let groupWords = "";
+            const hundreds = Math.floor(group / 100);
+            const tensAndOnes = group % 100;
+
+            if (hundreds > 0) {
+                if (hundreds === 1) {
+                    groupWords += "seratus ";
+                } else {
+                    groupWords += ones[hundreds] + " ratus ";
+                }
+            }
+
+            if (tensAndOnes > 0) {
+                if (tensAndOnes < 10) {
+                    groupWords += ones[tensAndOnes] + " ";
+                } else if (tensAndOnes < 20) {
+                    groupWords += teens[tensAndOnes - 10] + " ";
+                } else {
+                    const tensDigit = Math.floor(tensAndOnes / 10);
+                    const onesDigit = tensAndOnes % 10;
+                    groupWords += tens[tensDigit] + " ";
+                    if (onesDigit > 0) {
+                        groupWords += ones[onesDigit] + " ";
+                    }
+                }
+            }
+
+            if (groupIndex === 1 && group === 1) {
+                groupWords = "seribu ";
+            } else {
+                groupWords += thousands[groupIndex] + " ";
+            }
+
+            result = groupWords + result;
+        }
+
+        number = Math.floor(number / 1000);
+        groupIndex++;
+    }
+
+    return result.trim() + " rupiah";
+}
