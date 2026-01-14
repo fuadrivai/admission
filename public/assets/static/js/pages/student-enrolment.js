@@ -750,7 +750,7 @@ async function submitForm() {
         );
         toastify("success", "Data berhasil disimpan", "bottom");
         setTimeout(function () {
-            window.location.href = `/admission/file/${admission.code}`;
+            window.location.href = `/admission/document/${admission.code}`;
         }, 1000);
     } catch (err) {
         toastify(
