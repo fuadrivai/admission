@@ -126,7 +126,7 @@ async function nextStep() {
     }
 
     if (currentStep == 1) {
-        await postStatement();
+        await postStatement(false);
         if (admission.statement.financial) {
             await getFinancialStatement();
         }
@@ -236,8 +236,8 @@ async function submitForm() {
             '<i class="bi bi-send-check"></i> Kirim Formulir Persetujuan',
         );
         $(".final-submit-btn").prop("disabled", false);
-        toastify("Success", "Formulir persetujuan telah berhasil dikirim.");
-    }, 2000);
+        toastify("success", "Formulir persetujuan telah berhasil dikirim.");
+    }, 500);
 }
 
 async function getAdmissionByCode() {
