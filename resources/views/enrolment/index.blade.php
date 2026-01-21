@@ -98,12 +98,12 @@
                                 <thead>
                                     <tr class="text-center">
                                         <th>Code</th>
-                                        <th>Parent's name</th>
+                                        <th>Parent</th>
                                         <th>Contact</th>
-                                        <th>Child's Name</th>
-                                        <th>Level</th>
-                                        <th>Grade</th>
+                                        <th>Child</th>
                                         <th>Branch</th>
+                                        <th>Grade</th>
+                                        <th>AY</th>
                                         <th>Date Time</th>
                                         <th>Status</th>
                                         <th>Action</th>
@@ -263,12 +263,15 @@
                         defaultContent: "--",
                     },
                     {
-                        data: "date",
+                        data: "payment_date",
                         className: "text-center",
                         mRender: function(data, type, full) {
-                            let date = moment(data).format("DD MMMM YYYY")
-                            let time = moment(full.time, "HH:mm:ss").format("HH:mm")
-                            return `<label>${date}</label><br><label>${time}</label>`
+                            if (data == null || data == "") {
+                                return "--"
+                            } else {
+                                let date = moment(data).format("DD MMMM YYYY HH:mm")
+                                return `<label>${date}</label></label>`
+                            }
                         }
                     },
                     {
