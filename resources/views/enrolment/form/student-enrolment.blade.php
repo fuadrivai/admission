@@ -11,7 +11,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/assets/extensions/toastify-js/src/toastify.css">
     <link rel="stylesheet" href="/assets/extensions/bootstrap-datepicker/css/bootstrap-datepicker.css">
-    <link rel="stylesheet" href="/assets/static/css/student-enrolment.css?v=1.0.0">
+    <link rel="stylesheet" href="/assets/static/css/student-enrolment.css?v=1.0.1">
 
 </head>
 
@@ -120,302 +120,329 @@
 
         <!-- Step 2: Student Data -->
         <div class="step-content" id="step-2">
-            <h2 class="section-title">Data Siswa</h2>
+            <h2 class="section-title">Student Information</h2>
 
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label for="studentFullName" class="form-label required">Nama Lengkap Ananda</label>
+                    <label for="studentFullName" class="form-label required">Full Name</label>
+                    <br><small><i>Nama Lengkap Siswa</i></small>
                     <input type="text" class="form-control" id="studentFullName" required>
-                    <div class="error-message" id="studentFullName-error">Harap masukkan nama lengkap ananda</div>
+                    <div class="error-message" id="studentFullName-error">Please enter the student's full name</div>
                 </div>
 
                 <div class="col-md-6 mb-3">
-                    <label for="studentNickname" class="form-label required">Nama Panggilan Ananda</label>
+                    <label for="studentNickname" class="form-label required">Nickname</label>
+                    <br><small><i>Nama Panggilan Ananda</i></small>
                     <input type="text" class="form-control" id="studentNickname" required>
-                    <div class="error-message" id="studentNickname-error">Harap masukkan nama panggilan ananda</div>
+                    <div class="error-message" id="studentNickname-error">Please enter the student's nickname</div>
                 </div>
 
                 <div class="col-md-4 mb-3">
-                    <label class="form-label required">Jenis Kelamin</label>
+                    <label class="form-label required">Gender</label>
+                    <br><small><i>Jenis Kelamin</i></small>
                     <div class="inline-radio-group">
                         <div class="form-check">
                             <input class="form-check-input" type="radio" name="studentGender"
                                 id="studentGenderFemale" value="female" required>
-                            <label class="form-check-label" for="studentGenderFemale">Perempuan</label>
+                            <label class="form-check-label" for="studentGenderFemale">Female</label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="radio" name="studentGender"
                                 id="studentGenderMale" value="male">
-                            <label class="form-check-label" for="studentGenderMale">Laki-laki</label>
+                            <label class="form-check-label" for="studentGenderMale">Male</label>
                         </div>
                     </div>
-                    <div class="error-message" id="studentGender-error">Harap pilih jenis kelamin</div>
+                    <div class="error-message" id="studentGender-error">Please select gender</div>
                 </div>
 
                 <div class="col-md-4 mb-3">
-                    <label for="placeOfBirth" class="form-label required">Tempat Lahir</label>
+                    <label for="placeOfBirth" class="form-label required">Place of Birth</label>
+                    <br><small><i>Tempat Lahir</i></small>
                     <input type="text" class="form-control" id="placeOfBirth" required>
-                    <div class="error-message" id="placeOfBirth-error">Harap masukkan tempat lahir</div>
+                    <div class="error-message" id="placeOfBirth-error">Please enter place of birth</div>
                 </div>
 
                 <div class="col-md-4 mb-3">
-                    <label for="dateOfBirth" class="form-label required">Tanggal Lahir</label>
+                    <label for="dateOfBirth" class="form-label required">Date of Birth</label>
+                    <br><small><i>Tanggal Lahir</i></small>
                     <input type="text" class="form-control date-picker" readonly id="dateOfBirth" required>
-                    <div class="error-message" id="dateOfBirth-error">Harap masukkan tanggal lahir</div>
+                    <div class="error-message" id="dateOfBirth-error">Please enter date of birth</div>
                 </div>
 
-                {{-- <div class="col-12 mb-3">
-                    <label class="form-label">Usia Saat Pendaftaran</label>
-                    <div class="form-control" id="ageCalculation">Masukkan tanggal lahir untuk menghitung usia</div>
-                </div> --}}
-
-
-
                 <div class="col-md-4 mb-3">
-                    <label for="religion" class="form-label required">Agama</label>
+                    <label for="religion" class="form-label required">Religion</label>
+                    <br><small><i>Agama</i></small>
                     <select class="form-select religion" id="religion" required>
-                        <option value="" selected disabled>Pilih agama</option>
+                        <option value="" selected disabled>Select religion</option>
                     </select>
-                    <div class="error-message" id="religion-error">Harap pilih agama</div>
+                    <div class="error-message" id="religion-error">Please select religion</div>
                 </div>
 
                 <div class="col-md-4 mb-3">
-                    <label for="ethnicity" class="form-label required">Suku Bangsa</label>
+                    <label for="ethnicity" class="form-label required">Ethnicity</label>
+                    <br><small><i>Suku Bangsa</i></small>
                     <input type="text" class="form-control" id="ethnicity" required>
-                    <div class="error-message" id="ethnicity-error">Harap masukkan suku bangsa</div>
+                    <div class="error-message" id="ethnicity-error">Please enter ethnicity</div>
                 </div>
 
                 <div class="col-md-4 mb-3">
-                    <label class="form-label required">Kewarganegaraan</label>
+                    <label class="form-label required">Citizenship</label>
+                    <br><small><i>Kewarganegaraan</i></small>
                     <div class="inline-radio-group">
                         <div class="form-check">
                             <input class="form-check-input" type="radio" name="citizenship" id="citizenshipWNI"
                                 value="WNI" required>
-                            <label class="form-check-label" for="citizenshipWNI">WNI</label>
+                            <label class="form-check-label" for="citizenshipWNI">Indonesian Citizen</label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="radio" name="citizenship" id="citizenshipWNA"
                                 value="WNA">
-                            <label class="form-check-label" for="citizenshipWNA">WNA</label>
+                            <label class="form-check-label" for="citizenshipWNA">Foreign Citizen</label>
                         </div>
                     </div>
-                    <div class="error-message" id="citizenship-error">Harap pilih kewarganegaraan</div>
+                    <div class="error-message" id="citizenship-error">Please select citizenship</div>
                 </div>
 
                 <div class="col-md-3 mb-3">
-                    <label for="height" class="form-label required">Tinggi Badan (cm)</label>
+                    <label for="height" class="form-label required">Height (cm)</label>
+                    <br><small><i>Tinggi Badan (cm)</i></small>
                     <input type="number" class="form-control" id="height" step="0.1" min="0"
                         value="0" required>
-                    <div class="error-message" id="height-error">Harap masukkan tinggi badan dalam cm</div>
+                    <div class="error-message" id="height-error">Please enter height in cm</div>
                 </div>
 
                 <div class="col-md-3 mb-3">
-                    <label for="weight" class="form-label required">Berat Badan (kg)</label>
+                    <label for="weight" class="form-label required">Weight (kg)</label>
+                    <br><small><i>Berat Badan (kg)</i></small>
                     <input type="number" class="form-control" id="weight" step="0.1" min="0"
                         value="0" required>
-                    <div class="error-message" id="weight-error">Harap masukkan berat badan dalam kg</div>
+                    <div class="error-message" id="weight-error">Please enter weight in kg</div>
                 </div>
+
                 <div class="col-md-3 mb-3">
-                    <label for="siblingsCount" class="form-label required">Jumlah Saudara</label>
-                    <small><i>kandung/tiri/angkat</i></small>
+                    <label for="siblingsCount" class="form-label required">Number of Siblings
+                    </label>
+                    <br><small><i>Jumlah Saudara (kandung/tiri/angkat)</i></small>
                     <input type="number" class="form-control" id="siblingsCount" min="0" required>
-                    <div class="error-message" id="siblingsCount-error">Harap masukkan jumlah saudara</div>
+                    <div class="error-message" id="siblingsCount-error">Please enter number of siblings</div>
                 </div>
 
                 <div class="col-md-3 mb-3">
-                    <label for="birthOrder" class="form-label required">Anak Ke-</label>
+                    <label for="birthOrder" class="form-label required">Birth Order</label>
+                    <br><small><i>Anak Ke-</i></small>
                     <input type="number" class="form-control" id="birthOrder" min="1" required>
-                    <div class="error-message" id="birthOrder-error">Harap masukkan urutan anak</div>
+                    <div class="error-message" id="birthOrder-error">Please enter birth order</div>
                 </div>
 
                 <div class="col-md-6 mb-3">
-                    <label for="homeLanguage" class="form-label required">Bahasa pengantar di rumah</label>
+                    <label for="homeLanguage" class="form-label required">Primary Language Spoken at Home</label>
+                    <br><small><i>Bahasa pengantar di rumah</i></small>
                     <input type="text" class="form-control" id="homeLanguage" required>
-                    <div class="error-message" id="homeLanguage-error">Harap masukkan bahasa pengantar di rumah
-                    </div>
+                    <div class="error-message" id="homeLanguage-error">Please enter primary home language</div>
                 </div>
 
                 <div class="col-md-6 mb-3">
-                    <label for="otherLanguages" class="form-label required">Bahasa lain yang digunakan</label>
+                    <label for="otherLanguages" class="form-label required">Other Languages Spoken</label>
+                    <br><small><i>Bahasa lain yang digunakan</i></small>
                     <input type="text" class="form-control" id="otherLanguages" required>
-                    <div class="error-message" id="otherLanguages-error">Harap masukkan bahasa lain yang digunakan
-                    </div>
+                    <div class="error-message" id="otherLanguages-error">Please enter other languages spoken</div>
                 </div>
 
                 <div class="col-12 mb-3">
-                    <label for="fullAddress" class="form-label required">Alamat Lengkap</label>
+                    <label for="fullAddress" class="form-label required">Full Address</label>
+                    <br><small><i>Alamat Lengkap</i></small>
                     <textarea class="form-control" id="fullAddress" rows="3" required></textarea>
-                    <div class="error-message" id="fullAddress-error">Harap masukkan alamat lengkap</div>
+                    <div class="error-message" id="fullAddress-error">Please enter full address</div>
                 </div>
 
                 <div class="col-md-4 mb-3">
-                    <label for="postalCode" class="form-label required">Kode Pos</label>
+                    <label for="postalCode" class="form-label required">Postal Code</label>
+                    <br><small><i>Kode Post</i></small>
                     <input type="number" class="form-control" id="postalCode" required>
-                    <div class="error-message" id="postalCode-error">Harap masukkan kode pos</div>
+                    <div class="error-message" id="postalCode-error">Please enter postal code</div>
                 </div>
 
                 <div class="col-md-4 mb-3">
-                    <label for="homePhone" class="form-label">Telepon Rumah (Opsional)</label>
+                    <label for="homePhone" class="form-label">Home Phone (Optional)</label>
+                    <br><small><i>Telepon Rumah</i></small>
                     <input type="tel" class="form-control" id="homePhone">
                 </div>
+
                 <div class="col-md-4 mb-3">
-                    <label for="parentPhone" class="form-label required">No. handphone orangtua</label>
+                    <label for="parentPhone" class="form-label required">Parent Mobile Phone</label>
+                    <br><small><i>No. handphone orangtua</i></small>
                     <input type="tel" class="form-control" id="parentPhone" required>
-                    <div class="error-message" id="parentPhone-error">Harap masukkan nomor handphone orangtua</div>
+                    <div class="error-message" id="parentPhone-error">Please enter parent's mobile number</div>
                 </div>
 
                 <div class="col-md-6 mb-3">
-                    <label for="livingWith" class="form-label required">Tinggal Bersama</label>
+                    <label for="livingWith" class="form-label required">Living With</label>
+                    <br><small><i>Tinggal Bersama</i></small>
                     <select class="form-select" id="livingWith" required>
-                        <option value="" selected disabled>Pilih opsi</option>
-                        <option value="parents">Orang Tua</option>
-                        <option value="family">Keluarga</option>
-                        <option value="others">Lainnya</option>
+                        <option value="" selected disabled>Select option</option>
+                        <option value="parents">Parents</option>
+                        <option value="family">Family</option>
+                        <option value="others">Others</option>
                     </select>
-                    <div class="error-message" id="livingWith-error">Harap pilih dengan siapa siswa tinggal</div>
+                    <div class="error-message" id="livingWith-error">Please select whom the student lives with</div>
 
                     <div class="col-md-12 mb-3 conditional-field" id="livingWithOthersField">
-                        <label for="livingWithOthers" class="form-label required">Sebutkan</label>
+                        <label for="livingWithOthers" class="form-label required">Please Specify</label>
                         <input type="text" class="form-control" id="livingWithOthers">
-                        <div class="error-message" id="livingWithOthers-error">Harap sebutkan dengan siapa siswa
-                            tinggal
-                        </div>
+                        <div class="error-message" id="livingWithOthers-error">Please specify living arrangement</div>
                     </div>
                 </div>
 
                 <div class="col-md-6 mb-3">
-                    <label for="distanceToSchool" class="form-label required">Jarak ke Sekolah (KM)</label>
+                    <label for="distanceToSchool" class="form-label required">Distance to School (KM)</label>
+                    <br><small><i>Jarak Ke Sekolah (KM)</i></small>
                     <input type="number" class="form-control" id="distanceToSchool" step="0.1" min="0"
                         required>
-                    <div class="error-message" id="distanceToSchool-error">Harap masukkan jarak ke sekolah</div>
+                    <div class="error-message" id="distanceToSchool-error">Please enter distance to school</div>
                 </div>
 
                 <div class="col-md-4 mb-3">
-                    <label for="previousSchool" class="form-label required">Asal sekolah</label>
+                    <label for="previousSchool" class="form-label required">Previous School</label>
+                    <br><small><i>Asal Sekolah</i></small>
                     <input type="text" class="form-control" id="previousSchool" required>
-                    <div class="error-message" id="previousSchool-error">Harap masukkan sekolah sebelumnya</div>
+                    <div class="error-message" id="previousSchool-error">Please enter previous school</div>
                 </div>
 
                 <div class="col-md-4 mb-3">
-                    <label for="previousSchoolAddress" class="form-label required">Alamat asal sekolah</label>
+                    <label for="previousSchoolAddress" class="form-label required">Previous School Address</label>
+                    <br><small><i>Alamat Sekolah Asal</i></small>
                     <input type="text" class="form-control" id="previousSchoolAddress" required>
-                    <div class="error-message" id="previousSchoolAddress-error">Harap masukkan alamat sekolah
-                        sebelumnya</div>
+                    <div class="error-message" id="previousSchoolAddress-error">Please enter previous school address
+                    </div>
                 </div>
 
                 <div class="col-md-4 mb-3">
-                    <label for="graduationYear" class="form-label required">Tahun kelulusan/meninggalkan sekolah
-                        asal</label>
+                    <label for="graduationYear" class="form-label required">Year of Graduation / Leaving Previous
+                        School</label>
+                    <br><small><i>Tahun kelulusan/meninggalkan sekolah asal</i></small>
                     <select class="form-select" id="graduationYear" required>
-                        <option value="" selected disabled>Pilih tahun</option>
+                        <option value="" selected disabled>Select year</option>
                     </select>
-                    <div class="error-message" id="graduationYear-error">Harap pilih tahun kelulusan</div>
+                    <div class="error-message" id="graduationYear-error">Please select graduation year</div>
                 </div>
 
                 <div class="col-md-4 mb-3">
-                    <label for="applyingLevel" class="form-label required">Mendaftar untuk level:</label>
-                    <select class="form-select" id="applyingLevel" required>
-                    </select>
-                    <div class="error-message" id="applyingLevel-error">Harap pilih tingkat pendaftaran</div>
+                    <label for="applyingLevel" class="form-label required">Applying for Level:</label>
+                    <br><small><i>Mendaftar untuk level</i></small>
+                    <select class="form-select" id="applyingLevel" required></select>
+                    <div class="error-message" id="applyingLevel-error">Please select applying level</div>
                 </div>
 
                 <div class="col-md-4 mb-3">
-                    <label for="applyingClass" class="form-label required">Kelas</label>
+                    <label for="applyingClass" class="form-label required">Grade</label>
+                    <br><small><i>Kelas</i></small>
                     <select class="form-select" id="applyingClass" required>
-                        <option value="" selected disabled>Pilih kelas</option>
+                        <option value="" selected disabled>Select class</option>
                     </select>
-                    <div class="error-message" id="applyingClass-error">Harap pilih kelas</div>
+                    <div class="error-message" id="applyingClass-error">Please select class</div>
                 </div>
 
                 <div class="col-md-4 mb-3">
-                    <label for="academic-year" class="form-label required">Tahun ajaran</label>
+                    <label for="academic-year" class="form-label required">Academic Year</label>
+                    <br><small><i>Tahun Ajaran</i></small>
                     <select class="form-select" id="academic-year" required>
-                        <option value="" selected disabled>Pilih tahun akademik</option>
+                        <option value="" selected disabled>Select academic year</option>
                     </select>
-                    <div class="error-message" id="academic-year-error">Harap pilih tahun akademik</div>
+                    <div class="error-message" id="academic-year-error">Please select academic year</div>
                 </div>
 
                 <div class="col-md-6 mb-3">
-                    <label for="emergencyContactPriority" class="form-label required">Prioritas Kontak Darurat</label>
+                    <label for="emergencyContactPriority" class="form-label required">Emergency Contact
+                        Priority</label>
+                    <br><small><i>Prioritas Kontak Darurat</i></small>
                     <select class="form-select" id="emergencyContactPriority" required>
-                        <option value="" selected disabled>Pilih prioritas</option>
-                        <option value="Ayah">Ayah</option>
-                        <option value="Ibu">Ibu</option>
-                        <option value="Wali">Wali</option>
+                        <option value="" selected disabled>Select priority</option>
+                        <option value="Ayah">Father</option>
+                        <option value="Ibu">Mother</option>
+                        <option value="Wali">Guardian</option>
                     </select>
-                    <div class="error-message" id="emergencyContactPriority-error">Harap pilih prioritas kontak
-                        darurat</div>
+                    <div class="error-message" id="emergencyContactPriority-error">Please select emergency contact
+                        priority</div>
                 </div>
 
                 <div class="col-md-6 mb-3">
-                    <label for="notAttendingSchool" class="form-label required">Apakah calon siswa pernah tidak
-                        bersekolah?</label>
+                    <label for="notAttendingSchool" class="form-label required">Has the student ever not attended
+                        school?</label>
+                    <br><small><i>Apakah calon siswa pernah tidak bersekolah?</i></small>
                     <select class="form-select" id="notAttendingSchool" required>
-                        <option value="" selected disabled>Pilih opsi</option>
-                        <option value="false">Tidak</option>
-                        <option value="true">Ya</option>
+                        <option value="" selected disabled>Select option</option>
+                        <option value="false">No</option>
+                        <option value="true">Yes</option>
                     </select>
-                    <div class="error-message" id="notAttendingSchool-error">Harap pilih opsi</div>
+                    <div class="error-message" id="notAttendingSchool-error">Please select an option</div>
 
                     <div class="col-12 conditional-field" id="notAttendingSchoolYesField">
                         <div class="row">
                             <div class="col-md-4 mb-3">
-                                <label for="notAttendingDuration" class="form-label required">Berapa Lama</label>
+                                <label for="notAttendingDuration" class="form-label required">Duration</label>
                                 <input type="text" class="form-control" id="notAttendingDuration">
-                                <div class="error-message" id="notAttendingDuration-error">Harap masukkan durasi</div>
+                                <div class="error-message" id="notAttendingDuration-error">Please enter duration</div>
                             </div>
 
                             <div class="col-md-8 mb-3">
-                                <label for="notAttendingReason" class="form-label required">Alasan</label>
+                                <label for="notAttendingReason" class="form-label required">Reason</label>
                                 <input type="text" class="form-control" id="notAttendingReason">
-                                <div class="error-message" id="notAttendingReason-error">Harap masukkan alasan</div>
+                                <div class="error-message" id="notAttendingReason-error">Please enter reason</div>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="col-md-6 mb-3">
-                    <label for="developmentalAssessment" class="form-label required">Apakah calon siswa pernah
-                        melakukan pemeriksaan tumbuh kembang atau psikologis?</label>
+                    <label for="developmentalAssessment" class="form-label required">
+                        Has the student ever undergone developmental or psychological assessment?
+                    </label>
+                    <br><small><i>Apakah calon siswa pernah melakukan pemeriksaan tumbuh kembang atau
+                            psikologis?</i></small>
                     <select class="form-select" id="developmentalAssessment" required>
-                        <option value="" selected disabled>Pilih opsi</option>
-                        <option value="false">Tidak</option>
-                        <option value="true">Ya</option>
+                        <option value="" selected disabled>Select option</option>
+                        <option value="false">No</option>
+                        <option value="true">Yes</option>
                     </select>
-                    <div class="error-message" id="developmentalAssessment-error">Harap pilih opsi</div>
+                    <div class="error-message" id="developmentalAssessment-error">Please select an option</div>
 
                     <div class="col-12 conditional-field" id="developmentalAssessmentYesField">
                         <div class="mb-3">
-                            <label for="developmentalDiagnosis" class="form-label required">Deskripsi
-                                Diagnosis</label>
+                            <label for="developmentalDiagnosis" class="form-label required">Diagnosis
+                                Description</label>
                             <textarea class="form-control" id="developmentalDiagnosis" rows="2"></textarea>
-                            <div class="error-message" id="developmentalDiagnosis-error">Harap masukkan deskripsi
-                                diagnosis</div>
+                            <div class="error-message" id="developmentalDiagnosis-error">Please enter diagnosis
+                                description</div>
                         </div>
                     </div>
                 </div>
 
                 <div class="col-md-6 mb-3">
-                    <label for="therapyHistory" class="form-label required">Apakah calon siswa pernah menjalani terapi
-                        khusus sehubungan dengan hambatan fisik atau tingkah laku?</label>
+                    <label for="therapyHistory" class="form-label required">
+                        Has the student ever undergone special therapy related to physical or behavioral challenges?
+                    </label>
+                    <br><small><i>Apakah calon siswa pernah menjalani terapi khusus sehubungan dengan hambatan fisik
+                            atau
+                            tingkah laku?</i></small>
                     <select class="form-select" id="therapyHistory" required>
-                        <option value="" selected disabled>Pilih opsi</option>
-                        <option value="false">Tidak</option>
-                        <option value="true">Ya</option>
+                        <option value="" selected disabled>Select option</option>
+                        <option value="false">No</option>
+                        <option value="true">Yes</option>
                     </select>
-                    <div class="error-message" id="therapyHistory-error">Harap pilih opsi</div>
+                    <div class="error-message" id="therapyHistory-error">Please select an option</div>
 
                     <div class="col-12 conditional-field" id="therapyHistoryYesField">
                         <div class="mb-3">
-                            <label for="therapyType" class="form-label required">Jenis & Waktu Terapi</label>
+                            <label for="therapyType" class="form-label required">Type & Duration of Therapy</label>
                             <textarea class="form-control" id="therapyType" rows="2"></textarea>
-                            <div class="error-message" id="therapyType-error">Harap masukkan jenis dan waktu terapi
-                            </div>
+                            <div class="error-message" id="therapyType-error">Please enter type and duration of
+                                therapy</div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
 
         <!-- Step 3: Father Data -->
         <div class="step-content" id="step-3">
