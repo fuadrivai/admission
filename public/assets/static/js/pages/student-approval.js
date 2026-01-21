@@ -1,42 +1,11 @@
 let admission = null;
+let statement = null;
 let currentStep = 1;
 let totalSteps = 6;
 
 // const studentLevel = "SD";
 const studentLevel = "Upper Secondary";
 
-const sampleData = {
-    father: {
-        name: "Ahmad Sudirman",
-        email: "ahmad.sudirman@email.com",
-        phone: "0812 3456 7890",
-        birthPlace: "Jakarta",
-        birthDate: "15 Januari 1980",
-        idCard: "1234567890123456",
-    },
-    mother: {
-        name: "Siti Fatimah",
-        email: "siti.fatimah@email.com",
-        phone: "0813 4567 8901",
-        birthPlace: "Bandung",
-        birthDate: "20 Maret 1982",
-        idCard: "2345678901234567",
-    },
-    guardian: {
-        name: "Budi Santoso",
-        email: "budi.santoso@email.com",
-        phone: "0814 5678 9012",
-        birthPlace: "Surabaya",
-        birthDate: "10 Mei 1975",
-        idCard: "3456789012345678",
-    },
-    student: {
-        fullName: "Muhammad Al-Fatih Sudirman",
-        age: "7 tahun 2 bulan",
-        level: studentLevel,
-        grade: "Kelas 1",
-    },
-};
 $(document).ready(function () {
     getAdmissionByCode();
 
@@ -46,81 +15,34 @@ $(document).ready(function () {
         let parent = await getParentByRole(role);
         const dobRaw = parent.birth_date;
         const dob = dobRaw
-            ? moment(dobRaw, "DD MMMM YYYY").format("YYYY-MM-DD")
+            ? moment(dobRaw, "YYYY-MM-DD").format("DD MMMM YYYY")
             : null;
-        $("#parentFullName").text(parent.fullname ?? "--");
-        $("#parentEmail").text(parent.email ?? "--");
-        $("#parentPhone").text(parent.phone ?? "--");
-        $("#parentBirthPlace").text(parent.birth_place ?? "--");
-        $("#parentBirthDate").text(dob ?? "--");
-        $("#parentIdCard").text(parent.identity_number ?? "--");
+        $(".parentFullName").text(parent.fullname ?? "--");
+        $(".parentEmail").text(parent.email ?? "--");
+        $(".parentPhone").text(parent.phone ?? "--");
+        $(".parentBirthPlace").text(parent.birth_place ?? "--");
+        $(".parentBirthDate").text(dob ?? "--");
+        $(".parentIdCard").text(parent.identity_number ?? "--");
         parentInfoCard.slideDown(300);
         validateCurrentStep();
     });
 
-    $("#currentDate1").text(formatCurrentDate());
-    $("#currentDate2").text(formatCurrentDate());
-    $("#currentDate3").text(formatCurrentDate());
-    $("#currentDate4").text(formatCurrentDate());
-    $("#currentDate5").text(formatCurrentDate());
-
-    $("#studentFullName2").text(sampleData.student.fullName);
-    $("#studentAge2").text(sampleData.student.age);
-    $("#studentLevel2").text(sampleData.student.level);
-    $("#studentGrade2").text(sampleData.student.grade);
-
-    $("#studentFullName3").text(sampleData.student.fullName);
-    $("#studentAge3").text(sampleData.student.age);
-    $("#studentLevel3").text(sampleData.student.level);
-    $("#studentGrade3").text(sampleData.student.grade);
-
-    // Initialize money inputs
     $("#developmentFee, #annualFee, #schoolFee").on("input", function () {
         formatMoneyInput($(this));
         validateCurrentStep();
     });
 
-    // Initialize with example values
-    setTimeout(() => {
-        $("#developmentFee").val("12,500,000").trigger("input");
-        $("#annualFee").val("4,000,000").trigger("input");
-        $("#schoolFee").val("1,750,000").trigger("input");
-    }, 100);
-
-    // Checkbox validation
     $('input[type="checkbox"][required]').on("change", function () {
         validateCurrentStep();
     });
 
-    // Navigation handlers
     $("#next-btn").on("click", nextStep);
     $("#prev-btn").on("click", prevStep);
-    $("#final-submit-btn").on("click", submitForm);
+    $(".final-submit-btn").on("click", submitForm);
 
-    // Form validation on input
     $("input, select, textarea").on("input change", function () {
         validateCurrentStep();
     });
-
-    // Initialize step validation
-    validateCurrentStep();
-
-    // Handle conditional sections based on student level
-    if (sampleData.student.level === "Upper Secondary") {
-        $("#step-5, #step-6")
-            .removeClass("conditional-section")
-            .addClass("step-content");
-        totalSteps = 6;
-    } else {
-        $("#step-5, #step-6").addClass("conditional-section");
-        totalSteps = 4;
-
-        // Update step indicator
-        $('.step[data-step="5"], .step[data-step="6"]').hide();
-
-        // Adjust step widths
-        $(".step").css("flex", "0 0 25%");
-    }
 });
 
 function formatCurrency(number) {
@@ -128,13 +50,7 @@ function formatCurrency(number) {
 }
 
 function formatCurrentDate() {
-    const now = new Date();
-    const day = now.getDate();
-    const month = now.toLocaleString("id-ID", {
-        month: "long",
-    });
-    const year = now.getFullYear();
-    return `${day} ${month} ${year}`;
+    return moment().format("DD MMMM YYYY");
 }
 
 function formatMoneyInput(input) {
@@ -204,9 +120,36 @@ function validateCurrentStep() {
     return isValid;
 }
 
-function nextStep() {
+async function nextStep() {
     if (!validateCurrentStep()) {
         return;
+    }
+
+    if (currentStep == 1) {
+        await postStatement();
+        if (admission.statement.financial) {
+            await getFinancialStatement();
+        }
+    }
+
+    if (currentStep == 2) {
+        await postFinancial();
+        await getAgreement("parent");
+    }
+    if (currentStep == 3) {
+        await postAgreement("parent");
+        await getAgreement("guardian");
+    }
+    if (currentStep == 4) {
+        await postAgreement("guardian");
+        await getAgreement("narcotica");
+    }
+    if (currentStep == 5) {
+        await postAgreement("narcotica");
+        await getAgreement("student");
+    }
+    if (currentStep == 6) {
+        await postAgreement("student");
     }
 
     // Mark current step as completed
@@ -230,11 +173,11 @@ function nextStep() {
     $("#prev-btn").prop("disabled", false);
 
     // Scroll to top of step
-    $(".main-container").animate(
+    $("html, body").animate(
         {
             scrollTop: 0,
         },
-        300
+        300,
     );
 
     // Validate new step
@@ -266,106 +209,213 @@ function prevStep() {
     $("#next-btn").show().prop("disabled", false);
 
     // Scroll to top of step
-    $(".main-container").animate(
+    $("html, body").animate(
         {
             scrollTop: 0,
         },
-        300
+        300,
     );
 
     // Validate step
     validateCurrentStep();
 }
 
-function submitForm() {
-    if (!validateCurrentStep()) {
-        alert(
-            "Harap lengkapi semua bidang yang diperlukan sebelum mengirimkan."
-        );
-        return;
-    }
-
-    // Collect form data
-    const formData = {
-        parentSelected: $("#parentSelector").val(),
-        parentName: $("#parentFullName").text(),
-        developmentFee: $("#developmentFee").val(),
-        annualFee: $("#annualFee").val(),
-        schoolFee: $("#schoolFee").val(),
-        studentName: sampleData.student.fullName,
-        studentLevel: sampleData.student.level,
-        submissionDate: formatCurrentDate(),
-        agreements: {
-            payment: {
-                agree1: $("#agreePayment1").is(":checked"),
-                agree2: $("#agreePayment2").is(":checked"),
-                agree3: $("#agreePayment3").is(":checked"),
-                agree4: $("#agreePayment4").is(":checked"),
-                agree5: $("#agreePayment5").is(":checked"),
-                agree6: $("#agreePayment6").is(":checked"),
-                agree7: $("#agreePayment7").is(":checked"),
-                agree8: $("#agreePayment8").is(":checked"),
-                agree9: $("#agreePayment9").is(":checked"),
-                agree10: $("#agreePayment10").is(":checked"),
-                agree11: $("#agreePayment11").is(":checked"),
-                agree12: $("#agreePayment12").is(":checked"),
-            },
-            statement: {
-                agree1: $("#agreeStatement1").is(":checked"),
-                agree2: $("#agreeStatement2").is(":checked"),
-            },
-            narkotika:
-                sampleData.student.level === "Upper Secondary"
-                    ? $("#agreeNarkotika").is(":checked")
-                    : null,
-            student:
-                sampleData.student.level === "Upper Secondary"
-                    ? $("#agreeStudent").is(":checked")
-                    : null,
-        },
-    };
-
-    console.log("Form submitted with data:", formData);
-
-    // Simulate submission
-    $("#final-submit-btn").html(
-        '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Mengirim...'
+async function submitForm() {
+    blockUI();
+    $(".final-submit-btn").html(
+        '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Mengirim...',
     );
-    $("#final-submit-btn").prop("disabled", true);
+    $(".final-submit-btn").prop("disabled", true);
+
+    let type = totalSteps == 6 ? "student" : "guardian";
+    await postAgreement(type);
+    let statement = await postStatement(true);
 
     setTimeout(() => {
-        $("#final-submit-btn").html(
-            '<i class="bi bi-send-check"></i> Kirim Formulir Persetujuan'
+        $(".final-submit-btn").html(
+            '<i class="bi bi-send-check"></i> Kirim Formulir Persetujuan',
         );
-        $("#final-submit-btn").prop("disabled", false);
-
-        // Show success message
-        alert("Formulir persetujuan berhasil dikirim! Terima kasih.");
-
-        // In a real app, you would redirect or show a success page
-        // window.location.href = 'success.html';
+        $(".final-submit-btn").prop("disabled", false);
+        toastify("Success", "Formulir persetujuan telah berhasil dikirim.");
     }, 2000);
 }
 
 async function getAdmissionByCode() {
     blockUI();
     const code = $("#admission-code").val();
-    admission = await ajaxPromise(null, `/admission/code/${code}`, "GET");
+    admission = await ajaxPromise(null, `/document/code/${code}`, "GET");
 
-    $("#studentFullName").text(admission.applicant.fullname);
-    $("#studentAge").text(admission.applicant.age);
-    $("#studentLevel").text(admission.level.name);
-    $("#studentGrade").text(admission.grade.name);
-    $("#academicYear").text(admission.accademic_year);
+    $(".studentFullName").text(admission.applicant.fullname);
+    $(".studentAge").text(admission.applicant.age);
+    $(".studentLevel").text(admission.level.name);
+    $(".studentGrade").text(admission.grade.name);
+    $(".academicYear").text(admission.accademic_year);
+    if (admission.statement) {
+        statement = admission.statement;
+        $("#parentSelector")
+            .val(admission?.statement?.actor ?? "")
+            .trigger("change");
+    }
+
+    if (admission.level.name === "Upper Secondary") {
+        $("#step-5, #step-6")
+            .removeClass("conditional-section")
+            .addClass("step-content");
+        totalSteps = 6;
+        $("#btn-under-upper-secondary").addClass("d-none");
+        validateCurrentStep();
+    } else {
+        $("#step-5, #step-6").addClass("conditional-section");
+        totalSteps = 4;
+        $('.step[data-step="5"], .step[data-step="6"]').hide();
+        $(".step").css("flex", "0 0 25%");
+        $("#btn-under-upper-secondary").removeClass("d-none");
+        validateCurrentStep();
+    }
 }
 
 async function getParentByRole(role) {
     blockUI();
     let parent = await ajaxPromise(
         null,
-        `/admission/parent/${admission.applicant.id}/${role}`,
-        "GET"
+        `/document/parent/${admission.applicant.id}/${role}`,
+        "GET",
     );
 
     return parent;
+}
+
+async function postStatement(isComplete) {
+    const data = {
+        id: admission.statement ? admission.statement.id : null,
+        admission_id: admission.id,
+        actor: $("#parentSelector").val(),
+        identity_number: $("#parentIdCard").text(),
+        fullname: $("#parentFullName").text(),
+        is_completed: isComplete,
+    };
+    blockUI();
+    let statement = await ajaxPromise(data, `/document/statement`, "POST");
+    admission.statement = statement;
+}
+
+async function postFinancial() {
+    let financial = admission?.statement?.financial;
+    const data = {
+        id: financial?.id ?? null,
+        admission_statement_id: admission.statement.id,
+        agree_full_payment_terms: $("#agreePayment1").is(":checked"),
+        development_fee: parseFloat(
+            $("#developmentFee")
+                .val()
+                .replace(/[^0-9]/g, ""),
+        ),
+        annual_fee: parseFloat(
+            $("#annualFee")
+                .val()
+                .replace(/[^0-9]/g, ""),
+        ),
+        school_fee: parseFloat(
+            $("#schoolFee")
+                .val()
+                .replace(/[^0-9]/g, ""),
+        ),
+        agree_development_fee_policy: $("#agreePayment2").is(":checked"),
+        agree_annual_and_school_fee_policy: $("#agreePayment3").is(":checked"),
+        agree_exam_fee: $("#agreePayment4").is(":checked"),
+        agree_learning_material_fee: $("#agreePayment5").is(":checked"),
+        agree_exschool_fee: $("#agreePayment6").is(":checked"),
+        agree_additional_activity_fee: $("#agreePayment7").is(":checked"),
+        agree_monthly_school_fee_payment: $("#agreePayment8").is(":checked"),
+        agree_ittihada_fee: $("#agreePayment9").is(":checked"),
+        agree_full_financial_obligation: $("#agreePayment10").is(":checked"),
+        agree_financial_terms_and_consequences:
+            $("#agreePayment11").is(":checked"),
+        agree_truth_and_consent: $("#agreePayment12").is(":checked"),
+    };
+    blockUI();
+    try {
+        financial = await ajaxPromise(
+            data,
+            `/document/statement/financial`,
+            "POST",
+        );
+        admission.statement.financial = financial;
+    } catch (err) {
+        toastify(
+            "Error",
+            err?.responseJSON?.message ?? "Please try again later",
+            "bottom",
+        );
+    }
+}
+
+async function getFinancialStatement() {
+    const id = admission?.statement?.financial?.id ?? null;
+    let financial = await ajaxPromise(
+        null,
+        `/document/statement/financial/${id}`,
+        "GET",
+    );
+
+    $("#agreePayment1").prop("checked", financial.agree_full_payment_terms);
+    $("#developmentFee").val(formatCurrency(financial.development_fee));
+    formatMoneyInput($("#developmentFee"));
+    $("#annualFee").val(formatCurrency(financial.annual_fee));
+    formatMoneyInput($("#annualFee"));
+    $("#schoolFee").val(formatCurrency(financial.school_fee));
+    formatMoneyInput($("#schoolFee"));
+    $("#agreePayment2").prop("checked", financial.agree_development_fee_policy);
+    $("#agreePayment3").prop(
+        "checked",
+        financial.agree_annual_and_school_fee_policy,
+    );
+    $("#agreePayment4").prop("checked", financial.agree_exam_fee);
+    $("#agreePayment5").prop("checked", financial.agree_learning_material_fee);
+    $("#agreePayment6").prop("checked", financial.agree_exschool_fee);
+    $("#agreePayment7").prop(
+        "checked",
+        financial.agree_additional_activity_fee,
+    );
+    $("#agreePayment8").prop(
+        "checked",
+        financial.agree_monthly_school_fee_payment,
+    );
+    $("#agreePayment9").prop("checked", financial.agree_ittihada_fee);
+    $("#agreePayment10").prop(
+        "checked",
+        financial.agree_full_financial_obligation,
+    );
+    $("#agreePayment11").prop(
+        "checked",
+        financial.agree_financial_terms_and_consequences,
+    );
+    $("#agreePayment12").prop("checked", financial.agree_truth_and_consent);
+}
+
+async function postAgreement(type) {
+    const data = {
+        admission_statement_id: admission.statement
+            ? admission.statement.id
+            : null,
+        id: $(`#${type}AgreeStatementId`).val() || null,
+        type: type,
+        agreed: $(`#${type}AgreeStatement`).is(":checked"),
+    };
+    blockUI();
+    let agreement = await ajaxPromise(
+        data,
+        `/document/statement/agreement`,
+        "POST",
+    );
+    $(`#${type}AgreeStatementId`).val(agreement.id);
+}
+async function getAgreement(type) {
+    blockUI();
+    let agreement = await ajaxPromise(
+        null,
+        `/document/statement/${admission.statement.id}/agreement/${type}`,
+        "GET",
+    );
+    $(`#${type}AgreeStatement`).prop("checked", agreement.agreed);
 }

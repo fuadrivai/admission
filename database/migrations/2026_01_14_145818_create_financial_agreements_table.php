@@ -24,6 +24,7 @@ class CreateFinancialAgreementsTable extends Migration
             $table->boolean('agree_annual_and_school_fee_policy')->default(false);
             $table->boolean('agree_exam_fee')->default(false);
             $table->boolean('agree_learning_material_fee')->default(false);
+            $table->boolean('agree_exschool_fee')->default(false);
             $table->boolean('agree_additional_activity_fee')->default(false);
             $table->boolean('agree_monthly_school_fee_payment')->default(false);
             $table->boolean('agree_ittihada_fee')->default(false);

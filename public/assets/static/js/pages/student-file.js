@@ -35,7 +35,7 @@ $(document).ready(function () {
         {
             scrollTop: 0,
         },
-        300
+        300,
     );
 });
 
@@ -58,7 +58,7 @@ function handleFileUpload(event, documentType) {
     if (!validTypes.includes(file.type)) {
         showError(
             documentType,
-            "Format file tidak didukung. Gunakan JPG, PNG, atau PDF."
+            "Format file tidak didukung. Gunakan JPG, PNG, atau PDF.",
         );
         return;
     }
@@ -143,7 +143,7 @@ function updateCardStatus(documentType, status) {
 
 function checkSubmitButton() {
     const allUploaded = Object.values(uploadedFiles).every(
-        (file) => file !== null
+        (file) => file !== null,
     );
     $("#submitBtn").prop("disabled", !allUploaded);
 }
@@ -159,7 +159,7 @@ function formatFileSize(bytes) {
 function showSuccessMessage(message) {
     const alertDiv = $("<div>")
         .addClass(
-            "alert alert-success alert-dismissible fade show position-fixed"
+            "alert alert-success alert-dismissible fade show position-fixed",
         )
         .css({
             top: "20px",
@@ -200,7 +200,7 @@ function submitDocuments() {
     blockUI();
 
     $.ajax({
-        url: `/admission/document`,
+        url: `/document/file`,
         type: "POST",
         data: formData,
         processData: false,
@@ -211,14 +211,14 @@ function submitDocuments() {
         success: function (res) {
             toastify("success", "Data berhasil disimpan", "bottom");
             setTimeout(function () {
-                window.location.href = `/admission/statement/${admissionCode}`;
+                window.location.href = `/document/statement/${admissionCode}`;
             }, 1000);
         },
         error: function (err) {
             toastify(
                 "Error",
                 err?.responseJSON?.message ?? "Please try again later",
-                "bottom"
+                "bottom",
             );
         },
     });

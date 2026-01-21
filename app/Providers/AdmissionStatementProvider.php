@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Services\AdmissionStatementService;
 use App\Services\Implement\AdmissionStatementImplement;
 use Illuminate\Support\ServiceProvider;
 
@@ -14,11 +15,11 @@ class AdmissionStatementProvider extends ServiceProvider
      */
 
     public array $singletons = [
-        AdmissionStatementProvider::class => AdmissionStatementImplement::class
+        AdmissionStatementService::class => AdmissionStatementImplement::class
     ];
     public function provides(): array
     {
-        return [AdmissionStatementProvider::class];
+        return [AdmissionStatementService::class];
     }
     public function register()
     {

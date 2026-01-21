@@ -14,4 +14,19 @@ class AdmissionStatement extends Model
         'completed_at' => 'datetime',
         'is_complete' => 'boolean'
     ];
+
+    public function admission()
+    {
+        return $this->belongsTo(Admission::class);
+    }
+
+    public function financial()
+    {
+        return $this->hasOne(FinancialAgreement::class);
+    }
+
+    public function agreements()
+    {
+        return $this->hasMany(StatementAgreement::class);
+    }
 }

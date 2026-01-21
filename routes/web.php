@@ -52,19 +52,24 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
     Route::get('enrolment/student/{code}', [EnrolmentController::class, 'showByCode'])->name('enrolment.studentShowByCode');
     Route::post('enrolment/post', [EnrolmentController::class, 'post'])->name('enrolment.postForm');
     
-    Route::get('admission/student', [AdmissionController::class, 'studentForm'])->name('admission.studentForm');
-    Route::post('admission/applicant', [AdmissionController::class, 'postApplicant'])->name('admission.postApplicant');
-    Route::get('admission/applicant/{id}', [AdmissionController::class, 'getApplicant'])->name('admission.getApplicant');
-    Route::get('admission/code/{code}', [AdmissionController::class, 'showByCode'])->name('admission.showByCode');
-    Route::get('admission/parent/{child_id}/{role}', [AdmissionController::class, 'getParent'])->name('admission.getParent');
-    Route::post('admission/parent', [AdmissionController::class, 'postParent'])->name('admission.postParent');
-    Route::post('admission/health', [AdmissionController::class, 'postHealth'])->name('admission.postHealth');
+    Route::get('document/student', [AdmissionController::class, 'studentForm'])->name('admission.studentForm');
+    Route::post('document/applicant', [AdmissionController::class, 'postApplicant'])->name('admission.postApplicant');
+    Route::get('document/applicant/{id}', [AdmissionController::class, 'getApplicant'])->name('admission.getApplicant');
+    Route::get('document/code/{code}', [AdmissionController::class, 'showByCode'])->name('admission.showByCode');
+    Route::get('document/parent/{child_id}/{role}', [AdmissionController::class, 'getParent'])->name('admission.getParent');
+    Route::post('document/parent', [AdmissionController::class, 'postParent'])->name('admission.postParent');
+    Route::post('document/health', [AdmissionController::class, 'postHealth'])->name('admission.postHealth');
 
-    Route::get('admission/document/{code}', [AdmissionDocumentController::class, 'code'])->name('admissionDocument.code');
-    Route::post('admission/document', [AdmissionDocumentController::class, 'store'])->name('admissionDocument.store');
+    Route::get('document/file/{code}', [AdmissionDocumentController::class, 'code'])->name('admissionDocument.code');
+    Route::post('document/file', [AdmissionDocumentController::class, 'store'])->name('admissionDocument.store');
 
-    Route::get('admission/statement/{code}', [AdmissionStatementController::class, 'index'])->name('admission.index');
-    
+    Route::get('document/statement/{code}', [AdmissionStatementController::class, 'index'])->name('admission.index');
+    Route::post('document/statement', [AdmissionStatementController::class, 'store'])->name('admission.store');
+    Route::post('document/statement/financial', [AdmissionStatementController::class, 'storeFinancial'])->name('admission.storeFinancial');
+    Route::get('document/statement/financial/{id}', [AdmissionStatementController::class, 'getFinancial'])->name('admission.getFinancial');
+    Route::post('document/statement/agreement', [AdmissionStatementController::class, 'postAgreement'])->name('admission.postAgreement');
+    Route::get('document/statement/{id}/agreement/{role}', [AdmissionStatementController::class, 'getAgreement'])->name('admission.getAgreement');
+
     Route::get('/level/branch/{id}', [LevelController::class, 'getByBranch'])->name('getByBranch');
     Route::get('/holiday/check/{date}', [HolidayController::class, 'isHoliday']);
     Route::get('/prospect/code/{code}', [ProspectController::class, 'getByCode']);

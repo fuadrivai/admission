@@ -14,7 +14,7 @@ $(document).ready(async function () {
         {
             scrollTop: 0,
         },
-        300
+        300,
     );
 
     initializeDynamicDropdowns();
@@ -47,7 +47,7 @@ function initializeDynamicDropdowns() {
         const year = currentYear + i;
         const nextYear = year + 1;
         academicYearSelect.append(
-            `<option value="${year}/${nextYear}">${year}/${nextYear}</option>`
+            `<option value="${year}/${nextYear}">${year}/${nextYear}</option>`,
         );
     }
 }
@@ -68,13 +68,13 @@ function setupConditionalFields() {
             $("#notAttendingSchoolYesField").slideDown(300);
             $("#notAttendingDuration, #notAttendingReason").prop(
                 "required",
-                true
+                true,
             );
         } else {
             $("#notAttendingSchoolYesField").slideUp(300);
             $("#notAttendingDuration, #notAttendingReason").prop(
                 "required",
-                false
+                false,
             );
         }
     });
@@ -214,7 +214,7 @@ function validateCurrentStep() {
                 const radioName = field.attr("name");
                 const radioChecked =
                     currentStepElement.find(
-                        `input[name="${radioName}"]:checked`
+                        `input[name="${radioName}"]:checked`,
                     ).length > 0;
 
                 if (!radioChecked) {
@@ -303,7 +303,7 @@ async function nextStep() {
         {
             scrollTop: 0,
         },
-        300
+        300,
     );
 
     validateCurrentStep();
@@ -311,7 +311,7 @@ async function nextStep() {
         {
             scrollTop: 0,
         },
-        300
+        300,
     );
 }
 
@@ -332,7 +332,7 @@ function prevStep() {
         {
             scrollTop: 0,
         },
-        300
+        300,
     );
 
     validateCurrentStep();
@@ -340,7 +340,7 @@ function prevStep() {
         {
             scrollTop: 0,
         },
-        300
+        300,
     );
 }
 
@@ -353,13 +353,13 @@ async function getData() {
         toastify(
             "Error",
             err?.responseJSON?.message ?? "Please try again later",
-            "bottom"
+            "bottom",
         );
     }
 }
 
 async function getAdmissionByCode(code) {
-    admission = await ajaxPromise(null, `/admission/code/${code}`, "GET");
+    admission = await ajaxPromise(null, `/document/code/${code}`, "GET");
     enrolment = admission.enrolment;
     fillStudent();
 }
@@ -368,8 +368,8 @@ async function getParent(role) {
     try {
         let parent = await ajaxPromise(
             null,
-            `/admission/parent/${admission.applicant.id}/${role}`,
-            "GET"
+            `/document/parent/${admission.applicant.id}/${role}`,
+            "GET",
         );
 
         fillParentByRole(role, parent);
@@ -387,7 +387,7 @@ async function getLevelsAndGrades(data) {
         const levels = await ajaxPromise(
             null,
             `/level/branch/${data.branch.id}`,
-            "GET"
+            "GET",
         );
 
         $("#applyingLevel")
@@ -396,7 +396,7 @@ async function getLevelsAndGrades(data) {
 
         levels.forEach((level) => {
             $("#applyingLevel").append(
-                `<option value="${level.id}">${level.name}</option>`
+                `<option value="${level.id}">${level.name}</option>`,
             );
         });
 
@@ -408,7 +408,7 @@ async function getLevelsAndGrades(data) {
 
         selectedLevel?.grades.forEach((grade) => {
             $("#applyingClass").append(
-                `<option value="${grade.id}">${grade.name}</option>`
+                `<option value="${grade.id}">${grade.name}</option>`,
             );
         });
 
@@ -417,7 +417,7 @@ async function getLevelsAndGrades(data) {
         toastify(
             "Error",
             err?.responseJSON?.message ?? "Please try again later",
-            "bottom"
+            "bottom",
         );
     }
 }
@@ -492,15 +492,15 @@ async function postApplicant() {
                     : null,
 
                 emergency_contact_priority: $(
-                    "#emergencyContactPriority"
+                    "#emergencyContactPriority",
                 ).val(),
             },
         };
 
         const data = await ajaxPromise(
             _admission,
-            `/admission/applicant`,
-            "POST"
+            `/document/applicant`,
+            "POST",
         );
 
         admission = data;
@@ -508,7 +508,7 @@ async function postApplicant() {
         toastify(
             "Error",
             err?.responseJSON?.message ?? "Please try again later",
-            "bottom"
+            "bottom",
         );
     }
 }
@@ -516,12 +516,12 @@ async function postApplicant() {
 function getConstantData() {
     religions.forEach((religion) => {
         $(".religion").append(
-            `<option value="${religion}">${religion}</option>`
+            `<option value="${religion}">${religion}</option>`,
         );
     });
     educations.forEach((education) => {
         $(".education").append(
-            `<option value="${education}">${education}</option>`
+            `<option value="${education}">${education}</option>`,
         );
     });
     jobs.forEach((job) => {
@@ -540,7 +540,7 @@ function fillStudent() {
         .trigger("change");
     $("#placeOfBirth").val(applicant.place_of_birth);
     $("#dateOfBirth").val(
-        moment(applicant.date_of_birth).format("DD MMMM YYYY")
+        moment(applicant.date_of_birth).format("DD MMMM YYYY"),
     );
 
     $("#religion").val(applicant.religion).trigger("change");
@@ -597,7 +597,7 @@ function fillParentByRole(role, parent) {
     $(`${prefix}DateOfBirth`).val(
         parent.birth_date
             ? moment(parent.birth_date).format("DD MMMM YYYY")
-            : ""
+            : "",
     );
     $(`${prefix}IdCard`).val(parent.identity_number || "");
     $(`${prefix}Religion`)
@@ -615,7 +615,7 @@ function fillParentByRole(role, parent) {
 
     if (parent.marital_status) {
         $(
-            `input[name="${role}MaritalStatus"][value="${parent.marital_status}"]`
+            `input[name="${role}MaritalStatus"][value="${parent.marital_status}"]`,
         )
             .prop("checked", true)
             .trigger("change");
@@ -668,7 +668,7 @@ async function postParentByRole(role) {
         }
     }
 
-    await ajaxPromise(parent, `/admission/parent`, "POST");
+    await ajaxPromise(parent, `/document/parent`, "POST");
 }
 
 async function submitForm() {
@@ -679,17 +679,17 @@ async function submitForm() {
             immunization: {
                 bcg: $("input[name='immunizationBCG']:checked").val(),
                 hepatitis: $(
-                    "input[name='immunizationHepatitis']:checked"
+                    "input[name='immunizationHepatitis']:checked",
                 ).val(),
                 dtp: $("input[name='immunizationDTP']:checked").val(),
                 polio: $("input[name='immunizationPolio']:checked").val(),
                 measles: $("input[name='immunizationMeasles']:checked").val(),
                 hepatitis_a: $(
-                    "input[name='immunizationHepatitisA']:checked"
+                    "input[name='immunizationHepatitisA']:checked",
                 ).val(),
                 mmr: $("input[name='immunizationMMR']:checked").val(),
                 influenza: $(
-                    "input[name='immunizationInfluenza']:checked"
+                    "input[name='immunizationInfluenza']:checked",
                 ).val(),
             },
             health: {
@@ -700,16 +700,16 @@ async function submitForm() {
                 blood_type: $("#bloodType").val(),
                 uses_glasses: $("input[name='usesGlasses']:checked").val(),
                 uses_hearing_aid: $(
-                    "input[name='usesHearingAid']:checked"
+                    "input[name='usesHearingAid']:checked",
                 ).val(),
                 family_disease_history: $("#familyDiseaseHistory").val(),
                 referral_health_facility: $("#referralFacility").val(),
                 emergency_contact: $("#emergencyContactInfo").val(),
                 routine_medication: $(
-                    "input[name='routineMedication']:checked"
+                    "input[name='routineMedication']:checked",
                 ).val(),
                 routine_medication_note: $(
-                    "#routineMedicationExplanation"
+                    "#routineMedicationExplanation",
                 ).val(),
             },
             pregnancy_history: {
@@ -745,18 +745,18 @@ async function submitForm() {
         blockUI();
         let response = await ajaxPromise(
             _admission,
-            `/admission/health`,
-            "POST"
+            `/document/health`,
+            "POST",
         );
         toastify("success", "Data berhasil disimpan", "bottom");
         setTimeout(function () {
-            window.location.href = `/admission/document/${admission.code}`;
+            window.location.href = `/document/file/${admission.code}`;
         }, 1000);
     } catch (err) {
         toastify(
             "Error",
             err?.responseJSON?.message ?? "Please try again later",
-            "bottom"
+            "bottom",
         );
     }
 }
@@ -764,8 +764,8 @@ async function submitForm() {
 async function getApplicant() {
     let applicant = await ajaxPromise(
         null,
-        `/admission/applicant/${admission.applicant.id}`,
-        "GET"
+        `/document/applicant/${admission.applicant.id}`,
+        "GET",
     );
 
     mapHealth(applicant.health);
@@ -845,7 +845,7 @@ function mapImmunization(immunization) {
         .prop("checked", true)
         .trigger("change");
     $(
-        `input[name="immunizationHepatitisA"][value="${immunization.hepatitis_a}"]`
+        `input[name="immunizationHepatitisA"][value="${immunization.hepatitis_a}"]`,
     )
         .prop("checked", true)
         .trigger("change");

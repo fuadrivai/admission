@@ -55,4 +55,8 @@ class Admission extends Model
     {
         return $this->hasMany(AdmissionDocument::class);
     }
+    public function statement()
+    {
+        return $this->hasOne(AdmissionStatement::class);
+    }
 }

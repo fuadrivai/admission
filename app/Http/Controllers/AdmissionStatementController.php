@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AdmissionStatement;
-use App\Services\AdmissionService;
+use App\Services\AdmissionStatementService;
 use Illuminate\Http\Request;
 
 class AdmissionStatementController extends Controller
@@ -14,11 +14,11 @@ class AdmissionStatementController extends Controller
      * @return \Illuminate\Http\Response
      */
 
-    private AdmissionService $admissionService;
+    private AdmissionStatementService $admissionStatementService;
 
-    public function __construct(AdmissionService $admissionService)
+    public function __construct(AdmissionStatementService $admissionStatementService)
     {
-        $this->admissionService = $admissionService;
+        $this->admissionStatementService = $admissionStatementService;
     }
     
     public function index($code)
@@ -44,7 +44,32 @@ class AdmissionStatementController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->all();
+        $statement = $this->admissionStatementService->postStatement($data);
+        return response()->json($statement);
+    }
+    public function storeFinancial(Request $request)
+    {
+        $data = $request->all();
+        $statement = $this->admissionStatementService->postFinancial($data);
+        return response()->json($statement);
+    }
+    public function getFinancial($id)
+    {
+        $financial = $this->admissionStatementService->getFinancial($id);
+        return response()->json($financial);
+    }
+
+    public function postAgreement(Request $data)
+    {
+        $agreement = $this->admissionStatementService->postAgreement($data);
+        return response()->json($agreement);
+    }
+
+    public function getAgreement($id,$role)
+    {
+        $agreement = $this->admissionStatementService->getAgreement($id,$role);
+        return response()->json($agreement);
     }
 
     /**

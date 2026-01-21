@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Form Persetujuan Orang Tua - Mutiara Harapan Islamic School</title>
 
     <!-- Bootstrap 5 CSS -->
@@ -118,27 +119,27 @@
                 <h5 class="mb-3">Informasi Orang Tua/Wali</h5>
                 <div class="parent-info-row">
                     <div class="parent-label">Nama Lengkap:</div>
-                    <div class="parent-value" id="parentFullName">-</div>
+                    <div class="parent-value parentFullName" id="parentFullName">-</div>
                 </div>
                 <div class="parent-info-row">
                     <div class="parent-label">Email:</div>
-                    <div class="parent-value" id="parentEmail">-</div>
+                    <div class="parent-value parentEmail" id="parentEmail">-</div>
                 </div>
                 <div class="parent-info-row">
                     <div class="parent-label">Nomor HP:</div>
-                    <div class="parent-value" id="parentPhone">-</div>
+                    <div class="parent-value parentPhone" id="parentPhone">-</div>
                 </div>
                 <div class="parent-info-row">
                     <div class="parent-label">Tempat Lahir:</div>
-                    <div class="parent-value" id="parentBirthPlace">-</div>
+                    <div class="parent-value parentBirthPlace" id="parentBirthPlace">-</div>
                 </div>
                 <div class="parent-info-row">
                     <div class="parent-label">Tanggal Lahir:</div>
-                    <div class="parent-value" id="parentBirthDate">-</div>
+                    <div class="parent-value parentBirthDate" id="parentBirthDate">-</div>
                 </div>
                 <div class="parent-info-row">
                     <div class="parent-label">No. KTP:</div>
-                    <div class="parent-value" id="parentIdCard">-</div>
+                    <div class="parent-value parentIdCard" id="parentIdCard">-</div>
                 </div>
             </div>
 
@@ -152,23 +153,23 @@
                 <h5 class="mb-3">Informasi Calon Siswa</h5>
                 <div class="student-info-row">
                     <div class="student-label">Nama Lengkap:</div>
-                    <div class="student-value" id="studentFullName">--</div>
+                    <div class="student-value studentFullName" id="studentFullName">--</div>
                 </div>
                 <div class="student-info-row">
                     <div class="student-label">Usia:</div>
-                    <div class="student-value" id="studentAge">--</div>
+                    <div class="student-value studentAge" id="studentAge">--</div>
                 </div>
                 <div class="student-info-row">
                     <div class="student-label">Level:</div>
-                    <div class="student-value" id="studentLevel">-</div>
+                    <div class="student-value studentLevel" id="studentLevel">-</div>
                 </div>
                 <div class="student-info-row">
                     <div class="student-label">Kelas:</div>
-                    <div class="student-value" id="studentGrade">--</div>
+                    <div class="student-value studentGrade" id="studentGrade">--</div>
                 </div>
                 <div class="student-info-row">
                     <div class="student-label">Tahun Ajaran</div>
-                    <div class="student-value" id="academicYear">--</div>
+                    <div class="student-value academicYear" id="academicYear">--</div>
                 </div>
             </div>
         </div>
@@ -464,9 +465,10 @@
                     <div class="current-date-display" id="currentDate2"></div>
 
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="agreeStatement1" required>
-                        <label class="form-check-label required" for="agreeStatement1">Iya, Saya Sepakat</label>
-                        <div class="error-message" id="agreeStatement1-error">Harap setujui pernyataan ini</div>
+                        <input class="form-check-input" type="hidden" id="parentAgreeStatementId">
+                        <input class="form-check-input" type="checkbox" id="parentAgreeStatement" required>
+                        <label class="form-check-label required" for="parentAgreeStatement">Iya, Saya Sepakat</label>
+                        <div class="error-message" id="parentAgreeStatement-error">Harap setujui pernyataan ini</div>
                     </div>
                 </div>
             </div>
@@ -488,10 +490,26 @@
                     <div class="current-date-display" id="currentDate3"></div>
 
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="agreeStatement2" required>
-                        <label class="form-check-label required" for="agreeStatement2">Iya, Saya Sepakat</label>
-                        <div class="error-message" id="agreeStatement2-error">Harap setujui pernyataan ini</div>
+                        <input class="form-check-input" type="hidden" id="guardianAgreeStatementId">
+                        <input class="form-check-input" type="checkbox" id="guardianAgreeStatement" required>
+                        <label class="form-check-label required" for="guardianAgreeStatement">Iya, Saya
+                            Sepakat</label>
+                        <div class="error-message" id="guardianAgreeStatement-error">Harap setujui pernyataan ini
+                        </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- Final Submit Section  if leve is under Upper Secondary-->
+            <div class="final-submit-section d-none" id="btn-under-upper-secondary">
+                <div class="alert alert-success">
+                    <h5 class="alert-heading"><i class="bi bi-check-circle-fill"></i> Penyelesaian Formulir</h5>
+                    <p class="mb-3">Selamat! Anda telah menyelesaikan semua bagian formulir persetujuan orang
+                        tua.
+                        Silakan tinjau informasi Anda sebelum mengirimkan.</p>
+                    <button type="button" class="btn btn-success btn-lg final-submit-btn" id="final-submit-btn-1">
+                        <i class="bi bi-send-check"></i> Kirim Formulir Persetujuan
+                    </button>
                 </div>
             </div>
         </div>
@@ -505,27 +523,27 @@
                 <h5 class="mb-3">Saya yang bertanda tangan dibawah ini sebagai :</h5>
                 <div class="parent-info-row">
                     <div class="parent-label">Nama Lengkap:</div>
-                    <div class="parent-value" id="parentFullName2">-</div>
+                    <div class="parent-value parentFullName" id="parentFullName2">-</div>
                 </div>
                 <div class="parent-info-row">
                     <div class="parent-label">Email:</div>
-                    <div class="parent-value" id="parentEmail2">-</div>
+                    <div class="parent-value parentEmail" id="parentEmail2">-</div>
                 </div>
                 <div class="parent-info-row">
                     <div class="parent-label">Nomor HP:</div>
-                    <div class="parent-value" id="parentPhone2">-</div>
+                    <div class="parent-value parentPhone" id="parentPhone2">-</div>
                 </div>
                 <div class="parent-info-row">
                     <div class="parent-label">Tempat Lahir:</div>
-                    <div class="parent-value" id="parentBirthPlace2">-</div>
+                    <div class="parent-value parentBirthPlace" id="parentBirthPlace2">-</div>
                 </div>
                 <div class="parent-info-row">
                     <div class="parent-label">Tanggal Lahir:</div>
-                    <div class="parent-value" id="parentBirthDate2">-</div>
+                    <div class="parent-value parentBirthDate" id="parentBirthDate2">-</div>
                 </div>
                 <div class="parent-info-row">
                     <div class="parent-label">No. KTP:</div>
-                    <div class="parent-value" id="parentIdCard2">-</div>
+                    <div class="parent-value parentIdCard" id="parentIdCard2">-</div>
                 </div>
             </div>
 
@@ -538,19 +556,23 @@
                 <h5 class="mb-3">Informasi Calon Siswa</h5>
                 <div class="student-info-row">
                     <div class="student-label">Nama Lengkap:</div>
-                    <div class="student-value" id="studentFullName2">Muhammad Al-Fatih Sudirman</div>
+                    <div class="student-value studentFullName" id="studentFullName2">-</div>
                 </div>
                 <div class="student-info-row">
                     <div class="student-label">Usia:</div>
-                    <div class="student-value" id="studentAge2">7 tahun 2 bulan</div>
+                    <div class="student-value studentAge" id="studentAge2">-</div>
                 </div>
                 <div class="student-info-row">
                     <div class="student-label">Level:</div>
-                    <div class="student-value" id="studentLevel2">SD</div>
+                    <div class="student-value studentLevel" id="studentLevel2">-</div>
                 </div>
                 <div class="student-info-row">
                     <div class="student-label">Kelas:</div>
-                    <div class="student-value" id="studentGrade2">Kelas 1</div>
+                    <div class="student-value studentGrade" id="studentGrade2">-</div>
+                </div>
+                <div class="student-info-row">
+                    <div class="student-label">Tahun Ajaran:</div>
+                    <div class="student-value academicYear" id="academicYear2">-</div>
                 </div>
             </div>
 
@@ -563,9 +585,12 @@
                         konsekuensi atas hasil pemeriksaan sesuai dengan tata tertib yang berlaku.</p>
                     <div class="current-date-display" id="currentDate4"></div>
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="agreeNarkotika" required>
-                        <label class="form-check-label required" for="agreeNarkotika">Iya, Saya Sepakat</label>
-                        <div class="error-message" id="agreeNarkotika-error">Harap setujui pernyataan ini</div>
+                        <input class="form-check-input" type="hidden" id="narcoticaAgreeStatementId">
+                        <input class="form-check-input" type="checkbox" id="narcoticaAgreeStatement" required>
+                        <label class="form-check-label required" for="narcoticaAgreeStatement">Iya, Saya
+                            Sepakat</label>
+                        <div class="error-message" id="narcoticaAgreeStatement-error">Harap setujui pernyataan ini
+                        </div>
                     </div>
                 </div>
             </div>
@@ -579,53 +604,62 @@
                 <h5 class="mb-3">Informasi Siswa</h5>
                 <div class="student-info-row">
                     <div class="student-label">Nama Lengkap:</div>
-                    <div class="student-value" id="studentFullName3">Muhammad Al-Fatih Sudirman</div>
+                    <div class="student-value studentFullName" id="studentFullName3">Muhammad Al-Fatih Sudirman</div>
                 </div>
                 <div class="student-info-row">
                     <div class="student-label">Usia:</div>
-                    <div class="student-value" id="studentAge3">7 tahun 2 bulan</div>
+                    <div class="student-value studentAge" id="studentAge3">7 tahun 2 bulan</div>
                 </div>
                 <div class="student-info-row">
                     <div class="student-label">Level:</div>
-                    <div class="student-value" id="studentLevel3">SD</div>
+                    <div class="student-value studentLevel" id="studentLevel3">SD</div>
                 </div>
                 <div class="student-info-row">
                     <div class="student-label">Kelas:</div>
-                    <div class="student-value" id="studentGrade3">Kelas 1</div>
+                    <div class="student-value studentGrade" id="studentGrade3">Kelas 1</div>
                 </div>
-            </div>
+                <div class="student-info-row">
+                    <div class="student-label">Tahun Ajaran:</div>
+                    <div class="student-value academicYear" id="academicYear3">2024/2025</div>
+                </div>
 
-            <div class="checkbox-declaration">
-                <div class="statement-item">
-                    <p>Dengan ini menyatakan taat dan patuh pada peraturan tata tertib murid dan ketentuan lainnya yang
-                        terkait dengan siswa Mutiara Harapan Islamic School yang berlaku di Mutiara Harapan Islamic
-                        School.</p>
-                    <p>Jika dikemudian hari saya melanggar peraturan tersebut, maka saya bersedia menerima
-                        konsekuensinya.</p>
+                <div class="checkbox-declaration">
+                    <div class="statement-item">
+                        <p>Dengan ini menyatakan taat dan patuh pada peraturan tata tertib murid dan ketentuan lainnya
+                            yang
+                            terkait dengan siswa Mutiara Harapan Islamic School yang berlaku di Mutiara Harapan Islamic
+                            School.</p>
+                        <p>Jika dikemudian hari saya melanggar peraturan tersebut, maka saya bersedia menerima
+                            konsekuensinya.</p>
 
-                    <div class="current-date-display" id="currentDate5"></div>
+                        <div class="current-date-display" id="currentDate5"></div>
 
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="agreeStudent" required>
-                        <label class="form-check-label required" for="agreeStudent">Iya, Saya Sepakat</label>
-                        <div class="error-message" id="agreeStudent-error">Harap setujui pernyataan ini</div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="hidden" id="studentAgreeStatementId">
+                            <input class="form-check-input" type="checkbox" id="studentAgreeStatement" required>
+                            <label class="form-check-label required" for="studentAgreeStatement">Iya, Saya
+                                Sepakat</label>
+                            <div class="error-message" id="studentAgreeStatement-error">Harap setujui pernyataan ini
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Final Submit Section -->
+                <div class="final-submit-section">
+                    <div class="alert alert-success">
+                        <h5 class="alert-heading"><i class="bi bi-check-circle-fill"></i> Penyelesaian Formulir</h5>
+                        <p class="mb-3">Selamat! Anda telah menyelesaikan semua bagian formulir persetujuan orang
+                            tua.
+                            Silakan tinjau informasi Anda sebelum mengirimkan.</p>
+                        <button type="button" class="btn btn-success btn-lg final-submit-btn"
+                            id="final-submit-btn-2">
+                            <i class="bi bi-send-check"></i> Kirim Formulir Persetujuan
+                        </button>
                     </div>
                 </div>
             </div>
-
-            <!-- Final Submit Section -->
-            <div class="final-submit-section">
-                <div class="alert alert-success">
-                    <h5 class="alert-heading"><i class="bi bi-check-circle-fill"></i> Penyelesaian Formulir</h5>
-                    <p class="mb-3">Selamat! Anda telah menyelesaikan semua bagian formulir persetujuan orang tua.
-                        Silakan tinjau informasi Anda sebelum mengirimkan.</p>
-                    <button type="button" class="btn btn-success btn-lg" id="final-submit-btn">
-                        <i class="bi bi-send-check"></i> Kirim Formulir Persetujuan
-                    </button>
-                </div>
-            </div>
         </div>
-
         <!-- Wizard Navigation -->
         <div class="wizard-navigation">
             <div>

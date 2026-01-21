@@ -40,7 +40,7 @@ class AdmissionImplement implements AdmissionService
     }
     public function showByCode($code)
     {
-        $admission =  Admission::with(['applicant','enrolment','branch','level','grade'])
+        $admission =  Admission::with(['applicant','enrolment','branch','level','grade','statement'])
                         ->where('code', $code)->first();
         if (!$admission){
             $enrolment = Enrolment::with(['branch', 'grade', 'level'])->where('code', $code)->first();
