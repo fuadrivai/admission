@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Admission;
 use App\Models\AdmissionDocument;
+use App\Services\AdmissionDocumentService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -14,6 +15,14 @@ class AdmissionDocumentController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
+    private AdmissionDocumentService $admissionDocumentService;
+
+    public function __construct(AdmissionDocumentService $admissionDocumentService)
+    {
+        $this->admissionDocumentService = $admissionDocumentService;
+    }
+
     public function code($code)
     {
         $admission = Admission::with([
@@ -34,6 +43,11 @@ class AdmissionDocumentController extends Controller
             'enrolment.form.student-file',
             compact('admission', 'father', 'mother', 'guardian')
         );
+    }
+    public function byAdmissionId($id)
+    {
+        $document = $this->admissionDocumentService->getByAdmissionId($id);
+        return response()->json($document);
     }
 
 

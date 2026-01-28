@@ -1,24 +1,25 @@
 const uploadedFiles = {
-    ktpAyah: null,
-    ktpIbu: null,
-    akte: null,
-    kk: null,
+    ktp_father: null,
+    ktp_mother: null,
+    birth_certificate: null,
+    family_card: null,
 };
 $(document).ready(function () {
-    $("#ktpAyahInput").on("change", function (e) {
-        handleFileUpload(e, "ktpAyah");
+    getDocumentByCode();
+    $("#ktp_fatherInput").on("change", function (e) {
+        handleFileUpload(e, "ktp_father");
     });
 
-    $("#ktpIbuInput").on("change", function (e) {
-        handleFileUpload(e, "ktpIbu");
+    $("#ktp_motherInput").on("change", function (e) {
+        handleFileUpload(e, "ktp_mother");
     });
 
-    $("#akteInput").on("change", function (e) {
-        handleFileUpload(e, "akte");
+    $("#birth_certificateInput").on("change", function (e) {
+        handleFileUpload(e, "birth_certificate");
     });
 
-    $("#kkInput").on("change", function (e) {
-        handleFileUpload(e, "kk");
+    $("#family_cardInput").on("change", function (e) {
+        handleFileUpload(e, "family_card");
     });
 
     $("#submitBtn").on("click", submitDocuments);
@@ -29,7 +30,7 @@ $(document).ready(function () {
         updateCardStatus(documentType, "removed");
         checkSubmitButton();
     };
-    checkSubmitButton();
+    // checkSubmitButton();
 
     $("html, body").animate(
         {
@@ -64,60 +65,11 @@ function handleFileUpload(event, documentType) {
     }
 
     uploadedFiles[documentType] = file;
-    showFilePreview(file, documentType);
+    showFilePreviewFromFile(file, documentType);
     updateCardStatus(documentType, "uploaded");
     checkSubmitButton();
 
     event.target.value = "";
-}
-
-function showFilePreview(file, documentType) {
-    const previewContainer = $(`#${documentType}Preview`);
-    const fileSize = formatFileSize(file.size);
-
-    let previewContent = "";
-
-    if (file.type.startsWith("image/")) {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            previewContent = `
-                            <div class="file-info">
-                                <div class="file-icon">
-                                    <i class="bi bi-file-image"></i>
-                                </div>
-                                <div class="file-details">
-                                    <div class="file-name">${file.name}</div>
-                                    <div class="file-size">${fileSize}</div>
-                                </div>
-                                <div class="file-remove" onclick="removeFile('${documentType}')">
-                                    <i class="bi bi-x-circle"></i>
-                                </div>
-                            </div>
-                            <img src="${e.target.result}" class="preview-image" alt="Preview">
-                        `;
-            previewContainer.html(previewContent).addClass("show");
-        };
-        reader.readAsDataURL(file);
-    } else if (file.type === "application/pdf") {
-        previewContent = `
-                        <div class="file-info">
-                            <div class="file-icon">
-                                <i class="bi bi-file-pdf"></i>
-                            </div>
-                            <div class="file-details">
-                                <div class="file-name">${file.name}</div>
-                                <div class="file-size">${fileSize}</div>
-                            </div>
-                            <div class="file-remove" onclick="removeFile('${documentType}')">
-                                <i class="bi bi-x-circle"></i>
-                            </div>
-                        </div>
-                        <div class="alert alert-info mt-2">
-                            <i class="bi bi-info-circle"></i> File PDF telah diupload. Pastikan isi dokumen sudah benar.
-                        </div>
-                    `;
-        previewContainer.html(previewContent).addClass("show");
-    }
 }
 
 function showError(documentType, message) {
@@ -184,10 +136,14 @@ function submitDocuments() {
 
     formData.append("admission_id", $("#id").val());
     const files = [
-        { key: "ktp_father", data: "ktpAyah", type: "ktp_father" },
-        { key: "ktp_mother", data: "ktpIbu", type: "ktp_mother" },
-        { key: "birth_certificate", data: "akte", type: "birth_certificate" },
-        { key: "family_card", data: "kk", type: "family_card" },
+        { key: "ktp_father", data: "ktp_father", type: "ktp_father" },
+        { key: "ktp_mother", data: "ktp_mother", type: "ktp_mother" },
+        {
+            key: "birth_certificate",
+            data: "birth_certificate",
+            type: "birth_certificate",
+        },
+        { key: "family_card", data: "family_card", type: "family_card" },
     ];
 
     files.forEach((item) => {
@@ -222,4 +178,117 @@ function submitDocuments() {
             );
         },
     });
+}
+
+async function getDocumentByCode() {
+    blockUI();
+    let id = $("#id").val();
+    let documents = await ajaxPromise(null, `/document/file/id/${id}`, "GET");
+
+    documents.forEach((doc) => {
+        showFilePreviewFromUrl(doc);
+    });
+}
+
+function getFileUrl(filePath) {
+    const baseUrl = "http://192.168.206.121:3000/storage/";
+    return baseUrl + filePath;
+}
+
+function showFilePreviewFromUrl(fileData) {
+    const previewContainer = $(`#${fileData.type}Preview`);
+    const fileSize = formatFileSize(fileData.file_size);
+    const fileUrl = getFileUrl(fileData.file_path);
+
+    let previewContent = "";
+
+    if (fileData.mime_type.startsWith("image/")) {
+        previewContent = `
+            <div class="file-info">
+                <div class="file-icon">
+                    <i class="bi bi-file-image"></i>
+                </div>
+                <div class="file-details">
+                    <div class="file-name">${fileData.original_name}</div>
+                    <div class="file-size">${fileSize}</div>
+                </div>
+                <div class="file-remove" onclick="removeFile('${fileData.type}')">
+                    <i class="bi bi-x-circle"></i>
+                </div>
+            </div>
+            <img src="${fileUrl}" class="preview-image" alt="Preview">
+        `;
+    } else if (fileData.mime_type === "application/pdf") {
+        previewContent = `
+            <div class="file-info">
+                <div class="file-icon">
+                    <i class="bi bi-file-pdf"></i>
+                </div>
+                <div class="file-details">
+                    <div class="file-name">${fileData.original_name}</div>
+                    <div class="file-size">${fileSize}</div>
+                </div>
+                <div class="file-remove" onclick="removeFile('${fileData.type}')">
+                    <i class="bi bi-x-circle"></i>
+                </div>
+            </div>
+            <div class="alert alert-info mt-2">
+                <i class="bi bi-info-circle"></i> File PDF telah diupload.
+                <a href="${fileUrl}" target="_blank" class="ms-2">Lihat file</a>
+            </div>
+        `;
+    }
+
+    previewContainer.html(previewContent).addClass("show");
+    updateCardStatus(fileData.type, "uploaded");
+    checkSubmitButton();
+}
+
+function showFilePreviewFromFile(file, documentType) {
+    const previewContainer = $(`#${documentType}Preview`);
+    const fileSize = formatFileSize(file.size);
+
+    let previewContent = "";
+
+    if (file.type.startsWith("image/")) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            previewContent = `
+                            <div class="file-info">
+                                <div class="file-icon">
+                                    <i class="bi bi-file-image"></i>
+                                </div>
+                                <div class="file-details">
+                                    <div class="file-name">${file.name}</div>
+                                    <div class="file-size">${fileSize}</div>
+                                </div>
+                                <div class="file-remove" onclick="removeFile('${documentType}')">
+                                    <i class="bi bi-x-circle"></i>
+                                </div>
+                            </div>
+                            <img src="${e.target.result}" class="preview-image" alt="Preview">
+                        `;
+            previewContainer.html(previewContent).addClass("show");
+        };
+        reader.readAsDataURL(file);
+    } else if (file.type === "application/pdf") {
+        previewContent = `
+                        <div class="file-info">
+                            <div class="file-icon">
+                                <i class="bi bi-file-pdf"></i>
+                            </div>
+                            <div class="file-details">
+                                <div class="file-name">${file.name}</div>
+                                <div class="file-size">${fileSize}</div>
+                            </div>
+                            <div class="file-remove" onclick="removeFile('${documentType}')">
+                                <i class="bi bi-x-circle"></i>
+                            </div>
+                        </div>
+                        <div class="alert alert-info mt-2">
+                            <i class="bi bi-info-circle"></i> File PDF telah diupload. Pastikan isi dokumen sudah benar.
+                        </div>
+                    `;
+        previewContainer.html(previewContent).addClass("show");
+    }
 }

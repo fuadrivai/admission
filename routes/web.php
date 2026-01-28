@@ -61,6 +61,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
     Route::post('document/health', [AdmissionController::class, 'postHealth'])->name('admission.postHealth');
 
     Route::get('document/file/{code}', [AdmissionDocumentController::class, 'code'])->name('admissionDocument.code');
+    Route::get('document/file/id/{id}', [AdmissionDocumentController::class, 'byAdmissionId'])->name('admissionDocument.byAdmissionId');
     Route::post('document/file', [AdmissionDocumentController::class, 'store'])->name('admissionDocument.store');
 
     Route::get('document/statement/{code}', [AdmissionStatementController::class, 'index'])->name('admission.index');

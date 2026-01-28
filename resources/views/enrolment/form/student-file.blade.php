@@ -131,60 +131,64 @@
                 jelas dan tidak terpotong.
             </p>
 
-            <div class="upload-card" id="ktpAyahCard">
+            <div class="upload-card" id="ktp_fatherCard">
                 <div class="document-title required">KTP Ayah</div>
                 <div class="document-requirement">
                     Format: JPG, PNG, atau PDF. Maksimal ukuran: 5MB. Dokumen harus
                     jelas terbaca.
                 </div>
-                <input type="file" id="ktpAyahInput" class="file-input" accept="image/*,.pdf"
+                <input type="file" id="ktp_fatherInput" class="file-input" accept="image/*,.pdf"
                     capture="environment" />
-                <button type="button" class="upload-btn" onclick="document.getElementById('ktpAyahInput').click()">
+                <button type="button" class="upload-btn"
+                    onclick="document.getElementById('ktp_fatherInput').click()">
                     <i class="bi bi-upload"></i> Upload File
                 </button>
-                <div class="file-preview" id="ktpAyahPreview"></div>
+                <div class="file-preview" id="ktp_fatherPreview"></div>
             </div>
 
-            <div class="upload-card" id="ktpIbuCard">
+            <div class="upload-card" id="ktp_motherCard">
                 <div class="document-title required">KTP Ibu</div>
                 <div class="document-requirement">
                     Format: JPG, PNG, atau PDF. Maksimal ukuran: 5MB. Dokumen harus
                     jelas terbaca.
                 </div>
-                <input type="file" id="ktpIbuInput" class="file-input" accept="image/*,.pdf"
+                <input type="file" id="ktp_motherInput" class="file-input" accept="image/*,.pdf"
                     capture="environment" />
-                <button type="button" class="upload-btn" onclick="document.getElementById('ktpIbuInput').click()">
+                <button type="button" class="upload-btn"
+                    onclick="document.getElementById('ktp_motherInput').click()">
                     <i class="bi bi-upload"></i> Upload File
                 </button>
-                <div class="file-preview" id="ktpIbuPreview"></div>
+                <div class="file-preview" id="ktp_motherPreview"></div>
             </div>
 
-            <div class="upload-card" id="akteCard">
+            <div class="upload-card" id="birth_certificateCard">
                 <div class="document-title required">Akte Kelahiran Ananda</div>
                 <div class="document-requirement">
                     Format: JPG, PNG, atau PDF. Maksimal ukuran: 5MB. Dokumen harus
                     jelas terbaca.
                 </div>
-                <input type="file" id="akteInput" class="file-input" accept="image/*,.pdf"
+                <input type="file" id="birth_certificateInput" class="file-input" accept="image/*,.pdf"
                     capture="environment" />
-                <button type="button" class="upload-btn" onclick="document.getElementById('akteInput').click()">
+                <button type="button" class="upload-btn"
+                    onclick="document.getElementById('birth_certificateInput').click()">
                     <i class="bi bi-upload"></i> Upload File
                 </button>
-                <div class="file-preview" id="aktePreview"></div>
+                <div class="file-preview" id="birth_certificatePreview"></div>
             </div>
 
-            <div class="upload-card" id="kkCard">
+            <div class="upload-card" id="family_cardCard">
                 <div class="document-title required">Kartu Keluarga (KK)</div>
                 <div class="document-requirement">
                     Format: JPG, PNG, atau PDF. Maksimal ukuran: 5MB. Halaman yang
                     berisi data keluarga.
                 </div>
-                <input type="file" id="kkInput" class="file-input" accept="image/*,.pdf"
+                <input type="file" id="family_cardInput" class="file-input" accept="image/*,.pdf"
                     capture="environment" />
-                <button type="button" class="upload-btn" onclick="document.getElementById('kkInput').click()">
+                <button type="button" class="upload-btn"
+                    onclick="document.getElementById('family_cardInput').click()">
                     <i class="bi bi-upload"></i> Upload File
                 </button>
-                <div class="file-preview" id="kkPreview"></div>
+                <div class="file-preview" id="family_cardPreview"></div>
             </div>
         </div>
 

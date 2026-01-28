@@ -6,6 +6,7 @@ interface AdmissionDocumentService
 {
     public function get($with=[]);
     public function show($id,$with=[]);
+    public function getByAdmissionId($id);
     public function post($data);
     public function put($data);
     public function delete($id);
