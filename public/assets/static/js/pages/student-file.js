@@ -4,6 +4,12 @@ const uploadedFiles = {
     birth_certificate: null,
     family_card: null,
 };
+const uploadStatuses = {
+    ktp_father: false,
+    ktp_mother: false,
+    birth_certificate: false,
+    family_card: false,
+};
 $(document).ready(function () {
     getDocumentByCode();
     $("#ktp_fatherInput").on("change", function (e) {
@@ -26,11 +32,12 @@ $(document).ready(function () {
 
     window.removeFile = function (documentType) {
         uploadedFiles[documentType] = null;
+        uploadStatuses[documentType] = false;
         $(`#${documentType}Preview`).removeClass("show").html("");
         updateCardStatus(documentType, "removed");
         checkSubmitButton();
     };
-    // checkSubmitButton();
+    checkSubmitButton();
 
     $("html, body").animate(
         {
@@ -94,8 +101,8 @@ function updateCardStatus(documentType, status) {
 }
 
 function checkSubmitButton() {
-    const allUploaded = Object.values(uploadedFiles).every(
-        (file) => file !== null,
+    const allUploaded = Object.values(uploadStatuses).every(
+        (status) => status === true,
     );
     $("#submitBtn").prop("disabled", !allUploaded);
 }
@@ -186,6 +193,7 @@ async function getDocumentByCode() {
     let documents = await ajaxPromise(null, `/document/file/id/${id}`, "GET");
 
     documents.forEach((doc) => {
+        uploadStatuses[doc.type] = true;
         showFilePreviewFromUrl(doc);
     });
 }
@@ -291,4 +299,6 @@ function showFilePreviewFromFile(file, documentType) {
                     `;
         previewContainer.html(previewContent).addClass("show");
     }
+
+    uploadStatuses[documentType] = true;
 }
