@@ -199,7 +199,7 @@ async function getDocumentByCode() {
 }
 
 function getFileUrl(filePath) {
-    const baseUrl = "http://192.168.206.121:3000/storage/";
+    const baseUrl = "https://admission.mhis.link/storage/";
     return baseUrl + filePath;
 }
 
