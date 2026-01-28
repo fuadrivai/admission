@@ -86,7 +86,7 @@ class AdmissionStatementImplement implements AdmissionStatementService{
     public function getAgreement($id,$type){
         return StatementAgreement::where('admission_statement_id', $id)
             ->where('type', $type)
-            ->firstOrFail();
+            ->first();
     }
 
 
