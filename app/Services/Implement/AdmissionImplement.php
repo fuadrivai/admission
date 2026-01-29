@@ -43,7 +43,7 @@ class AdmissionImplement implements AdmissionService
         $admission =  Admission::with(['applicant','enrolment','branch','level','grade','statement'])
                         ->where('code', $code)->first();
         if (!$admission){
-            $enrolment = Enrolment::with(['branch', 'grade', 'level'])->where('code', $code)->first();
+            $enrolment = Enrolment::with(['branch', 'grade', 'level'])->where('code', $code)->firstOrFail();
             if ($enrolment) {
                 $applicantData = [
                     'fullname' => $enrolment->child_name,

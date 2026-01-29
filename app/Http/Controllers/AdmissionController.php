@@ -99,7 +99,7 @@ class AdmissionController extends Controller
             return response()->json($admission);
         } catch (ModelNotFoundException $e) {
             return response()->json([
-                'message' => 'Admission code not found'
+                'message' => 'Enrolment or Admission code not found'
             ], $e->getCode() ?: 404);
         }
     }

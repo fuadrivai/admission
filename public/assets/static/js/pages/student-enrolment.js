@@ -17,8 +17,6 @@ $(document).ready(async function () {
         300,
     );
 
-    initializeDynamicDropdowns();
-
     setupConditionalFields();
 
     $("#next-btn").on("click", nextStep);
@@ -31,26 +29,6 @@ $(document).ready(async function () {
 
     validateCurrentStep();
 });
-
-function initializeDynamicDropdowns() {
-    const currentYear = new Date().getFullYear();
-    const graduationYearSelect = $("#graduationYear");
-
-    for (let i = 0; i < 5; i++) {
-        const year = currentYear + 2 - i;
-        graduationYearSelect.append(`<option value="${year}">${year}</option>`);
-    }
-
-    const academicYearSelect = $("#academicYear");
-
-    for (let i = 0; i < 4; i++) {
-        const year = currentYear + i;
-        const nextYear = year + 1;
-        academicYearSelect.append(
-            `<option value="${year}/${nextYear}">${year}/${nextYear}</option>`,
-        );
-    }
-}
 
 function setupConditionalFields() {
     $("#livingWith").on("change", function () {
@@ -259,6 +237,7 @@ function validateCurrentStep() {
     if (currentStep === totalSteps) {
         $("#next-btn").hide();
         $("#prev-btn").show();
+        $("#final-submit-btn").prop("disabled", !isValid);
     } else {
         $("#next-btn").show().prop("disabled", !isValid);
         $("#prev-btn").show();
@@ -273,7 +252,10 @@ async function nextStep() {
     }
     blockUI();
     if (currentStep == 1) {
-        await getData();
+        let isContinue = await getAdmissionByCode();
+        if (!isContinue) {
+            return;
+        }
     }
     if (currentStep == 2) {
         await postApplicant();
@@ -344,24 +326,26 @@ function prevStep() {
     );
 }
 
-async function getData() {
-    const code = $("#enrollmentCode").val().trim();
+async function getAdmissionByCode() {
     try {
-        await getAdmissionByCode(code);
-        await getLevelsAndGrades(admission);
+        const code = $("#enrollmentCode").val().trim();
+        admission = await ajaxPromise(null, `/document/code/${code}`, "GET");
+        if (admission.is_complete) {
+            window.location.href = `/document/file/${admission.code}`;
+            return false;
+        }
+        getLevelsAndGrades(admission);
+        enrolment = admission.enrolment;
+        fillStudent();
+        return true;
     } catch (err) {
         toastify(
             "Error",
             err?.responseJSON?.message ?? "Please try again later",
             "bottom",
         );
+        return false;
     }
-}
-
-async function getAdmissionByCode(code) {
-    admission = await ajaxPromise(null, `/document/code/${code}`, "GET");
-    enrolment = admission.enrolment;
-    fillStudent();
 }
 
 async function getParent(role) {

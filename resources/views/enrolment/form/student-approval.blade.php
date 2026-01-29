@@ -27,8 +27,8 @@
                 </div>
                 <div class="col">
                     <div class="header-title">
-                        <h1 class="h4 mb-1">Form Persetujuan Orang Tua</h1>
-                        <p class="mb-0">Mutiara Harapan Islamic School</p>
+                        <h1 class="h4 mb-1">Parent’s Statement Form</h1>
+                        <p class="mb-0">Formulir persetujuan orang tua</p>
                     </div>
                 </div>
             </div>
@@ -41,33 +41,33 @@
         <div class="step-indicator">
             <div class="step active" data-step="1">
                 <div class="step-number">1</div>
-                <div class="step-title">Syarat Pendaftaran</div>
+                <div class="step-title">Confirmation</div>
             </div>
             <div class="step" data-step="2">
                 <div class="step-number">2</div>
-                <div class="step-title">Persetujuan Pembayaran</div>
+                <div class="step-title">Payment</div>
             </div>
             <div class="step" data-step="3">
                 <div class="step-number">3</div>
-                <div class="step-title">Pernyataan Orang Tua</div>
+                <div class="step-title">Parent</div>
             </div>
             <div class="step" data-step="4">
                 <div class="step-number">4</div>
-                <div class="step-title">Pernyataan Wali Murid</div>
+                <div class="step-title">Guardian</div>
             </div>
             <div class="step" data-step="5">
                 <div class="step-number">5</div>
-                <div class="step-title">Tes Narkotika</div>
+                <div class="step-title">Drug</div>
             </div>
             <div class="step" data-step="6">
                 <div class="step-number">6</div>
-                <div class="step-title">Pernyataan Siswa</div>
+                <div class="step-title">Student</div>
             </div>
         </div>
 
         <!-- Step 1: Syarat Pendaftaran -->
         <div class="step-content active" id="step-1">
-            <h2 class="section-title">SYARAT PENDAFTARAN</h2>
+            {{-- <h2 class="section-title">SYARAT PENDAFTARAN</h2>
 
             <p>Mengisi dokumen persyaratan pendaftaran sebagai berikut :</p>
 
@@ -98,27 +98,27 @@
                     <li>Scan raport cover dan kelas terakhir -> 1 rangkap (harus dikumpulkan sebelum interview dengan
                         Principal)</li>
                 </ol>
-            </div>
+            </div> --}}
 
-            <h3 class="subsection-title">FORM PERNYATAAN PERSETUJUAN PEMBAYARAN BIAYA SEKOLAH</h3>
+            <h3 class="subsection-title">Authorized Signatory Confirmation</h3>
 
             <div class="mb-4">
                 <input type="hidden" id="admission-code" value="{{ $code }}">
-                <label for="parentSelector" class="form-label required">Atas nama (Yang Menyetujui)</label>
+                <label for="parentSelector" class="form-label required">Relationship to Student (select one):</label>
                 <select class="form-select" id="parentSelector" required>
-                    <option value="" selected disabled>Pilih yang menyetujui</option>
-                    <option value="father">Ayah</option>
-                    <option value="mother">Bunda</option>
-                    <option value="guardian">Wali</option>
+                    <option value="" selected disabled>Select an option</option>
+                    <option value="father">Father</option>
+                    <option value="mother">Mother</option>
+                    <option value="guardian">Guardian</option>
                 </select>
-                <div class="error-message" id="parentSelector-error">Harap pilih yang menyetujui</div>
+                <div class="error-message" id="parentSelector-error">Please select a relationship</div>
             </div>
 
             <!-- Parent Information Display -->
             <div class="parent-info-card" id="parentInfoCard" style="display: none;">
-                <h5 class="mb-3">Informasi Orang Tua/Wali</h5>
+                <h5 class="mb-3">Parent Information : </h5>
                 <div class="parent-info-row">
-                    <div class="parent-label">Nama Lengkap:</div>
+                    <div class="parent-label">Full name:</div>
                     <div class="parent-value parentFullName" id="parentFullName">-</div>
                 </div>
                 <div class="parent-info-row">
@@ -126,37 +126,40 @@
                     <div class="parent-value parentEmail" id="parentEmail">-</div>
                 </div>
                 <div class="parent-info-row">
-                    <div class="parent-label">Nomor HP:</div>
+                    <div class="parent-label">Phone number:</div>
                     <div class="parent-value parentPhone" id="parentPhone">-</div>
                 </div>
                 <div class="parent-info-row">
-                    <div class="parent-label">Tempat Lahir:</div>
+                    <div class="parent-label">Birth Place:</div>
                     <div class="parent-value parentBirthPlace" id="parentBirthPlace">-</div>
                 </div>
                 <div class="parent-info-row">
-                    <div class="parent-label">Tanggal Lahir:</div>
+                    <div class="parent-label">Birth Date:</div>
                     <div class="parent-value parentBirthDate" id="parentBirthDate">-</div>
                 </div>
                 <div class="parent-info-row">
-                    <div class="parent-label">No. KTP:</div>
+                    <div class="parent-label">Id Card:</div>
                     <div class="parent-value parentIdCard" id="parentIdCard">-</div>
                 </div>
             </div>
 
             <div class="statement-item">
-                <p>Menyatakan bahwa benar Saya adalah merupakan orang tua/wali yang sepenuhnya berwenang dari calon
-                    siswa Mutiara Harapan Islamic School tersebut di bawah.</p>
+                <p>I hereby declare that I am the lawful parent/guardian with full authority over the prospective
+                    student of Mutiara Harapan Islamic School as stated below.
+                    <br><i><small>Menyatakan bahwa benar Saya adalah merupakan orang tua/wali yang sepenuhnya berwenang
+                            dari calon siswa Mutiara Harapan Islamic School tersebut di bawah.</small></i>
+                </p>
             </div>
 
             <!-- Student Information Display -->
             <div class="student-info-card">
-                <h5 class="mb-3">Informasi Calon Siswa</h5>
+                <h5 class="mb-3">Student information</h5>
                 <div class="student-info-row">
-                    <div class="student-label">Nama Lengkap:</div>
+                    <div class="student-label">Full name:</div>
                     <div class="student-value studentFullName" id="studentFullName">--</div>
                 </div>
                 <div class="student-info-row">
-                    <div class="student-label">Usia:</div>
+                    <div class="student-label">Age:</div>
                     <div class="student-value studentAge" id="studentAge">--</div>
                 </div>
                 <div class="student-info-row">
@@ -164,11 +167,11 @@
                     <div class="student-value studentLevel" id="studentLevel">-</div>
                 </div>
                 <div class="student-info-row">
-                    <div class="student-label">Kelas:</div>
+                    <div class="student-label">Grade:</div>
                     <div class="student-value studentGrade" id="studentGrade">--</div>
                 </div>
                 <div class="student-info-row">
-                    <div class="student-label">Tahun Ajaran</div>
+                    <div class="student-label">Academic Year:</div>
                     <div class="student-value academicYear" id="academicYear">--</div>
                 </div>
             </div>
@@ -176,17 +179,20 @@
 
         <!-- Step 2: Form Persetujuan Pembayaran -->
         <div class="step-content" id="step-2">
-            <h2 class="section-title">FORM PERNYATAAN PERSETUJUAN PEMBAYARAN BIAYA SEKOLAH</h2>
+            <h2 class="section-title">School Fee Payment Consent Form</h2>
 
             <div class="statement-item">
-                <p>Dengan ini menyatakan MENYETUJUI SEPENUHNYA seluruh ketentuan dan tata cara pembayaran dan bersedia
-                    untuk membayar</p>
+                <p>I hereby state that I fully agree to all applicable payment terms and procedures and undertake to
+                    fulfil all payment obligations in accordance with the regulations of Mutiara Harapan Islamic School.
+                    <br> <i><small>Dengan ini saya menyatakan bahwa saya menyetujui sepenuhnya seluruh ketentuan dan
+                            tata cara pembayaran yang berlaku serta bersedia memenuhi dan melaksanakan seluruh kewajiban
+                            pembayaran sesuai dengan ketentuan Mutiara Harapan Islamic School.</small></i>
+                </p>
 
                 <div class="form-check mb-3">
                     <input class="form-check-input" type="checkbox" id="agreePayment1" required>
-                    <label class="form-check-label required" for="agreePayment1">Iya, saya menyetujui
-                        sepenuhnya</label>
-                    <div class="error-message" id="agreePayment1-error">Harap setujui pernyataan ini</div>
+                    <label class="form-check-label required" for="agreePayment1">Yes, i Agree</label>
+                    <div class="error-message" id="agreePayment1-error">Please agree to this statement.</div>
                 </div>
             </div>
 
@@ -195,10 +201,10 @@
                     <label for="developmentFee" class="form-label required">Development Fee</label>
                     <div class="money-input-group">
                         <span class="input-group-text">Rp</span>
-                        <input type="text" class="form-control" id="developmentFee" placeholder="12,500,000"
-                            required>
+                        <input type="text" class="form-control number2" id="developmentFee"
+                            placeholder="12,500,000" required>
                     </div>
-                    <div class="error-message" id="developmentFee-error">Harap masukkan development fee</div>
+                    <div class="error-message" id="developmentFee-error">Please enter development fee</div>
                     <div class="terbilang-display" id="developmentFeeTerbilang">-</div>
                 </div>
 
@@ -206,9 +212,10 @@
                     <label for="annualFee" class="form-label required">Annual Fee</label>
                     <div class="money-input-group">
                         <span class="input-group-text">Rp</span>
-                        <input type="text" class="form-control" id="annualFee" placeholder="4,000,000" required>
+                        <input type="text" class="form-control number2" id="annualFee" placeholder="4,000,000"
+                            required>
                     </div>
-                    <div class="error-message" id="annualFee-error">Harap masukkan annual fee</div>
+                    <div class="error-message" id="annualFee-error">Please enter annual fee</div>
                     <div class="terbilang-display" id="annualFeeTerbilang">-</div>
                 </div>
 
@@ -216,9 +223,10 @@
                     <label for="schoolFee" class="form-label required">School Fee</label>
                     <div class="money-input-group">
                         <span class="input-group-text">Rp</span>
-                        <input type="text" class="form-control" id="schoolFee" placeholder="1,750,000" required>
+                        <input type="text" class="form-control number2" id="schoolFee" placeholder="1,750,000"
+                            required>
                     </div>
-                    <div class="error-message" id="schoolFee-error">Harap masukkan school fee</div>
+                    <div class="error-message" id="schoolFee-error">Please enter school fee</div>
                     <div class="terbilang-display" id="schoolFeeTerbilang">-</div>
                 </div>
             </div>

@@ -197,7 +197,7 @@ function formatNumber(total) {
 
 function getAcademicYear() {
     const currentYear = new Date().getFullYear();
-    const academicYearSelect = $("#academic-year");
+    const academicYearSelect = $(".academic-year");
 
     for (let i = -1; i <= 1; i++) {
         const startYear = currentYear + i;

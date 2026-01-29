@@ -26,8 +26,8 @@
                 </div>
                 <div class="col">
                     <div class="header-title">
-                        <h1 class="h4 mb-1">Form Pengumpulan Berkas Pendaftaran</h1>
-                        <p class="mb-0">Mutiara Harapan Islamic School</p>
+                        <h1 class="h4 mb-1">Student & Parent Identification Data</h1>
+                        <p class="mb-0">Form pengumpulan data orang tua dan siswa</p>
                     </div>
                 </div>
             </div>
@@ -35,15 +35,15 @@
     </header>
 
     <div class="container main-container">
-        <h2 class="section-title">Pengumpulan Dokumen Pendaftaran</h2>
+        {{-- <h2 class="section-title">Pengumpulan Dokumen Pendaftaran</h2> --}}
 
         <div class="row mb-4">
             <div class="col-md-4 mb-3">
                 <div class="card card-parent">
-                    <div class="card-header-custom">Data Ayah</div>
+                    <div class="card-header-custom">Father’s Information</div>
                     <div class="card-body-custom">
                         <div class="parent-info">
-                            <span class="parent-label">Nama:</span>
+                            <span class="parent-label">Name:</span>
                             <span class="parent-value" id="fatherName">{{ $father->fullname ?? '--' }}</span>
                         </div>
                         <div class="parent-info">
@@ -60,10 +60,10 @@
 
             <div class="col-md-4 mb-3">
                 <div class="card card-parent">
-                    <div class="card-header-custom">Data Ibu</div>
+                    <div class="card-header-custom">Mother's Information</div>
                     <div class="card-body-custom">
                         <div class="parent-info">
-                            <span class="parent-label">Nama:</span>
+                            <span class="parent-label">Name:</span>
                             <span class="parent-value" id="motherName">{{ $mother->fullname ?? '--' }}</span>
                         </div>
                         <div class="parent-info">
@@ -80,10 +80,10 @@
 
             <div class="col-md-4 mb-3">
                 <div class="card card-parent">
-                    <div class="card-header-custom">Data Wali</div>
+                    <div class="card-header-custom">Guardian's Information</div>
                     <div class="card-body-custom">
                         <div class="parent-info">
-                            <span class="parent-label">Nama:</span>
+                            <span class="parent-label">Name:</span>
                             <span class="parent-value" id="guardianName">{{ $guardian->fullname ?? '--' }}</span>
                         </div>
                         <div class="parent-info">
@@ -101,10 +101,10 @@
 
         <div class="student-info-box">
             <h5 class="mb-3" style="color: var(--primary-color)">
-                Informasi Calon Siswa
+                Student’s Information
             </h5>
             <div class="student-info-row">
-                <div class="student-label">Nama Lengkap:</div>
+                <div class="student-label">Full Name:</div>
                 <div class="student-value" id="studentFullName">{{ $admission->applicant->fullname ?? '--' }}</div>
             </div>
             <div class="student-info-row">
@@ -113,11 +113,11 @@
                     {{ $admission->grade->name ?? '--' }}</div>
             </div>
             <div class="student-info-row">
-                <div class="student-label">Tahun Akademik:</div>
+                <div class="student-label">Academic Year:</div>
                 <div class="student-value" id="academicYear">{{ $admission->accademic_year ?? '--' }}</div>
             </div>
             <div class="student-info-row">
-                <div class="student-label">Cabang:</div>
+                <div class="student-label">Branch:</div>
                 <div class="student-value" id="branch">{{ $admission->branch->name ?? '--' }}</div>
             </div>
         </div>
@@ -125,17 +125,49 @@
         <div class="upload-section">
             <input type="hidden" id="id" value="{{ $admission->id }}">
             <input type="hidden" id="code" value="{{ $admission->code }}">
-            <h3 class="section-title">Upload Dokumen Pendaftaran</h3>
+            <h3 class="section-title">Upload Document</h3>
             <p class="mb-4">
-                Silakan upload dokumen-dokumen berikut ini. Pastikan dokumen terlihat
-                jelas dan tidak terpotong.
+                This section collects personal and identification information, including KTP, Family Card (KK), and
+                Birth Certificate. Photograph of the student (4 × 6 cm): White collared shirt with red background, to be
+                submitted in hardcopy before the first day of school.
             </p>
 
+            <p>Additional Documents for Transfer Students</p>
+            <ul class="mb-3">
+                <li>Previous Report Cards or Academic Transcripts (last two academic years)</li>
+                <li>Transfer Letter from the previous school and NISN</li>
+                <li>Academic observation</li>
+            </ul>
+
+            <p>Additional Documents for International Transfer Students</p>
+            <ul>
+                <li>Passport – parent’s and student’s identification (foreign nationals)</li>
+                <li>Visa or KITAS (Limited Stay Permit) — valid residence permit in Indonesia</li>
+                <li>Grade Placement / Equivalency Letter – issued by the local Education Office (required for students
+                    from overseas schools)</li>
+                <li>Official Translation — all documents not in English or Indonesian must be translated by a certified
+                    sworn translator</li>
+                <li>Academic Equivalency Certificate – issued by the Ministry of Education through the local Education
+                    Office</li>
+            </ul>
+
+            <p>
+                <strong>Note:</strong><br>
+                These documents may be submitted separately via email at
+                <a href="mailto:admission@mutiaraharapan.sch.id">admission@mutiaraharapan.sch.id</a>.
+            </p>
+
+            <p class="fw-semibold">
+                Kindly ensure that all documents are clear and complete.<br>
+                <i><small>Silakan unggah kebutuhan dokumen dan pastikan terlihat jelas dan lengkap.</small></i>
+            </p>
+            <br>
+
             <div class="upload-card" id="ktp_fatherCard">
-                <div class="document-title required">KTP Ayah</div>
+                <div class="document-title required">Father's Identity Card (ID Card)</div>
                 <div class="document-requirement">
-                    Format: JPG, PNG, atau PDF. Maksimal ukuran: 5MB. Dokumen harus
-                    jelas terbaca.
+                    Format: JPG, PNG, or PDF. Maximum file size is 5MB. Please ensure the documents are clearly
+                    readable.
                 </div>
                 <input type="file" id="ktp_fatherInput" class="file-input" accept="image/*,.pdf"
                     capture="environment" />
@@ -147,10 +179,10 @@
             </div>
 
             <div class="upload-card" id="ktp_motherCard">
-                <div class="document-title required">KTP Ibu</div>
+                <div class="document-title required">Mother's Identity Card (ID Card)</div>
                 <div class="document-requirement">
-                    Format: JPG, PNG, atau PDF. Maksimal ukuran: 5MB. Dokumen harus
-                    jelas terbaca.
+                    Format: JPG, PNG, or PDF. Maximum file size is 5MB. Please ensure the documents are clearly
+                    readable.
                 </div>
                 <input type="file" id="ktp_motherInput" class="file-input" accept="image/*,.pdf"
                     capture="environment" />
@@ -162,10 +194,10 @@
             </div>
 
             <div class="upload-card" id="birth_certificateCard">
-                <div class="document-title required">Akte Kelahiran Ananda</div>
+                <div class="document-title required">Student’s Birth Certificate</div>
                 <div class="document-requirement">
-                    Format: JPG, PNG, atau PDF. Maksimal ukuran: 5MB. Dokumen harus
-                    jelas terbaca.
+                    Format: JPG, PNG, or PDF. Maximum file size is 5MB. Please ensure the documents are clearly
+                    readable.
                 </div>
                 <input type="file" id="birth_certificateInput" class="file-input" accept="image/*,.pdf"
                     capture="environment" />
@@ -177,10 +209,10 @@
             </div>
 
             <div class="upload-card" id="family_cardCard">
-                <div class="document-title required">Kartu Keluarga (KK)</div>
+                <div class="document-title required">Family Card (KK)</div>
                 <div class="document-requirement">
-                    Format: JPG, PNG, atau PDF. Maksimal ukuran: 5MB. Halaman yang
-                    berisi data keluarga.
+                    Format: JPG, PNG, or PDF. Maximum file size is 5MB. Please ensure the documents are clearly
+                    readable.
                 </div>
                 <input type="file" id="family_cardInput" class="file-input" accept="image/*,.pdf"
                     capture="environment" />
@@ -194,11 +226,10 @@
 
         <div class="submit-section">
             <button type="button" class="btn btn-submit-custom btn-lg" id="submitBtn" disabled>
-                <i class="bi bi-send-check"></i> Kirim Semua Berkas
+                <i class="bi bi-send-check"></i> Submit File
             </button>
             <p class="text-muted mt-2">
-                Pastikan semua dokumen yang diperlukan sudah diupload sebelum
-                mengirim.
+                Make sure all required documents have been uploaded before submitting.
             </p>
         </div>
     </div>

@@ -216,7 +216,8 @@
                                 <label for="academic-year" class="form-label">
                                     Academic Year <span class="required-asterisk">*</span>
                                 </label>
-                                <select disabled class="form-select required-select2" id="academic-year" required>
+                                <select disabled class="form-select required-select2 academic-year" id="academic-year"
+                                    required>
                                     <option value="">Select academic year...</option>
                                 </select>
                             </div>

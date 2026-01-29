@@ -225,8 +225,9 @@
                                     <div class="form-group">
                                         <label for="academic-year" class="form-label">Academic Year <span
                                                 class="required">*</span></label>
-                                        <select style="width: 100%" name="academic_year"
-                                            class="form-select required-select2 select2" id="academic-year" required>
+                                        <select style="width: 100%" name="academic_year "
+                                            class="form-select required-select2 select2 academic-year"
+                                            id="academic-year" required>
                                             <option disabled selected value="">Select Academic Year</option>
                                         </select>
                                         <div class="invalid-feedback">

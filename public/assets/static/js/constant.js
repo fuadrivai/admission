@@ -57,8 +57,6 @@ const jobs = [
     "Pegawai Negeri Sipil",
     "Karyawan Swasta",
     "Profesional",
-    "TNI/POLRI",
     "Ibu Rumah Tangga",
-    "pensiunan",
     "Lainnya",
 ];
