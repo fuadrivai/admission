@@ -241,8 +241,8 @@
     <script src="/assets/extensions/bootstrap-datepicker/js/jquery.timepicker.min.js"></script>
     <script src="/assets/extensions/jquery-blockUI/jquery.blockUI.js"></script>
     <script src="/assets/extensions/toastify-js/src/toastify.js"></script>
-    <script src="/assets/compiled/js/script.js?v=1.1.4"></script>
-    <script src="/assets/static/js/pages/student-file.js?v=1.0.1"></script>
+    <script src="/assets/compiled/js/script.js?v=1.1.5"></script>
+    <script src="/assets/static/js/pages/student-file.js?v=1.0.2"></script>
 </body>
 
 </html>

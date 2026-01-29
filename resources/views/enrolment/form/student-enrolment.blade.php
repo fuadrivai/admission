@@ -1445,9 +1445,9 @@
     <script src="/assets/extensions/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
     <script src="/assets/extensions/bootstrap-datepicker/js/jquery.timepicker.min.js"></script>
     <script src="/assets/extensions/toastify-js/src/toastify.js"></script>
-    <script src="/assets/compiled/js/script.js?v=1.1.3"></script>
+    <script src="/assets/compiled/js/script.js?v=1.1.4"></script>
     <script src="/assets/static/js/constant.js?v=1.1.5"></script>
-    <script src="/assets/static/js/pages/student-enrolment.js?v=1.0.0"></script>
+    <script src="/assets/static/js/pages/student-enrolment.js?v=1.0.1"></script>
 </body>
 
 </html>
