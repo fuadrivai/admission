@@ -166,7 +166,7 @@
     <script src="/assets/extensions/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
     <script src="/assets/extensions/bootstrap-datepicker/js/jquery.timepicker.min.js"></script>
     <script src="/assets/extensions/toastify-js/src/toastify.js"></script>
-    <script src="/assets/compiled/js/script.js?v=1.0.0"></script>
+    <script src="/assets/compiled/js/script.js?v=1.0.5"></script>
     @yield('content-script')
 
 </body>
