@@ -24,7 +24,7 @@
                 <img src="/assets/images/logo mh menyamping putih-01-01.png" alt="MHIS Logo" class="header-logo"
                     onerror="this.style.display='none';" />
                 <h2 class="text-white">MHIS Enrolment Form</h2>
-                <p>Please complete all steps to enrol your child</p>
+                <p>This form is quick and easy to complete.</p>
                 <!-- Step Progress -->
                 <div class="step-progress">
                     <div class="progress-line" id="progressLine"></div>
@@ -38,11 +38,11 @@
                     </div>
                     <div class="step-item" data-step="3">
                         <div class="step-circle">3</div>
-                        <div class="step-title">Information</div>
+                        <div class="step-title">Details</div>
                     </div>
                     <div class="step-item" data-step="4">
                         <div class="step-circle">4</div>
-                        <div class="step-title">Additional</div>
+                        <div class="step-title">Insights</div>
                     </div>
                     <div class="step-item" data-step="5">
                         <div class="step-circle">5</div>
@@ -59,7 +59,7 @@
                             <i class="fas fa-school"></i> Visit Confirmation
                         </div>
                         <label class="form-label">
-                            Have you visited our school before?
+                            Have you visited our school?
                             <span class="required-asterisk">*</span>
                         </label>
                         <div class="radio-group">
@@ -116,7 +116,7 @@
                                 <input class="form-check-input" type="radio" name="currentMHIS"
                                     id="yesSiblingRegistration" value="yes_sibling_registration" />
                                 <label class="form-check-label" for="yesSiblingRegistration">
-                                    <i class="fas fa-times-circle"></i> Yes, but I want to register a sibling
+                                    <i class="fas fa-times-circle"></i> Yes, but I would like to register a sibling
                                 </label>
                             </div>
                         </div>
@@ -183,9 +183,10 @@
                         <div class="row g-4">
                             <div class="col-md-6">
                                 <label for="branch" class="form-label">
-                                    Which branch do you want to enrol in?
+                                    Preferred branch?
                                     <span class="required-asterisk">*</span>
                                 </label>
+                                <br><small><i>Cabang MHIS yang ingin dipilih</i></small>
                                 <select class="form-select required-select2" name="branch" id="branch" required>
                                     <option disabled selected value="">Select branch...</option>
                                     @foreach ($branches as $item)
@@ -195,9 +196,10 @@
                             </div>
                             <div class="col-md-6">
                                 <label for="level" class="form-label">
-                                    Which level do you want to enrol in?
+                                    Preferred level?
                                     <span class="required-asterisk">*</span>
                                 </label>
+                                <br><small><i>Tingkat pendidikan yang dituju</i></small>
                                 <select disabled class="form-select required-select2" id="level" required>
                                     <option disabled selected value="">Select level...</option>
                                 </select>
@@ -238,22 +240,24 @@
                     <!-- Section 3: Parent & Child Information -->
                     <div class="section-step" data-step="3">
                         <div class="section-title">
-                            <i class="fas fa-users"></i> Parent &amp; Child Information
+                            <i class="fas fa-users"></i> Parent &amp; Child Details
                         </div>
                         <p class="section-subtitle">
-                            Please provide complete information
+                            Please provide the required information
                         </p>
                         <div class="row g-4">
                             <div class="col-md-6">
                                 <label for="parentName" class="form-label">
                                     Parent's Name <span class="required-asterisk">*</span>
                                 </label>
+                                <br><small><i>Nama orang tua</i></small>
                                 <input type="text" class="form-control" id="parentName" required />
                             </div>
                             <div class="col-md-6">
                                 <label for="email" class="form-label">
                                     E-mail <span class="required-asterisk">*</span>
                                 </label>
+                                <br><small><i>E-mail orang tua</i></small>
                                 <input type="email" name="email" class="form-control" id="email" required />
                                 <div class="invalid-feedback">Please enter a valid email address.</div>
                             </div>
@@ -261,6 +265,7 @@
                                 <label for="phone" class="form-label">
                                     Phone Number <span class="required-asterisk">*</span>
                                 </label>
+                                <br><small><i>Nomer telp orang tua</i></small>
                                 <input type="tel" class="form-control" name="phone" id="phone" required />
                                 <div class="invalid-feedback">Please enter a valid phone number.</div>
                             </div>
@@ -268,6 +273,7 @@
                                 <label for="Relationship" class="form-label">
                                     Relationship <span class="required-asterisk">*</span>
                                 </label>
+                                <br><small><i>Hubungan dengan Anak</i></small>
                                 <select name="relationship" class="form-select required-select2" id="relationship"
                                     required>
                                     <option disabled selected value="">Select relationship...</option>
@@ -327,10 +333,10 @@
                     <!-- Section 4: Additional Information & Recommendations -->
                     <div class="section-step" data-step="4">
                         <div class="section-title">
-                            <i class="fas fa-clipboard-list"></i> Additional Information
+                            <i class="fas fa-clipboard-list"></i> Needs and Preferences
                         </div>
                         <p class="section-subtitle">
-                            Help us understand your needs better
+                            Help us understand you and your child better
                         </p>
                         <div class="mb-4">
                             <label class="form-label">
@@ -369,7 +375,7 @@
                                 <div class="form-check">
                                     <input class="form-check-input" type="radio" name="knowProgram" id="knowMaybe"
                                         value="maybe" />
-                                    <label class="form-check-label" for="knowMaybe">Maybe</label>
+                                    <label class="form-check-label" for="knowMaybe">Somewhat</label>
                                 </div>
                             </div>
                         </div>
@@ -399,24 +405,28 @@
                         </div>
                         <div class="mb-4">
                             <label for="enrollReason" class="form-label">
-                                What's the specific thing that makes you want to enrol in
-                                MHIS? <span class="required-asterisk">*</span>
+                                What specifically makes you want to enrol in MHIS? <span
+                                    class="required-asterisk">*</span>
                             </label>
                             <input type="text" class="form-control" id="enrollReason" required />
                         </div>
                         <div class="mb-4">
                             <label for="bestProgram" class="form-label">
-                                What MHIS program is best suited for your child?
+                                Which MHIS program is best suited for your child?
                                 <span class="required-asterisk">*</span>
                             </label>
+                            <br><small>Program MHIS mana yang paling sesuai dengan yang Ayah/Bunda cari untuk
+                                Ananda?</small>
                             <input type="text" class="form-control" id="bestProgram" required />
                         </div>
                         <div class="mb-4">
                             <label class="form-label">
-                                To what extent do you believe MHIS educational standards will
-                                help your child succeed as a champion?
+                                To what extent do you believe MHIS educational standards will help your child succeed as
+                                a champion?
                                 <span class="required-asterisk">*</span>
                             </label>
+                            <br><small>Sejauh mana Ayah/Bunda percaya standar pendidikan MHIS akan membantu Ananda
+                                menjadi champion?</small>
                             <div class="radio-group">
                                 <div class="form-check">
                                     <input class="form-check-input" type="radio" name="standards" id="fullyAgree"
@@ -437,35 +447,42 @@
                             <p class="section-subtitle">Optional but helpful information</p>
                             <div class="info-box">
                                 <p>
-                                    <strong>If you receive a recommendation from a colleague,</strong>
-                                    kindly inform us by whom and fill in their phone number. If
-                                    they are MHIS parents, please state their child's name and
-                                    class. Thank you parents!
+                                    <strong>If you received a recommendation from a colleague, please let us know their
+                                        name and phone number. If they are MHIS parents, kindly include their child’s
+                                        name and class. Thank you, Parents!
                                 </p>
+                                <p><small><i>Apabila Ayah/Bunda mendapatkan rekomendasi terkait MHIS, silakan
+                                            informasikan nama dan nomor telepon pemberi rekomendasi. Jika mereka
+                                            merupakan orang tua MHIS, silakan cantumkan nama dan kelas
+                                            Ananda.</i></small></p>
                             </div>
                             <div class="row g-4">
                                 <div class="col-md-6">
                                     <label for="recommenderName" class="form-label">
                                         Recommender Name
                                     </label>
+                                    <br><small>Nama Pemberi Rekomendasi</small>
                                     <input type="text" class="form-control" id="recommenderName" />
                                 </div>
                                 <div class="col-md-6">
                                     <label for="recommenderPhone" class="form-label">
                                         Recommender Phone Number
                                     </label>
+                                    <br><small>Nomor Telepon Pemberi Rekomendasi</small>
                                     <input type="tel" class="form-control" id="recommenderPhone" />
                                 </div>
                                 <div class="col-md-6">
                                     <label for="recommenderChildName" class="form-label">
                                         Recommender Child Name
                                     </label>
+                                    <br><small>Nama Anak Pemberi Rekomendasi</small>
                                     <input type="text" class="form-control" id="recommenderChildName" />
                                 </div>
                                 <div class="col-md-6">
                                     <label for="recommenderChildClass" class="form-label">
                                         Recommender Child Class
                                     </label>
+                                    <br><small>Kelas Anak Pemberi Rekomendasi</small>
                                     <input type="text" class="form-control" id="recommenderChildClass" />
                                 </div>
                             </div>

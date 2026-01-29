@@ -94,7 +94,7 @@ function ajax(data, url, method, callback, callbackError) {
                 ? toastify(
                       "Error",
                       err?.responseJSON?.message ?? "Please try again later",
-                      "error"
+                      "error",
                   )
                 : callbackError(err);
         },
@@ -199,12 +199,12 @@ function getAcademicYear() {
     const currentYear = new Date().getFullYear();
     const academicYearSelect = $("#academic-year");
 
-    for (let i = -2; i <= 3; i++) {
+    for (let i = -1; i <= 1; i++) {
         const startYear = currentYear + i;
         const endYear = startYear + 1;
         const yearOption = `${startYear}/${endYear}`;
         academicYearSelect.append(
-            `<option value="${yearOption}">${yearOption}</option>`
+            `<option value="${yearOption}">${yearOption}</option>`,
         );
     }
 }
@@ -250,7 +250,7 @@ function ajaxPromise(data, url, method = "GET") {
             },
             function (err) {
                 reject(err);
-            }
+            },
         );
     });
 }
