@@ -407,7 +407,7 @@
                       </center>
                     </v:roundrect>
                   <![endif]-->
-                                <a href="https://admission.mhis.link/document/student"
+                                <a href="https://admission.mhis.link/document/student?code={{ $data['code'] }}"
                                     style="
                       background-color: #800000;
                       border: 2px solid #800000;
