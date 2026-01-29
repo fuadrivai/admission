@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml"
     xmlns:o="urn:schemas-microsoft-com:office:office">
 
@@ -23,7 +23,8 @@
       margin: 0;
       padding: 0;
       background-color: #f9f7f4;
-      font-family: 'Arial', 'Helvetica Neue', Helvetica, sans-serif;
+      font-family:
+        &quot;Arial&quot;, &quot;Helvetica Neue&quot;, Helvetica, sans-serif;
       -webkit-text-size-adjust: 100%;
       -ms-text-size-adjust: 100%;
     ">
@@ -86,18 +87,6 @@
                         Enrolment Confirmation
                     </h1>
 
-                    <!-- Decorative Divider -->
-                    <table role="presentation" align="center" border="0" cellpadding="0" cellspacing="0"
-                        style="margin: 0 auto 25px">
-                        <tr>
-                            <td width="60" height="1" style="background-color: #e0e0e0"></td>
-                            <td width="20" style="padding: 0 5px">
-                                <div style="font-size: 8px; color: #d4af37">✦</div>
-                            </td>
-                            <td width="60" height="1" style="background-color: #e0e0e0"></td>
-                        </tr>
-                    </table>
-
                     <!-- Arabic Greeting -->
                     <p
                         style="
@@ -108,17 +97,6 @@
                 line-height: 1.4;
               ">
                         ٱلسَّلَامُ عَلَيْكُمْ وَرَحْمَةُ ٱللَّٰهِ وَبَرَكَاتُهُ
-                    </p>
-
-                    <!-- English Greeting -->
-                    <p
-                        style="
-                margin: 0;
-                font-size: 16px;
-                color: #800000;
-                font-style: italic;
-              ">
-                        Assalamualaikum Warahmatullahi Wabarakatuh
                     </p>
                 </td>
             </tr>
@@ -227,13 +205,13 @@
                                 color: #800000;
                                 font-weight: bold;
                                 letter-spacing: 1px;
-                                font-family: 'Courier New', monospace;
+                                font-family: &quot;Courier New&quot;, monospace;
                                 padding: 5px 0;
                               ">
                                                         {{ $data['code'] }}
                                                     </p>
                                                 </td>
-                                                <td width="40" align="right">
+                                                <td width="40" align="center" valign="middle">
                                                     <div
                                                         style="
                                 background-color: #800000;
@@ -293,8 +271,7 @@
                         <!-- Documents Checklist -->
                         <tr>
                             <td style="padding: 0 0 25px">
-                                <table role="presentation" border="0" cellpadding="0" cellspacing="0"
-                                    width="100%"
+                                <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%"
                                     style="
                       border-collapse: separate;
                       border-spacing: 0;
@@ -437,7 +414,7 @@
                       border-radius: 8px;
                       color: #ffffff;
                       display: inline-block;
-                      font-family: 'Arial', sans-serif;
+                      font-family: &quot;Arial&quot;, sans-serif;
                       font-size: 17px;
                       font-weight: bold;
                       line-height: 52px;
@@ -565,17 +542,6 @@
                                         <td style="padding: 16px 20px">
                                             <p
                                                 style="
-                            margin: 0 0 6px;
-                            color: #800000;
-                            font-size: 13px;
-                            font-weight: bold;
-                            text-transform: uppercase;
-                            letter-spacing: 0.5px;
-                          ">
-                                                In Bahasa Indonesia
-                                            </p>
-                                            <p
-                                                style="
                             margin: 0;
                             color: #555555;
                             font-size: 14px;
@@ -660,17 +626,6 @@
                 line-height: 1.4;
               ">
                         وَالسَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللَّهِ وَبَرَكَاتُهُ
-                    </p>
-
-                    <!-- English Closing -->
-                    <p
-                        style="
-                margin: 0 0 25px;
-                font-size: 16px;
-                color: #800000;
-                font-style: italic;
-              ">
-                        Wassalamualaikum warahmatullahi wabarakatuh
                     </p>
 
                     <!-- School Signature -->
