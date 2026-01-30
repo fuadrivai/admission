@@ -231,133 +231,177 @@
                 </div>
             </div>
 
+            <h6>I hereby declare that I fully agree to the following payment terms and
+                conditions:</h6>
+
             <div class="checkbox-declaration">
                 <div class="statement-item">
-                    <p>Development fee akan Saya bayar sesuai dengan ketentuan yang berlaku pada saat pendaftaran siswa
-                        baru Mutiara Harapan Islamic School.</p>
+                    <p>The Development Fee shall be paid in accordance with the applicable regulations at the time of
+                        new student enrolment at Mutiara Harapan Islamic School.
+                        <br><i><small>Development fee akan
+                                Saya bayar sesuai dengan ketentuan yang berlaku pada saat
+                                pendaftaran siswa
+                                baru Mutiara Harapan Islamic School.</small></i>
+                    </p>
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="agreePayment2" required>
-                        <label class="form-check-label required" for="agreePayment2">Iya, Saya Sepakat</label>
-                        <div class="error-message" id="agreePayment2-error">Harap setujui pernyataan ini</div>
+                        <label class="form-check-label required" for="agreePayment2">Yes, i agree</label>
+                        <div class="error-message" id="agreePayment2-error">Please agree to this statement.</div>
                     </div>
                 </div>
 
                 <div class="statement-item">
-                    <p>Annual fee dan school fee akan Saya bayar pada saat putra/putri Saya dinyatakan diterima di
-                        Mutiara Harapan Islamic School.</p>
+                    <p> The Annual Fee and School Fee shall be paid upon my child being officially accepted at Mutiara
+                        Harapan Islamic School.<br> <i><small>Annual fee dan school fee akan Saya bayar pada saat
+                                putra/putri Saya dinyatakan diterima di
+                                Mutiara Harapan Islamic School.</small></i> </p>
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="agreePayment3" required>
-                        <label class="form-check-label required" for="agreePayment3">Iya, Saya Sepakat</label>
-                        <div class="error-message" id="agreePayment3-error">Harap setujui pernyataan ini</div>
+                        <label class="form-check-label required" for="agreePayment3">Yes, i agree</label>
+                        <div class="error-message" id="agreePayment3-error">Please agree to this statement.</div>
                     </div>
                 </div>
 
                 <div class="statement-item">
-                    <p>Uang Ujian International (Cambridge International Examination: Checkpoint/IGCSE/A Level) yang
-                        bersifat wajib dan besarnya ditetapkan pada saat ujian akan dilaksanakan.</p>
+                    <p> International Examination Fees, which are mandatory, shall be determined at the time the
+                        examination is conducted.<br><i><small>Biaya Ujian International yang bersifat wajib dan
+                                besarnya ditetapkan pada saat ujian akan dilaksanakan.</small></i></p>
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="agreePayment4" required>
-                        <label class="form-check-label required" for="agreePayment4">Iya, Saya Sepakat</label>
-                        <div class="error-message" id="agreePayment4-error">Harap setujui pernyataan ini</div>
+                        <label class="form-check-label required" for="agreePayment4">Yes, i agree</label>
+                        <div class="error-message" id="agreePayment4-error">Please agree to this statement.</div>
                     </div>
                 </div>
 
                 <div class="statement-item">
-                    <p>Uang sumber pembelajaran, baik dalam bentuk buku cetak atau sumber digital, yang besarnya
-                        ditetapkan berdasarkan info dari penerbit.</p>
+                    <p> Learning Resource Fees, including printed textbooks and/or digital learning resources, shall be
+                        charged according to the publisher’s terms. <br> <i><small>Biaya sumber pembelajaran yang
+                                besarnya
+                                ditetapkan berdasarkan info dari penerbit.</small></i> </p>
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="agreePayment5" required>
-                        <label class="form-check-label required" for="agreePayment5">Iya, Saya Sepakat</label>
-                        <div class="error-message" id="agreePayment5-error">Harap setujui pernyataan ini</div>
+                        <label class="form-check-label required" for="agreePayment5">Yes, i agree</label>
+                        <div class="error-message" id="agreePayment5-error">Please agree to this statement.</div>
                     </div>
                 </div>
 
                 <div class="statement-item">
-                    <p>Uang ekstrakurikuler sesuai dengan ekstrakurikuler yang dipilih putra/putri Saya.</p>
+                    <p>Extracurricular Fees shall be charged in accordance with the extracurricular activities selected
+                        for my child. <br> <i><small>Biaya ekstrakurikuler sesuai dengan yang dipilih putra/putri
+                                Saya.</small></i></p>
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="agreePayment6" required>
-                        <label class="form-check-label required" for="agreePayment6">Iya, Saya Sepakat</label>
-                        <div class="error-message" id="agreePayment6-error">Harap setujui pernyataan ini</div>
+                        <label class="form-check-label required" for="agreePayment6">Yes, i agree</label>
+                        <div class="error-message" id="agreePayment6-error">Please agree to this statement.</div>
                     </div>
                 </div>
 
                 <div class="statement-item">
-                    <p>Uang kegiatan lainnya yang besarnya ditetapkan pada saat kegiatan akan dilaksanakan.</p>
+                    <p>Other Activity Fees shall be charged based on the nature and timing of the activities conducted.
+                        <br>
+                        <i><small>Biaya kegiatan lainnya yang besarnya ditetapkan pada saat akan
+                                dilaksanakan.</small></i>
+                    </p>
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="agreePayment7" required>
-                        <label class="form-check-label required" for="agreePayment7">Iya, Saya Sepakat</label>
-                        <div class="error-message" id="agreePayment7-error">Harap setujui pernyataan ini</div>
+                        <label class="form-check-label required" for="agreePayment7">Yes, i agree</label>
+                        <div class="error-message" id="agreePayment7-error">Please agree to this statement.</div>
                     </div>
                 </div>
 
                 <div class="statement-item">
-                    <p>School fee Saya bayarkan per bulan, pembayaran paling lambat tanggal 10 bulan berjalan.</p>
+                    <p>The School Fee shall be paid no later than the 10th day of each month. <br> <i><small>School fee
+                                Saya
+                                bayarkan paling lambat tanggal 10 bulan berjalan.</small></i></p>
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="agreePayment8" required>
-                        <label class="form-check-label required" for="agreePayment8">Iya, Saya Sepakat</label>
-                        <div class="error-message" id="agreePayment8-error">Harap setujui pernyataan ini</div>
+                        <label class="form-check-label required" for="agreePayment8">Yes, i agree</label>
+                        <div class="error-message" id="agreePayment8-error">Please agree to this statement.</div>
                     </div>
                 </div>
 
                 <div class="statement-item">
-                    <p>Uang Ittihada yang besarnya ditetapkan kemudian oleh Ittihada dan dibayarkan per tahun.</p>
+                    <p>The Ittihada Fee, the amount of which shall be determined by Ittihada, shall be paid on an annual
+                        basis.<br> <i><small>Biaya Ittihada yang besarnya ditetapkan kemudian oleh Ittihada dan
+                                dibayarkan
+                                per tahun.</small></i></p>
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="agreePayment9" required>
-                        <label class="form-check-label required" for="agreePayment9">Iya, Saya Sepakat</label>
-                        <div class="error-message" id="agreePayment9-error">Harap setujui pernyataan ini</div>
+                        <label class="form-check-label required" for="agreePayment9">Yes, i agree</label>
+                        <div class="error-message" id="agreePayment9-error">Please agree to this statement.</div>
                     </div>
                 </div>
 
                 <div class="statement-item">
-                    <p>Saya menyatakan kesanggupan saya untuk melunasi seluruh kewajiban pembayaran tersebut di atas
-                        sebelum kegiatan belajar di Mutiara Harapan Islamic School dimulai dan saya bersedia menerima
-                        segala konsekuensinya apabila tidak memenuhi kewajiban tersebut, termasuk namun tidak terbatas
-                        pada hilangnya hak anak saya untuk mengikuti kegiatan belajar di Mutiara Harapan Islamic School
-                        sebelum kewajiban tersebut kami lunasi seluruhnya.</p>
+                    <p> I hereby declare my full commitment and ability to settle all payment obligations stated above
+                        prior to the commencement of the academic activities, and I agree to accept any consequences
+                        arising from non-compliance, including but not limited to the suspension of my child’s right to
+                        participate in learning activities at Mutiara Harapan Islamic School until all obligations have
+                        been fully settled.<br> <i><small>Saya menyatakan kesanggupan saya untuk melunasi seluruh
+                                kewajiban
+                                pembayaran di atas sebelum kegiatan belajar di Mutiara Harapan Islamic School dimulai,
+                                dan saya bersedia menerima segala konsekuensinya apabila tidak memenuhi kewajiban
+                                tersebut, termasuk namun tidak terbatas pada hilangnya hak anak saya untuk mengikuti
+                                kegiatan belajar di Mutiara Harapan Islamic School sebelum kewajiban tersebut kami
+                                lunasi seluruhnya.</small></i></p>
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="agreePayment10" required>
-                        <label class="form-check-label required" for="agreePayment10">Iya, Saya Sepakat</label>
-                        <div class="error-message" id="agreePayment10-error">Harap setujui pernyataan ini</div>
+                        <label class="form-check-label required" for="agreePayment10">Yes, i agree</label>
+                        <div class="error-message" id="agreePayment10-error">Please agree to this statement.</div>
                     </div>
                 </div>
 
                 <div class="statement-item">
-                    <p>Selanjutnya saya juga menyatakan Setuju/Sepakat bahwa :</p>
+                    <p>I further acknowledge and
+                        agree that: <br> <i><small>Selanjutnya saya juga menyatakan Setuju/Sepakat bahwa : </small></i>
+                    </p>
                     <ol type="A" class="mb-3">
-                        <li>Annual fee di setiap jenjang kenaikannya 2 tahun sekali maksimal 20% dari besaran pada tahun
-                            tersebut.</li>
-                        <li>School fee besarnya ditetapkan melalui kebijakan sekolah dengan ketentuan kenaikannya 3
-                            tahun sekali maksimal 20% dari besaran pada tahun tersebut.</li>
-                        <li>Development fee, annual fee dan school fee yang sudah Saya bayar tidak akan Saya tarik
-                            kembali atau Saya alihkan dengan alasan apapun, kecuali putra/putri Saya dinyatakan tidak
-                            diterima di Mutiara Harapan Islamic School.</li>
-                        <li>Saya tidak dapat mengambil hasil evaluasi belajar putra/putri Saya sebelum Saya memenuhi
-                            seluruh kewajiban Administrasi yang ditetapkan MHIS.</li>
-                        <li>Saya menyatakan kesanggupan saya untuk melunasi seluruh kewajiban pembayaran tersebut di
+                        <li>The Annual Fee may be adjusted every two (2) years. <br><i><small>Annual fee akan ada
+                                    penyesuaian setiap 2 tahun</small></i></li>
+                        <li>The School Fee shall be determined by school policy and may be adjusted every three (3)
+                            years. <br><i><small>School fee akan ada penyeseuaian setiap 3 tahun</small></i></li>
+                        <li>Any Development Fee, Annual Fee, and School Fee that has been paid is non-refundable and
+                            non-transferable, except in the event that my child is officially declared not accepted at
+                            Mutiara Harapan Islamic School. <br><i><small>Development fee, annual fee dan school fee
+                                    yang sudah Saya bayar tidak akan Saya tarik
+                                    kembali atau Saya alihkan dengan alasan apapun, kecuali putra/putri Saya dinyatakan
+                                    tidak
+                                    diterima di Mutiara Harapan Islamic School.</small></i></li>
+                        <li>Academic evaluation results may not be released if all administrative obligations have not
+                            been fulfilled.<br><i><small>Saya tidak dapat mengambil hasil evaluasi belajar putra/putri
+                                    Saya sebelum Saya memenuhi
+                                    seluruh kewajiban Administrasi yang ditetapkan MHIS.</small></i></li>
+                        <li>I agree to submit all required supporting documents prior to the commencement of academic
+                            activities.<br><i><small>Saya menyetujui untuk menyerahkan seluruh dokumen pendukung yang
+                                    dipersyaratkan sebelum dimulainya kegiatan akademik.</small></i></li>
+                        {{-- <li>Saya menyatakan kesanggupan saya untuk melunasi seluruh kewajiban pembayaran tersebut di
                             atas dan menyerahkan seluruh kelengkapan dokumen yang diperlukan sebelum kegiatan belajar di
                             Mutiara Harapan Islamic School dimulai dan saya bersedia menerima segala konsekuensinya
                             apabila tidak memenuhi kewajiban tersebut, termasuk namun tidak terbatas pada hilangnya hak
                             anak saya untuk mengikuti kegiatan belajar di Mutiara Harapan Islamic School sebelum
-                            kewajiban tersebut kami lunasi seluruhnya.</li>
+                            kewajiban tersebut kami lunasi seluruhnya.</li> --}}
                     </ol>
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="agreePayment11" required>
-                        <label class="form-check-label required" for="agreePayment11">Iya, Saya Sepakat</label>
-                        <div class="error-message" id="agreePayment11-error">Harap setujui pernyataan ini</div>
+                        <label class="form-check-label required" for="agreePayment11">Yes, i agree</label>
+                        <div class="error-message" id="agreePayment11-error">Please agree to this statement.</div>
                     </div>
                 </div>
 
                 <div class="statement-item">
-                    <p>Saya juga menyatakan bahwa Saya memahami sepenuhnya seluruh isi formulir ini dan Saya
-                        menandatanganinya dalam keadaan sehat jasmani dan rohani, tanpa tekanan atau paksaan pihak
-                        manapun untuk dipergunakan sebagaimana mestinya.</p>
+                    <p>I hereby confirm that I have read, understood, and agreed to all contents of this form and that I
+                        sign this agreement voluntarily, in sound physical and mental condition, and without any
+                        pressure or coercion from any party, for lawful and proper use. <br><i><small>Saya juga
+                                menyatakan bahwa Saya memahami sepenuhnya seluruh isi formulir ini dan Saya
+                                menandatanganinya dalam keadaan sehat jasmani dan rohani, tanpa tekanan atau paksaan
+                                pihak manapun untuk dipergunakan sebagaimana mestinya.</small></i></p>
 
                     <div class="current-date-display" id="currentDate1"></div>
 
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="agreePayment12" required>
-                        <label class="form-check-label required" for="agreePayment12">Iya, Saya Sepakat</label>
-                        <div class="error-message" id="agreePayment12-error">Harap setujui pernyataan ini</div>
+                        <label class="form-check-label required" for="agreePayment12">Yes, i agree</label>
+                        <div class="error-message" id="agreePayment12-error">Please agree to this statement.</div>
                     </div>
                 </div>
             </div>
