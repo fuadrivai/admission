@@ -8,14 +8,6 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="x-apple-disable-message-reformatting" />
     <title>Enrolment Confirmation - Mutiara Harapan Islamic School</title>
-    <!--[if mso]>
-      <xml>
-        <o:OfficeDocumentSettings>
-          <o:AllowPNG />
-          <o:PixelsPerInch>96</o:PixelsPerInch>
-        </o:OfficeDocumentSettings>
-      </xml>
-    <![endif]-->
 </head>
 
 <body
@@ -29,12 +21,6 @@
       -ms-text-size-adjust: 100%;
     ">
     <center style="width: 100%; background-color: #f9f7f4">
-        <!--[if (gte mso 9)|(IE)]>
-        <table role="presentation" align="center" border="0" cellspacing="0" cellpadding="0" width="600">
-        <tr>
-        <td>
-        <![endif]-->
-
         <!-- Decorative Top Border -->
         <table role="presentation" align="center" border="0" cellpadding="0" cellspacing="0" width="100%"
             style="max-width: 600px">
@@ -65,7 +51,7 @@
               border-right: 1px solid #f0f0f0;
             ">
                     <!-- School Logo -->
-                    <img src="https://mutiaraharapan.sch.id/wp-content/uploads/2020/01/logo_mh_all_level_220_x_67_cm-01.png"
+                    <img src="https://bangka.mutiaraharapan.sch.id/wp-content/uploads/2020/03/LOGO-5-1536x864-1-1024x576.png"
                         alt="Mutiara Harapan Islamic School" width="200" height="61" border="0"
                         style="
                 display: block;
@@ -153,6 +139,15 @@
                                                 <p style="margin: 0; color: #666666; font-size: 14px">
                                                     Enrolment Year:
                                                     <strong style="color: #800000">{{ $data['academic_year'] }}</strong>
+                                                </p>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <p style="margin: 0; color: #666666; font-size: 14px">
+                                                    Level:
+                                                    <strong style="color: #800000">{{ $data['level_name'] }} /
+                                                        {{ $data['grade_name'] }}</strong>
                                                 </p>
                                             </td>
                                         </tr>
@@ -384,29 +379,6 @@
                         <!-- Enrolment Form Button -->
                         <tr>
                             <td align="center" style="padding: 0 0 30px">
-                                <!--[if mso]>
-                    <v:roundrect
-                      xmlns:v="urn:schemas-microsoft-com:vml"
-                      xmlns:w="urn:schemas-microsoft-com:office:word"
-                      href="[INSERT_ENROLMENT_FORM_URL_HERE]"
-                      style="height: 52px; v-text-anchor: middle; width: 280px"
-                      arcsize="10%"
-                      strokecolor="#800000"
-                      fillcolor="#800000"
-                    >
-                      <w:anchorlock />
-                      <center
-                        style="
-                          color: #ffffff;
-                          font-family: sans-serif;
-                          font-size: 17px;
-                          font-weight: bold;
-                        "
-                      >
-                        Complete Enrolment Form
-                      </center>
-                    </v:roundrect>
-                  <![endif]-->
                                 <a href="https://admission.mhis.link/document/student?code={{ $data['code'] }}"
                                     style="
                       background-color: #800000;
@@ -673,11 +645,6 @@
                 </td>
             </tr>
         </table>
-        <!--[if (gte mso 9)|(IE)]>
-        </td>
-        </tr>
-        </table>
-        <![endif]-->
     </center>
 </body>
 

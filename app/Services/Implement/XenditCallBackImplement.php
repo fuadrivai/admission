@@ -5,6 +5,8 @@ namespace App\Services\Implement;
 use App\Mail\AdmissionEmail;
 use App\Models\EmailSetting;
 use App\Models\Enrolment;
+use App\Models\Grade;
+use App\Models\Level;
 use App\Services\XenditCallBackService;
 use Carbon\Carbon;
 use Dompdf\Dompdf;
@@ -58,6 +60,11 @@ class XenditCallBackImplement implements XenditCallBackService
             ->first();
 
         if ($data['status']=="PAID") { 
+            $level_name = Level::find($enrolment['level_id'])->name;
+            $grade_name = Grade::find($enrolment['grade_id'])->name;
+            $enrolment['level_name'] = $level_name;
+            $enrolment['grade_name'] = $grade_name;
+
             $pdfPath = $this->generateEnrolmentInvoicePdf($enrolment,$data['description'] ?? null);
             $enrolment['subject'] = "Enrolment Documents - Mutiara Harapan Islamic School";
             $enrolment['template'] = 'email-template.enrolment-confirmation';
@@ -84,10 +91,12 @@ class XenditCallBackImplement implements XenditCallBackService
             'invoice_no'        => $enrolment['invoice_id'],
             'payment_date'      => Carbon::parse($enrolment['payment_date'])->format('d M Y'),
             'student_name'      => $enrolment['child_name'],
-            'registration_fee'  => $enrolment['registration_fee'],
-            'bank_charger'       => $enrolment['bank_charger'],
-            'total'             => $enrolment['amount_paid'],
+            'registration_fee'  => number_format($enrolment['registration_fee'], 0, ',', '.'),
+            'bank_charger'       =>  number_format($enrolment['bank_charger'], 0, ',', '.'),
+            'total'             => number_format($enrolment['amount_paid'], 0, ',', '.'),
             'academic_year'     => $enrolment['academic_year'],
+            'level_name'        => $enrolment['level_name'],
+            'grade_name'        => $enrolment['grade_name'],
             'description'       => $description ?? 'Enrolment Payment',
             'logo'              => $imageBase64,
         ])->render();

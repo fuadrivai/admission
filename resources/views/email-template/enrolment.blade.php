@@ -211,6 +211,14 @@
                             ">
                                                     Enrolment Year: {{ $data['academic_year'] }}
                                                 </p>
+                                                <p
+                                                    style="
+                              margin: 5px 0 0;
+                              color: #666666;
+                              font-size: 13px;
+                            ">
+                                                    Level: {{ $data['level_name'] }} / {{ $data['grade_name'] }}
+                                                </p>
                                             </div>
                                         </td>
                                     </tr>
@@ -350,8 +358,7 @@
                           padding: 16px 15px;
                           text-align: right;
                         ">
-                                            Rp.
-                                            {{ number_format($data['bank_charger'], 0, ',', '.') }}
+                                            Rp. {{ number_format($data['bank_charger'], 0, ',', '.') }}
                                         </td>
                                     </tr>
                                     <!-- Table Footer -->
@@ -374,8 +381,7 @@
                           color: #800000;
                           background-color: #fcfaf8;
                         ">
-                                            Rp.
-                                            {{ number_format($data['amount_paid'], 0, ',', '.') }}
+                                            Rp. {{ number_format($data['amount_paid'], 0, ',', '.') }}
                                         </td>
                                     </tr>
                                 </table>

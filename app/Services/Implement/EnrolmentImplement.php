@@ -5,6 +5,7 @@ namespace App\Services\Implement;
 use App\Mail\AdmissionEmail;
 use App\Models\EmailSetting;
 use App\Models\Enrolment;
+use App\Models\Grade;
 use App\Models\Level;
 use App\Services\BankChargerService;
 use App\Services\EnrolmentPriceService;
@@ -94,9 +95,12 @@ class EnrolmentImplement implements EnrolmentService
         $data['registration_fee'] = $enrolForm->price;
         $data['amount_paid'] = $data['bank_charger'] + $data['registration_fee'];
         $data['invoice_id'] =  codeGenerator('enrolments','invoice_id','INV-ENROL');
+        $level_name = "";
+        $grade_name = Grade::find($data['grade_id'])->name;
 
         if ($data['already_visit'] == 0) {
             $level = Level::find($data['level_id']);
+            $level_name = $level->name;
             $code = generate($level->branch_code);
             $dataProspect = [
                 'code'          => $code,
@@ -133,6 +137,8 @@ class EnrolmentImplement implements EnrolmentService
 
         $enrolment['subject'] = "Enrolment Payment of $enrolment->child_name - Mutiara Harapan Islamic School";
         $enrolment['template'] = 'email-template.enrolment';
+        $enrolment['level_name'] = $level_name;
+        $enrolment['grade_name'] = $grade_name??"";
         $setting = EmailSetting::where('branch_id',$data['branch_id'])->first();
         Config::set('mail.default', 'smtp');
         Config::set('mail.mailers.smtp', [

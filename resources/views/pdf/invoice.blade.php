@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Invoice - Mutiara Harapan Islamic School</title>
+    <title>Receipt - Mutiara Harapan Islamic School</title>
     <style>
         body {
             font-family: Arial, Helvetica, sans-serif;
@@ -47,7 +47,6 @@
         .logo {
             height: 70px;
         }
-
 
         .invoice-title {
             color: #800000;
@@ -118,7 +117,7 @@
         }
 
         .invoice-table td {
-            padding: 12px 15px;
+            padding: 9px 11px;
             border-bottom: 1px solid #e0e0e0;
         }
 
@@ -202,14 +201,14 @@
             <table class="header-table">
                 <tr>
                     <td class="header-left">
-                        <img src="{{ $logo }}" alt="Mutiara Harapan Islamic School" class="logo">
+                        <img src="{{ $logo }}" alt="Mutiara Harapan Islamic School" class="logo" />
                     </td>
 
                     <td class="header-right">
-                        <h1 class="invoice-title">INVOICE</h1>
+                        <h1 class="invoice-title">Receipt</h1>
 
                         <div class="invoice-info">
-                            <div><strong>Invoice No:</strong> {{ $invoice_no }}</div>
+                            <div><strong>Transaction No:</strong> {{ $invoice_no }}</div>
                             <div><strong>Payment Date:</strong> {{ $payment_date }}</div>
                         </div>
                     </td>
@@ -230,7 +229,11 @@
                     <span class="info-value">: {{ $academic_year }}</span>
                 </div>
                 <div class="info-row">
-                    <span class="info-label">Invoice Status</span>
+                    <span class="info-label">Level</span>
+                    <span class="info-value">: {{ $level_name }} / {{ $grade_name }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Status</span>
                     <span class="info-value">: PAID</span>
                 </div>
             </div>
@@ -269,16 +272,15 @@
             <div class="description-box">
                 <div class="description-content">
                     <p>
-                        1. This invoice serves as proof of payment for student
+                        1. This receipt serves as proof of payment for student
                         registration at Mutiara Harapan Islamic School.
                     </p>
                     <p>
                         2. Payments are
-                        <strong style="color: #800000">non-refundable</strong> except in
-                        special circumstances approved by the school administration.
+                        <strong style="color: #800000">non-refundable</strong>.
                     </p>
                     <p>
-                        3. Please keep this invoice as official payment documentation.
+                        3. Please keep this receipt as official payment documentation.
                     </p>
                     <p>
                         4. For further information, please contact the Admission
