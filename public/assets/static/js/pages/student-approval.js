@@ -24,10 +24,13 @@ $(document).ready(function () {
         validateCurrentStep();
     });
 
-    $("#developmentFee, #annualFee, #schoolFee").on("input", function () {
-        formatMoneyInput($(this));
-        validateCurrentStep();
-    });
+    $("#developmentFee, #annualFee, #schoolFee, #ittihada, #mhsu, #uniform").on(
+        "input",
+        function () {
+            formatMoneyInput($(this));
+            validateCurrentStep();
+        },
+    );
 
     $('input[type="checkbox"][required]').on("change", function () {
         validateCurrentStep();
@@ -135,7 +138,7 @@ async function nextStep() {
     }
     if (currentStep == 3) {
         await postAgreement("parent");
-        await getAgreement("guardian");
+        await getAgreement("narcotica");
     }
     // if (currentStep == 4) {
     //     await postAgreement("guardian");
@@ -254,6 +257,12 @@ async function getAdmissionByCode() {
             .trigger("change");
     }
 
+    if (admission.level.division.name.toLowerCase() !== "secondary") {
+        $(".secondary").removeClass("col-md-6").addClass("col-md-4");
+        $(".div-mhsu").addClass("d-none");
+        $(".div-mhsu input").prop("required", false);
+    }
+
     if (admission.level.name === "Upper Secondary") {
         $("#step-5, #step-4")
             .removeClass("conditional-section")
@@ -317,6 +326,21 @@ async function postFinancial() {
                 .val()
                 .replace(/[^0-9]/g, ""),
         ),
+        mhsu_fee: parseFloat(
+            $("#mhsu")
+                .val()
+                .replace(/[^0-9]/g, ""),
+        ),
+        ittihada_fee: parseFloat(
+            $("#ittihada")
+                .val()
+                .replace(/[^0-9]/g, ""),
+        ),
+        uniform_fee: parseFloat(
+            $("#uniform")
+                .val()
+                .replace(/[^0-9]/g, ""),
+        ),
         agree_development_fee_policy: $("#agreePayment2").is(":checked"),
         agree_annual_and_school_fee_policy: $("#agreePayment3").is(":checked"),
         agree_exam_fee: $("#agreePayment4").is(":checked"),
@@ -362,6 +386,14 @@ async function getFinancialStatement() {
     formatMoneyInput($("#annualFee"));
     $("#schoolFee").val(formatCurrency(financial.school_fee));
     formatMoneyInput($("#schoolFee"));
+
+    $("#ittihada").val(formatCurrency(financial.ittihada_fee));
+    formatMoneyInput($("#ittihada"));
+    $("#mhsu").val(formatCurrency(financial.mhsu_fee));
+    formatMoneyInput($("#mhsu"));
+    $("#uniform").val(formatCurrency(financial.uniform_fee));
+    formatMoneyInput($("#uniform"));
+
     $("#agreePayment2").prop("checked", financial.agree_development_fee_policy);
     $("#agreePayment3").prop(
         "checked",

@@ -149,6 +149,18 @@ return [
                 'english'=>'I hereby confirm that I have read, understood, and agreed to all contents of this form and that I sign this agreement voluntarily, in sound physical and mental condition, and without any pressure or coercion from any party, for lawful and proper use.',
                 'indonesian'=>'Saya juga menyatakan bahwa Saya memahami sepenuhnya seluruh isi formulir ini dan Saya menandatanganinya dalam keadaan sehat jasmani dan rohani, tanpa tekanan atau paksaan pihak manapun untuk dipergunakan sebagaimana mestinya.',
             ],
+            'text22'=>[
+                'english'=>'Uniform Fee',
+                'indonesian'=>'',
+            ],
+            'text23'=>[
+                'english'=>'Ittihada Fee',
+                'indonesian'=>'',
+            ],
+            'text24'=>[
+                'english'=>'MHSU Fee',
+                'indonesian'=>'',
+            ],
         ]
     ],
     'step3'=>[

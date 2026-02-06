@@ -135,7 +135,7 @@
             <div class="error-message" id="otherLanguages-error">Please enter other languages spoken</div>
         </div>
 
-        <div class="col-12 mb-3">
+        <div class="col-md-9 mb-3">
             <label for="fullAddress"
                 class="form-label required">{{ config('student_enrolment.step2.labels.address.english') }}</label>
             <br><small><i>{{ config('student_enrolment.step2.labels.address.indonesian') }}</i></small>
@@ -143,7 +143,7 @@
             <div class="error-message" id="fullAddress-error">Please enter full address</div>
         </div>
 
-        <div class="col-md-4 mb-3">
+        <div class="col-md-3 mb-3">
             <label for="postalCode"
                 class="form-label required">{{ config('student_enrolment.step2.labels.zipcode.english') }}</label>
             <br><small><i>{{ config('student_enrolment.step2.labels.zipcode.indonesian') }}</i></small>
@@ -166,7 +166,7 @@
             <div class="error-message" id="parentPhone-error">Please enter parent's mobile number</div>
         </div>
 
-        <div class="col-md-6 mb-3">
+        <div class="col-md-4 mb-3">
             <label for="livingWith"
                 class="form-label required">{{ config('student_enrolment.step2.labels.living_with.english') }}</label>
             <br><small><i>{{ config('student_enrolment.step2.labels.living_with.indonesian') }}</i></small>
@@ -185,8 +185,23 @@
                 <div class="error-message" id="livingWithOthers-error">Please specify living arrangement</div>
             </div>
         </div>
+        <div class="col-md-3 mb-3">
+            <label for="previousSchool"
+                class="form-label required">{{ config('student_enrolment.step2.labels.prev_school.english') }}</label>
+            <br><small><i>{{ config('student_enrolment.step2.labels.prev_school.indonesian') }}</i></small>
+            <input type="text" class="form-control" id="previousSchool" required>
+            <div class="error-message" id="previousSchool-error">Please enter previous school</div>
+        </div>
 
-        <div class="col-md-6 mb-3">
+        <div class="col-md-3 mb-3">
+            <label for="previousSchoolAddress"
+                class="form-label required">{{ config('student_enrolment.step2.labels.prev_address.english') }}</label>
+            <br><small><i>{{ config('student_enrolment.step2.labels.prev_address.indonesian') }}</i></small>
+            <input type="text" class="form-control" id="previousSchoolAddress" required>
+            <div class="error-message" id="previousSchoolAddress-error">Please enter previous school address
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
             <label for="distanceToSchool"
                 class="form-label required">{{ config('student_enrolment.step2.labels.distance.english') }}</label>
             <br><small><i>{{ config('student_enrolment.step2.labels.distance.indonesian') }}</i></small>
@@ -195,33 +210,15 @@
             <div class="error-message" id="distanceToSchool-error">Please enter distance to school</div>
         </div>
 
-        <div class="col-md-4 mb-3">
-            <label for="previousSchool"
-                class="form-label required">{{ config('student_enrolment.step2.labels.prev_school.english') }}</label>
-            <br><small><i>{{ config('student_enrolment.step2.labels.prev_school.indonesian') }}</i></small>
-            <input type="text" class="form-control" id="previousSchool" required>
-            <div class="error-message" id="previousSchool-error">Please enter previous school</div>
-        </div>
-
-        <div class="col-md-4 mb-3">
-            <label for="previousSchoolAddress"
-                class="form-label required">{{ config('student_enrolment.step2.labels.prev_address.english') }}</label>
-            <br><small><i>{{ config('student_enrolment.step2.labels.prev_address.indonesian') }}</i></small>
-            <input type="text" class="form-control" id="previousSchoolAddress" required>
-            <div class="error-message" id="previousSchoolAddress-error">Please enter previous school address
-            </div>
-        </div>
-
-        <div class="col-md-4 mb-3">
-            <label for="graduationYear"
-                class="form-label required">{{ config('student_enrolment.step2.labels.year_grad.english') }}</label>
-            <br><small><i>{{ config('student_enrolment.step2.labels.year_grad.indonesian') }}</i></small>
+        <div class="col-md-3 mb-3">
+            <label for="graduationYear" class="form-label required">Leaving Previous School</label>
+            <br><small><i>Tahun kelulusan</i></small>
             <select class="form-select academic-year" id="graduationYear" required>
                 <option value="" selected disabled>Select year</option>
+                <option value="Not Yet Enrolled">Not Yet Enrolled</option>
             </select>
             <div class="error-message" id="graduationYear-error">Please select graduation year</div>
         </div>
-
         <div class="col-md-4 mb-3">
             <label for="applyingLevel"
                 class="form-label required">{{ config('student_enrolment.step2.labels.level.english') }}</label>
@@ -254,13 +251,16 @@
             <label for="emergencyContactPriority"
                 class="form-label required">{{ config('student_enrolment.step2.labels.emergency.english') }}</label>
             <br><small><i>{{ config('student_enrolment.step2.labels.emergency.indonesian') }}</i></small>
-            <select class="form-select" id="emergencyContactPriority" required>
-                <option value="" selected disabled>Select priority</option>
-                <option value="Ayah">Father</option>
-                <option value="Ibu">Mother</option>
-                <option value="Wali">Guardian</option>
-            </select>
+            <input type="text" class="form-control" id="emergencyContactPriority">
             <div class="error-message" id="emergencyContactPriority-error">Please select emergency contact
+                priority</div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label for="emergencyContactPriorityNumber"
+                class="form-label required">{{ config('student_enrolment.step2.labels.emergency_phone.english') }}</label>
+            <br><small><i>{{ config('student_enrolment.step2.labels.emergency_phone.indonesian') }}</i></small>
+            <input type="text" class="form-control" id="emergencyContactPriorityNumber" required>
+            <div class="error-message" id="emergencyContactPriorityNumber-error">Please select emergency contact
                 priority</div>
         </div>
 
@@ -316,7 +316,7 @@
             </div>
         </div>
 
-        <div class="col-md-6 mb-3">
+        <div class="col-md-12 mb-3">
             <label for="therapyHistory" class="form-label required">
                 {{ config('student_enrolment.step2.labels.therapy.english') }}
             </label>

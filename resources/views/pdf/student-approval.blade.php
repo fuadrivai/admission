@@ -376,6 +376,32 @@
                         <td><span class="maroon-accent">{{ $data->statement->financial->school_fee_terbilang }}</span>
                         </td>
                     </tr>
+                    <tr>
+                        <td>{{ config('student_approval.step2.labels.text22.english') }}</td>
+                        <td class="maroon-accent">Rp. <span>
+                                {{ number_format($data->statement->financial->uniform_fee, 0, '.', ',') }}</span></td>
+                        <td><span class="maroon-accent">{{ $data->statement->financial->uniform_fee_terbilang }}</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>{{ config('student_approval.step2.labels.text23.english') }}</td>
+                        <td class="maroon-accent">Rp. <span>
+                                {{ number_format($data->statement->financial->ittihada_fee, 0, '.', ',') }}</span></td>
+                        <td><span
+                                class="maroon-accent">{{ $data->statement->financial->ittihada_fee_terbilang }}</span>
+                        </td>
+                    </tr>
+                    @if ($data->level->division->name == 'Secondary')
+                        <tr>
+                            <td>{{ config('student_approval.step2.labels.text24.english') }}</td>
+                            <td class="maroon-accent">Rp. <span>
+                                    {{ number_format($data->statement->financial->mhsu_fee, 0, '.', ',') }}</span>
+                            </td>
+                            <td><span
+                                    class="maroon-accent">{{ $data->statement->financial->mhsu_fee_terbilang }}</span>
+                            </td>
+                        </tr>
+                    @endif
                 </tbody>
             </table>
             <div class="subsection-title">Payment Terms and Conditions</div>
@@ -564,91 +590,97 @@
                 </ol>
             </div>
         </div>
-        <div class="page-break"></div>
-        <!-- Section 4: SURAT PERNYATAAN ORANG TUA KESEDIAAN MENJALANI TES NARKOTIKA DAN OBAT TERLARANG -->
-        <div class="section">
-            <div class="section-title">{{ config('student_approval.step5.title') }}</div>
-            <div class="subsection-title">{{ config('student_approval.step5.labels.text0.indonesian') }} :</div>
-            <table class="data-table">
-                <tr>
-                    <td>{{ config('student_approval.step5.labels.text1.english') }}:</td>
-                    <td><span class="maroon-accent">{{ $parent->fullname }}</span></td>
-                </tr>
-                <tr>
-                    <td>{{ config('student_approval.step5.labels.text2.english') }}:</td>
-                    <td><span class="maroon-accent">{{ $parent->email }}</span></td>
-                </tr>
-                <tr>
-                    <td>{{ config('student_approval.step5.labels.text3.english') }}:</td>
-                    <td><span class="maroon-accent">{{ $parent->phone }}</span></td>
-                </tr>
-                <tr>
-                    <td>D.O.B:</td>
-                    <td><span class="maroon-accent">{{ $parent->birth_place }},
-                            {{ date('d F Y', strtotime($parent->birth_date)) }}</span></td>
-                </tr>
-                <tr>
-                    <td>{{ config('student_approval.step5.labels.text3.english') }}:</td>
-                    <td><span class="maroon-accent">{{ $parent->identity_number }}</span></td>
-                </tr>
-            </table>
-            <div class="declaration">
-                <p class="text-bold">{{ config('student_approval.step5.labels.text7.english') }}</p>
-                {{-- <p class="text-italic">{{ config('student_approval.step1.labels.text8.indonesian') }}</p> --}}
-            </div>
 
-            <div class="subsection-title">{{ config('student_approval.step5.labels.text8.indonesia') }}</div>
-            <table class="data-table">
-                <tr>
-                    <td>{{ config('student_approval.step5.labels.text1.english') }}:</td>
-                    <td><span class="maroon-accent">{{ $data->applicant->fullname }}</span></td>
-                </tr>
-                <tr>
-                    <td>{{ config('student_approval.step5.labels.text10.english') }}:</td>
-                    <td><span class="maroon-accent">{{ $data->applicant->age }}</span></td>
-                </tr>
-                <tr>
-                    <td>{{ config('student_approval.step5.labels.text11.english') }}:</td>
-                    <td><span class="maroon-accent">{{ $data->level->name }} / {{ $data->grade->name }}</span></td>
-                </tr>
-                <tr>
-                    <td>{{ config('student_approval.step5.labels.text13.english') }}:</td>
-                    <td><span class="maroon-accent">{{ $data->accademic_year }} </span></td>
-                </tr>
-            </table>
-            <div class="declaration">
-                <p class="text-bold">{!! config('student_approval.step5.labels.text14.english') !!}</p>
-                {{-- <p class="text-italic">{{ config('student_approval.step1.labels.text8.indonesian') }}</p> --}}
+
+        @if ($data->level->name == 'Upper Secondary')
+            <div class="page-break"></div>
+            <!-- Section 4: SURAT PERNYATAAN ORANG TUA KESEDIAAN MENJALANI TES NARKOTIKA DAN OBAT TERLARANG -->
+            <div class="section">
+                <div class="section-title">{{ config('student_approval.step5.title') }}</div>
+                <div class="subsection-title">{{ config('student_approval.step5.labels.text0.indonesian') }} :</div>
+                <table class="data-table">
+                    <tr>
+                        <td>{{ config('student_approval.step5.labels.text1.english') }}:</td>
+                        <td><span class="maroon-accent">{{ $parent->fullname }}</span></td>
+                    </tr>
+                    <tr>
+                        <td>{{ config('student_approval.step5.labels.text2.english') }}:</td>
+                        <td><span class="maroon-accent">{{ $parent->email }}</span></td>
+                    </tr>
+                    <tr>
+                        <td>{{ config('student_approval.step5.labels.text3.english') }}:</td>
+                        <td><span class="maroon-accent">{{ $parent->phone }}</span></td>
+                    </tr>
+                    <tr>
+                        <td>D.O.B:</td>
+                        <td><span class="maroon-accent">{{ $parent->birth_place }},
+                                {{ date('d F Y', strtotime($parent->birth_date)) }}</span></td>
+                    </tr>
+                    <tr>
+                        <td>{{ config('student_approval.step5.labels.text3.english') }}:</td>
+                        <td><span class="maroon-accent">{{ $parent->identity_number }}</span></td>
+                    </tr>
+                </table>
+                <div class="declaration">
+                    <p class="text-bold">{{ config('student_approval.step5.labels.text7.english') }}</p>
+                    {{-- <p class="text-italic">{{ config('student_approval.step1.labels.text8.indonesian') }}</p> --}}
+                </div>
+
+                <div class="subsection-title">{{ config('student_approval.step5.labels.text8.indonesia') }}</div>
+                <table class="data-table">
+                    <tr>
+                        <td>{{ config('student_approval.step5.labels.text1.english') }}:</td>
+                        <td><span class="maroon-accent">{{ $data->applicant->fullname }}</span></td>
+                    </tr>
+                    <tr>
+                        <td>{{ config('student_approval.step5.labels.text10.english') }}:</td>
+                        <td><span class="maroon-accent">{{ $data->applicant->age }}</span></td>
+                    </tr>
+                    <tr>
+                        <td>{{ config('student_approval.step5.labels.text11.english') }}:</td>
+                        <td><span class="maroon-accent">{{ $data->level->name }} / {{ $data->grade->name }}</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>{{ config('student_approval.step5.labels.text13.english') }}:</td>
+                        <td><span class="maroon-accent">{{ $data->accademic_year }} </span></td>
+                    </tr>
+                </table>
+                <div class="declaration">
+                    <p class="text-bold">{!! config('student_approval.step5.labels.text14.english') !!}</p>
+                    {{-- <p class="text-italic">{{ config('student_approval.step1.labels.text8.indonesian') }}</p> --}}
+                </div>
             </div>
-        </div>
-        <div class="page-break"></div>
-        <!-- Section 5: SURAT PERNYATAAN SISWA -->
-        <div class="section">
-            <div class="section-title">{{ config('student_approval.step6.title') }}</div>
-            <div class="subsection-title">{{ config('student_approval.step6.labels.text0.indonesia') }}</div>
-            <table class="data-table">
-                <tr>
-                    <td>{{ config('student_approval.step6.labels.text1.english') }}:</td>
-                    <td><span class="maroon-accent">{{ $data->applicant->fullname }}</span></td>
-                </tr>
-                <tr>
-                    <td>{{ config('student_approval.step6.labels.text2.english') }}:</td>
-                    <td><span class="maroon-accent">{{ $data->applicant->age }}</span></td>
-                </tr>
-                <tr>
-                    <td>{{ config('student_approval.step6.labels.text3.english') }}:</td>
-                    <td><span class="maroon-accent">{{ $data->level->name }} / {{ $data->grade->name }}</span></td>
-                </tr>
-                <tr>
-                    <td>{{ config('student_approval.step6.labels.text5.english') }}:</td>
-                    <td><span class="maroon-accent">{{ $data->accademic_year }} </span></td>
-                </tr>
-            </table>
-            <div class="declaration">
-                <p class="text-bold">{!! config('student_approval.step6.labels.text6.english') !!}</p>
-                {{-- <p class="text-italic">{{ config('student_approval.step1.labels.text8.indonesian') }}</p> --}}
+            <div class="page-break"></div>
+            <!-- Section 5: SURAT PERNYATAAN SISWA -->
+            <div class="section">
+                <div class="section-title">{{ config('student_approval.step6.title') }}</div>
+                <div class="subsection-title">{{ config('student_approval.step6.labels.text0.indonesia') }}</div>
+                <table class="data-table">
+                    <tr>
+                        <td>{{ config('student_approval.step6.labels.text1.english') }}:</td>
+                        <td><span class="maroon-accent">{{ $data->applicant->fullname }}</span></td>
+                    </tr>
+                    <tr>
+                        <td>{{ config('student_approval.step6.labels.text2.english') }}:</td>
+                        <td><span class="maroon-accent">{{ $data->applicant->age }}</span></td>
+                    </tr>
+                    <tr>
+                        <td>{{ config('student_approval.step6.labels.text3.english') }}:</td>
+                        <td><span class="maroon-accent">{{ $data->level->name }} / {{ $data->grade->name }}</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>{{ config('student_approval.step6.labels.text5.english') }}:</td>
+                        <td><span class="maroon-accent">{{ $data->accademic_year }} </span></td>
+                    </tr>
+                </table>
+                <div class="declaration">
+                    <p class="text-bold">{!! config('student_approval.step6.labels.text6.english') !!}</p>
+                    {{-- <p class="text-italic">{{ config('student_approval.step1.labels.text8.indonesian') }}</p> --}}
+                </div>
             </div>
-        </div>
+        @endif
 
         <!-- Signature Area -->
         <div class="signature-area">

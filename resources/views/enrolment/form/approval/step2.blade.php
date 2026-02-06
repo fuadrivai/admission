@@ -37,7 +37,7 @@
             <div class="terbilang-display" id="annualFeeTerbilang">-</div>
         </div>
 
-        <div class="col-md-6 mb-3">
+        <div class="col-md-6 mb-3 secondary">
             <label for="schoolFee"
                 class="form-label required">{{ config('student_approval.step2.labels.text4.english') }}</label>
             <div class="money-input-group">
@@ -46,6 +46,36 @@
             </div>
             <div class="error-message" id="schoolFee-error">Please enter school fee</div>
             <div class="terbilang-display" id="schoolFeeTerbilang">-</div>
+        </div>
+        <div class="col-md-6 mb-3 secondary">
+            <label for="uniform"
+                class="form-label required">{{ config('student_approval.step2.labels.text22.english') }}</label>
+            <div class="money-input-group">
+                <span class="input-group-text">Rp</span>
+                <input type="text" class="form-control number2" id="uniform" placeholder="1,750,000" required>
+            </div>
+            <div class="error-message" id="uniform-error">Please enter school fee</div>
+            <div class="terbilang-display" id="uniformTerbilang">-</div>
+        </div>
+        <div class="col-md-6 mb-3 secondary">
+            <label for="ittihada"
+                class="form-label required">{{ config('student_approval.step2.labels.text23.english') }}</label>
+            <div class="money-input-group">
+                <span class="input-group-text">Rp</span>
+                <input type="text" class="form-control number2" id="ittihada" placeholder="1,750,000" required>
+            </div>
+            <div class="error-message" id="ittihada-error">Please enter school fee</div>
+            <div class="terbilang-display" id="ittihadaTerbilang">-</div>
+        </div>
+        <div class="col-md-6 mb-3 div-mhsu">
+            <label for="mhsu"
+                class="form-label required">{{ config('student_approval.step2.labels.text24.english') }}</label>
+            <div class="money-input-group">
+                <span class="input-group-text">Rp</span>
+                <input type="text" class="form-control number2" id="mhsu" placeholder="1,750,000" required>
+            </div>
+            <div class="error-message" id="mhsu-error">Please enter school fee</div>
+            <div class="terbilang-display" id="mhsuTerbilang">-</div>
         </div>
     </div>
 
@@ -65,7 +95,8 @@
 
         <div class="statement-item">
             <p>{{ config('student_approval.step2.labels.text7.english') }}<br>
-                <i><small>{{ config('student_approval.step2.labels.text7.indonesian') }}</small></i> </p>
+                <i><small>{{ config('student_approval.step2.labels.text7.indonesian') }}</small></i>
+            </p>
             <div class="form-check">
                 <input class="form-check-input" type="checkbox" id="agreePayment3" required>
                 <label class="form-check-label required" for="agreePayment3">Yes, i agree</label>
@@ -85,7 +116,8 @@
 
         <div class="statement-item">
             <p>{{ config('student_approval.step2.labels.text9.english') }} <br>
-                <i><small>{{ config('student_approval.step2.labels.text9.indonesian') }}</small></i> </p>
+                <i><small>{{ config('student_approval.step2.labels.text9.indonesian') }}</small></i>
+            </p>
             <div class="form-check">
                 <input class="form-check-input" type="checkbox" id="agreePayment5" required>
                 <label class="form-check-label required" for="agreePayment5">Yes, i agree</label>
@@ -95,7 +127,8 @@
 
         <div class="statement-item">
             <p>{{ config('student_approval.step2.labels.text10.english') }} <br>
-                <i><small>{{ config('student_approval.step2.labels.text10.indonesian') }}</small></i></p>
+                <i><small>{{ config('student_approval.step2.labels.text10.indonesian') }}</small></i>
+            </p>
             <div class="form-check">
                 <input class="form-check-input" type="checkbox" id="agreePayment6" required>
                 <label class="form-check-label required" for="agreePayment6">Yes, i agree</label>
@@ -117,7 +150,8 @@
 
         <div class="statement-item">
             <p>{{ config('student_approval.step2.labels.text12.english') }} <br>
-                <i><small>{{ config('student_approval.step2.labels.text12.indonesian') }}</small></i></p>
+                <i><small>{{ config('student_approval.step2.labels.text12.indonesian') }}</small></i>
+            </p>
             <div class="form-check">
                 <input class="form-check-input" type="checkbox" id="agreePayment8" required>
                 <label class="form-check-label required" for="agreePayment8">Yes, i agree</label>
@@ -127,7 +161,8 @@
 
         <div class="statement-item">
             <p>{{ config('student_approval.step2.labels.text13.english') }}<br>
-                <i><small>{{ config('student_approval.step2.labels.text13.indonesian') }}</small></i></p>
+                <i><small>{{ config('student_approval.step2.labels.text13.indonesian') }}</small></i>
+            </p>
             <div class="form-check">
                 <input class="form-check-input" type="checkbox" id="agreePayment9" required>
                 <label class="form-check-label required" for="agreePayment9">Yes, i agree</label>
@@ -137,7 +172,8 @@
 
         <div class="statement-item">
             <p>{{ config('student_approval.step2.labels.text14.english') }}<br>
-                <i><small>{{ config('student_approval.step2.labels.text14.indonesian') }}</small></i></p>
+                <i><small>{{ config('student_approval.step2.labels.text14.indonesian') }}</small></i>
+            </p>
             <div class="form-check">
                 <input class="form-check-input" type="checkbox" id="agreePayment10" required>
                 <label class="form-check-label required" for="agreePayment10">Yes, i agree</label>
@@ -151,15 +187,20 @@
             </p>
             <ol type="A" class="mb-3">
                 <li>{{ config('student_approval.step2.labels.text16.english') }}
-                    <br><i><small>{{ config('student_approval.step2.labels.text16.indonesian') }}</small></i></li>
+                    <br><i><small>{{ config('student_approval.step2.labels.text16.indonesian') }}</small></i>
+                </li>
                 <li>{{ config('student_approval.step2.labels.text17.english') }}
-                    <br><i><small>{{ config('student_approval.step2.labels.text17.indonesian') }}</small></i></li>
+                    <br><i><small>{{ config('student_approval.step2.labels.text17.indonesian') }}</small></i>
+                </li>
                 <li>{{ config('student_approval.step2.labels.text18.english') }}
-                    <br><i><small>{{ config('student_approval.step2.labels.text18.indonesian') }}</small></i></li>
+                    <br><i><small>{{ config('student_approval.step2.labels.text18.indonesian') }}</small></i>
+                </li>
                 <li>{{ config('student_approval.step2.labels.text19.english') }}
-                    <br><i><small>{{ config('student_approval.step2.labels.text19.indonesian') }}</small></i></li>
+                    <br><i><small>{{ config('student_approval.step2.labels.text19.indonesian') }}</small></i>
+                </li>
                 <li>{{ config('student_approval.step2.labels.text20.english') }}
-                    <br><i><small>{{ config('student_approval.step2.labels.text20.indonesian') }}</small></i></li>
+                    <br><i><small>{{ config('student_approval.step2.labels.text20.indonesian') }}</small></i>
+                </li>
             </ol>
             <div class="form-check">
                 <input class="form-check-input" type="checkbox" id="agreePayment11" required>
@@ -170,7 +211,8 @@
 
         <div class="statement-item">
             <p>{{ config('student_approval.step2.labels.text21.english') }}
-                <br><i><small>{{ config('student_approval.step2.labels.text21.indonesian') }}</small></i></p>
+                <br><i><small>{{ config('student_approval.step2.labels.text21.indonesian') }}</small></i>
+            </p>
 
             <div class="current-date-display" id="currentDate1"></div>
 

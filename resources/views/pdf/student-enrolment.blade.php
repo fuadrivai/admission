@@ -415,12 +415,12 @@
                     <div class="radio-group">
                         <div class="radio-option">
                             <input {{ $data->applicant->gender == 'male' ? 'checked' : '' }} type="radio"
-                                id="notAttendingYes" name="notAttendingSchool" value="male">
+                                id="notAttendingYes" value="male">
                             <label for="notAttendingYes">Male</label>
                         </div>
                         <div class="radio-option">
                             <input {{ $data->applicant->gender == 'female' ? 'checked' : '' }} type="radio"
-                                id="notAttendingNo" name="notAttendingSchool" value="female">
+                                id="notAttendingNo" value="female">
                             <label for="notAttendingNo">Female</label>
                         </div>
                     </div>
@@ -636,7 +636,15 @@
                         <span
                             class="label-english">({{ config('student_enrolment.step2.labels.emergency.indonesian') }})</span></label>
                     <input type="text" id="emergencyContact" name="emergencyContact"
-                        value="{{ $data->emergency_contact_priority ?? '-' }}">
+                        value="{{ $data->applicant->emergency_contact_priority ?? '-' }}">
+                </div>
+                <div class="form-group full-width">
+                    <label
+                        for="emergencyContact">{{ config('student_enrolment.step2.labels.emergency_phone.english') }}
+                        <span
+                            class="label-english">({{ config('student_enrolment.step2.labels.emergency_phone.indonesian') }})</span></label>
+                    <input type="text" id="emergencyContact" name="emergencyContact"
+                        value="{{ $data->applicant->emergency_contact_phone ?? '-' }}">
                 </div>
 
                 <!-- Conditional Questions -->
@@ -655,23 +663,26 @@
                             <label for="notAttendingNo">No</label>
                         </div>
                     </div>
-                    <div id="notAttendingDetails" class="conditional-field">
-                        <div class="form-grid">
+                </div>
+                <table width="100%" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td width="30%" valign="middle">
                             <div class="form-group">
-                                <label
-                                    for="notAttendingDuration">{{ config('student_enrolment.step2.labels.duration.english') }}</label>
+                                <label>{{ config('student_enrolment.step2.labels.duration.english') }}</label>
                                 <input type="text" id="notAttendingDuration" name="notAttendingDuration"
                                     value="{{ $data->applicant->not_school_duration ?? '-' }}">
                             </div>
+                        </td>
+                        <td width="70%" valign="middle">
                             <div class="form-group">
                                 <label
                                     for="notAttendingReason">{{ config('student_enrolment.step2.labels.reason.english') }}</label>
                                 <input type="text" id="notAttendingReason" name="notAttendingReason"
                                     value="{{ $data->applicant->not_school_reason ?? '-' }}">
                             </div>
-                        </div>
-                    </div>
-                </div>
+                        </td>
+                    </tr>
+                </table>
 
                 <div class="form-group full-width">
                     <label>{{ config('student_enrolment.step2.labels.developmental.english') }}
@@ -685,15 +696,14 @@
                         </div>
                         <div class="radio-option">
                             <input {{ $data->applicant->dev_check == false ? 'checked' : '' }} type="radio"
-                                id="assessmentNo" name="psychologicalAssessment" value="false" checked>
+                                id="assessmentNo" name="psychologicalAssessment" value="false">
                             <label for="assessmentNo">No</label>
                         </div>
                     </div>
-                    <div id="assessmentDetails" class="conditional-field">
-                        <label
-                            for="assessmentDescription">{{ config('student_enrolment.step2.labels.description.english') }}</label>
-                        <textarea id="assessmentDescription" name="assessmentDescription" rows="2">{{ $data->applicant->dev_diagnosis ?? '-' }}</textarea>
-                    </div>
+                </div>
+                <div class="form-group full-width">
+                    <label>{{ config('student_enrolment.step2.labels.description.english') }}</label>
+                    <textarea rows="2" readonly>{{ $data->applicant->dev_diagnosis ?? '-' }}</textarea>
                 </div>
 
                 <div class="form-group full-width">
@@ -708,16 +718,14 @@
                         </div>
                         <div class="radio-option">
                             <input {{ $data->applicant->therapy_history == false ? 'checked' : '' }} type="radio"
-                                id="therapyNo" name="specialTherapy" value="false" checked>
+                                id="therapyNo" name="specialTherapy" value="false">
                             <label for="therapyNo">No</label>
                         </div>
                     </div>
-                    <div id="therapyDetails" class="conditional-field">
-                        <label
-                            for="therapyDescription">{{ config('student_enrolment.step2.labels.type_therapy.english') }}
-                        </label>
-                        <textarea id="therapyDescription" name="therapyDescription" rows="2"> {{ $data->applicant->therapy_detail ?? '-' }} </textarea>
-                    </div>
+                </div>
+                <div class="form-group full-width">
+                    <label>{{ config('student_enrolment.step2.labels.type_therapy.english') }}</label>
+                    <textarea rows="2" readonly>{{ $data->applicant->therapy_detail ?? '-' }}</textarea>
                 </div>
             </div>
         </div>
@@ -1761,7 +1769,7 @@
                     </td>
                     <td width="50%" valign="middle">
                         <label>{{ config('student_enrolment.step6.labels.seizures_explanation.english') }} :
-                            {{ $data->applicant->medicalHistory->seizures_note ?? '-' }}</label>
+                            {{ $data->applicant->medicalHistory->seizure_note ?? '-' }}</label>
                     </td>
                 </tr>
             </table>

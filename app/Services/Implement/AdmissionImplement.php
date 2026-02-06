@@ -45,7 +45,7 @@ class AdmissionImplement implements AdmissionService
     }
     public function showByCode($code)
     {
-        $admission =  Admission::with(['applicant','enrolment','branch','level','grade','statement'])
+        $admission =  Admission::with(['applicant','enrolment','branch','level.division','grade','statement'])
                         ->where('code', $code)->first();
         if (!$admission){
             $enrolment = Enrolment::with(['branch', 'grade', 'level'])->where('code', $code)->firstOrFail();
@@ -216,7 +216,7 @@ class AdmissionImplement implements AdmissionService
 
             $admission = Admission::with(['applicant.parents','level','branch','grade'])->findOrFail($admissionId);
 
-            $admission->update(['is_complete' => 0]);
+            $admission->update(['is_complete' => 1]);
 
             $pdfPath = $this->generateEnrolmentPdf($admission);
 
@@ -240,6 +240,23 @@ class AdmissionImplement implements AdmissionService
                             'mime' => 'application/pdf',
                         ])
                 );
+            }
+
+            $is_sendToPrincipal = $admission->applicant->therapy_history == 1|| $admission->applicant->ever_not_school==1 || $admission->applicant->dev_check;
+
+            if ($is_sendToPrincipal) {
+                $principal_email = $admission->level->email;
+                if (!empty($principal_email)) {
+                    $admission->subject  = 'Principal Notification';
+                    $admission->template = 'email-template.enrolment-confirmation';
+                    Mail::to($principal_email)->send(
+                        (new AdmissionEmail($admission))
+                            ->attach($pdfPath, [
+                                'as'   => 'document-'.$admission->code.'.pdf',
+                                'mime' => 'application/pdf',
+                            ])
+                    );
+                }
             }
         });
 
@@ -305,6 +322,7 @@ class AdmissionImplement implements AdmissionService
             'therapy_detail' => $app['therapy_detail'] ?? null,
 
             'emergency_contact_priority' => $app['emergency_contact_priority'] ?? null,
+            'emergency_contact_phone' => $app['emergency_contact_phone'] ?? null,
         ];
     }
 

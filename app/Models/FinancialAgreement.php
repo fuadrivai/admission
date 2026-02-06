@@ -48,6 +48,24 @@ class FinancialAgreement extends Model
             $this->terbilang($this->school_fee)
         ). ' rupiah';
     }
+    public function getIttihadaFeeTerbilangAttribute()
+    {
+        return trim(
+            $this->terbilang($this->ittihada_fee)
+        ). ' rupiah';
+    }
+    public function getUniformFeeTerbilangAttribute()
+    {
+        return trim(
+            $this->terbilang($this->uniform_fee)
+        ). ' rupiah';
+    }
+    public function getMhsuFeeTerbilangAttribute()
+    {
+        return trim(
+            $this->terbilang($this->mhsu_fee)
+        ). ' rupiah';
+    }
 
     public function terbilang($number)
     {

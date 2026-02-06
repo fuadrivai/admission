@@ -190,6 +190,10 @@ return [
                 'english'=>'Type & Duration of Therapy',
                 'indonesian'=>'Jenis dan Durasi Terapi',
             ],
+            'emergency_phone'=>[
+                'english'=>'Emergency Contact Priority Phone Number',
+                'indonesian'=>'No Telepon Kontak Darurat',
+            ],
         ]
     ],
     'step3_4_5' => [

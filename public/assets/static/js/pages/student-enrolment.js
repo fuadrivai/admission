@@ -478,6 +478,9 @@ async function postApplicant() {
                 emergency_contact_priority: $(
                     "#emergencyContactPriority",
                 ).val(),
+                emergency_contact_phone: $(
+                    "#emergencyContactPriorityNumber",
+                ).val(),
             },
         };
 
@@ -549,9 +552,8 @@ function fillStudent() {
     $("#previousSchoolAddress").val(applicant.previous_school_address);
     $("#graduationYear").val(applicant.graduation_year).trigger("change");
     $("#academic-year").val(admission.accademic_year).trigger("change");
-    $("#emergencyContactPriority")
-        .val(applicant.emergency_contact_priority)
-        .trigger("change");
+    $("#emergencyContactPriority").val(applicant.emergency_contact_priority);
+    $("#emergencyContactPriorityNumber").val(applicant.emergency_contact_phone);
     $("#notAttendingSchool")
         .val(applicant.ever_not_school.toString())
         .trigger("change");

@@ -63,7 +63,7 @@ class AdmissionStatementImplement implements AdmissionStatementService{
                 Mail::to($emails)->send(
                     (new AdmissionEmail($admission))
                         ->attach($pdfPath, [
-                            'as'   => 'document-'.$admission->code.'.pdf',
+                            'as'   => 'parent-statement-'.$admission->code.'.pdf',
                             'mime' => 'application/pdf',
                         ])
                 );
@@ -84,6 +84,9 @@ class AdmissionStatementImplement implements AdmissionStatementService{
                 'development_fee' => $data['development_fee'],
                 'annual_fee' => $data['annual_fee'],
                 'school_fee' => $data['school_fee'],
+                'ittihada_fee' => $data['ittihada_fee'],
+                'uniform_fee' => $data['uniform_fee'],
+                'mhsu_fee' => $data['mhsu_fee']??null,
                 'agree_development_fee_policy' => $data['agree_development_fee_policy']==true?1:0,
                 'agree_annual_and_school_fee_policy' => $data['agree_annual_and_school_fee_policy']==true?1:0,
                 'agree_exam_fee' => $data['agree_exam_fee']==true?1:0,
