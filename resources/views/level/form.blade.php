@@ -66,13 +66,25 @@
                         </div>
                     </div>
                     <div class="col-md-6 mb-6">
-                        <label for="principal" class="form-label required-label">Principal</label>
+                        <label for="principal" class="form-label required-label">Principal's Name</label>
                         <div class="form-group has-icon-left">
                             <div class="position-relative">
                                 <input type="text" class="form-control" id="principal" name="principal" required
-                                    placeholder="Enter level" value="{{ isset($level) ? $level->principal : '' }}">
+                                    placeholder="Enter name" value="{{ isset($level) ? $level->principal : '' }}">
                                 <div class="form-control-icon">
                                     <i class="fa fa-user"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-6">
+                        <label for="principal" class="form-label required-label">Principal's Email</label>
+                        <div class="form-group has-icon-left">
+                            <div class="position-relative">
+                                <input type="text" class="form-control" id="principal-email" name="principal-email"
+                                    required placeholder="Enter Email" value="{{ isset($level) ? $level->email : '' }}">
+                                <div class="form-control-icon">
+                                    <i class="fa fa-envelope"></i>
                                 </div>
                             </div>
                         </div>
@@ -179,7 +191,7 @@
             level.branch = $('#branch').val()
             level.branchName = $('#branch option:selected').text();
             level.principal = $('#principal').val()
-            level.principal = $('#principal').val()
+            level.email = $('#principal-email').val()
             level.code = $('#code').val()
 
             if (level.name == '') {

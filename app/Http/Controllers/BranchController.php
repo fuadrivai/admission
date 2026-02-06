@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Branch;
 use App\Http\Requests\StoreBranchRequest;
 use App\Http\Requests\UpdateBranchRequest;
+use App\Services\BranchService;
 
 class BranchController extends Controller
 {
@@ -13,6 +14,12 @@ class BranchController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
+    private BranchService $branchService;
+    public function __construct(BranchService $branchService)
+    {
+        $this->branchService = $branchService;
+    }
     public function index()
     {
         //
@@ -82,5 +89,11 @@ class BranchController extends Controller
     public function destroy(Branch $branch)
     {
         //
+    }
+
+    public function get()
+    {
+        $branch = $this->branchService->get(['levels','levels.grades']);
+        return response()->json($branch);
     }
 }

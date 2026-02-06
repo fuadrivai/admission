@@ -40,4 +40,8 @@ class Applicant extends Model
     {
         return $this->hasOne(ParentDeclaration::class);
     }
+    public function dateBirth()
+    {
+        return date('d F Y', strtotime($this->date_of_birth));
+    }
 }

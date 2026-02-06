@@ -5,6 +5,7 @@ use App\Http\Controllers\AdmissionDocumentController;
 use App\Http\Controllers\AdmissionStatementController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BankChargerController;
+use App\Http\Controllers\BranchController;
 use App\Http\Controllers\DivisionController;
 use App\Http\Controllers\EnrolmentController;
 use App\Http\Controllers\EnrolmentPriceController;
@@ -121,6 +122,10 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
         Route::prefix('level')->name('level.')->group(function () {
             Route::get('datatables', [LevelController::class, 'datatables'])->name('datatables');
             Route::resource('', LevelController::class)->parameters(['' => 'level']);
+        });
+        Route::prefix('branch')->name('branch.')->group(function () {
+            Route::get('get', [BranchController::class, 'get'])->name('get');
+            Route::resource('', BranchController::class)->parameters(['' => 'branch']);
         });
         Route::prefix('division')->name('division.')->group(function () {
             Route::get('datatables', [DivisionController::class, 'datatables'])->name('datatables');

@@ -93,7 +93,10 @@
                     {
                         data: 'principal',
                         defaultContent: "-",
-                        className: "text-center"
+                        className: "text-center",
+                        mRender: function(data, type, full) {
+                            return `<label>${data}</label> <br> <label>${full.email??"--"}</label>`
+                        }
                     },
                     {
                         data: 'id',

@@ -1,10 +1,7 @@
 let admission = null;
 let statement = null;
 let currentStep = 1;
-let totalSteps = 6;
-
-// const studentLevel = "SD";
-const studentLevel = "Upper Secondary";
+let totalSteps = 5;
 
 $(document).ready(function () {
     getAdmissionByCode();
@@ -140,15 +137,15 @@ async function nextStep() {
         await postAgreement("parent");
         await getAgreement("guardian");
     }
+    // if (currentStep == 4) {
+    //     await postAgreement("guardian");
+    //     await getAgreement("narcotica");
+    // }
     if (currentStep == 4) {
-        await postAgreement("guardian");
-        await getAgreement("narcotica");
-    }
-    if (currentStep == 5) {
         await postAgreement("narcotica");
         await getAgreement("student");
     }
-    if (currentStep == 6) {
+    if (currentStep == 5) {
         await postAgreement("student");
     }
 
@@ -227,7 +224,7 @@ async function submitForm() {
     );
     $(".final-submit-btn").prop("disabled", true);
 
-    let type = totalSteps == 6 ? "student" : "guardian";
+    let type = totalSteps == 5 ? "student" : "parent";
     await postAgreement(type);
     let statement = await postStatement(true);
 
@@ -258,16 +255,16 @@ async function getAdmissionByCode() {
     }
 
     if (admission.level.name === "Upper Secondary") {
-        $("#step-5, #step-6")
+        $("#step-5, #step-4")
             .removeClass("conditional-section")
             .addClass("step-content");
-        totalSteps = 6;
+        totalSteps = 5;
         $("#btn-under-upper-secondary").addClass("d-none");
         validateCurrentStep();
     } else {
-        $("#step-5, #step-6").addClass("conditional-section");
-        totalSteps = 4;
-        $('.step[data-step="5"], .step[data-step="6"]').hide();
+        $("#step-4, #step-5").addClass("conditional-section");
+        totalSteps = 3;
+        $('.step[data-step="5"], .step[data-step="4"]').hide();
         $(".step").css("flex", "0 0 25%");
         $("#btn-under-upper-secondary").removeClass("d-none");
         validateCurrentStep();

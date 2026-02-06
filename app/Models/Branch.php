@@ -19,4 +19,9 @@ class Branch extends Model
     {
         return $this->belongsTo(WhatsappCode::class);
     }
+
+    public function levels()
+    {
+        return $this->hasMany(Level::class);
+    }
 }

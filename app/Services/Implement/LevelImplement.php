@@ -34,6 +34,7 @@ class LevelImplement implements LevelService
                 'branch_id' => $data['branch'],
                 'branch_name' => $data['branchName'],
                 'principal' => $data['principal'],
+                'email' => $data['email'],
                 'branch_code' => $data['code'],
             ]);
 
@@ -60,6 +61,7 @@ class LevelImplement implements LevelService
                 'branch_name' => $data['branch_name'],
                 'branch_code' => $data['code'],
                 'principal' => $data['principal'],
+                'email' => $data['email'],
             ]);
 
             $existingGradeIds = $level->grades()->pluck('id')->toArray();

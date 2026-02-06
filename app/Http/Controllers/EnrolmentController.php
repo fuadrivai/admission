@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Enrolment;
-use App\Models\Level;
 use App\Services\BranchService;
 use App\Services\EnrolmentService;
 use Illuminate\Http\Request;
@@ -25,9 +24,42 @@ class EnrolmentController extends Controller
         $this->branchService = $branchService;
         $this->enrolmentService = $enrolmentService;
     }
-    public function index()
+    public function index(Request $request)
     {
-        return view('enrolment.index', ["title" => "Enrolment"]);
+        $query = Enrolment::query();
+
+        if ($request->search) {
+            $query->where(function ($q) use ($request) {
+                $q->where('code', 'like', '%'.$request->search.'%')
+                ->orWhere('parent_name', 'like', '%'.$request->search.'%')
+                ->orWhere('email', 'like', '%'.$request->search.'%')
+                ->orWhere('child_name', 'like', '%'.$request->search.'%')
+                ->orWhere('invoice_id', 'like', '%'.$request->search.'%')
+                ->orWhere('phone_number', 'like', '%'.$request->search.'%');
+                });
+        }
+
+        if ($request->level && $request->level !== 'all') {
+            $query->where('level_id', $request->level);
+        }
+
+        if ($request->branch && $request->branch !== 'all') {
+            $query->where('branch_id', $request->branch);
+        }
+        if ($request->grade && $request->grade !== 'all') {
+            $query->where('grade_id', $request->grade);
+        }
+        if ($request->status && $request->status !== 'all') {
+            $query->where('payment_status', $request->status);
+        }
+
+        $enrolments = $query->paginate(request('perpage')??10)->withQueryString();
+
+        if ($request->ajax()) {
+            return view('enrolment._list', compact('enrolments'))->render();
+        }
+
+        return view('enrolment.index', ["title" => "Enrolment", "enrolments" => $enrolments]);
     }
 
    public function datatables(UtilitiesRequest $request)

@@ -248,7 +248,7 @@
                                 </p>
                                 <p style="margin: 0">
                                     To support a smooth and seamless enrolment process, please
-                                    find the payment guidelines below::
+                                    find the payment guidelines below:
                                 </p>
                             </td>
                         </tr>

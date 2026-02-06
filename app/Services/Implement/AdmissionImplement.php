@@ -2,6 +2,7 @@
 
 namespace App\Services\Implement;
 
+use App\Mail\AdmissionEmail;
 use App\Models\Admission;
 use App\Models\Applicant;
 use App\Models\ApplicantParent;
@@ -12,10 +13,14 @@ use App\Models\MedicalHistory;
 use App\Models\ParentDeclaration;
 use App\Models\PregnancyHistory;
 use App\Services\AdmissionService;
-use Carbon\Carbon;
+use Dompdf\Dompdf;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 
+use function App\Helpers\imageToBase64;
 use function App\Helpers\normalizePhoneNumber;
+use function App\Helpers\setupMail;
 
 class AdmissionImplement implements AdmissionService
 {
@@ -209,9 +214,33 @@ class AdmissionImplement implements AdmissionService
                 $data['applicant']['parent_declarations']
             );
 
-            Admission::where('id', $admissionId)->update([
-                'is_complete' => 1
-            ]);
+            $admission = Admission::with(['applicant.parents','level','branch','grade'])->findOrFail($admissionId);
+
+            $admission->update(['is_complete' => 0]);
+
+            $pdfPath = $this->generateEnrolmentPdf($admission);
+
+            $admission->subject  = 'Enrolment Documents - Mutiara Harapan Islamic School';
+            $admission->template = 'email-template.enrolment-confirmation';
+
+            setupMail($admission->branch_id);
+
+            $emails = $admission->applicant->parents
+                ->pluck('email')
+                ->filter()
+                ->unique()
+                ->values()
+                ->toArray();
+
+            if (!empty($emails)) {
+                Mail::to($emails)->send(
+                    (new AdmissionEmail($admission))
+                        ->attach($pdfPath, [
+                            'as'   => 'document-'.$admission->code.'.pdf',
+                            'mime' => 'application/pdf',
+                        ])
+                );
+            }
         });
 
         return response()->json([
@@ -277,6 +306,30 @@ class AdmissionImplement implements AdmissionService
 
             'emergency_contact_priority' => $app['emergency_contact_priority'] ?? null,
         ];
+    }
+
+    private function generateEnrolmentPdf($admission)
+    {
+         $parents = $admission->applicant->parents->keyBy('role');
+
+        $father   = $parents->get('father');
+        $mother   = $parents->get('mother');
+        $guardian = $parents->get('guardian');
+
+        $logoPath = public_path('assets/images/Logo-all-branch.png');
+        $imageBase64 = imageToBase64($logoPath);
+        $html = view('pdf.student-enrolment', ['data'=> $admission, 'logo' => $imageBase64,'father'=>$father,'mother'=>$mother,'guardian'=>$guardian])->render();
+
+        $dompdf = new Dompdf();
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4');
+        $dompdf->render();
+
+        $path = 'admission/enrolment/student-'.$admission->code.'.pdf';
+
+        Storage::put($path, $dompdf->output());
+
+        return storage_path('app/'.$path);
     }
 
 }

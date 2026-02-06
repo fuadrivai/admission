@@ -29,4 +29,55 @@ class FinancialAgreement extends Model
     {
         return $this->belongsTo(AdmissionStatement::class);
     }
+
+    public function getDevelopmentFeeTerbilangAttribute()
+    {
+        return trim(
+            $this->terbilang($this->development_fee)
+        ). ' rupiah';
+    }
+    public function getAnnualFeeTerbilangAttribute()
+    {
+        return trim(
+            $this->terbilang($this->annual_fee)
+        ). ' rupiah';
+    }
+    public function getSchoolFeeTerbilangAttribute()
+    {
+        return trim(
+            $this->terbilang($this->school_fee)
+        ). ' rupiah';
+    }
+
+    public function terbilang($number)
+    {
+        $number = (int) floor($number);
+
+        $words = [
+            '', 'satu', 'dua', 'tiga', 'empat', 'lima',
+            'enam', 'tujuh', 'delapan', 'sembilan', 'sepuluh', 'sebelas'
+        ];
+
+        if ($number < 12) {
+            return $words[$number];
+        } elseif ($number < 20) {
+            return $this->terbilang($number - 10) . ' belas';
+        } elseif ($number < 100) {
+            return $this->terbilang(intval($number / 10)) . ' puluh ' . $this->terbilang($number % 10);
+        } elseif ($number < 200) {
+            return 'Seratus ' . $this->terbilang($number - 100);
+        } elseif ($number < 1000) {
+            return $this->terbilang(intval($number / 100)) . ' ratus ' . $this->terbilang($number % 100);
+        } elseif ($number < 2000) {
+            return 'Seribu ' . $this->terbilang($number - 1000);
+        } elseif ($number < 1000000) {
+            return $this->terbilang(intval($number / 1000)) . ' ribu ' . $this->terbilang($number % 1000);
+        } elseif ($number < 1000000000) {
+            return $this->terbilang(intval($number / 1000000)) . ' juta ' . $this->terbilang($number % 1000000);
+        } elseif ($number < 1000000000000) {
+            return $this->terbilang(intval($number / 1000000000)) . ' miliar ' . $this->terbilang($number % 1000000000);
+        }
+
+        return '';
+    }
 }

@@ -75,6 +75,7 @@ class LevelController extends Controller
             'branch' => '',
             'branchName' => '',
             'principal' => '',
+            'email' => '',
             'grades.*.name' => 'required',
         ]);
         $level = $this->levelService->post($validated);
@@ -138,6 +139,7 @@ class LevelController extends Controller
             'branch' => '',
             'branch_name' => '',
             'principal' => '',
+            'email' => '',
         ]);
         $level = $this->levelService->put($validated);
         return response()->json($level);

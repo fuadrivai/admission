@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 
 use function App\Helpers\imageToBase64;
+use function App\Helpers\setupMail;
 
 class XenditCallBackImplement implements XenditCallBackService
 {
@@ -70,13 +71,13 @@ class XenditCallBackImplement implements XenditCallBackService
             $enrolment['template'] = 'email-template.enrolment-confirmation';
             $enrolment['link'] = 'https://admission.mhis.link/enrolment/student?code='.$enrolment['code'];
 
-            $this->setupMail($enrolment['branch_id']);
+            setupMail($enrolment['branch_id']);
 
             Mail::to($enrolment['email'])
             ->send(
                 (new AdmissionEmail($enrolment))
                     ->attach($pdfPath, [
-                        'as'   => 'Invoice-'.$enrolment['invoice_id'].'.pdf',
+                        'as'   => 'Receipt-'.$enrolment['invoice_id'].'.pdf',
                         'mime' => 'application/pdf',
                     ])
             );
@@ -111,26 +112,6 @@ class XenditCallBackImplement implements XenditCallBackService
         Storage::put($path, $dompdf->output());
 
         return storage_path('app/'.$path);
-    }
-
-    private function setupMail($branchId)
-    {
-        $setting = EmailSetting::where('branch_id', $branchId)->first();
-
-        Config::set('mail.default', 'smtp');
-        Config::set('mail.mailers.smtp', [
-            'transport' => $setting->mailer,
-            'host'      => $setting->host,
-            'port'      => $setting->port,
-            'encryption'=> $setting->encryption,
-            'username'  => $setting->username,
-            'password'  => $setting->app_password,
-        ]);
-
-        Config::set('mail.from', [
-            'address' => $setting->from_address,
-            'name'    => $setting->from_name,
-        ]);
     }
 
     private function resolveTable(string $externalId, array $map): ?string

@@ -2,8 +2,10 @@
 
 namespace App\Helpers;
 
+use App\Models\EmailSetting;
 use App\Models\Observation;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Http;
@@ -168,4 +170,38 @@ function imageToBase64($path)
     $data = file_get_contents($path);
 
     return 'data:image/' . $type . ';base64,' . base64_encode($data);
+}
+
+
+function setupMail($branchId)
+{
+    $setting = EmailSetting::where('branch_id', $branchId)->first();
+    Config::set('mail.default', 'smtp');
+    Config::set('mail.mailers.smtp', [
+        'transport' => $setting->mailer,
+        'host'      => $setting->host,
+        'port'      => $setting->port,
+        'encryption'=> $setting->encryption,
+        'username'  => $setting->username,
+        'password'  => $setting->app_password,
+    ]);
+    Config::set('mail.from', [
+        'address' => $setting->from_address,
+        'name'    => $setting->from_name,
+    ]);
+}
+
+function formatDate($date, $format = 'd F Y', $locale = 'en')
+{
+    if (empty($date)) {
+        return '-';
+    }
+    try {
+        $carbon = Carbon::parse($date)->locale($locale);
+        return $locale === 'en'
+            ? $carbon->format($format)
+            : $carbon->translatedFormat($format);
+    } catch (\Exception $e) {
+        return $date;
+    }
 }
