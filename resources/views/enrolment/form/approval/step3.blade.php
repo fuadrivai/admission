@@ -11,9 +11,9 @@
     <div class="checkbox-declaration">
         <div class="statement-item">
             <label for="">
-                {{ config('student_approval.step3.labels.text01.english') }} :
+                {{ config('student_approval.step3.labels.text01.english') }}:
             </label>
-            <br> <i><small>{{ config('student_approval.step3.labels.text01.indonesian') }} :</small></i>
+            <br> <i><small>{{ config('student_approval.step3.labels.text01.indonesian') }}:</small></i>
         </div>
         <div class="statement-item">
             <label for="">

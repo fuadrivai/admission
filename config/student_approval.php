@@ -172,7 +172,7 @@ return [
             ],
             'text01'=>[
                 'english'=>'I, as the parent/legal guardian of the student, hereby declare and agree that',
-                'indonesian'=>'Dengan ini Saya, sebagai orang tua/wali dari Ananda, menyatakan dan menyetujui bahwa:',
+                'indonesian'=>'Dengan ini Saya, sebagai orang tua/wali dari Ananda, menyatakan dan menyetujui bahwa',
             ],
             'text1'=>[
                 'english'=>'I agree to comply with and support all rules, policies, and regulations of Mutiara Harapan Islamic School (MHIS), including future updates.',
