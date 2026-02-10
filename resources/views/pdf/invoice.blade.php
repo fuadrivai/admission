@@ -283,7 +283,7 @@
                         3. Please keep this receipt as official payment documentation.
                     </p>
                     <p>
-                        4. For further information, please contact the Admission
+                        4. For further information, you may contact the Admission
                         Department at +62 812 9182 3247.
                     </p>
                 </div>

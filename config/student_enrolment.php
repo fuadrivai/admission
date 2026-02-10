@@ -29,7 +29,7 @@ return [
                 'indonesian'=>'',
             ],
             'text6'=>[
-                'english'=>'For further assistance, please contact our Admission team via WhatsApp: <strong><a style="text-decoration:unset" href="https://wa.me/6281291823247" target="_blank">
+                'english'=>'For further assistance, you may contact our Admission team via WhatsApp: <strong><a style="text-decoration:unset" href="https://wa.me/6281291823247" target="_blank">
                 +62 812 9182 3247</a></strong>.',
                 'indonesian'=>'',
             ],
@@ -120,7 +120,7 @@ return [
             ],
             'parent_phone'=>[
                 'english'=>'Parent Mobile Phone',
-                'indonesian'=>'No. handphone orangtua',
+                'indonesian'=>'No HP Orang Tua',
             ],
             'living_with'=>[
                 'english'=>'Living With',

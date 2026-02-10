@@ -215,7 +215,7 @@
             <br><small><i>Tahun kelulusan</i></small>
             <select class="form-select academic-year" id="graduationYear" required>
                 <option value="" selected disabled>Select year</option>
-                <option value="Not Yet Enrolled">Not Yet Enrolled</option>
+                <option value="Not Yet Enrolled">Not yet Enroled</option>
             </select>
             <div class="error-message" id="graduationYear-error">Please select graduation year</div>
         </div>
