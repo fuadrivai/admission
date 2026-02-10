@@ -2,76 +2,121 @@
     <h2 class="section-title">{{ config('student_approval.step3.title') }}</h2>
 
     <div class="alert alert-info mb-4">
-        <i class="bi bi-info-circle"></i> {{ config('student_approval.step3.labels.text0.indonesian') }}
+        <label for="">
+            <i class="bi bi-info-circle"></i> {{ config('student_approval.step3.labels.text0.english') }}
+        </label>
+        <br> <i><small>{{ config('student_approval.step3.labels.text0.indonesian') }}</small></i>
     </div>
 
     <div class="checkbox-declaration">
         <div class="statement-item">
-            <p>{!! config('student_approval.step3.labels.text1.indonesian') !!}</p>
+            <label for="">
+                {{ config('student_approval.step3.labels.text01.english') }} :
+            </label>
+            <br> <i><small>{{ config('student_approval.step3.labels.text01.indonesian') }} :</small></i>
+        </div>
+        <div class="statement-item">
+            <label for="">
+                {{ config('student_approval.step3.labels.text1.english') }}
+            </label>
+            <br> <i><small>{{ config('student_approval.step3.labels.text1.indonesian') }}</small></i>
+        </div>
+        <div class="statement-item">
+            <label for="">
+                {{ config('student_approval.step3.labels.text2.english') }}
+            </label>
+            <br> <i><small>{{ config('student_approval.step3.labels.text2.indonesian') }}</small></i>
+        </div>
+        <div class="statement-item">
+            <label for="">
+                {{ config('student_approval.step3.labels.text3.english') }}
+            </label>
+            <br> <i><small>{{ config('student_approval.step3.labels.text3.indonesian') }}</small></i>
+        </div>
+        <div class="statement-item">
+            <label for="">
+                {{ config('student_approval.step3.labels.text4.english') }}
+            </label>
+            <br> <i><small>{{ config('student_approval.step3.labels.text4.indonesian') }}</small></i>
+        </div>
+        <div class="statement-item">
+            <label for="">
+                {{ config('student_approval.step3.labels.text5.english') }}
+            </label>
+            <br> <i><small>{{ config('student_approval.step3.labels.text5.indonesian') }}</small></i>
+        </div>
+        <div class="statement-item">
+            <label for="">
+                {{ config('student_approval.step3.labels.text6.english') }}
+            </label>
+            <br> <i><small>{{ config('student_approval.step3.labels.text6.indonesian') }}</small></i>
+        </div>
+        <div class="statement-item">
+            <label for="">
+                {{ config('student_approval.step3.labels.text7.english') }}
+            </label>
+            <br> <i><small>{{ config('student_approval.step3.labels.text7.indonesian') }}</small></i>
+        </div>
+        <div class="statement-item">
+            <label for="">
+                {{ config('student_approval.step3.labels.text8.english') }}
+            </label>
+            <br> <i><small>{{ config('student_approval.step3.labels.text8.indonesian') }}</small></i>
+        </div>
+        <div class="statement-item">
+            <label for="">
+                {{ config('student_approval.step3.labels.text9.english') }}
+            </label>
+            <br> <i><small>{{ config('student_approval.step3.labels.text9.indonesian') }}</small></i>
+        </div>
+        <div class="statement-item">
+            <label for="">
+                {{ config('student_approval.step3.labels.text10.english') }}
+            </label>
+            <br> <i><small>{{ config('student_approval.step3.labels.text10.indonesian') }}</small></i>
+        </div>
+        <div class="statement-item">
+            <label for="">
+                {{ config('student_approval.step3.labels.text11.english') }}
+            </label>
+            <br> <i><small>{{ config('student_approval.step3.labels.text11.indonesian') }}</small></i>
+        </div>
+        <div class="statement-item">
+            <label for="">
+                {{ config('student_approval.step3.labels.text12.english') }}
+            </label>
+            <br> <i><small>{{ config('student_approval.step3.labels.text12.indonesian') }}</small></i>
+        </div>
+        <div class="statement-item">
+            <label for="">
+                {{ config('student_approval.step3.labels.text13.english') }}
+            </label>
+            <br> <i><small>{{ config('student_approval.step3.labels.text13.indonesian') }}</small></i>
+        </div>
+        <div class="statement-item">
+            <label for="">
+                {{ config('student_approval.step3.labels.text14.english') }}
+            </label>
+            <br> <i><small>{{ config('student_approval.step3.labels.text14.indonesian') }}</small></i>
+        </div>
+        <div class="statement-item">
+            <label for="">
+                {{ config('student_approval.step3.labels.text15.english') }}
+            </label>
+            <br> <i><small>{{ config('student_approval.step3.labels.text15.indonesian') }}</small></i>
+        </div>
+        <div class="statement-item">
+            <label for="">
+                {{ config('student_approval.step3.labels.text16.english') }}
+            </label>
+            <br> <i><small>{{ config('student_approval.step3.labels.text16.indonesian') }}</small></i>
         </div>
 
         <div class="statement-item">
-            <p>{{ config('student_approval.step3.labels.text2.indonesian') }}</p>
-        </div>
-
-        <div class="statement-item">
-            <p>{{ config('student_approval.step3.labels.text3.indonesian') }}</p>
-        </div>
-
-        <div class="statement-item">
-            <p>{{ config('student_approval.step3.labels.text4.indonesian') }}</p>
-        </div>
-
-        <div class="statement-item">
-            <p>{{ config('student_approval.step3.labels.text5.indonesian') }}</p>
-        </div>
-
-        <div class="statement-item">
-            <p>{{ config('student_approval.step3.labels.text6.indonesian') }}</p>
-        </div>
-
-        <div class="statement-item">
-            <p>{{ config('student_approval.step3.labels.text7.indonesian') }}</p>
-        </div>
-
-        <div class="statement-item">
-            <p>{{ config('student_approval.step3.labels.text8.indonesian') }}</p>
-        </div>
-
-        <div class="statement-item">
-            <p>{{ config('student_approval.step3.labels.text9.indonesian') }}</p>
-        </div>
-
-        <div class="statement-item">
-            <p>{{ config('student_approval.step3.labels.text10.indonesian') }}</p>
-        </div>
-
-        <div class="statement-item">
-            <p>{{ config('student_approval.step3.labels.text11.indonesian') }}</p>
-        </div>
-
-        <div class="statement-item">
-            <p>{{ config('student_approval.step3.labels.text12.indonesian') }}</p>
-        </div>
-
-        <div class="statement-item">
-            <p>{{ config('student_approval.step3.labels.text13.indonesian') }}</p>
-        </div>
-
-        <div class="statement-item">
-            <p>{{ config('student_approval.step3.labels.text14.indonesian') }}</p>
-        </div>
-
-        <div class="statement-item">
-            <p>{{ config('student_approval.step3.labels.text15.indonesian') }}</p>
-        </div>
-
-        <div class="statement-item">
-            <p>{{ config('student_approval.step3.labels.text16.indonesian') }}</p>
-        </div>
-
-        <div class="statement-item">
-            <p>{{ config('student_approval.step3.labels.text17.indonesian') }}</p>
+            <label for="">
+                {{ config('student_approval.step3.labels.text17.english') }}
+                <br> <i><small>{{ config('student_approval.step3.labels.text17.indonesian') }}</small></i>
+            </label>
 
             <div class="current-date-display" id="currentDate2"></div>
 

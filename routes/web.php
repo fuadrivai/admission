@@ -57,6 +57,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
     Route::post('document/applicant', [AdmissionController::class, 'postApplicant'])->name('admission.postApplicant');
     Route::get('document/applicant/{id}', [AdmissionController::class, 'getApplicant'])->name('admission.getApplicant');
     Route::get('document/code/{code}', [AdmissionController::class, 'showByCode'])->name('admission.showByCode');
+    Route::get('document/check/{code}', [AdmissionController::class, 'checkStatus'])->name('admission.checkStatus');
     Route::get('document/parent/{child_id}/{role}', [AdmissionController::class, 'getParent'])->name('admission.getParent');
     Route::post('document/parent', [AdmissionController::class, 'postParent'])->name('admission.postParent');
     Route::post('document/health', [AdmissionController::class, 'postHealth'])->name('admission.postHealth');
@@ -71,6 +72,8 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
     Route::get('document/statement/financial/{id}', [AdmissionStatementController::class, 'getFinancial'])->name('admission.getFinancial');
     Route::post('document/statement/agreement', [AdmissionStatementController::class, 'postAgreement'])->name('admission.postAgreement');
     Route::get('document/statement/{id}/agreement/{role}', [AdmissionStatementController::class, 'getAgreement'])->name('admission.getAgreement');
+    
+    Route::get('document/success/{code}', [AdmissionController::class, 'success'])->name('admission.success');
 
     Route::get('/level/branch/{id}', [LevelController::class, 'getByBranch'])->name('getByBranch');
     Route::get('/holiday/check/{date}', [HolidayController::class, 'isHoliday']);

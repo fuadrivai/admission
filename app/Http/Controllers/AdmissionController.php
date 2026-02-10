@@ -92,6 +92,17 @@ class AdmissionController extends Controller
         //
     }
 
+    public function checkStatus($code)
+    {
+        try {
+            $path = $this->admissionService->checkStatus($code);
+            return response()->json($path);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'message' => 'Enrolment or Admission code not found'
+            ], $e->getCode() ?: 404);
+        }
+    }
     public function showByCode($code)
     {
         try {
@@ -140,5 +151,10 @@ class AdmissionController extends Controller
     public function studentForm()
     {
         return view('enrolment.form.student-enrolment');
+    }
+    public function success($code)
+    {
+        $admission = $this->admissionService->showByCode($code);
+        return view('enrolment.form.student-success',['data'=>$admission]);
     }
 }

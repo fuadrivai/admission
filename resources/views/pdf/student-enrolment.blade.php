@@ -5,10 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student and Parent Information Form</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500&display=swap"
-        rel="stylesheet">
+
     <style>
         * {
             margin: 0;
@@ -275,6 +272,12 @@
             font-size: 14px;
         }
 
+        .value {
+            border-bottom: 1px solid #000;
+            padding: 4px 0;
+            min-height: 14px;
+        }
+
 
         /* Responsive Design */
         @media (max-width: 768px) {
@@ -368,7 +371,7 @@
                 </ul>
 
                 <div class="contact-info">
-                    <p><i class="fas fa-comment-alt"></i> {!! config('student_enrolment.step1.labels.text6.english') !!}</p>
+                    <p>{!! config('student_enrolment.step1.labels.text6.english') !!}</p>
                 </div>
 
                 <div class="signature">
@@ -438,7 +441,8 @@
                 <div class="form-group">
                     <label for="birthDate">{{ config('student_enrolment.step2.labels.date_birth.english') }} <span
                             class="label-english">({{ config('student_enrolment.step2.labels.date_birth.indonesian') }})</span></label>
-                    <input type="date" id="birthDate" name="birthDate" value="{{ $data->applicant->dateBirth() }}">
+                    <input type="text"
+                        value="{{ \Carbon\Carbon::parse($data->applicant->date_of_birth)->translatedFormat('d F Y') }}">
                 </div>
 
                 <!-- Row 4 -->
@@ -451,8 +455,7 @@
                 <div class="form-group">
                     <label for="ethnicity">{{ config('student_enrolment.step2.labels.ethnicity.english') }} <span
                             class="label-english">({{ config('student_enrolment.step2.labels.ethnicity.indonesian') }})</span></label>
-                    <input type="text" id="ethnicity" name="ethnicity"
-                        value="{{ $data->applicant->ethnicity }}">
+                    <input type="text" id="ethnicity" name="ethnicity" value="{{ $data->applicant->ethnicity }}">
                 </div>
 
                 <!-- Row 5 -->
@@ -477,31 +480,31 @@
                 <div class="form-group">
                     <label for="height">{{ config('student_enrolment.step2.labels.height.english') }} <span
                             class="label-english">({{ config('student_enrolment.step2.labels.height.indonesian') }})</span></label>
-                    <input type="number" id="height" name="height"
-                        value="{{ (float) $data->applicant->height }}">
+                    <input type="text" id="height" name="height"
+                        value="{{ number_format($data->applicant->height, 0, '.', '') }}">
                 </div>
 
                 <!-- Row 6 -->
                 <div class="form-group">
                     <label for="weight">{{ config('student_enrolment.step2.labels.weight.english') }} <span
                             class="label-english">({{ config('student_enrolment.step2.labels.weight.indonesian') }})</span></label>
-                    <input type="number" id="weight" name="weight"
-                        value="{{ (float) $data->applicant->weight }}">
+                    <input type="text" id="weight" name="weight"
+                        value="{{ number_format($data->applicant->weight, 0, '.', '') }}">
                 </div>
 
                 <div class="form-group">
                     <label for="siblings">{{ config('student_enrolment.step2.labels.number_sibling.english') }}
                         <span
                             class="label-english">({{ config('student_enrolment.step2.labels.number_sibling.indonesian') }})</span></label>
-                    <input type="number" id="siblings" name="siblings"
-                        value="{{ $data->applicant->siblings_count }}">
+                    <input type="text" id="siblings" name="siblings"
+                        value="{{ number_format($data->applicant->siblings_count, 0, '.', '') }}">
                 </div>
 
                 <!-- Row 7 -->
                 <div class="form-group">
                     <label for="birthOrder">{{ config('student_enrolment.step2.labels.order.english') }} <span
                             class="label-english">({{ config('student_enrolment.step2.labels.order.indonesian') }})</span></label>
-                    <input type="number" id="birthOrder" name="birthOrder"
+                    <input type="text" id="birthOrder" name="birthOrder"
                         value="{{ $data->applicant->birth_order }}">
                 </div>
 
@@ -575,8 +578,8 @@
                     <label for="distanceToSchool">{{ config('student_enrolment.step2.labels.distance.english') }}
                         <span
                             class="label-english">{{ config('student_enrolment.step2.labels.distance.indonesian') }}</span></label>
-                    <input type="number" id="distanceToSchool" name="distanceToSchool"
-                        value="{{ (float) $data->applicant->distance_km }}">
+                    <input type="text" id="distanceToSchool" name="distanceToSchool"
+                        value="{{ number_format($data->applicant->distance_km, 0, '.', '') }}">
                 </div>
 
                 <div class="form-group">
@@ -602,7 +605,7 @@
                     <label for="graduationYear">{{ config('student_enrolment.step2.labels.year_grad.english') }}
                         <span
                             class="label-english">({{ config('student_enrolment.step2.labels.year_grad.indonesian') }})</span></label>
-                    <input type="number" id="graduationYear" name="graduationYear"
+                    <input type="text" id="graduationYear" name="graduationYear"
                         value="{{ $data->applicant->graduation_year ?? '-' }}">
                 </div>
 
@@ -610,7 +613,7 @@
                     <label for="enrolmentLevel">{{ config('student_enrolment.step2.labels.level.english') }}
                         <span
                             class="label-english">({{ config('student_enrolment.step2.labels.level.indonesian') }})</span></label>
-                    <input type="number" id="enrolmentLevel" name="enrolmentLevel"
+                    <input type="text" id="enrolmentLevel" name="enrolmentLevel"
                         value="{{ $data->level->name ?? '-' }}">
                 </div>
 
@@ -790,7 +793,7 @@
                         for="fatherDateOfBirth">{{ config('student_enrolment.step3_4_5.labels.date_birth.english') }}
                         <span
                             class="label-english">({{ config('student_enrolment.step3_4_5.labels.date_birth.indonesian') }})</span></label>
-                    <input type="date" id="fatherDateOfBirth" name="fatherDateOfBirth"
+                    <input type="text" id="fatherDateOfBirth" name="fatherDateOfBirth"
                         value="{{ date('d F Y', strtotime($father->birth_date)) }}" readonly>
                 </div>
 
@@ -963,7 +966,7 @@
                         for="motherDateOfBirth">{{ config('student_enrolment.step3_4_5.labels.date_birth.english') }}
                         <span
                             class="label-english">({{ config('student_enrolment.step3_4_5.labels.date_birth.indonesian') }})</span></label>
-                    <input type="date" id="motherDateOfBirth" name="motherDateOfBirth"
+                    <input type="text" id="motherDateOfBirth" name="motherDateOfBirth"
                         value="{{ date('d F Y', strtotime($mother->birth_date)) }}" readonly>
                 </div>
 
@@ -1140,7 +1143,7 @@
                         for="guardianDateOfBirth">{{ config('student_enrolment.step3_4_5.labels.date_birth.english') }}
                         <span
                             class="label-english">({{ config('student_enrolment.step3_4_5.labels.date_birth.indonesian') }})</span></label>
-                    <input type="date" id="guardianDateOfBirth" name="guardianDateOfBirth"
+                    <input type="text" id="guardianDateOfBirth" name="guardianDateOfBirth"
                         value="{{ date('d F Y', strtotime($guardian->birth_date)) }}" readonly>
                 </div>
 
@@ -1640,14 +1643,14 @@
                 <div class="form-group">
                     <label for="birthWeight">{{ config('student_enrolment.step6.labels.weight.english') }}</label>
                     <input type="text" id="birthWeight"
-                        value="{{ (float) $data->applicant->pregnancyHistory->birth_weight ?? '-' }}" readonly>
+                        value="{{ $data->applicant->pregnancyHistory->birth_weight ?? '-' }}" readonly>
                 </div>
 
                 <!-- Birth Length -->
                 <div class="form-group">
                     <label for="birthHeight">{{ config('student_enrolment.step6.labels.length.english') }}</label>
                     <input type="text" id="birthHeight"
-                        value="{{ (float) $data->applicant->pregnancyHistory->birth_length ?? '-' }}" readonly>
+                        value="{{ $data->applicant->pregnancyHistory->birth_length ?? '-' }}" readonly>
                 </div>
 
                 <!-- Age Started Walking -->
@@ -1688,7 +1691,7 @@
                 <div class="form-group full-width">
                     <label
                         for="routineMedicationExplanation">{{ config('student_enrolment.step6.labels.taking_medication_explanation.english') }}</label>
-                    <textarea id="routineMedicationExplanation" rows="2" readonly>{{ $data->applicant->health->routine_medication_explanation ?? '-' }}</textarea>
+                    <textarea id="routineMedicationExplanation" rows="2" readonly>{{ $data->applicant->health->routine_medication_note ?? '-' }}</textarea>
                 </div>
             </div>
 
@@ -1822,6 +1825,7 @@
                 </div>
 
                 <!-- Parent Declaration Checkbox -->
+                <div class="page-break"></div>
                 <div class="form-group full-width"
                     style="margin-top: 30px; padding: 15px; border: 1px solid #ddd; border-radius: 4px; background-color: #f9f9f9;">
                     <div class="form-check">
@@ -1836,7 +1840,7 @@
                     <!-- Agreed At Date -->
                     <div style="margin-top: 20px;">
                         <label style="display: block; margin-bottom: 8px; font-weight: bold;">Agreed at</label>
-                        <input type="date"
+                        <input type="text"
                             value="{{ date('d F Y H:i', strtotime($data->applicant->declaration->agreed_at)) }}"
                             readonly style="width: 200px;">
                     </div>
@@ -1850,96 +1854,6 @@
             <p>This form is part of the official enrolment process</p>
         </div>
     </div>
-
-    <script>
-        // Show/hide conditional fields based on radio button selection
-        document.addEventListener('DOMContentLoaded', function() {
-            // Function to toggle conditional fields
-            function toggleConditionalField(radioName, fieldId) {
-                const radios = document.querySelectorAll(`input[name="${radioName}"]`);
-                const field = document.getElementById(fieldId);
-
-                radios.forEach(radio => {
-                    radio.addEventListener('change', function() {
-                        if (this.value === 'true') {
-                            field.style.display = 'block';
-                        } else {
-                            field.style.display = 'none';
-                            // Clear fields when hidden
-                            const inputs = field.querySelectorAll('input, textarea, select');
-                            inputs.forEach(input => input.value = '');
-                        }
-                    });
-                });
-            }
-
-            // Living with "others" conditional field
-            const livingWithSelect = document.getElementById('livingWith');
-            const livingWithOthersField = document.getElementById('livingWithOthers');
-
-            livingWithSelect.addEventListener('change', function() {
-                if (this.value === 'others') {
-                    livingWithOthersField.style.display = 'block';
-                } else {
-                    livingWithOthersField.style.display = 'none';
-                    document.getElementById('livingWithSpecify').value = '';
-                }
-            });
-
-            // Toggle conditional fields for yes/no questions
-            toggleConditionalField('notAttendingSchool', 'notAttendingDetails');
-            toggleConditionalField('psychologicalAssessment', 'assessmentDetails');
-            toggleConditionalField('specialTherapy', 'therapyDetails');
-
-            // Set current academic year as default
-            const currentYear = new Date().getFullYear();
-            document.getElementById('academicYear').value = `${currentYear}/${currentYear + 1}`;
-
-            // Auto-format phone numbers
-            const phoneInputs = document.querySelectorAll('input[name="parentMobile"], input[name="homePhone"]');
-            phoneInputs.forEach(input => {
-                input.addEventListener('input', function(e) {
-                    let value = e.target.value.replace(/\D/g, '');
-                    if (value.length > 3 && value.length <= 7) {
-                        value = value.replace(/(\d{3})(\d+)/, '$1-$2');
-                    } else if (value.length > 7) {
-                        value = value.replace(/(\d{3})(\d{3})(\d+)/, '$1-$2-$3');
-                    }
-                    e.target.value = value;
-                });
-            });
-
-            // Set today's date as default for date of birth
-            const today = new Date();
-            const fifteenYearsAgo = new Date(today.getFullYear() - 15, today.getMonth(), today.getDate());
-            document.getElementById('birthDate').valueAsDate = fifteenYearsAgo;
-
-            // Form validation before printing
-            document.querySelector('.print-btn').addEventListener('click', function() {
-                // Check if all required fields are filled (you can customize this)
-                const requiredFields = document.querySelectorAll(
-                    'input[required], select[required], textarea[required]');
-                let allFilled = true;
-
-                requiredFields.forEach(field => {
-                    if (!field.value.trim()) {
-                        allFilled = false;
-                        field.style.borderColor = '#ff0000';
-                    } else {
-                        field.style.borderColor = '#d0b7b7';
-                    }
-                });
-
-                if (!allFilled) {
-                    alert('Please fill in all required fields before printing.');
-                    return;
-                }
-
-                // Proceed with printing
-                window.print();
-            });
-        });
-    </script>
 </body>
 
 </html>

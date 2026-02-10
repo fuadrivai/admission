@@ -48,8 +48,8 @@ class AdmissionStatementImplement implements AdmissionStatementService{
 
             $pdfPath = $this->generateStatementPdf($admission);
 
-            $admission->subject  = 'Enrolment Documents - Mutiara Harapan Islamic School';
-            $admission->template = 'email-template.enrolment-confirmation';
+            $admission->subject  = "Summary of Parent's Statement Forms";
+            $admission->template = 'email-template.student-statement';
 
             setupMail($admission->branch_id);
             $emails = $admission->applicant->parents

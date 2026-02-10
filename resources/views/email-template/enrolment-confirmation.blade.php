@@ -161,61 +161,61 @@
                             <td style="padding: 0 0 25px">
                                 <div
                                     style="
-                      background-color: #fdf8f3;
-                      border: 2px dashed #d4af37;
-                      border-radius: 8px;
-                      padding: 20px;
-                      text-align: center;
-                    ">
+                background-color: #fdf8f3;
+                border: 2px dashed #d4af37;
+                border-radius: 8px;
+                padding: 20px;
+                text-align: center;
+            ">
                                     <p
                                         style="
-                        margin: 0 0 12px;
-                        color: #800000;
-                        font-size: 14px;
-                        font-weight: bold;
-                        text-transform: uppercase;
-                        letter-spacing: 0.5px;
-                      ">
+                    margin: 0 0 12px;
+                    color: #800000;
+                    font-size: 14px;
+                    font-weight: bold;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                ">
                                         Enrolment Code
                                     </p>
 
-                                    <!-- Copyable Code Box -->
+                                    <!-- Copy-friendly Code Box -->
                                     <div
                                         style="
-                        background-color: #ffffff;
-                        border: 2px solid #800000;
-                        border-radius: 6px;
-                        padding: 15px 10px;
-                        margin: 0 0 12px;
-                        cursor: pointer;
-                      ">
-                                        <table role="presentation" border="0" cellpadding="0" cellspacing="0"
-                                            width="100%">
+                    background-color: #ffffff;
+                    border: 2px solid #800000;
+                    border-radius: 6px;
+                    padding: 15px 10px;
+                    margin: 0 0 12px;
+                ">
+                                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                                             <tr>
                                                 <td align="center">
                                                     <p
                                                         style="
-                                margin: 0;
-                                font-size: 24px;
-                                color: #800000;
-                                font-weight: bold;
-                                letter-spacing: 1px;
-                                font-family: &quot;Courier New&quot;, monospace;
-                                padding: 5px 0;
-                              ">
+                                    margin: 0;
+                                    font-size: 24px;
+                                    color: #800000;
+                                    font-weight: bold;
+                                    letter-spacing: 1px;
+                                    font-family: 'Courier New', monospace;
+                                    padding: 5px 0;
+                                    user-select: all;
+                                    cursor: text;
+                                ">
                                                         {{ $data['code'] }}
                                                     </p>
                                                 </td>
                                                 <td width="40" align="center" valign="middle">
                                                     <div
                                                         style="
-                                background-color: #800000;
-                                color: white;
-                                border-radius: 4px;
-                                padding: 6px 8px;
-                                font-size: 12px;
-                                font-weight: bold;
-                              ">
+                                    background-color: #800000;
+                                    color: white;
+                                    border-radius: 4px;
+                                    padding: 6px 8px;
+                                    font-size: 12px;
+                                    font-weight: bold;
+                                ">
                                                         📋
                                                     </div>
                                                 </td>
@@ -225,17 +225,18 @@
 
                                     <p
                                         style="
-                        margin: 0;
-                        color: #666666;
-                        font-size: 13px;
-                        font-style: italic;
-                      ">
+                    margin: 0;
+                    color: #666666;
+                    font-size: 13px;
+                    font-style: italic;
+                ">
                                         <span style="color: #800000; font-weight: bold">Tip:</span>
-                                        Tap/click code to select and copy
+                                        Click the code, then press <b>Ctrl + C</b> (or long-press on mobile)
                                     </p>
                                 </div>
                             </td>
                         </tr>
+
 
                         <!-- Welcome Message -->
                         <tr>

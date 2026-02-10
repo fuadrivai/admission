@@ -13,7 +13,7 @@
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
     <link rel="stylesheet" href="/assets/extensions/toastify-js/src/toastify.css">
-    <link rel="stylesheet" href="/assets/static/css/student-approval.css?v=1.0.0">
+    <link rel="stylesheet" href="/assets/static/css/student-approval.css?v=1.0.1">
 </head>
 
 <body>
@@ -116,8 +116,8 @@
     <script src="/assets/extensions/bootstrap-datepicker/js/jquery.timepicker.min.js"></script>
     <script src="/assets/extensions/jquery-blockUI/jquery.blockUI.js"></script>
     <script src="/assets/extensions/toastify-js/src/toastify.js"></script>
-    <script src="/assets/compiled/js/script.js?v=1.1.4"></script>
-    <script src="/assets/static/js/pages/student-approval.js?v=1.0.1"></script>
+    <script src="/assets/compiled/js/script.js?v=1.1.6"></script>
+    <script src="/assets/static/js/pages/student-approval.js?v=1.0.3"></script>
 </body>
 
 </html>

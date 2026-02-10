@@ -164,84 +164,88 @@ return [
         ]
     ],
     'step3'=>[
-        'title'  => 'FORM PERNYATAAN ORANG TUA / WALI MURID',
+        'title'  => 'Parent/Guardian Statement Form',
         'labels'=>[
             'text0'=>[
-                'english'=>'Please read carefully before filling.',
-                'indonesian'=>'Mohon dibaca secara seksama sebelum diisi.',
+                'english'=>'Please read carefully before completing.',
+                'indonesian'=>'Mohon dibaca dengan seksama sebelum dilengkapi.',
+            ],
+            'text01'=>[
+                'english'=>'I, as the parent/legal guardian of the student, hereby declare and agree that',
+                'indonesian'=>'Dengan ini Saya, sebagai orang tua/wali dari Ananda, menyatakan dan menyetujui bahwa:',
             ],
             'text1'=>[
-                'english'=>'By this statement, I declare that I agree: <br><br>I am willing to comply with and support all Regulations, Provisions and School Rules as determined by Mutiara Harapan Islamic School, whether already in effect or to be determined later.',
-                'indonesian'=>'Dengan ini Saya menyatakan bahwa saya setuju: <br><br>Bersedia menaati dan mendukung seluruh Peraturan, Ketentuan dan Tata Tertib yang ditentukan oleh Mutiara Harapan Islamic School, baik yang sudah berjalan, ataupun yang akan ditentukan kemudian.',
+                'english'=>'I agree to comply with and support all rules, policies, and regulations of Mutiara Harapan Islamic School (MHIS), including future updates.',
+                'indonesian'=>'Saya setuju untuk menaati dan mendukung seluruh peraturan, ketentuan, dan tata tertib MHIS,  baik yang sudah berjalan maupun yang akan ditentukan kemudian.',
             ],
             'text2'=>[
-                'english'=>'I am willing to cooperate well with the Principal, Teachers, Administration Staff, Management, and all school personnel.',
-                'indonesian'=>'Bersedia bekerja sama dengan Principal, Teachers, Administration Staff, Manajemen serta seluruh perangkat sekolah dengan baik.',
+                'english'=>'I will cooperate and maintain good communication with the Principal, teachers, staff, and school community.',
+                'indonesian'=>'Saya akan bekerja sama dan menjaga komunikasi yang baik dengan Principal, guru, staf, dan komunitas sekolah.',
             ],
             'text3'=>[
-                'english'=>'I am willing to support all my child\'s activities both at school and outside of school and will provide education and activities that are aligned and in line with the school\'s program for my child at home.',
-                'indonesian'=>'Bersedia mendukung seluruh kegiatan anak Saya baik di sekolah maupun di luar sekolah dan akan memberikan pendidikan serta kegiatan yang searah dan sejalan dengan program sekolah terhadap anak Saya di rumah.',
+                'english'=>'I will support my child’s activities at and outside school and provide home support aligned with the school’s programs.',
+                'indonesian'=>'Saya akan mendukung kegiatan anak saya di dalam dan di luar sekolah serta memberikan dukungan di rumah yang selaras dengan program sekolah.',
             ],
             'text4'=>[
-                'english'=>'I am willing to communicate and coordinate with the school, including attending if requested/invited by the school.',
-                'indonesian'=>'Bersedia berkomunikasi dan berkoordinasi dengan pihak sekolah, termasuk datang jika diminta/diundang oleh pihak sekolah.',
+                'english'=>'I will communicate and coordinate with the school, including attending meetings when invited.',
+                'indonesian'=>'Saya akan berkomunikasi dan berkoordinasi dengan sekolah, termasuk hadir saat diundang.',
             ],
             'text5'=>[
-                'english'=>'I am willing to prioritize and put first the school\'s interests above other needs.',
-                'indonesian'=>'Bersedia mendahulukan dan mengutamakan kepentingan sekolah di atas keperluan lainnya.',
+                'english'=>'I will prioritize school-related commitments concerning my child’s education.',
+                'indonesian'=>'Saya akan mengutamakan komitmen yang berkaitan dengan pendidikan anak saya di sekolah.',
             ],
             'text6'=>[
-                'english'=>'I am willing to accept an appointment from the school to become a member of the Parents and Teachers Association (Ittihada) at Mutiara Harapan Islamic School.',
-                'indonesian'=>'Bersedia apabila ditunjuk oleh pihak sekolah untuk menjadi pengurus Persatuan Orang Tua Murid dan Guru (Ittihada) di lingkungan Mutiara Harapan Islamic School.',
+                'english'=>'I am willing to serve in the Parent–Teacher Association (Ittihada) if appointed.',
+                'indonesian'=>'Saya bersedia menjadi pengurus Persatuan Orang Tua Murid dan Guru (Ittihada) jika ditunjuk.',
             ],
             'text7'=>[
-                'english'=>'I understand that in addition to the national curriculum, the school also uses an international curriculum, so student assessment and promotion criteria are based on both curricula, and I will fully comply with this.',
-                'indonesian'=>'Saya paham bahwa selain kurikulum nasional sekolah juga menggunakan kurikulum internasional sehingga penilaian dan kriteria promosi siswa didasarkan pada kedua kurikulum tersebut sehingga Saya akan mematuhi sepenuhnya.',
+                'english'=>'I understand the school applies both national and international curricula and agree to the assessment and promotion standards used.',
+                'indonesian'=>'Saya memahami sekolah menggunakan kurikulum nasional dan internasional serta menyetujui standar penilaian dan kenaikan kelas yang berlaku.',
             ],
             'text8'=>[
-                'english'=>'By submitting this form, I fully agree to follow and support the school in various programs and activities for the achievement of the school\'s objectives.',
-                'indonesian'=>'Dengan mengajukan form ini, Saya sepenuhnya akan mengikuti serta mendukung sekolah dalam berbagai program dan kegiatan, untuk pencapaian tujuan sekolah.',
+                'english'=>'I commit to supporting the school’s programs and activities to achieve educational goals.',
+                'indonesian'=>'Saya berkomitmen mendukung program dan kegiatan sekolah demi tercapainya tujuan pendidikan.',
             ],
             'text9'=>[
-                'english'=>'I agree to comply with and support all provisions by maintaining and not taking actions that damage the school\'s reputation and good name. I am also committed to keeping confidential all information, data, and documents related to the school without written consent from the school. I can accept all consequences, including but not limited to my child being unilaterally expelled from the school if I or my child fail to meet these provisions.',
-                'indonesian'=>'Saya setuju untuk mematuhi dan mendukung seluruh ketentuan ini dengan menjaga dan tidak akan melakukan tindakan dan reputasi dan nama baik Sekolah. Saya juga berkomitmen untuk menjaga kerahasiaan seluruh informasi, data, serta dokumen yang berkaitan dengan sekolah kepada pihak manapun tanpa persetujuan tertulis dari sekolah. Saya dapat menerima segala konsekuensinya, termasuk namun tidak terbatas, pada anak saya dikeluarkan secara sepihak dari sekolah apabila Saya atau anak Saya gagal memenuhi ketentuan ini.',
+                'english'=>'I will uphold the school’s reputation, maintain confidentiality of school information, and accept consequences for non-compliance, including possible dismissal of my child.',
+                'indonesian'=>'Saya setuju untuk mematuhi dan mendukung seluruh ketentuan ini dengan menjaga reputasi dan nama baik Sekolah. Saya juga berkomitmen untuk menjaga kerahasiaan seluruh informasi, data, serta dokumen yang berkaitan dengan sekolah kepada pihak manapun tanpa persetujuan tertulis dari sekolah. Saya dapat menerima segala konsekuensinya, termasuk namun tidak terbatas, pada anak saya dikeluarkan secara sepihak dari sekolah apabila Saya atau anak Saya gagal memenuhi ketentuan ini.',
             ],
             'text10'=>[
-                'english'=>'In the event that through observation and assessment, either before (trial class) or after the teaching and learning process has begun, my child requires special handling, I agree that my child will be transferred to the Development Class.',
+                'english'=>'I agree to my child’s placement in the Development Class if recommended based on observation or assessment.',
                 'indonesian'=>'Bahwa apabila berdasarkan observasi dan assessment baik sebelum (trial class) maupun setelah proses belajar mengajar berjalan, ternyata anak saya memerlukan penanganan khusus, Saya menyetujui anak saya dipindahkan ke Development Class.',
             ],
             'text11'=>[
-                'english'=>'In relation to point 10, if my child is transferred to the Development Class, I am willing to comply with all provisions applicable in the Development Class.',
-                'indonesian'=>'Sehubungan dengan butir 10 apabila anak saya dipindahkan ke Development Class, Saya bersedia mengikuti semua ketentuan yang berlaku di Development Class.',
+                'english'=>'I agree to follow all Development Class regulations if my child is placed in the Development Class.',
+                'indonesian'=>'Saya bersedia mengikuti seluruh ketentuan Development Class apabila anak saya ditempatkan di sana.',
             ],
             'text12'=>[
-                'english'=>'I give permission to the School to conduct psychological tests on my child whenever deemed necessary by the school. Prior notice will be given to me for further approval.',
+                'english'=>'I consent to psychological assessments for my child when necessary, with prior notice.',
                 'indonesian'=>'Saya memberi izin kepada Sekolah untuk mengadakan tes psikologis pada anak saya kapanpun diperlukan oleh sekolah. Pemberitahuan pra-tindakan akan diberikan kepada saya untuk persetujuan lebih lanjut.',
             ],
             'text13'=>[
-                'english'=>'I understand and fully agree that the school takes all necessary measures in the best way according to educational objectives while adhering to health and safety procedures with the best interests of my child in mind. Therefore, I release the school from all claims and absolve Mutiara Harapan Islamic School from all forms of responsibility including but not limited to civil lawsuits and criminal charges.',
-                'indonesian'=>'Saya mengetahui dan menyetujui sepenuhnya bahwa sekolah melakukan segala hal yang dirasa perlu dengan sebaik-baiknya sesuai tujuan pendidikan dengan mengindahkan prosedur kesehatan dan keamanan dengan mengedepankan kebaikan anak Saya. Oleh karenanya Saya membebaskan sekolah dari segala tuntutan serta membebaskan Mutiara Harapan Islamic School dari segala macam bentuk tanggung jawab termasuk namun tidak terbatas pada gugatan perdata maupun tuntutan pidana.',
+                'english'=>'I acknowledge the school will act in my child’s best interest following health and safety procedures and release the school from related claims.',
+                'indonesian'=>'Saya mengetahui dan menyetujui sepenuhnya bahwa sekolah melakukan segala hal yang perlu dengan sebaik-baiknya sesuai tujuan pendidikan dengan mengindahkan prosedur kesehatan dan keamanan dengan mengedepankan kebaikan anak Saya. Oleh karenanya Saya membebaskan sekolah dari segala tuntutan serta membebaskan Mutiara Harapan Islamic School dari segala macam bentuk tanggung jawab termasuk namun tidak terbatas pada gugatan perdata maupun tuntutan pidana.',
             ],
             'text14'=>[
-                'english'=>'If I require school transportation, I fully agree to the school\'s decision based on route survey and/or school vehicle capacity.',
-                'indonesian'=>'Apabila Saya memerlukan antar jemput sekolah, Saya sepenuhnya setuju pada keputusan sekolah yang ditetapkan berdasarkan survey rute dan atau kapasitas kendaraan antar jemput sekolah.',
+                'english'=>'I agree to school transport arrangements based on route and capacity.',
+                'indonesian'=>'Saya menyetujui ketentuan antar jemput sekolah berdasarkan rute dan kapasitas.',
             ],
             'text15'=>[
-                'english'=>'I give permission to the School to produce photos and videos of my child in any media. I understand that these images will be used for internal and external purposes as well as for the school\'s promotion/publication interests.',
-                'indonesian'=>'Saya memberi izin kepada Sekolah untuk memproduksi foto dan video anak Saya dalam media apapun. Saya mengerti bahwa gambar – gambar tersebut akan digunakan untuk kepentingan internal dan eksternal serta kepentingan promosi/publikasi sekolah.',
-            ],
-            'text16'=>[
-                'english'=>'On behalf of my child, I give permission to the School to use my child\'s work in any media (including written works, audio and visual materials).',
+                'english'=>'I permit the use of my child’s photos, videos, and works for educational and promotional purposes.',
                 'indonesian'=>'Atas nama anak Saya, Saya memberi izin kepada pihak Sekolah untuk menggunakan hasil karya anak Saya dalam media apapun (termasuk hasil karya tulis, audio dan materi visual)',
             ],
+            'text16'=>[
+                'english'=>'I confirm that I understand this form and sign it willingly without coercion.',
+                'indonesian'=>'Saya menyatakan telah memahami formulir ini dan menandatanganinya secara sukarela tanpa paksaan.',
+            ],
             'text17'=>[
-                'english'=>'I also declare that I fully understand the entire contents of this form and I sign it in sound physical and mental condition, without pressure or coercion from any party, for proper use at Mutiara Harapan Islamic School.',
+                'english'=>'I confirm that I have read and understood this form and sign it willingly, in good physical and mental condition, without any coercion.',
                 'indonesian'=>'Saya juga menyatakan bahwa Saya memahami sepenuhnya seluruh isi formulir ini dan Saya menandatanganinya dalam keadaan sehat jasmani dan rohani, tanpa tekanan atau paksaan pihak manapun untuk dipergunakan sebagaimana mestinya di Mutiara Harapan Islamic School.',
             ],
-            'text18'=>[
-                'english'=>'',
-                'indonesian'=>'Saya juga menyatakan bahwa Saya memahami sepenuhnya seluruh isi formulir ini dan Saya menandatanganinya dalam keadaan sehat jasmani dan rohani, tanpa tekanan atau paksaan pihak manapun untuk dipergunakan sebagaimana mestinya di Mutiara Harapan Islamic School.',
-            ],
+            // 'text18'=>[
+            //     'english'=>'',
+            //     'indonesian'=>'Saya juga menyatakan bahwa Saya memahami sepenuhnya seluruh isi formulir ini dan Saya menandatanganinya dalam keadaan sehat jasmani dan rohani, tanpa tekanan atau paksaan pihak manapun untuk dipergunakan sebagaimana mestinya di Mutiara Harapan Islamic School.',
+            // ],
         ]
     ],
     'step4' => [

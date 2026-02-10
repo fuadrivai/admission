@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="/assets/extensions/toastify-js/src/toastify.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link rel="stylesheet" href="/assets/extensions/bootstrap-datepicker/css/bootstrap-datepicker.css">
-    <link rel="stylesheet" href="/assets/static/css/enrolment-external.css?v=1.0.0">
+    <link rel="stylesheet" href="/assets/static/css/enrolment-external.css?v=1.0.1">
 </head>
 
 <body>
@@ -530,8 +530,8 @@
     <script src="/assets/extensions/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
     <script src="/assets/extensions/bootstrap-datepicker/js/jquery.timepicker.min.js"></script>
     <script src="/assets/extensions/toastify-js/src/toastify.js"></script>
-    <script src="/assets/compiled/js/script.js?v=1.1.5"></script>
-    <script src="/assets/static/js/pages/enrolment-external.js?v=1.0.2"></script>
+    <script src="/assets/compiled/js/script.js?v=1.1.6"></script>
+    <script src="/assets/static/js/pages/enrolment-external.js?v=1.0.4"></script>
 </body>
 
 </html>

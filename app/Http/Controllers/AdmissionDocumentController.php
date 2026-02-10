@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\AdmissionEmail;
 use App\Models\Admission;
 use App\Models\AdmissionDocument;
 use App\Services\AdmissionDocumentService;
@@ -10,10 +11,12 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Spatie\PdfToImage\Pdf as PdfToImage;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Imagick;
 use ImagickPixel;
 
 use function App\Helpers\imageToBase64;
+use function App\Helpers\setupMail;
 
 class AdmissionDocumentController extends Controller
 {
@@ -179,11 +182,34 @@ class AdmissionDocumentController extends Controller
             ->setPaper('a4')
             ->setWarnings(false);
 
+            $filename = "documents-{$admission->code}";
+
             $finalPdfPath = storage_path(
-                "app/public/admission/{$request->admission_id}/all-documents.pdf"
+                "app/public/admission/{$request->admission_id}/$filename.pdf"
             );
 
             $pdf->save($finalPdfPath);
+
+            $admission->subject  = 'Submitted Documents Summary';
+            $admission->template = 'email-template.student-file';
+
+            setupMail($admission->branch_id);
+            $emails = $admission->applicant->parents
+                ->pluck('email')
+                ->filter()
+                ->unique()
+                ->values()
+                ->toArray();
+
+            if (!empty($emails)) {
+                Mail::to($emails)->send(
+                    (new AdmissionEmail($admission))
+                        ->attach($finalPdfPath, [
+                            'as'   => "$filename.pdf",
+                            'mime' => 'application/pdf',
+                        ])
+                );
+            }
 
             return response()->json([
                 'message'  => 'Dokumen berhasil digabung menjadi 1 PDF',

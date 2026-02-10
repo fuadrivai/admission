@@ -11,7 +11,7 @@ const uploadStatuses = {
     family_card: false,
 };
 $(document).ready(function () {
-    getDocumentByCode();
+    checkAdmissionByCode();
     $("#ktp_fatherInput").on("change", function (e) {
         handleFileUpload(e, "ktp_father");
     });
@@ -185,6 +185,35 @@ function submitDocuments() {
             );
         },
     });
+}
+
+async function checkAdmissionByCode() {
+    try {
+        blockUI();
+        const code = $("#code").val().trim();
+        path = await ajaxPromise(null, `/document/check/${code}`, "GET");
+        switch (path) {
+            case "student":
+                window.location.href = `/document/${path}?code=${code}`;
+                break;
+            default:
+                if (path != "file") {
+                    window.location.href = `/document/${path}/${code}`;
+                    return false;
+                } else {
+                    getDocumentByCode();
+                    return true;
+                }
+                break;
+        }
+    } catch (err) {
+        toastify(
+            "Error",
+            err?.responseJSON?.message ?? "Please try again later",
+            "bottom",
+        );
+        return false;
+    }
 }
 
 async function getDocumentByCode() {

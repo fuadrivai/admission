@@ -11,7 +11,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/assets/extensions/toastify-js/src/toastify.css">
     <link rel="stylesheet" href="/assets/extensions/bootstrap-datepicker/css/bootstrap-datepicker.css">
-    <link rel="stylesheet" href="/assets/static/css/student-enrolment.css?v=1.0.1">
+    <link rel="stylesheet" href="/assets/static/css/student-enrolment.css?v=1.0.2">
 
 </head>
 
@@ -130,9 +130,9 @@
     <script src="/assets/extensions/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
     <script src="/assets/extensions/bootstrap-datepicker/js/jquery.timepicker.min.js"></script>
     <script src="/assets/extensions/toastify-js/src/toastify.js"></script>
-    <script src="/assets/compiled/js/script.js?v=1.1.4"></script>
+    <script src="/assets/compiled/js/script.js?v=1.1.6"></script>
     <script src="/assets/static/js/constant.js?v=1.1.5"></script>
-    <script src="/assets/static/js/pages/student-enrolment.js?v=1.0.1"></script>
+    <script src="/assets/static/js/pages/student-enrolment.js?v=1.0.3"></script>
 </body>
 
 </html>

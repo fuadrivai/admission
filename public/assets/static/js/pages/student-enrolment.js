@@ -252,7 +252,7 @@ async function nextStep() {
     }
     blockUI();
     if (currentStep == 1) {
-        let isContinue = await getAdmissionByCode();
+        let isContinue = await checkAdmissionByCode();
         if (!isContinue) {
             return;
         }
@@ -326,18 +326,17 @@ function prevStep() {
     );
 }
 
-async function getAdmissionByCode() {
+async function checkAdmissionByCode() {
     try {
         const code = $("#enrollmentCode").val().trim();
-        admission = await ajaxPromise(null, `/document/code/${code}`, "GET");
-        if (admission.is_complete) {
-            window.location.href = `/document/file/${admission.code}`;
+        path = await ajaxPromise(null, `/document/check/${code}`, "GET");
+        if (path != "student") {
+            window.location.href = `/document/${path}/${code}`;
             return false;
+        } else {
+            getAdmissionByCode();
+            return true;
         }
-        getLevelsAndGrades(admission);
-        enrolment = admission.enrolment;
-        fillStudent();
-        return true;
     } catch (err) {
         toastify(
             "Error",
@@ -345,6 +344,22 @@ async function getAdmissionByCode() {
             "bottom",
         );
         return false;
+    }
+}
+
+async function getAdmissionByCode() {
+    try {
+        const code = $("#enrollmentCode").val().trim();
+        admission = await ajaxPromise(null, `/document/code/${code}`, "GET");
+        getLevelsAndGrades(admission);
+        enrolment = admission.enrolment;
+        fillStudent();
+    } catch (err) {
+        toastify(
+            "Error",
+            err?.responseJSON?.message ?? "Please try again later",
+            "bottom",
+        );
     }
 }
 

@@ -281,7 +281,7 @@
             <div class="section-title">{{ config('student_approval.step1.title') }}</div>
 
             <div class="subsection-title">Relationship to Student : <span
-                    class="maroon-accent">{{ ucfirst($data->statement->author) }}</span></div>
+                    class="maroon-accent">{{ \Illuminate\Support\Str::title($data->statement->actor) }}</span></div>
 
             <div class="subsection-title">{{ config('student_approval.step1.labels.text1.english') }} :</div>
             <table class="data-table">
@@ -682,13 +682,14 @@
             </div>
         @endif
 
+        <div class="page-break"></div>
         <!-- Signature Area -->
         <div class="signature-area">
             <p><strong>Declared and agreed in good faith,</strong></p>
 
             <div style="margin-top: 20px;">
                 <label style="display: block; margin-bottom: 8px; font-weight: bold;">Agreed at</label>
-                <input type="date" value="{{ date('d F Y H:i', strtotime($data->statement->completed_at)) }}"
+                <input type="text" value="{{ date('d F Y H:i', strtotime($data->statement->completed_at)) }}"
                     readonly style="width: 200px;">
             </div>
         </div>

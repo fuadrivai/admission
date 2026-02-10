@@ -4,7 +4,7 @@ let currentStep = 1;
 let totalSteps = 5;
 
 $(document).ready(function () {
-    getAdmissionByCode();
+    checkAdmissionByCode();
 
     $("#parentSelector").on("change", async function () {
         const parentInfoCard = $("#parentInfoCard");
@@ -231,13 +231,43 @@ async function submitForm() {
     await postAgreement(type);
     let statement = await postStatement(true);
 
+    toastify("success", "Formulir persetujuan telah berhasil dikirim.");
     setTimeout(() => {
         $(".final-submit-btn").html(
             '<i class="bi bi-send-check"></i> Kirim Formulir Persetujuan',
         );
         $(".final-submit-btn").prop("disabled", false);
-        toastify("success", "Formulir persetujuan telah berhasil dikirim.");
+        window.location.href = `/document/success/${admission.code}`;
     }, 500);
+}
+
+async function checkAdmissionByCode() {
+    try {
+        blockUI();
+        const code = $("#admission-code").val().trim();
+        path = await ajaxPromise(null, `/document/check/${code}`, "GET");
+        switch (path) {
+            case "student":
+                window.location.href = `/document/${path}?code=${code}`;
+                break;
+            default:
+                if (path != "statement") {
+                    window.location.href = `/document/${path}/${code}`;
+                    return false;
+                } else {
+                    getAdmissionByCode();
+                    return true;
+                }
+                break;
+        }
+    } catch (err) {
+        toastify(
+            "Error",
+            err?.responseJSON?.message ?? "Please try again later",
+            "bottom",
+        );
+        return false;
+    }
 }
 
 async function getAdmissionByCode() {
@@ -326,11 +356,6 @@ async function postFinancial() {
                 .val()
                 .replace(/[^0-9]/g, ""),
         ),
-        mhsu_fee: parseFloat(
-            $("#mhsu")
-                .val()
-                .replace(/[^0-9]/g, ""),
-        ),
         ittihada_fee: parseFloat(
             $("#ittihada")
                 .val()
@@ -354,6 +379,14 @@ async function postFinancial() {
             $("#agreePayment11").is(":checked"),
         agree_truth_and_consent: $("#agreePayment12").is(":checked"),
     };
+
+    if (admission.level.division.name.toLowerCase() == "secondary") {
+        data.mhsu_fee = parseFloat(
+            $("#mhsu")
+                .val()
+                .replace(/[^0-9]/g, ""),
+        );
+    }
     blockUI();
     try {
         financial = await ajaxPromise(

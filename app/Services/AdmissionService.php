@@ -6,6 +6,7 @@ interface AdmissionService
 {
     public function show($id);
     public function showByCode($code);
+    public function checkStatus($code);
     public function getParent($child_id,$role);
     public function getApplicant($id);
     public function post($data);

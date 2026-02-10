@@ -4,6 +4,8 @@ namespace App\Services\Implement;
 
 use App\Mail\AdmissionEmail;
 use App\Models\Admission;
+use App\Models\AdmissionDocument;
+use App\Models\AdmissionStatement;
 use App\Models\Applicant;
 use App\Models\ApplicantParent;
 use App\Models\Enrolment;
@@ -17,6 +19,7 @@ use Dompdf\Dompdf;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 use function App\Helpers\imageToBase64;
 use function App\Helpers\normalizePhoneNumber;
@@ -91,6 +94,25 @@ class AdmissionImplement implements AdmissionService
             }
         }
         return $admission;
+    }
+
+    public function checkStatus($code)
+    {
+        $admission = Admission::where('code', $code)->first();
+        if (!$admission) {
+            return 'student';
+        }
+        if (!$admission->is_complete) {
+            return 'student';
+        }
+
+        $documentCount = AdmissionDocument::where('admission_id', $admission->id)->count();
+        if ($documentCount < 4) {
+            return 'file';
+        }
+
+        $statement = AdmissionStatement::where('admission_id', $admission->id)->first();
+        return ($statement && $statement->is_completed) ? 'success' : 'statement';
     }
 
     public function post($data)
@@ -220,8 +242,8 @@ class AdmissionImplement implements AdmissionService
 
             $pdfPath = $this->generateEnrolmentPdf($admission);
 
-            $admission->subject  = 'Enrolment Documents - Mutiara Harapan Islamic School';
-            $admission->template = 'email-template.enrolment-confirmation';
+            $admission->subject  = 'Submitted Personal Information';
+            $admission->template = 'email-template.student-information';
 
             setupMail($admission->branch_id);
 
@@ -236,7 +258,7 @@ class AdmissionImplement implements AdmissionService
                 Mail::to($emails)->send(
                     (new AdmissionEmail($admission))
                         ->attach($pdfPath, [
-                            'as'   => 'document-'.$admission->code.'.pdf',
+                            'as'   => 'student-information-'.$admission->code.'.pdf',
                             'mime' => 'application/pdf',
                         ])
                 );
@@ -247,12 +269,12 @@ class AdmissionImplement implements AdmissionService
             if ($is_sendToPrincipal) {
                 $principal_email = $admission->level->email;
                 if (!empty($principal_email)) {
-                    $admission->subject  = 'Principal Notification';
-                    $admission->template = 'email-template.enrolment-confirmation';
+                    $admission->subject  = 'Submitted Personal Information';
+                    $admission->template = 'email-template.student-information';
                     Mail::to($principal_email)->send(
                         (new AdmissionEmail($admission))
                             ->attach($pdfPath, [
-                                'as'   => 'document-'.$admission->code.'.pdf',
+                                'as'   => 'student-information-'.$admission->code.'.pdf',
                                 'mime' => 'application/pdf',
                             ])
                     );
@@ -328,26 +350,28 @@ class AdmissionImplement implements AdmissionService
 
     private function generateEnrolmentPdf($admission)
     {
-         $parents = $admission->applicant->parents->keyBy('role');
-
+        $parents = $admission->applicant->parents->keyBy('role');
         $father   = $parents->get('father');
         $mother   = $parents->get('mother');
         $guardian = $parents->get('guardian');
-
-        $logoPath = public_path('assets/images/Logo-all-branch.png');
+        $logoPath   = public_path('assets/images/Logo-all-branch.png');
         $imageBase64 = imageToBase64($logoPath);
-        $html = view('pdf.student-enrolment', ['data'=> $admission, 'logo' => $imageBase64,'father'=>$father,'mother'=>$mother,'guardian'=>$guardian])->render();
 
-        $dompdf = new Dompdf();
-        $dompdf->loadHtml($html);
-        $dompdf->setPaper('A4');
-        $dompdf->render();
+        $pdf = Pdf::loadView('pdf.student-enrolment', [
+                'data'     => $admission,
+                'logo'     => $imageBase64,
+                'father'   => $father,
+                'mother'   => $mother,
+                'guardian' => $guardian,
+            ])
+            ->setPaper('a4', 'portrait')
+            ->setWarnings(false);
 
-        $path = 'admission/enrolment/student-'.$admission->code.'.pdf';
+        $path = 'admission/enrolment/student-' . $admission->code . '.pdf';
 
-        Storage::put($path, $dompdf->output());
+        Storage::put($path, $pdf->output());
 
-        return storage_path('app/'.$path);
+        return storage_path('app/' . $path);
     }
 
 }
