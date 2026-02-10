@@ -274,7 +274,7 @@ return [
         ]
     ],
     'step5' => [
-        'title'  => 'SURAT PERNYATAAN ORANG TUA KESEDIAAN MENJALANI TES NARKOTIKA DAN OBAT TERLARANG',
+        'title'  => 'Parental Consent Letter for Narcotics and Drug Testing',
         'labels'=>[
             'text0'=>[
                 'english'=>'I, undersigned, hereby state as',
