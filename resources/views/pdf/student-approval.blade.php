@@ -728,9 +728,9 @@
                     {{-- <p class="text-italic">{{ config('student_approval.step1.labels.text8.indonesian') }}</p> --}}
                 </div>
             </div>
+        @else
+            <div class="page-break"></div>
         @endif
-
-        <div class="page-break"></div>
         <!-- Signature Area -->
         <div class="signature-area">
             <p><strong>Declared and agreed in good faith,</strong></p>
