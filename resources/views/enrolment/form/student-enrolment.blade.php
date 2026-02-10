@@ -44,7 +44,7 @@
             </div>
             <div class="step" data-step="2">
                 <div class="step-number">2</div>
-                <div class="step-title">student</div>
+                <div class="step-title">Student</div>
             </div>
             <div class="step" data-step="3">
                 <div class="step-number">3</div>

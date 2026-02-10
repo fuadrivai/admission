@@ -9,7 +9,7 @@ return [
                 'indonesian'=>'Assalamu\'alaikum warahmatullahi wabarakatuh',
             ],
             'text1'=>[
-                'english'=>'Dear Parents, as part of the enrolment process, please complete this Parent & Student Information Form. This form will take approximately 5–10 minutes to complete. Please read and fill in each section carefully.',
+                'english'=>'Dear Parents, as part of the enrolment process, please complete this Student & Parent Information Form. This form will take approximately 5–10 minutes to complete. Please read and fill in each section carefully.',
                 'indonesian'=>'Ayah/Bunda, sebagai bagian dari proses pendaftaran, harap membaca dan mengisi setiap poin dalam formulir ini dengan teliti.',
             ],
             'text2'=>[
