@@ -534,58 +534,106 @@
             <div class="declaration">
                 <ol>
                     <li>
-                        <p><strong>{{ config('student_approval.step3.labels.text1.indonesian') }}</strong></p>
+                        <p><strong>{{ config('student_approval.step3.labels.text1.english') }}</strong><br>
+                            <span
+                                class="text-italic">{{ config('student_approval.step3.labels.text1.indonesian') }}</span>
+                        </p>
                     </li>
                     <li>
-                        <p><strong>{{ config('student_approval.step3.labels.text2.indonesian') }}</strong></p>
+                        <p><strong>{{ config('student_approval.step3.labels.text2.english') }}</strong><br>
+                            <span
+                                class="text-italic">{{ config('student_approval.step3.labels.text2.indonesian') }}</span>
+                        </p>
                     </li>
                     <li>
-                        <p><strong>{{ config('student_approval.step3.labels.text3.indonesian') }}</strong></p>
+                        <p><strong>{{ config('student_approval.step3.labels.text3.english') }}</strong><br>
+                            <span
+                                class="text-italic">{{ config('student_approval.step3.labels.text3.indonesian') }}</span>
+                        </p>
                     </li>
                     <li>
-                        <p><strong>{{ config('student_approval.step3.labels.text4.indonesian') }}</strong></p>
+                        <p><strong>{{ config('student_approval.step3.labels.text4.english') }}</strong><br>
+                            <span
+                                class="text-italic">{{ config('student_approval.step3.labels.text4.indonesian') }}</span>
+                        </p>
                     </li>
                     <li>
-                        <p><strong>{{ config('student_approval.step3.labels.text5.indonesian') }}</strong></p>
+                        <p><strong>{{ config('student_approval.step3.labels.text5.english') }}</strong><br>
+                            <span
+                                class="text-italic">{{ config('student_approval.step3.labels.text5.indonesian') }}</span>
+                        </p>
                     </li>
                     <li>
-                        <p><strong>{{ config('student_approval.step3.labels.text6.indonesian') }}</strong></p>
+                        <p><strong>{{ config('student_approval.step3.labels.text6.english') }}</strong><br>
+                            <span
+                                class="text-italic">{{ config('student_approval.step3.labels.text6.indonesian') }}</span>
+                        </p>
                     </li>
                     <li>
-                        <p><strong>{{ config('student_approval.step3.labels.text7.indonesian') }}</strong></p>
+                        <p><strong>{{ config('student_approval.step3.labels.text7.english') }}</strong><br>
+                            <span
+                                class="text-italic">{{ config('student_approval.step3.labels.text7.indonesian') }}</span>
+                        </p>
                     </li>
                     <li>
-                        <p><strong>{{ config('student_approval.step3.labels.text8.indonesian') }}</strong></p>
+                        <p><strong>{{ config('student_approval.step3.labels.text8.english') }}</strong><br>
+                            <span
+                                class="text-italic">{{ config('student_approval.step3.labels.text8.indonesian') }}</span>
+                        </p>
                     </li>
                     <li>
-                        <p><strong>{{ config('student_approval.step3.labels.text9.indonesian') }}</strong></p>
+                        <p><strong>{{ config('student_approval.step3.labels.text9.english') }}</strong><br>
+                            <span
+                                class="text-italic">{{ config('student_approval.step3.labels.text9.indonesian') }}</span>
+                        </p>
                     </li>
                     <li>
-                        <p><strong>{{ config('student_approval.step3.labels.text10.indonesian') }}</strong></p>
+                        <p><strong>{{ config('student_approval.step3.labels.text10.english') }}</strong><br>
+                            <span
+                                class="text-italic">{{ config('student_approval.step3.labels.text10.indonesian') }}</span>
+                        </p>
                     </li>
                     <li>
-                        <p><strong>{{ config('student_approval.step3.labels.text11.indonesian') }}</strong></p>
+                        <p><strong>{{ config('student_approval.step3.labels.text11.english') }}</strong><br>
+                            <span
+                                class="text-italic">{{ config('student_approval.step3.labels.text11.indonesian') }}</span>
+                        </p>
                     </li>
                     <li>
-                        <p><strong>{{ config('student_approval.step3.labels.text12.indonesian') }}</strong></p>
+                        <p><strong>{{ config('student_approval.step3.labels.text12.english') }}</strong><br>
+                            <span
+                                class="text-italic">{{ config('student_approval.step3.labels.text12.indonesian') }}</span>
+                        </p>
                     </li>
                     <li>
-                        <p><strong>{{ config('student_approval.step3.labels.text13.indonesian') }}</strong></p>
+                        <p><strong>{{ config('student_approval.step3.labels.text13.english') }}</strong><br>
+                            <span
+                                class="text-italic">{{ config('student_approval.step3.labels.text13.indonesian') }}</span>
+                        </p>
                     </li>
                     <li>
-                        <p><strong>{{ config('student_approval.step3.labels.text14.indonesian') }}</strong></p>
+                        <p><strong>{{ config('student_approval.step3.labels.text14.english') }}</strong><br>
+                            <span
+                                class="text-italic">{{ config('student_approval.step3.labels.text14.indonesian') }}</span>
+                        </p>
                     </li>
                     <li>
-                        <p><strong>{{ config('student_approval.step3.labels.text15.indonesian') }}</strong></p>
+                        <p><strong>{{ config('student_approval.step3.labels.text15.english') }}</strong><br>
+                            <span
+                                class="text-italic">{{ config('student_approval.step3.labels.text15.indonesian') }}</span>
+                        </p>
                     </li>
                     <li>
-                        <p><strong>{{ config('student_approval.step3.labels.text16.indonesian') }}</strong></p>
+                        <p><strong>{{ config('student_approval.step3.labels.text16.english') }}</strong><br>
+                            <span
+                                class="text-italic">{{ config('student_approval.step3.labels.text16.indonesian') }}</span>
+                        </p>
                     </li>
                     <li>
-                        <p><strong>{{ config('student_approval.step3.labels.text17.indonesian') }}</strong></p>
-                    </li>
-                    <li>
-                        <p><strong>{{ config('student_approval.step3.labels.text18.indonesian') }}</strong></p>
+                        <p><strong>{{ config('student_approval.step3.labels.text17.english') }}</strong><br>
+                            <span
+                                class="text-italic">{{ config('student_approval.step3.labels.text17.indonesian') }}</span>
+                        </p>
                     </li>
                 </ol>
             </div>
