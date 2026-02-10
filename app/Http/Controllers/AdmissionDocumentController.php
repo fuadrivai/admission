@@ -5,12 +5,15 @@ namespace App\Http\Controllers;
 use App\Models\Admission;
 use App\Models\AdmissionDocument;
 use App\Services\AdmissionDocumentService;
+use App\Services\AdmissionService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Spatie\PdfToImage\Pdf as PdfToImage;
 use Illuminate\Http\Request;
 use Imagick;
 use ImagickPixel;
+
+use function App\Helpers\imageToBase64;
 
 class AdmissionDocumentController extends Controller
 {
@@ -21,10 +24,12 @@ class AdmissionDocumentController extends Controller
      */
 
     private AdmissionDocumentService $admissionDocumentService;
+    private AdmissionService $admissionService;
 
-    public function __construct(AdmissionDocumentService $admissionDocumentService)
+    public function __construct(AdmissionDocumentService $admissionDocumentService, AdmissionService $admissionService)
     {
         $this->admissionDocumentService = $admissionDocumentService;
+        $this->admissionService = $admissionService;
     }
 
     public function code($code)
@@ -124,18 +129,14 @@ class AdmissionDocumentController extends Controller
             }
 
             foreach ($documents as $doc) {
-
                 $sourcePath = storage_path('app/public/' . $doc->file_path);
                 if (!file_exists($sourcePath)) continue;
-
                 $label = strtoupper(str_replace('_', ' ', $doc->type));
                 $ext   = strtolower(pathinfo($sourcePath, PATHINFO_EXTENSION));
 
                 if (in_array($ext, ['jpg', 'jpeg', 'png'])) {
-
                     $outputPath = "{$outputDir}/{$doc->id}.jpg";
                     $this->normalizeImage($sourcePath, $outputPath);
-
                     $images[] = [
                         'label' => $label,
                         'path'  => $outputPath,
@@ -143,22 +144,16 @@ class AdmissionDocumentController extends Controller
                 }
 
                 if ($ext === 'pdf') {
-
                     $pdf = new PdfToImage($sourcePath);
                     $pdf->setResolution(200);
-
                     for ($i = 1; $i <= $pdf->getNumberOfPages(); $i++) {
-
                         $tmpPath   = "{$outputDir}/{$doc->id}_tmp_{$i}.jpg";
                         $finalPath = "{$outputDir}/{$doc->id}_page_{$i}.jpg";
-
                         $pdf->setPage($i)->saveImage($tmpPath);
-
                         $this->normalizeImage($tmpPath, $finalPath);
                         unlink($tmpPath);
-
                         $images[] = [
-                            'label' => "{$label} (Page {$i})",
+                            'label' => "{$label}",
                             'path'  => $finalPath,
                         ];
                     }
@@ -171,10 +166,15 @@ class AdmissionDocumentController extends Controller
                 ], 422);
             }
 
-            $groups = array_chunk($images, 2);
+            
+            $admission =  $this->admissionService->show($request->admission_id);
+            $logoPath = public_path('assets/images/Logo-all-branch.png');
+            $imageBase64 = imageToBase64($logoPath);
 
             $pdf = Pdf::loadView('pdf.student-file', [
-                'groups' => $groups
+                'data'=>$admission,
+                'groups' => $images,
+                'logo'=>$imageBase64
             ])
             ->setPaper('a4')
             ->setWarnings(false);

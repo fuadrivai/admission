@@ -173,9 +173,9 @@ function submitDocuments() {
         },
         success: function (res) {
             toastify("success", "Data berhasil disimpan", "bottom");
-            // setTimeout(function () {
-            //     window.location.href = `/document/statement/${admissionCode}`;
-            // }, 1000);
+            setTimeout(function () {
+                window.location.href = `/document/statement/${admissionCode}`;
+            }, 1000);
         },
         error: function (err) {
             toastify(
