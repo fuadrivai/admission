@@ -118,7 +118,7 @@ return [
                 'indonesian'=>'Biaya Ittihada yang besarnya ditetapkan kemudian oleh Ittihada dan dibayarkan per tahun.',
             ],
             'text14'=>[
-                'english'=>'I hereby declare my full commitment and ability to settle all payment obligations stated above prior to the commencement of the academic activities, and I agree to accept any consequences arising from non-compliance, including but not limited to the suspension of my child\'s right to participate in learning activities at Mutiara Harapan Islamic School until all obligations have been fully settled.',
+                'english'=>"I hereby declare my full commitment and ability to settle all payment obligations stated above before the start of academic activities, and I agree to accept any consequences arising from non-compliance, including but not limited to the suspension of my child's right to participate in learning activities at Mutiara Harapan Islamic School until all obligations have been fully settled.",
                 'indonesian'=>'Saya menyatakan kesanggupan saya untuk melunasi seluruh kewajiban pembayaran di atas sebelum kegiatan belajar di Mutiara Harapan Islamic School dimulai, dan saya bersedia menerima segala konsekuensinya apabila tidak memenuhi kewajiban tersebut, termasuk namun tidak terbatas pada hilangnya hak anak saya untuk mengikuti kegiatan belajar di Mutiara Harapan Islamic School sebelum kewajiban tersebut kami lunasi seluruhnya.',
             ],
             'text15'=>[
@@ -249,7 +249,7 @@ return [
         ]
     ],
     'step4' => [
-        'title'  => 'FORM PERNYATAAN ORANG TUA / WALI MURID',
+        'title'  => 'FORM PERNYATAAN ORANG TUA/WALI MURID',
         'labels'=>[
             'text1'=>[
                 'english'=>'By this statement, I declare that I am willing to participate in new student parent socialization according to the time to be determined later.',

@@ -8,7 +8,7 @@
 
         <div class="form-check mb-3">
             <input class="form-check-input" type="checkbox" id="agreePayment1" required>
-            <label class="form-check-label required" for="agreePayment1">Yes, i Agree</label>
+            <label class="form-check-label required" for="agreePayment1">Yes, i agree</label>
             <div class="error-message" id="agreePayment1-error">Please agree to this statement.</div>
         </div>
     </div>

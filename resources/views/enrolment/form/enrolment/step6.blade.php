@@ -161,7 +161,7 @@
 
 
     <h5 class="subsection-title">{{ config('student_enrolment.step6.labels.medical.english') }}
-        <i><small>{{ config('student_enrolment.step6.labels.medical.indonesian') }}</small></i>
+        <i><small>({{ config('student_enrolment.step6.labels.medical.indonesian') }})</small></i>
     </h5>
     <div class="row mb-4">
         <div class="col-md-6 mb-3">

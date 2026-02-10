@@ -226,8 +226,8 @@ return [
                 'indonesian'=>'Tanggal Lahir',
             ],
             'id_card'=>[
-                'english'=>'ID Card / Passport Number',
-                'indonesian'=>'No. KTP / Paspor',
+                'english'=>'ID Card/Passport Number',
+                'indonesian'=>'No. KTP/Paspor',
             ],
             'religion'=>[
                 'english'=>'Religion',
@@ -288,8 +288,8 @@ return [
                 'indonesian'=>'Hepatitis',
             ],
             'diphtheria'=>[
-                'english'=>'Diphtheria / Tetanus / Pertussis',
-                'indonesian'=>'Diphtheria / Tetanus / Pertussis',
+                'english'=>'Diphtheria/Tetanus/Pertussis',
+                'indonesian'=>'Diphtheria/Tetanus/Pertussis',
             ],
             'polio'=>[
                 'english'=>'Polio',
@@ -455,11 +455,11 @@ return [
                 Harapan Islamic School until such obligations have been fully settled. <br> <br>
                 The development fee, annual fee, school fee, and any other fees that I have paid are
                 non-refundable and non-transferable under any circumstances, except in the event that my child
-                is declared not accepted at Mutiara Harapan Islamic School Bangka. <br> <br>
+                is declared not accepted at Mutiara Harapan Islamic School. <br> <br>
                 <i><small>Development
                         fee, annual fee, school fee, dan biaya lainnya yang telah Saya bayarkan tidak dapat
                         ditarik kembali maupun dialihkan dengan alasan apa pun, kecuali apabila Putra/Putri Saya
-                        dinyatakan tidak diterima di Mutiara Harapan Islamic School Bangka.</small></i>'
+                        dinyatakan tidak diterima di Mutiara Harapan Islamic School.</small></i>'
             ],
         ]
     ],
