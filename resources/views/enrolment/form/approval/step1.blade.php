@@ -33,10 +33,10 @@
             <div class="parent-label">{{ config('student_approval.step1.labels.text5.english') }}</div>
             <div class="parent-value parentBirthPlace" id="parentBirthPlace">-</div>
         </div>
-        <div class="parent-info-row">
+        {{-- <div class="parent-info-row">
             <div class="parent-label">{{ config('student_approval.step1.labels.text6.english') }}</div>
             <div class="parent-value parentBirthDate" id="parentBirthDate">-</div>
-        </div>
+        </div> --}}
         <div class="parent-info-row">
             <div class="parent-label">{{ config('student_approval.step1.labels.text7.english') }}</div>
             <div class="parent-value parentIdCard" id="parentIdCard">-</div>
@@ -64,10 +64,10 @@
             <div class="student-label">{{ config('student_approval.step1.labels.text10.english') }}</div>
             <div class="student-value studentLevel" id="studentLevel">-</div>
         </div>
-        <div class="student-info-row">
+        {{-- <div class="student-info-row">
             <div class="student-label">{{ config('student_approval.step1.labels.text11.english') }}</div>
             <div class="student-value studentGrade" id="studentGrade">--</div>
-        </div>
+        </div> --}}
         <div class="student-info-row">
             <div class="student-label">{{ config('student_approval.step1.labels.text12.english') }}</div>
             <div class="student-value academicYear" id="academicYear">--</div>

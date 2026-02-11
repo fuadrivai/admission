@@ -114,9 +114,7 @@
             <label for="motherEducation"
                 class="form-label required">{{ config('student_enrolment.step3_4_5.labels.education.english') }}</label>
             <br><i><small>{{ config('student_enrolment.step3_4_5.labels.education.indonesian') }}</small></i>
-            <select class="form-select education" id="motherEducation" required>
-                <option value="" selected disabled>Select education level</option>
-            </select>
+            <input type="text" class="form-control" id="motherEducation" required>
             <div class="error-message" id="motherEducation-error">
                 Please select the mother’s education level
             </div>
@@ -126,9 +124,7 @@
             <label for="motherOccupation"
                 class="form-label required">{{ config('student_enrolment.step3_4_5.labels.occupation.english') }}</label>
             <br><i><small>{{ config('student_enrolment.step3_4_5.labels.occupation.indonesian') }}</small></i>
-            <select class="form-select job" id="motherOccupation" required>
-                <option value="" selected disabled>Select occupation</option>
-            </select>
+            <input type="text" class="form-control" id="motherOccupation" required>
             <div class="error-message" id="motherOccupation-error">
                 Please select the mother’s occupation
             </div>

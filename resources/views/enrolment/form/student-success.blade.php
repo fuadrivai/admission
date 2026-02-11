@@ -269,7 +269,7 @@
 
                 <!-- Email Alert Box -->
                 <div class="email-alert">
-                    <h5><i class="bi bi-envelope-check"></i> Check Your Email for:</h5>
+                    <h5><i class="bi bi-envelope-check"></i> Check your email for:</h5>
                     <ul>
                         <li>Confirmation of your child's enrolment documents</li>
                         <li>A summary of the signed Statement Form</li>
@@ -290,9 +290,10 @@
                             <div class="info-value">{{ $data->applicant->fullname ?? '-' }}</div>
                         </div>
                         <div class="info-row">
-                            <div class="info-label">Level / Grade</div>
-                            <div class="info-value">{{ optional($data->level)->name ?? '-' }} /
-                                {{ optional($data->grade)->name ?? '-' }}</div>
+                            <div class="info-label">Level/Grade</div>
+                            <div class="info-value">
+                                {{ optional($data->level)->name ?? '-' }}/{{ optional($data->grade)->name ?? '-' }}
+                            </div>
                         </div>
                         <div class="info-row">
                             <div class="info-label">Academic Year</div>
@@ -313,19 +314,17 @@
                 <div class="contact-section">
                     <p>
                         <i class="bi bi-question-circle"></i> <strong>Do you have any questions?</strong><br>
-                        Feel free to contact our Admissions team. We are here to assist you with any inquiries.
+                        Feel free to contact our Admissions team <a href="https://wa.me/6281291823247" target="_blank">
+                            +62 812 9182 3247 </a>. We are here to assist you with any inquiries.
                     </p>
                 </div>
 
                 <!-- Action Buttons -->
-                {{-- <div class="action-buttons">
-                    <a href="{{ route('enrolment.dashboard') ?? '#' }}" class="btn-custom-maroon">
-                        <i class="bi bi-house"></i> Back to Dashboard
+                <div class="action-buttons">
+                    <a href="https://mutiaraharapan.sch.id" class="btn-custom-maroon">
+                        <i class="bi bi-house"></i> Back to site
                     </a>
-                    <a href="{{ route('enrolment.download-confirmation') ?? '#' }}" class="btn-custom-outline">
-                        <i class="bi bi-download"></i> Download Confirmation
-                    </a>
-                </div> --}}
+                </div>
             </div>
         </div>
     </div>

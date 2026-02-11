@@ -88,18 +88,14 @@
             <label for="guardianEducation"
                 class="form-label">{{ config('student_enrolment.step3_4_5.labels.education.english') }}</label>
             <br><i><small>{{ config('student_enrolment.step3_4_5.labels.education.indonesian') }}</small></i>
-            <select class="form-select education" id="guardianEducation">
-                <option value="" selected>Select education level (optional)</option>
-            </select>
+            <input type="text" class="form-control" id="guardianEducation">
         </div>
 
         <div class="col-md-4 mb-3">
             <label for="guardianOccupation"
                 class="form-label">{{ config('student_enrolment.step3_4_5.labels.occupation.english') }}</label>
             <br><i><small>{{ config('student_enrolment.step3_4_5.labels.occupation.indonesian') }}</small></i>
-            <select class="form-select job" id="guardianOccupation">
-                <option value="" selected>Select occupation (optional)</option>
-            </select>
+            <input type="text" class="form-control" id="guardianOccupation">
         </div>
 
         <div class="col-md-4 mb-3">

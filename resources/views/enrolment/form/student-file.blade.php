@@ -109,8 +109,8 @@
             </div>
             <div class="student-info-row">
                 <div class="student-label">Level:</div>
-                <div class="student-value" id="studentLevel">{{ $admission->level->name ?? '--' }} /
-                    {{ $admission->grade->name ?? '--' }}</div>
+                <div class="student-value" id="studentLevel">
+                    {{ $admission->level->name ?? '--' }}/{{ $admission->grade->name ?? '--' }}</div>
             </div>
             <div class="student-info-row">
                 <div class="student-label">Academic Year:</div>

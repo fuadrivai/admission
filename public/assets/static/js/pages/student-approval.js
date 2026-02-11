@@ -14,10 +14,11 @@ $(document).ready(function () {
         const dob = dobRaw
             ? moment(dobRaw, "YYYY-MM-DD").format("DD MMMM YYYY")
             : null;
+        const datePlace = `${parent.birth_place ?? "--"}, ${dob}`;
         $(".parentFullName").text(parent.fullname ?? "--");
         $(".parentEmail").text(parent.email ?? "--");
         $(".parentPhone").text(parent.phone ?? "--");
-        $(".parentBirthPlace").text(parent.birth_place ?? "--");
+        $(".parentBirthPlace").text(datePlace);
         $(".parentBirthDate").text(dob ?? "--");
         $(".parentIdCard").text(parent.identity_number ?? "--");
         parentInfoCard.slideDown(300);
@@ -277,7 +278,7 @@ async function getAdmissionByCode() {
 
     $(".studentFullName").text(admission.applicant.fullname);
     $(".studentAge").text(admission.applicant.age);
-    $(".studentLevel").text(admission.level.name);
+    $(".studentLevel").text(`${admission.level.name}/${admission.grade.name}`);
     $(".studentGrade").text(admission.grade.name);
     $(".academicYear").text(admission.accademic_year);
     if (admission.statement) {

@@ -145,7 +145,7 @@
         </tr>
         <tr>
             <td class="label">Level / Grade</td>
-            <td>: {{ optional($data->level)->name ?? '-' }} / {{ optional($data->grade)->name ?? '-' }}</td>
+            <td>: {{ optional($data->level)->name ?? '-' }}/{{ optional($data->grade)->name ?? '-' }}</td>
         </tr>
         <tr>
             <td class="label">Academic Year</td>

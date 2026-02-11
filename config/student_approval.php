@@ -25,7 +25,7 @@ return [
                 'indonesian'=>'',
             ],
             'text5'=>[
-                'english'=>'Birth Place',
+                'english'=>'D.O.B',
                 'indonesian'=>'',
             ],
             'text6'=>[
@@ -38,7 +38,7 @@ return [
             ],
             'text8'=>[
                 'english'=>'I hereby declare that I am the lawful parent/guardian with full authority over the prospective student of Mutiara Harapan Islamic School as stated below.',
-                'indonesian'=>'Menyatakan bahwa benar Saya adalah merupakan orang tua/wali yang sepenuhnya berwenang dari calon siswa Mutiara Harapan Islamic School tersebut di bawah.',
+                'indonesian'=>'Menyatakan bahwa benar Saya merupakan orang tua/wali yang sepenuhnya berwenang dari calon siswa Mutiara Harapan Islamic School di bawah.',
             ],
             'text9'=>[
                 'english'=>'Age',
@@ -264,20 +264,21 @@ return [
                 'indonesian'=>'Penyelesaian Formulir',
             ],
             'text4'=>[
-                'english'=>'Congratulations! You have completed all sections of the parent consent form. Please review your information before submitting.',
+                'english'=>'Thank you for your time. You have completed all sections of the enrolment form. Please review the information provided before submitting.',
                 'indonesian'=>'Selamat! Anda telah menyelesaikan semua bagian formulir persetujuan orang tua. Silakan tinjau informasi Anda sebelum mengirimkan.',
             ],
             'text5'=>[
-                'english'=>'Submit Consent Form',
+                'english'=>'Submit',
                 'indonesian'=>'Kirim Formulir Persetujuan',
             ],
         ]
     ],
     'step5' => [
         'title'  => 'Parental Consent Letter for Narcotics and Drug Testing',
+        'titleIndo'  => 'Surat Pernyataan Orangtua Kesediaan Menjalani Test Narkotika dan Obat Terlarang',
         'labels'=>[
             'text0'=>[
-                'english'=>'I, undersigned, hereby state as',
+                'english'=>'I, the undersigned, hereby state that I am acting as',
                 'indonesian'=>'Saya yang bertanda tangan dibawah ini sebagai',
             ],
             'text1'=>[
@@ -293,7 +294,7 @@ return [
                 'indonesian'=>'Nomor HP',
             ],
             'text4'=>[
-                'english'=>'Birth Place',
+                'english'=>'D.O.B',
                 'indonesian'=>'Tempat Lahir',
             ],
             'text5'=>[
@@ -305,8 +306,8 @@ return [
                 'indonesian'=>'No. KTP',
             ],
             'text7'=>[
-                'english'=>'I declare that I am indeed the lawful parent/guardian with full authority over the prospective student of Mutiara Harapan Islamic School as stated below.',
-                'indonesian'=>'Menyatakan bahwa benar Saya adalah merupakan orang tua/wali yang sepenuhnya berwenang dari calon siswa Mutiara Harapan Islamic School tersebut di bawah.',
+                'english'=>'I hereby declare that I am the lawful parent/guardian with full authority over the prospective student of Mutiara Harapan Islamic School as stated below.',
+                'indonesian'=>'Menyatakan bahwa benar Saya merupakan orang tua/wali yang sepenuhnya berwenang dari calon siswa Mutiara Harapan Islamic School tersebut di bawah.',
             ],
             'text8'=>[
                 'english'=>'Student Information',
@@ -333,13 +334,17 @@ return [
                 'indonesian'=>'Tahun Ajaran',
             ],
             'text14'=>[
-                'english'=>'I hereby give permission to the school or appointed parties to conduct tests/examinations regarding the abuse of narcotics, illegal drugs and other addictive substances. <br><br> We fully understand the negative effects of these substances and are willing to accept the consequences of the examination results in accordance with the applicable regulations.',
-                'indonesian'=>'Dengan ini menyatakan memberi izin kepada sekolah atau pihak yang ditunjuk untuk mengadakan tes/pemeriksaan atas penyalahgunaan narkotika, obat – obatan terlarang dan zat adiktif lainnya. <br><br>Kami mengerti sepenuhnya atas dampak negatif zat – zat tersebut, dan bersedia menerima konsekuensi atas hasil pemeriksaan sesuai dengan tata tertib yang berlaku.',
+                'english'=>'We hereby declare that we grant permission to the school or its appointed representatives to conduct tests/examinations related to the misuse of narcotics, illegal drugs, and other addictive substances.',
+                'indonesian'=>'Dengan ini menyatakan memberi izin kepada sekolah atau pihak yang ditunjuk untuk mengadakan tes/pemeriksaan atas penyalahgunaan narkotika, obat – obatan terlarang dan zat adiktif lainnya.',
+            ],
+            'text15'=>[
+                'english'=>'We fully understand the negative impacts of these substances and are willing to accept the consequences of the test results in accordance with the applicable school regulations.',
+                'indonesian'=>'Kami mengerti sepenuhnya atas dampak negatif zat – zat tersebut, dan bersedia menerima konsekuensi atas hasil pemeriksaan sesuai dengan tata tertib yang berlaku.',
             ],
         ]
     ],
     'step6' => [
-        'title' => 'SURAT PERNYATAAN SISWA',
+        'title' => 'Student Statement Letter',
         'labels'=>[
             'text0'=>[
                 'english'=>'Student Information',
@@ -366,8 +371,12 @@ return [
                 'indonesian'=>'Tahun Ajaran',
             ],
             'text6'=>[
-                'english'=>'I hereby declare to obey and comply with the student code of conduct and other provisions related to students at Mutiara Harapan Islamic School.<br><br> If in the future I violate these regulations, I am willing to accept the consequences.',
-                'indonesian'=>'Dengan ini menyatakan taat dan patuh pada peraturan tata tertib murid dan ketentuan lainnya yang terkait dengan siswa Mutiara Harapan Islamic School yang berlaku di Mutiara Harapan Islamic School. <br><br> Jika dikemudian hari saya melanggar peraturan tersebut, maka saya bersedia menerima konsekuensinya.',
+                'english'=>' hereby declare that I will comply with and abide by the student rules and regulations, as well as other provisions related to students of Mutiara Harapan Islamic School that are in effect at MHIS. ',
+                'indonesian'=>'Dengan ini menyatakan taat dan patuh pada peraturan tata tertib murid dan ketentuan lainnya yang terkait dengan siswa Mutiara Harapan Islamic School yang berlaku di MHIS.',
+            ],
+            'text7'=>[
+                'english'=>'If in the future I violate these regulations, I am willing to accept the consequences.',
+                'indonesian'=>'Jika dikemudian hari saya melanggar peraturan tersebut, maka saya bersedia menerima konsekuensinya.',
             ],
         ]
     ],

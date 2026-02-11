@@ -639,13 +639,11 @@
             </div>
         </div>
 
-
         @if ($data->level->name == 'Upper Secondary')
             <div class="page-break"></div>
-            <!-- Section 4: SURAT PERNYATAAN ORANG TUA KESEDIAAN MENJALANI TES NARKOTIKA DAN OBAT TERLARANG -->
             <div class="section">
                 <div class="section-title">{{ config('student_approval.step5.title') }}</div>
-                <div class="subsection-title">{{ config('student_approval.step5.labels.text0.indonesian') }} :</div>
+                <div class="subsection-title">{{ config('student_approval.step5.labels.text0.english') }} :</div>
                 <table class="data-table">
                     <tr>
                         <td>{{ config('student_approval.step5.labels.text1.english') }}:</td>
@@ -665,16 +663,17 @@
                                 {{ date('d F Y', strtotime($parent->birth_date)) }}</span></td>
                     </tr>
                     <tr>
-                        <td>{{ config('student_approval.step5.labels.text3.english') }}:</td>
+                        <td>{{ config('student_approval.step5.labels.text6.english') }}:</td>
                         <td><span class="maroon-accent">{{ $parent->identity_number }}</span></td>
                     </tr>
                 </table>
                 <div class="declaration">
-                    <p class="text-bold">{{ config('student_approval.step5.labels.text7.english') }}</p>
-                    {{-- <p class="text-italic">{{ config('student_approval.step1.labels.text8.indonesian') }}</p> --}}
+                    <p class="text-bold">{{ config('student_approval.step5.labels.text7.english') }}
+                        <br> <i><small>{{ config('student_approval.step5.labels.text7.indonesian') }}</small></i>
+                    </p>
                 </div>
 
-                <div class="subsection-title">{{ config('student_approval.step5.labels.text8.indonesia') }}</div>
+                <div class="subsection-title">{{ config('student_approval.step5.labels.text8.english') }}</div>
                 <table class="data-table">
                     <tr>
                         <td>{{ config('student_approval.step5.labels.text1.english') }}:</td>
@@ -686,7 +685,7 @@
                     </tr>
                     <tr>
                         <td>{{ config('student_approval.step5.labels.text11.english') }}:</td>
-                        <td><span class="maroon-accent">{{ $data->level->name }} / {{ $data->grade->name }}</span>
+                        <td><span class="maroon-accent">{{ $data->level->name }}/{{ $data->grade->name }}</span>
                         </td>
                     </tr>
                     <tr>
@@ -695,15 +694,18 @@
                     </tr>
                 </table>
                 <div class="declaration">
-                    <p class="text-bold">{!! config('student_approval.step5.labels.text14.english') !!}</p>
-                    {{-- <p class="text-italic">{{ config('student_approval.step1.labels.text8.indonesian') }}</p> --}}
+                    <p class="text-bold">{{ config('student_approval.step5.labels.text14.english') }}
+                        <br><i><small>{{ config('student_approval.step5.labels.text14.indonesian') }}</small></i>
+                    </p>
+                    <p class="text-bold">{{ config('student_approval.step5.labels.text15.english') }}
+                        <br><i><small>{{ config('student_approval.step5.labels.text15.indonesian') }}</small></i>
+                    </p>
                 </div>
             </div>
             <div class="page-break"></div>
-            <!-- Section 5: SURAT PERNYATAAN SISWA -->
             <div class="section">
                 <div class="section-title">{{ config('student_approval.step6.title') }}</div>
-                <div class="subsection-title">{{ config('student_approval.step6.labels.text0.indonesia') }}</div>
+                <div class="subsection-title">{{ config('student_approval.step6.labels.text0.indonesian') }}</div>
                 <table class="data-table">
                     <tr>
                         <td>{{ config('student_approval.step6.labels.text1.english') }}:</td>
@@ -715,7 +717,7 @@
                     </tr>
                     <tr>
                         <td>{{ config('student_approval.step6.labels.text3.english') }}:</td>
-                        <td><span class="maroon-accent">{{ $data->level->name }} / {{ $data->grade->name }}</span>
+                        <td><span class="maroon-accent">{{ $data->level->name }}/{{ $data->grade->name }}</span>
                         </td>
                     </tr>
                     <tr>
@@ -724,8 +726,12 @@
                     </tr>
                 </table>
                 <div class="declaration">
-                    <p class="text-bold">{!! config('student_approval.step6.labels.text6.english') !!}</p>
-                    {{-- <p class="text-italic">{{ config('student_approval.step1.labels.text8.indonesian') }}</p> --}}
+                    <p class="text-bold">{{ config('student_approval.step6.labels.text6.english') }}
+                        <br><i><small>{{ config('student_approval.step6.labels.text6.indonesian') }} </small></i>
+                    </p>
+                    <p class="text-bold">{{ config('student_approval.step6.labels.text7.english') }}
+                        <br><i><small>{{ config('student_approval.step6.labels.text7.indonesian') }} </small></i>
+                    </p>
                 </div>
             </div>
         @else
@@ -759,9 +765,6 @@
             year: 'numeric'
         };
         document.getElementById('current-date').textContent = now.toLocaleDateString('en-GB', options);
-
-        // Untuk Dompdf, script JavaScript mungkin tidak dieksekusi
-        // Alternatif: Tambahkan tanggal secara manual atau gunakan PHP
     </script>
 </body>
 

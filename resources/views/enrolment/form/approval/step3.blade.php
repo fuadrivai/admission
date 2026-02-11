@@ -133,10 +133,10 @@
     <div class="final-submit-section d-none" id="btn-under-upper-secondary">
         <div class="alert alert-success">
             <h5 class="alert-heading"><i class="bi bi-check-circle-fill"></i>
-                {{ config('student_approval.step4.labels.text3.indonesian') }}</h5>
-            <p class="mb-3">{{ config('student_approval.step4.labels.text4.indonesian') }}</p>
+                {{ config('student_approval.step4.labels.text3.english') }}</h5>
+            <p class="mb-3">{{ config('student_approval.step4.labels.text4.english') }}</p>
             <button type="button" class="btn btn-success btn-lg final-submit-btn" id="final-submit-btn-1">
-                <i class="bi bi-send-check"></i> {{ config('student_approval.step4.labels.text5.indonesian') }}
+                <i class="bi bi-send-check"></i> {{ config('student_approval.step4.labels.text5.english') }}
             </button>
         </div>
     </div>

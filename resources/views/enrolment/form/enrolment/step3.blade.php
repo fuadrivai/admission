@@ -114,9 +114,7 @@
             <label for="fatherEducation"
                 class="form-label required">{{ config('student_enrolment.step3_4_5.labels.education.english') }}</label>
             <br><i><small>{{ config('student_enrolment.step3_4_5.labels.education.indonesian') }}</small></i>
-            <select class="form-select education" id="fatherEducation" required>
-                <option value="" selected disabled>Select education level</option>
-            </select>
+            <input type="text" class="form-control" id="fatherEducation" required>
             <div class="error-message" id="fatherEducation-error">
                 Please select the father’s education level
             </div>
@@ -126,9 +124,7 @@
             <label for="fatherOccupation"
                 class="form-label required">{{ config('student_enrolment.step3_4_5.labels.occupation.english') }}</label>
             <br><i><small>{{ config('student_enrolment.step3_4_5.labels.occupation.indonesian') }}</small></i>
-            <select class="form-select job" id="fatherOccupation" required>
-                <option value="" selected disabled>Select occupation</option>
-            </select>
+            <input type="text" class="form-control" id="fatherOccupation" required>
             <div class="error-message" id="fatherOccupation-error">
                 Please select the father’s occupation
             </div>
