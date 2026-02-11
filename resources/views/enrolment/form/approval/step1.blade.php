@@ -18,7 +18,7 @@
     <div class="parent-info-card" id="parentInfoCard" style="display: none;">
         <h5 class="mb-3">{{ config('student_approval.step1.labels.text1.english') }}</h5>
         <div class="parent-info-row">
-            <div class="parent-label">{{ config('student_approval.step1.labels.text2.english') }}:</div>
+            <div class="parent-label">{{ config('student_approval.step1.labels.text2.english') }}</div>
             <div class="parent-value parentFullName" id="parentFullName">-</div>
         </div>
         <div class="parent-info-row">
