@@ -91,6 +91,15 @@
                                 </li>
                             </ul>
                         </li>
+                        <li class="sidebar-item has-sub {{ Request::is('applicant*') ? 'active' : '' }}">
+                            <a href="#" class='sidebar-link'>
+                                <i class="bi bi-file-person-fill"></i>
+                                <span>Document</span>
+                            </a>
+                            <ul class="submenu ">
+                                <li class="submenu-item"><a href="/applicant" class="submenu-link">List</a></li>
+                            </ul>
+                        </li>
                         <li class="sidebar-item has-sub {{ Request::is('observation*') ? 'active' : '' }}">
                             <a href="#" class='sidebar-link'>
                                 <i class="bi bi-stack"></i>
@@ -142,7 +151,7 @@
                 </a>
             </header>
 
-            <div class="page-heading">
+            <div>
                 <h3>{{ $title ?? 'Title' }}</h3>
             </div>
             <div class="page-content">

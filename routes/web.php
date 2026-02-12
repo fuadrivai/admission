@@ -150,5 +150,9 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
             // Route::resource('', DivisionController::class)->parameters(['' => 'division']);
         });
         Route::resource('holiday', HolidayController::class)->parameters(['' => 'holiday']);
+
+        Route::prefix('applicant')->name('applicant.')->group(function () {
+            Route::resource('', AdmissionController::class)->parameters(['' => 'applicant']);
+        });
     });
 });

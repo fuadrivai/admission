@@ -3,11 +3,11 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-md-1">
-                    <div class="student-avatar">FR</div>
+                    <div class="student-avatar">{{ $enrolment->avatarName() }}</div>
                 </div>
                 <div class="col-md-5">
                     <label for="">Kode : {{ $enrolment->code }} <span
-                            class="badge text-bg-secondary">{{ $enrolment->source_data }}</span> </label><br>
+                            class="badge text-bg-secondary">{{ ucfirst($enrolment->source_data) }}</span> </label><br>
                     <div class="student-name">{{ $enrolment->child_name }}</div>
                 </div>
                 <div class="col-md-6 text-end" style="vertical-align: middle">
@@ -35,7 +35,7 @@
                     <div class="parent-info">
                         <div class="info-group">
                             <div class="info-label">Orang Tua
-                                (<small>{{ $enrolment->relationship === 'father' ? 'Ayah' : 'Ibu' }}</small>)
+                                (<small>{{ $enrolment->relationship }}</small>)
                             </div>
                             <div class="info-value">
                                 {{ $enrolment->parent_name }}

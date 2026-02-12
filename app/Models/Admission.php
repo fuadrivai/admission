@@ -59,4 +59,48 @@ class Admission extends Model
     {
         return $this->hasOne(AdmissionStatement::class);
     }
+
+    public function getStatusAttribute()
+    {
+        return (
+            $this->is_complete == 1 &&
+            optional($this->statement)->is_completed == 1 &&
+            $this->documents()->count() == 4
+        ) ? 1 : 0;
+    }
+    public function documentStatus()
+    {
+        return ($this->documents()->count() == 4) ? 1 : 0;
+    }
+
+    public function avatarName()
+    {
+        $name = $this->applicantName();
+
+        if (!$name) {
+            return 'NA';
+        }
+
+        $words = explode(' ', trim($name));
+
+        $initials = collect($words)
+            ->filter()            // hapus spasi kosong
+            ->take(2)             // ambil max 2 kata
+            ->map(function ($word) {
+                return strtoupper(substr($word, 0, 1));
+            })
+            ->implode('');
+
+        return $initials ?: 'NA';
+    }
+
+    public function getParentAttribute()
+    {
+        if (!$this->applicant) {
+            return null;
+        }
+
+        return $this->applicant->parents
+            ->firstWhere('role', $this->statement->actor??"father");
+    }
 }

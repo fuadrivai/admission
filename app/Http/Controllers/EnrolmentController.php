@@ -42,7 +42,6 @@ class EnrolmentController extends Controller
         if ($request->level && $request->level !== 'all') {
             $query->where('level_id', $request->level);
         }
-
         if ($request->branch && $request->branch !== 'all') {
             $query->where('branch_id', $request->branch);
         }

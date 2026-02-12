@@ -36,6 +36,10 @@ class Enrolment extends Model
     {
         return $this->belongsTo(Grade::class, 'grade_id');
     }
+    public function admission()
+    {
+        return $this->hasOne(Admission::class);
+    }
 
     public function amountPaid()
     {
@@ -60,5 +64,26 @@ class Enrolment extends Model
     public function paymentDateFormatted()
     {
         return date('d F Y', strtotime($this->payment_date));
+    }
+
+    public function avatarName()
+    {
+        $name = $this->child_name;
+
+        if (!$name) {
+            return 'NA';
+        }
+
+        $words = explode(' ', trim($name));
+
+        $initials = collect($words)
+            ->filter()            // hapus spasi kosong
+            ->take(2)             // ambil max 2 kata
+            ->map(function ($word) {
+                return strtoupper(substr($word, 0, 1));
+            })
+            ->implode('');
+
+        return $initials ?: 'NA';
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -43,5 +44,22 @@ class Applicant extends Model
     public function dateBirth()
     {
         return date('d F Y', strtotime($this->date_of_birth));
+    }
+    public function dob()
+    {
+        return ucfirst($this->place_of_birth) .', '. date('d F Y', strtotime($this->date_of_birth));
+    }
+    public function age()
+    {
+        if (!$this->date_of_birth) {
+            return null;
+        }
+
+        $birthDate = Carbon::parse($this->date_of_birth);
+        $now = Carbon::now();
+
+        $diff = $birthDate->diff($now);
+
+        return "{$diff->y} year, {$diff->m} month";
     }
 }

@@ -21,9 +21,57 @@ class AdmissionController extends Controller
     {
         $this->admissionService = $admissionService;
     }
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $query = Admission::query()
+                ->with([
+                    'applicant',
+                    'level.division',
+                    'branch',
+                    'grade',
+                    'statement'
+                ]);
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('code', 'like', "%{$search}%")
+                ->orWhere('accademic_year', 'like', "%{$search}%")
+                ->orWhereHas('applicant', function ($qa) use ($search) {
+                    $qa->where('fullname', 'like', "%{$search}%");
+                })
+                ->orWhereHas('statement', function ($qs) use ($search) {
+                    $qs->where('fullname', 'like', "%{$search}%");
+                })
+                ->orWhereHas('applicant.parents', function ($qp) use ($search) {
+                    $qp->where('fullname', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%");
+                })
+                ;
+            });
+        }
+
+        if ($request->level && $request->level !== 'all') {
+            $query->where('level_id', $request->level);
+        }
+        if ($request->branch && $request->branch !== 'all') {
+            $query->where('branch_id', $request->branch);
+        }
+        if ($request->grade && $request->grade !== 'all') {
+            $query->where('grade_id', $request->grade);
+        }
+        if ($request->status && $request->status !== 'all') {
+            $query->where('payment_status', $request->status);
+        }
+
+        $admissions = $query->paginate(request('perpage')??10)->withQueryString();
+
+        if ($request->ajax()) {
+            return view('document._list', compact('admissions'))->render();
+        }
+
+        return view('document.index', ["title" => "Document", "admissions" => $admissions]);
     }
 
     /**
@@ -64,9 +112,10 @@ class AdmissionController extends Controller
      * @param  \App\Models\Admission  $admission
      * @return \Illuminate\Http\Response
      */
-    public function edit(Admission $admission)
+    public function edit($id)
     {
-        //
+        $admission = $this->admissionService->show($id);
+        return view('document.detail',compact('admission'));
     }
 
     /**
