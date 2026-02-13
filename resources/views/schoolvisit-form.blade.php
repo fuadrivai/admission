@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Book School Visit - Mutiara Harapan Islamic School</title>
+    <title>School Visit - Mutiara Harapan Islamic School</title>
     <meta name="csrf-token" content="{{ csrf_token() }}" />
     <link rel="stylesheet" href="/assets/compiled/css/app.css">
     <link rel="stylesheet" href="/assets/compiled/css/iconly.css">
@@ -34,10 +34,10 @@
                 </div>
                 <div class="col">
                     <h2 class="school-title" id="school-name">
-                        Mutiara Harapan Islamic School
+                        Mutiara Harapan
                     </h2>
                     <p class="school-subtitle" id="school-levels">
-                        Preschool - Primary - Secondary - Development Class
+                        Islamic School
                     </p>
                 </div>
             </div>
@@ -99,8 +99,43 @@
                         <p class="greeting">
                             Wassalamualaikum warahmatullahi wabarakatuh
                         </p>
+                        <hr>
+                        <div class="row" id="row-code">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">Is your child already enroled in our school?</label>
+                                    <div class="radio-group">
+                                        <div class="radio-item">
+                                            <input type="radio" class="required-radio" id="enrolled-yes"
+                                                name="already_enrol" value="yes" />
+                                            <label for="enrolled-yes">Yes</label>
+                                        </div>
+                                        <div class="radio-item">
+                                            <input type="radio" class="required-radio" id="enrolled-no"
+                                                name="already_enrol" value="no" />
+                                            <label for="enrolled-no">No</label>
+                                        </div>
+                                        <div class="radio-item">
+                                            <input type="radio" class="required-radio" id="enrolled-will"
+                                                name="already_enrol" value="will" />
+                                            <label for="enrolled-will">Will do</label>
+                                        </div>
+                                        <div class="invalid-feedback">Please
+                                            select enrol type</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group" id="enrollment-code-group" style="display:none;">
+                                <label for="enrollment-code" class="form-label">Enrolment Code <span
+                                        class="required">*</span></label>
+                                <input type="text" class="form-control" id="enrollment-code"
+                                    name="enrollment_code" />
+                                <div class="invalid-feedback" id="enrollment-codeTextError">Please provide the
+                                    enrolment code.</div>
+                            </div>
+                        </div>
                         <div class="text-center mt-4">
-                            <button type="button" class="btn btn-primary next-btn" id="next-btn">
+                            <button type="button" class="btn btn-primary next-btn" id="next-btn" disabled>
                                 <i class="fas fa-arrow-right me-2"></i>Next
                             </button>
                         </div>
@@ -118,14 +153,15 @@
                         <h3 class="form-title">School Visit Registration Form</h3>
                         <form id="visit-form" autocomplete="off" class="needs-validation" novalidate>
                             @csrf
+                            <input type="hidden" id="prospects_id">
                             <h4 class="mb-4">Parent's Form</h4>
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="parent-name" class="form-label">Parent's Name <span
                                                 class="required">*</span></label>
-                                        <input type="text" class="form-control" name="parent_name" id="parent-name"
-                                            required />
+                                        <input type="text" class="form-control" name="parent_name"
+                                            id="parent-name" required />
                                         <div class="invalid-feedback">
                                             Please provide your name.
                                         </div>
@@ -135,8 +171,8 @@
                                     <div class="form-group">
                                         <label for="phone" class="form-label">Phone Number <span
                                                 class="required">*</span></label>
-                                        <input name="phone_number" type="tel" class="form-control" id="phone"
-                                            required />
+                                        <input name="phone_number" type="tel" class="form-control"
+                                            id="phone" required />
                                         <div class="invalid-feedback">
                                             Please provide your phone number.
                                         </div>
@@ -196,10 +232,28 @@
                             <div class="row">
                                 <div class="col-md-4">
                                     <div class="form-group">
+                                        <label for="visit-time" class="form-label">MHIS Branch
+                                            <span class="required">*</span></label>
+                                        <select style="width: 100%" class="form-select required-select2 select2"
+                                            name="branch_id" id="branch" required>
+                                            <option disabled selected value="">Select a branch</option>
+                                            @foreach ($branches as $item)
+                                                <option value="{{ $item->id }}">{{ $item->name }}</option>
+                                            @endforeach
+
+                                        </select>
+                                        <div class="invalid-feedback">
+                                            Please select a MHIS branch to be visited.
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
                                         <label for="visit-level" class="form-label">Level
                                             <span class="required">*</span></label>
                                         <select style="width: 100%" name="level_id"
-                                            class="form-select required-select2 select2" id="visit-level" required>
+                                            class="form-select required-select2 select2" id="visit-level" disabled
+                                            required>
                                             <option disabled selected value="">Select Level</option>
                                         </select>
                                         <div class="invalid-feedback">
@@ -221,17 +275,46 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-4">
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="academic-year" class="form-label">Academic Year <span
                                                 class="required">*</span></label>
                                         <select style="width: 100%" name="academic_year"
                                             class="form-select required-select2 select2 academic-year"
-                                            id="academic-year" required>
+                                            id="academic-year" disabled required>
                                             <option disabled selected value="">Select Academic Year</option>
                                         </select>
                                         <div class="invalid-feedback">
                                             Please select an academic year.
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="hear-about" class="form-label">How did you heard about MHIS? <span
+                                                class="required">*</span></label>
+                                        <select style="width: 100%" name="info_from"
+                                            class="form-select required-select2 select2" id="hear-about" required>
+                                            <option disabled selected value="">Select an option</option>
+                                            <option value="website">Website</option>
+                                            <option value="instagram">Instagram</option>
+                                            <option value="facebook">Facebook</option>
+                                            <option value="friends">Friends/Family</option>
+                                            <option value="mhisparent">MHIS Parent</option>
+                                            <option value="google">Google Search</option>
+                                            <option value="others">Others</option>
+                                        </select>
+                                        <div class="invalid-feedback">
+                                            Please select how you heard about us.
+                                        </div>
+                                    </div>
+                                    <div class="form-group mt-2" id="hear-other-group" style="display:none;">
+                                        <input type="text" class="form-control" id="hear-other-text"
+                                            name="info_from_message" placeholder="Please specify" />
+                                        <div class="invalid-feedback">
+                                            Please specify how you heard about us.
                                         </div>
                                     </div>
                                 </div>
@@ -277,78 +360,6 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="visit-time" class="form-label">MHIS Branch
-                                            <span class="required">*</span></label>
-                                        <select style="width: 100%" class="form-select required-select2 select2"
-                                            name="branch_id" id="branch" required>
-                                            <option disabled selected value="">Select a branch</option>
-                                            @foreach ($branches as $item)
-                                                <option value="{{ $item->id }}">{{ $item->name }}</option>
-                                            @endforeach
-
-                                        </select>
-                                        <div class="invalid-feedback">
-                                            Please select a MHIS branch to be visited.
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label class="form-label">Is your child already enroled in our school?</label>
-                                        <div class="radio-group">
-                                            <div class="radio-item">
-                                                <input type="radio" class="required-radio" id="enrolled-yes"
-                                                    name="already_enrol" value="yes" />
-                                                <label for="enrolled-yes">Yes</label>
-                                            </div>
-                                            <div class="radio-item">
-                                                <input type="radio" class="required-radio" id="enrolled-no"
-                                                    name="already_enrol" value="no" />
-                                                <label for="enrolled-no">No</label>
-                                            </div>
-                                            <div class="radio-item">
-                                                <input type="radio" class="required-radio" id="enrolled-will"
-                                                    name="already_enrol" value="will" />
-                                                <label for="enrolled-will">Will do</label>
-                                            </div>
-                                            <div class="invalid-feedback">Please
-                                                select enrol type</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="hear-about" class="form-label">How did you heard about MHIS? <span
-                                                class="required">*</span></label>
-                                        <select style="width: 100%" name="info_from"
-                                            class="form-select required-select2 select2" id="hear-about" required>
-                                            <option disabled selected value="">Select an option</option>
-                                            <option value="website">Website</option>
-                                            <option value="instagram">Instagram</option>
-                                            <option value="facebook">Facebook</option>
-                                            <option value="friends">Friends/Family</option>
-                                            <option value="mhisparent">MHIS Parent</option>
-                                            <option value="google">Google Search</option>
-                                            <option value="others">Others</option>
-                                        </select>
-                                        <div class="invalid-feedback">
-                                            Please select how you heard about us.
-                                        </div>
-                                    </div>
-                                    <div class="form-group mt-2" id="hear-other-group" style="display:none;">
-                                        <input type="text" class="form-control" id="hear-other-text"
-                                            name="info_from_message" placeholder="Please specify" />
-                                        <div class="invalid-feedback">
-                                            Please specify how you heard about us.
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                             <div class="checkbox-group">
                                 <p>
                                     <strong>I declare that I am willing to follow the school rules
@@ -390,7 +401,7 @@
     <script src="/assets/extensions/toastify-js/src/toastify.js"></script>
     <script src="/assets/compiled/js/script.js?v=1.1.4"></script>
     <script src="/assets/static/js/constant.js?v=1.1.5"></script>
-    <script src="/assets/static/js/pages/school-visit.js?v=1.1.5"></script>
+    <script src="/assets/static/js/pages/school-visit.js?v=1.1.6"></script>
 </body>
 
 </html>

@@ -13,4 +13,23 @@ class SchoolVisit extends Model
     protected $casts = [
         'roles' => 'array',
     ];
+
+    public function prospect()
+    {
+        return $this->belongsTo(Prospects::class, 'prospects_id');
+    }
+
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class, 'branch_id');
+    }
+
+    public function level()
+    {
+        return $this->belongsTo(Level::class, 'level_id');
+    }
+    public function grade()
+    {
+        return $this->belongsTo(Grade::class, 'grade_id');
+    }
 }

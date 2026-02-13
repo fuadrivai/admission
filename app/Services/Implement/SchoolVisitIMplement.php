@@ -4,21 +4,33 @@ namespace App\Services\Implement;
 
 use App\Mail\AdmissionEmail;
 use App\Models\EmailSetting;
+use App\Models\Level;
 use App\Models\MaxCapacity;
 use App\Models\SchoolVisit;
 use App\Models\WhatsappCode;
+use App\Services\ProspectService;
 use App\Services\SchoolVisitService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Config;
 
-use function App\Helpers\generateUniqueCode;
+use function App\Helpers\generate;
 use function App\Helpers\normalizePhoneNumber;
 use function App\Helpers\sendWhatsapp;
 
 class SchoolVisitIMplement implements SchoolVisitService
 {
+
+
+ protected $prospectService;
+
+  public function __construct(
+        ProspectService $prospectService,
+        )
+    {
+        $this->prospectService = $prospectService;
+    }
     public function get()
     {
         return SchoolVisit::all();
@@ -44,10 +56,12 @@ class SchoolVisitIMplement implements SchoolVisitService
                 throw new \Exception("The selected time slot for the school visit is already full. Kindly choose a different time.");
             }
 
-            $code = generateUniqueCode();
+            // $code = generateUniqueCode();
             $phone = normalizePhoneNumber($data['phone_number']);
-            $schoolVisit = SchoolVisit::create([
-                'code' => "SVC-$code",
+            $value = [
+                'code' => null,
+                'prospects_id' => null,
+                'already_enrol' => $data['already_enrol'],
                 'parent_name' => $data['parent_name'],
                 'phone_number' => $phone,
                 'email' => $data['email'],
@@ -69,15 +83,40 @@ class SchoolVisitIMplement implements SchoolVisitService
                 'already_enrol' => $data['already_enrol'],
                 'roles' => $data['roles'],
                 'status' => "registered",
-            ]);
+            ];
+
+            if ($value['already_enrol']!="yes") {
+                $level = Level::find($value['level_id']);
+                $code = generate($level->branch_code);
+                $dataProspect = [
+                    'code'          => $code,
+                    'child_name'    => $value['child_name'],
+                    'current_school'=> $value['current_school'],
+                    'parent_name'   => $value['parent_name'],
+                    'email'         => $value['email'],
+                    'phone_number'  => $value['phone_number'],
+                    'zipcode'       => $value['zipcode'],
+                    'address'       => null,
+                    'relationship'  => null,
+                    'date_of_birth' => null,
+                    'place_of_birth'=> null, 
+                    'source_module' => 'schoolvisit',
+                ];
+                $prospects = $this->prospectService->post($dataProspect);
+                $value['prospects_id'] = $prospects->id;
+                $value['code'] = $code;
+            }else{
+                $value['code'] = $data['code'];
+                $value['prospects_id'] = $data['prospects_id'];
+            }
+
+            $schoolVisit = SchoolVisit::create($value);
 
             $schoolVisit['dateDate'] = Carbon::parse($schoolVisit['date'])->format('l, F j, Y');
             $schoolVisit['subject'] = "MHIS Visit Confirmation";
             $schoolVisit['template'] = 'email-template.schoolvisit';
 
-
-
-            $setting = EmailSetting::where('branch_id',$data['branch_id'])->first();
+            $setting = EmailSetting::where('branch_id',$value['branch_id'])->first();
             Config::set('mail.default', 'smtp');
             Config::set('mail.mailers.smtp', [
                 'transport' => $setting->mailer,

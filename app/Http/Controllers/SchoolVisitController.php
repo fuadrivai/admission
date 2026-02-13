@@ -218,6 +218,8 @@ class SchoolVisitController extends Controller
             'roles.*.rule' => 'required|string',
             'roles.*.checked' => 'required|in:true,false,1,0',
             'roles.*.value' => 'required|string',
+            'code' => 'nullable',
+            'prospects_id' => 'nullable',
         ]);
 
         $observation = $this->schooolVisitService->post($validated);
