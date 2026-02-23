@@ -705,7 +705,7 @@
             <div class="page-break"></div>
             <div class="section">
                 <div class="section-title">{{ config('student_approval.step6.title') }}</div>
-                <div class="subsection-title">{{ config('student_approval.step6.labels.text0.indonesian') }}</div>
+                <div class="subsection-title">{{ config('student_approval.step6.labels.text0.english') }}</div>
                 <table class="data-table">
                     <tr>
                         <td>{{ config('student_approval.step6.labels.text1.english') }}:</td>

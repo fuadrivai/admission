@@ -139,13 +139,17 @@
                     <div class="student-avatar">{{ $admission->avatarName() }}</div>
                 </div>
                 <div class="col-md-5">
-                    <label for="">Kode : {{ $admission->code ?? 'N/A' }} <span
-                            class="badge text-bg-secondary">{{ ucfirst($admission->enrolment->source_data) }}</span>
-                    </label></label><br>
-                    <div class="student-name">{{ $admission->applicantName() ?? 'N/A' }}</div>
+                    <a href="/applicant/{{ $admission->id }}/edit" class="student-name-link">
+                        <label for="">Kode : {{ $admission->code ?? 'N/A' }} <span
+                                class="badge text-bg-secondary">{{ ucfirst($admission->enrolment->source_data) }}</span>
+                        </label></label><br>
+                        <div class="student-name">{{ $admission->applicantName() ?? 'N/A' }}</div>
+                    </a>
                 </div>
                 <div class="col-md-6 text-end" style="vertical-align: middle">
-                    <a href="#" target="_blank" class="btn btn-sm btn-primary"><i class="fa fa-download"></i></a>
+                    @if ($admission->status != 1)
+                        <a href="#" target="_blank" class="btn btn-sm btn-primary"><i class="fa fa-share"></i></a>
+                    @endif
                     <a href="/applicant/{{ $admission->id }}/edit" class="btn btn-sm btn-info"><i
                             class="fa fa-eye text-white"></i></a>
                 </div>

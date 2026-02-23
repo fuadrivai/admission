@@ -115,7 +115,7 @@ class AdmissionController extends Controller
     public function edit($id)
     {
         $admission = $this->admissionService->show($id);
-        return view('document.detail',compact('admission'));
+        return view('document.detail', ['admission' => $admission, 'title' => 'Document Detail']);
     }
 
     /**
