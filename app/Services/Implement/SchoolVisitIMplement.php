@@ -23,11 +23,9 @@ class SchoolVisitIMplement implements SchoolVisitService
 {
 
 
- protected $prospectService;
+    protected $prospectService;
 
-  public function __construct(
-        ProspectService $prospectService,
-        )
+    public function __construct(ProspectService $prospectService)
     {
         $this->prospectService = $prospectService;
     }
