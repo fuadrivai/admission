@@ -32,4 +32,10 @@ class SchoolVisit extends Model
     {
         return $this->belongsTo(Grade::class, 'grade_id');
     }
+
+    public function dateTime()
+    {
+        $date =  date('d F Y', strtotime($this->date));
+        return $date. ' '. date('H:i', strtotime($this->time));
+    }
 }

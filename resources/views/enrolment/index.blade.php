@@ -1,8 +1,6 @@
 @extends('main-layout.index')
 
 @section('content-style')
-    <link rel="stylesheet" href="/assets/extensions/datatables.net-bs5/css/dataTables.bootstrap5.min.css">
-    <link rel="stylesheet" href="/assets/compiled/css/table-datatable-jquery.css">
     <link rel="stylesheet" href="/assets/static/css/enrolment.css?v=1.0.0">
 @endsection
 
@@ -11,8 +9,7 @@
         <div class="card">
             <div class="card-body">
                 <p class="d-inline-flex gap-1">
-                    <a data-bs-toggle="collapse" href="#collapse-filter" aria-expanded="false"
-                        aria-controls="collapse-filter">
+                    <a data-bs-toggle="collapse" href="#collapse-filter" aria-expanded="false" aria-controls="collapse-filter">
                         Insert Filter <i class="fa fa-caret-down"></i>
                     </a>
                 </p>

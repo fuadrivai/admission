@@ -36,15 +36,40 @@ class SchoolVisitController extends Controller
         $this->holidayService = $holidayService;
         $this->messageService = $messageService;
     }
-    public function index()
+    public function index(Request $request)
     {
-        $branches = $this->branchService->get();
-        
-        return view('schoolvisit.index', 
-        [
-            "title" => "School Visit List",
-            "branches"=>$branches,
-        ]);
+        $query = SchoolVisit::query();
+
+        if ($request->search) {
+            $query->where(function ($q) use ($request) {
+                $q->where('code', 'like', '%'.$request->search.'%')
+                ->orWhere('parent_name', 'like', '%'.$request->search.'%')
+                ->orWhere('email', 'like', '%'.$request->search.'%')
+                ->orWhere('child_name', 'like', '%'.$request->search.'%')
+                ->orWhere('phone_number', 'like', '%'.$request->search.'%');
+                });
+        }
+
+        if ($request->level && $request->level !== 'all') {
+            $query->where('level_id', $request->level);
+        }
+        if ($request->branch && $request->branch !== 'all') {
+            $query->where('branch_id', $request->branch);
+        }
+        if ($request->grade && $request->grade !== 'all') {
+            $query->where('grade_id', $request->grade);
+        }
+        if ($request->status && $request->status !== 'all') {
+            $query->where('status', $request->status);
+        }
+
+        $visits = $query->paginate(request('perpage')??10)->withQueryString();
+
+        if ($request->ajax()) {
+            return view('schoolvisit._list', compact('visits'))->render();
+        }
+
+        return view('schoolvisit.index', ["title" => "School Visit List", "visits" => $visits]);
     }
 
      public function form()
