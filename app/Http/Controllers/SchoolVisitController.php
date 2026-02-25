@@ -45,8 +45,7 @@ class SchoolVisitController extends Controller
                 $q->where('code', 'like', '%'.$request->search.'%')
                 ->orWhere('parent_name', 'like', '%'.$request->search.'%')
                 ->orWhere('email', 'like', '%'.$request->search.'%')
-                ->orWhere('child_name', 'like', '%'.$request->search.'%')
-                ->orWhere('phone_number', 'like', '%'.$request->search.'%');
+                ->orWhere('child_name', 'like', '%'.$request->search.'%');
                 });
         }
 
@@ -224,9 +223,10 @@ class SchoolVisitController extends Controller
      * @param  \App\Models\SchoolVisit  $schoolVisit
      * @return \Illuminate\Http\Response
      */
-    public function edit(SchoolVisit $schoolVisit)
+    public function edit($id)
     {
-        //
+        $schoolVisit = $this->schooolVisitService->show($id);
+        return view('schoolvisit.detail', ["title" => "Edit School Visit", "visit" => $schoolVisit]);
     }
 
     /**

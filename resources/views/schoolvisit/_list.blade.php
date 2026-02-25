@@ -61,8 +61,8 @@
                     <div class="student-name">{{ ucwords($visit->child_name) }}</div>
                 </div>
                 <div class="col-md-6 text-end" style="vertical-align: middle">
-                    <a data-id="{{ $visit->id }}" class="btn btn-sm btn-primary view-detail"><i
-                            class="fa fa-eye"></i></a>
+                    <a data-id="{{ $visit->id }}" href="/schoolvisit/{{ $visit->id }}/edit"
+                        class="btn btn-sm btn-primary view-detail"><i class="fa fa-eye"></i></a>
                     <div class="btn-group">
                         <button class="btn btn-sm btn-info dropdown-toggle" type="button" id="dropdownMenuButtonEmoji"
                             data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i

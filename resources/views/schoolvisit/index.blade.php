@@ -23,7 +23,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="filter-name">Search</label>
-                                <input placeholder="code, child name, parent name, email, phone" type="text"
+                                <input placeholder="code, child name, parent name, email" type="text"
                                     class="form-control" id="filter-name" name="filter-name">
                             </div>
                         </div>
