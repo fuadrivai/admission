@@ -5,6 +5,7 @@ namespace App\Services;
 interface SchoolVisitService
 {
     public function get();
+    public function changeStatusViaCron();
     public function getByDateTime($request);
     public function show($id);
     public function showByCode($code);

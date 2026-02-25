@@ -181,6 +181,18 @@ class SchoolVisitIMplement implements SchoolVisitService
         return ($visitorsCount >= $max->max);
     }
 
+    public function changeStatusViaCron() {
+        $today = Carbon::today()->toDateString();
+        $visits = SchoolVisit::where('date', '<', $today)
+            ->where('status', 'registered')
+            ->get();
+
+        foreach ($visits as $visit) {
+            $visit->status = 'absent';
+            $visit->save();
+        }
+    }
+
     function bintaroMessage($parentName,$date,$time,$level){
         return "Assalamualaikum Warahmatullahi Wabarakatuh\n
 Dear Mr./Mrs. $parentName, warm greetings from Mutiara Harapan Islamic School. Your visit to our $level MHIS is scheduled on:\n

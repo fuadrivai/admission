@@ -265,4 +265,10 @@ class SchoolVisitController extends Controller
         $visit = $this->schooolVisitService->post($validated);
         return response()->json($visit);
     }
+
+    public function changeStatusViaCron()
+    {
+        $this->schooolVisitService->changeStatusViaCron();
+        return response()->json(['message' => 'Status updated successfully']);
+    }
 }
