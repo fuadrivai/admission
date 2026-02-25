@@ -3,7 +3,7 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-md-1">
-                    <div class="student-avatar">{{ $enrolment->avatarName() }}</div>
+                    <div class="student-avatar">{{ ucfirst(\App\Helpers\avatarName($enrolment->child_name)) }}</div>
                 </div>
                 <div class="col-md-5">
                     <label for="">Kode : {{ $enrolment->code }} <span

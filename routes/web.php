@@ -42,6 +42,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
     Route::get('schoolvisit-success', [SchoolVisitController::class, 'success'])->name('success');
     Route::post('/school-visit-post', [SchoolVisitController::class, 'post']);
     Route::get('/school-visit/capacity/check', [SchoolVisitController::class, 'checkCapacity']);
+    Route::get('/schoolvisit/student/{code}', [SchoolVisitController::class, 'code'])->name('schoolvisit.code');
 
     Route::get('observation-form', [ObservationController::class, 'form'])->name('observation-form');
     Route::get('observation-success', [ObservationController::class, 'success'])->name('success');

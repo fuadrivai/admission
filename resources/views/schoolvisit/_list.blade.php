@@ -4,7 +4,7 @@
             <div class="row">
                 <div class="col-md-1">
                     <div class="student-avatar">
-                        {{ $visit->avatarName ? $visit->avatarName() : $visit->child_name[0] ?? '?' }}</div>
+                        {{ ucfirst(\App\Helpers\avatarName($visit->child_name)) }}</div>
                 </div>
                 @php
                     $bg = 'bg-default';
@@ -42,15 +42,17 @@
                                 class="fa fa-cog"></i>
                         </button>
                         <div class="dropdown-menu bg-danger ob" aria-labelledby="dropdownMenuButtonEmoji">
-                            <a class="dropdown-item text-white btn-edit" data-id="{{ $visit->id }}"><i
+                            <button class="dropdown-item text-white btn-edit" data-id="{{ $visit->id }}"><i
                                     class="fa fa-pencil"></i>
-                                Reschedule</a>
-                            <a class="dropdown-item text-white btn-confirm" data-id="{{ $visit->id }}"><i
+                                Reschedule</button>
+                            <button class="dropdown-item text-white btn-confirm"
+                                onclick="changeStatus('present',{{ $visit->id }})" data-id="{{ $visit->id }}"><i
                                     class="bi bi-star"></i>
-                                Confirm</a>
-                            <a class="dropdown-item text-white btn-detail" data-id="{{ $visit->id }}"><i
-                                    class="fa fa-trash"></i>
-                                Cancel</a>
+                                Confirm</button>
+                            <button class="dropdown-item text-white btn-detail"
+                                onclick="changeStatus('cancelled',{{ $visit->id }})"
+                                data-id="{{ $visit->id }}"><i class="fa fa-trash"></i>
+                                Cancel</button>
                         </div>
                     </div>
                 </div>

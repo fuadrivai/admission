@@ -1,4 +1,5 @@
 let levels = [];
+let enrolment = null;
 
 $(document).ready(function () {
     getAcademicYear();
@@ -100,16 +101,18 @@ $(document).ready(function () {
         $("#grade").attr("disabled", false);
 
         let levelId = $(this).val();
-        const level = levels.find((l) => l.id == levelId);
-        $("#grade").empty();
-        $("#grade").append(`
-                <option value="" selected disabled>Select a grade</option>  
-            `);
-        level.grades.forEach((val) => {
+        if (levelId != "") {
+            const level = levels.find((l) => l.id == levelId);
+            $("#grade").empty();
             $("#grade").append(`
-                <option value="${val.id}">${val.name}</option>    
-            `);
-        });
+                    <option value="" selected disabled>Select a grade</option>  
+                `);
+            level.grades.forEach((val) => {
+                $("#grade").append(`
+                    <option value="${val.id}">${val.name}</option>    
+                `);
+            });
+        }
     });
 
     $("#hear-about").on("change", function () {
@@ -218,13 +221,13 @@ function setAnimationFadeout() {
             } else {
                 $("#enrollment-code").removeClass("is-invalid");
             }
-            getProspectByCode(
-                code,
+            getEnrolmentByCode(
                 function (json) {
                     $("#intro-section").fadeOut(400, function () {
                         $("#form-section").fadeIn(600);
                         $("html, body").animate({ scrollTop: 0 }, 300);
                     });
+                    unBlockUI();
                 },
                 function (err) {
                     toastify(
@@ -232,12 +235,16 @@ function setAnimationFadeout() {
                         err?.responseJSON?.message ?? "Please try again later",
                         "error",
                     );
+                    unBlockUI();
                 },
             );
         } else {
             $("#intro-section").fadeOut(400, function () {
                 $("#form-section").fadeIn(600);
                 $("html, body").animate({ scrollTop: 0 }, 300);
+                enrolment = null;
+                $("#form-section input").val("");
+                // $("#form-section select").val("").trigger("change");
             });
         }
     });
@@ -311,13 +318,15 @@ function postSchoolVisit(data) {
     );
 }
 
-function getProspectByCode(code, resolve, reject) {
+function getEnrolmentByCode(resolve, reject) {
+    const code = $("#enrollment-code").val().trim();
     blockUI();
     ajax(
         null,
-        `/prospect/code/${code}`,
+        `/enrolment/student/${code}`,
         "GET",
         function (json) {
+            enrolment = json;
             $("#prospects_id").val(json.id);
             $("#parent-name").val(json.parent_name);
             $("#email").val(json.email);
@@ -326,6 +335,10 @@ function getProspectByCode(code, resolve, reject) {
             $("#child-name").val(json.child_name);
             $("#current-school").val(json.current_school);
             $("#enrollment-code").val(json.code);
+            $("#branch").val(json.branch.id).trigger("change");
+            // $("#visit-level").val(json.level.id).trigger("change");
+            // // $("#grade").val(json.grade.id).trigger("change");
+            $("#academic-year").val(json.academic_year).trigger("change");
 
             $("#enrollment-code").removeClass("is-invalid");
             resolve(json);
@@ -357,6 +370,10 @@ function getLevelsAndGrades(branchId) {
                     `<option value="${level.id}">${level.name}</option>`,
                 );
             });
+            if (enrolment && enrolment.level) {
+                $("#visit-level").val(enrolment.level.id).trigger("change");
+                $("#grade").val(enrolment.grade.id).trigger("change");
+            }
         },
         function (err) {
             toastify(
