@@ -94,27 +94,17 @@ class SchoolVisitIMplement implements SchoolVisitService
 
             if ($value['already_enrol']!="yes") {
                 $level = Level::find($value['level_id']);
-                $code = generate($level->branch_code);
-                $dataProspect = [
-                    'code'          => $code,
-                    'child_name'    => $value['child_name'],
-                    'current_school'=> $value['current_school'],
-                    'parent_name'   => $value['parent_name'],
-                    'email'         => $value['email'],
-                    'phone_number'  => $value['phone_number'],
-                    'zipcode'       => $value['zipcode'],
-                    'address'       => null,
-                    'relationship'  => null,
-                    'date_of_birth' => null,
-                    'place_of_birth'=> null, 
-                    'source_module' => 'schoolvisit',
-                ];
-                $prospects = $this->prospectService->post($dataProspect);
+                $value['code'] = generate($level->branch_code);
+                $prospects = $this->saveProspects($value);
                 $value['prospects_id'] = $prospects->id;
-                $value['code'] = $code;
             }else{
                 $value['code'] = $data['code'];
-                $value['prospects_id'] = $data['prospects_id'];
+                if(!isset($data['prospects_id']) || is_null($data['prospects_id']) || empty($data['prospects_id'])||$data['prospects_id'] == ''){
+                    $prospects = $this->saveProspects($value);   
+                    $value['prospects_id'] = $prospects->id;
+                }else{
+                    $value['prospects_id'] = $data['prospects_id'];
+                }
             }
 
             $schoolVisit = SchoolVisit::create($value);
@@ -204,6 +194,26 @@ By confirming your visit, you agree to:
 We look forward to welcoming you to our warm and friendly school environment.\n
 Wassalamualaikum Warahmatullahi Wabarakatuh
 Mutiara Harapan Islamic School";
+    }
+
+    function saveProspects($data)
+    {
+        $prospectData = [
+            'code' => $data['code'],
+            'child_name' => $data['child_name'],
+            'current_school' => $data['current_school'],
+            'parent_name' => $data['parent_name'],
+            'email' => $data['email'],
+            'phone_number' => $data['phone_number'],
+            'zipcode' => $data['zipcode'],
+            'address' => null,
+            'relationship' => null,
+            'date_of_birth' => null,
+            'place_of_birth' => null,
+            'source_module' => 'schoolvisit',
+        ];
+
+        return $this->prospectService->post($prospectData);
     }
     
 }

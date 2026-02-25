@@ -462,7 +462,7 @@ function getSchoolVisitByCode(resolve, reject) {
         "GET",
         function (json) {
             schoolVisit = json;
-            $("#prospects_id").val(json.prospect.id);
+            $("#prospects_id").val(json.prospect?.id);
             $("#parentName").val(json.parent_name);
             $("#email").val(json.email);
             $("#phone").val(json.phone_number);

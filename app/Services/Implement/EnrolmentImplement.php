@@ -101,28 +101,19 @@ class EnrolmentImplement implements EnrolmentService
         if ($data['already_visit'] == 0) {
             $level = Level::find($data['level_id']);
             $level_name = $level->name;
-            $code = generate($level->branch_code);
-            $dataProspect = [
-                'code'          => $code,
-                'child_name'    => $data['child_name'],
-                'date_of_birth' => $data['date_of_birth'],
-                'place_of_birth'=> $data['place_of_birth'],
-                'current_school'=> $data['current_school'],
-                'parent_name'   => $data['parent_name'],
-                'email'         => $data['email'],
-                'phone_number'  => $data['phone_number'],
-                'zipcode'       => $data['zipcode'],
-                'address'       => $data['address'],
-                'relationship'  => $data['relationship'],
-                'source_module' => 'enrolment',
-            ];
-            $prospects = $this->prospectService->post($dataProspect);
+            $data['code'] = generate($level->branch_code);
+            $prospects = $this->saveProspects($data);
             $data['prospects_id'] = $prospects->id;
-            $data['code'] = $code;
         }else{
             $data['code'] = $request->code;
-            $data['prospects_id'] = $request->prospectsId;
+            if(!isset($request->prospectsId) || is_null($request->prospectsId) || empty($request->prospectsId) || $request->prospectsId == ''){
+                $prospects = $this->saveProspects($data);   
+                $data['prospects_id'] = $prospects->id;
+            }else{
+                $data['prospects_id'] = $request->prospectsId;
+            }
         }
+
         $payload = [
             "external_id"=> $data['invoice_id'],
             "amount"=> $data['amount_paid'],
@@ -173,5 +164,23 @@ class EnrolmentImplement implements EnrolmentService
     {
         $enrolment = Enrolment::findOrFail($id);
         return $enrolment->delete();
+    }
+
+    function saveProspects($value){
+        $dataProspect = [
+            'code'          => $value['code'],
+            'child_name'    => $value['child_name'],
+            'date_of_birth' => $value['date_of_birth'],
+            'place_of_birth'=> $value['place_of_birth'],
+            'current_school'=> $value['current_school'],
+            'parent_name'   => $value['parent_name'],
+            'email'         => $value['email'],
+            'phone_number'  => $value['phone_number'],
+            'zipcode'       => $value['zipcode'],
+            'address'       => $value['address'],
+            'relationship'  => $value['relationship'],
+            'source_module' => 'enrolment',
+        ];
+        return $this->prospectService->post($dataProspect);
     }
 }
