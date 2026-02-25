@@ -531,7 +531,7 @@
     <script src="/assets/extensions/bootstrap-datepicker/js/jquery.timepicker.min.js"></script>
     <script src="/assets/extensions/toastify-js/src/toastify.js"></script>
     <script src="/assets/compiled/js/script.js?v=1.1.6"></script>
-    <script src="/assets/static/js/pages/enrolment-external.js?v=1.0.4"></script>
+    <script src="/assets/static/js/pages/enrolment-external.js?v=1.0.5"></script>
 </body>
 
 </html>

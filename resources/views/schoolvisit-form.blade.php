@@ -401,7 +401,7 @@
     <script src="/assets/extensions/toastify-js/src/toastify.js"></script>
     <script src="/assets/compiled/js/script.js?v=1.1.4"></script>
     <script src="/assets/static/js/constant.js?v=1.1.5"></script>
-    <script src="/assets/static/js/pages/school-visit.js?v=1.1.6"></script>
+    <script src="/assets/static/js/pages/school-visit.js?v=1.1.7"></script>
 </body>
 
 </html>
