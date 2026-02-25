@@ -136,7 +136,8 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-md-1">
-                    <div class="student-avatar">{{ $admission->avatarName() }}</div>
+                    <div class="student-avatar">{{ ucfirst(\App\Helpers\avatarName($admission->applicant->fullname)) }}
+                    </div>
                 </div>
                 <div class="col-md-5">
                     <a href="/applicant/{{ $admission->id }}/edit" class="student-name-link">

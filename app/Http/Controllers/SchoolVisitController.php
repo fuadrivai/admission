@@ -36,18 +36,49 @@ class SchoolVisitController extends Controller
         $this->holidayService = $holidayService;
         $this->messageService = $messageService;
     }
-    public function index()
+    public function index(Request $request)
     {
-        $branches = $this->branchService->get();
-        
-        return view('schoolvisit.index', 
-        [
-            "title" => "School Visit List",
-            "branches"=>$branches,
-        ]);
+        $query = SchoolVisit::query();
+
+        if ($request->search) {
+            $query->where(function ($q) use ($request) {
+                $q->where('code', 'like', '%'.$request->search.'%')
+                ->orWhere('parent_name', 'like', '%'.$request->search.'%')
+                ->orWhere('email', 'like', '%'.$request->search.'%')
+                ->orWhere('child_name', 'like', '%'.$request->search.'%')
+                ->orWhere('phone_number', 'like', '%'.$request->search.'%');
+                });
+        }
+
+        if ($request->level && $request->level !== 'all') {
+            $query->where('level_id', $request->level);
+        }
+        if ($request->branch && $request->branch !== 'all') {
+            $query->where('branch_id', $request->branch);
+        }
+        if ($request->grade && $request->grade !== 'all') {
+            $query->where('grade_id', $request->grade);
+        }
+        if ($request->status && $request->status !== 'all') {
+            $query->where('status', $request->status);
+        }
+        $query->orderBy('date', 'desc');
+
+        $visits = $query->paginate(request('perpage')??10)->withQueryString();
+
+        if ($request->ajax()) {
+            return view('schoolvisit._list', compact('visits'))->render();
+        }
+
+        return view('schoolvisit.index', ["title" => "School Visit List", "visits" => $visits]);
     }
 
-     public function form()
+    public function code($code){
+        $visit = $this->schooolVisitService->showByCode($code);
+        return response()->json($visit);
+    }
+
+    public function form()
     {
         $branches = $this->branchService->get();
         return view('schoolvisit-form', ["title" => "School Visit Form","branches"=>$branches]);
@@ -176,9 +207,18 @@ class SchoolVisitController extends Controller
      * @param  \App\Models\SchoolVisit  $schoolVisit
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, SchoolVisit $schoolVisit)
+    public function update(Request $request)
     {
-        //
+        $visit = SchoolVisit::findOrFail($request->id);
+        $data = collect($request->all())
+        ->except(['_token', 'id'])
+        ->filter(function ($value) {
+            return !is_null($value);
+        })
+        ->toArray();
+
+        $dataVisit = $this->schooolVisitService->put($visit, $data);
+        return response()->json($dataVisit);
     }
 
     /**
@@ -222,7 +262,7 @@ class SchoolVisitController extends Controller
             'prospects_id' => 'nullable',
         ]);
 
-        $observation = $this->schooolVisitService->post($validated);
-        return response()->json($observation);
+        $visit = $this->schooolVisitService->post($validated);
+        return response()->json($visit);
     }
 }

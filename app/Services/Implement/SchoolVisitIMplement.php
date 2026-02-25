@@ -44,6 +44,15 @@ class SchoolVisitIMplement implements SchoolVisitService
         return $visit;
 
     }
+    public function showByCode($code)
+    {
+        $visit = SchoolVisit::with(['prospect','branch','level','grade'])-> where('code', $code)->first();
+
+        if (!$visit) {
+            throw new \Exception('Data not found');
+        }
+        return $visit;
+    }
 
     public function post($data)
     {
@@ -138,13 +147,9 @@ class SchoolVisitIMplement implements SchoolVisitService
         });
     }
 
-    public function put($data)
+    public function put($visit, $data)
     {
-        $visit = SchoolVisit::find($data['id']);
-        if (!$visit) {
-            return response()->json(['message' => 'Data not found'], 404);
-        }
-        $visit->update($data->all());
+        $visit->update($data);
         return $visit;
     }
 

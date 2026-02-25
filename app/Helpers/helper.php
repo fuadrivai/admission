@@ -205,3 +205,19 @@ function formatDate($date, $format = 'd F Y', $locale = 'en')
         return $date;
     }
 }
+
+function avatarName($child_name)
+{
+    if (!$child_name || trim($child_name) === '') {
+        return 'NA';
+    }
+    $words = explode(' ', trim($child_name));
+    $initials = collect($words)
+        ->filter()            // hapus spasi kosong
+        ->take(2)             // ambil max 2 kata
+        ->map(function ($word) {
+            return strtoupper(substr($word, 0, 1));
+        })
+        ->implode('');
+    return $initials ?: 'NA';
+}

@@ -2,6 +2,7 @@ let currentStep = 1;
 const totalSteps = 5;
 let levels = [];
 let bankCharger = 0;
+let schoolVisit = null;
 
 $(document).ready(function () {
     getAcademicYear();
@@ -23,14 +24,13 @@ $(document).ready(function () {
         if (selectedLevel) {
             selectedLevel.grades.forEach((grade) => {
                 $("#grade").append(
-                    `<option value="${grade.id}">${grade.name}</option>`
+                    `<option value="${grade.id}">${grade.name}</option>`,
                 );
             });
         }
-
         const needsSocialMedia =
-            selectedLevel.name.toLowerCase() === "lower secondary" ||
-            selectedLevel.name.toLowerCase() === "upper secondary";
+            selectedLevel?.name?.toLowerCase() === "lower secondary" ||
+            selectedLevel?.name?.toLowerCase() === "upper secondary";
 
         if (needsSocialMedia) {
             $("#socialMediaWrapper").slideDown(300);
@@ -113,7 +113,7 @@ $(document).ready(function () {
                         username,
                         password,
                         resolve,
-                        reject
+                        reject,
                     );
                 });
             }
@@ -128,19 +128,16 @@ $(document).ready(function () {
                 if ($("#visitCode").val() != "") {
                     tasks.push(
                         new Promise((resolve, reject) => {
-                            getProspectByCode(
-                                $("#visitCode").val(),
-                                resolve,
-                                reject
-                            );
-                        })
+                            getSchoolVisitByCode(resolve, reject);
+                            unBlockUI();
+                        }),
                     );
                 }
                 if ($('input[name="currentMHIS"]:checked').val() == "yes") {
                     const branch = $("#branch-portal").val().toLowerCase();
                     const nis = $('input[name="student-portal"]:checked').val();
                     const level = $(
-                        'input[name="student-portal"]:checked'
+                        'input[name="student-portal"]:checked',
                     ).data("level");
                     tasks.push(
                         new Promise((resolve, reject) => {
@@ -149,9 +146,9 @@ $(document).ready(function () {
                                 level,
                                 nis,
                                 resolve,
-                                reject
+                                reject,
                             );
-                        })
+                        }),
                     );
                 } else {
                     if (
@@ -168,9 +165,9 @@ $(document).ready(function () {
                                     username,
                                     password,
                                     resolve,
-                                    reject
+                                    reject,
                                 );
-                            })
+                            }),
                         );
                     }
                 }
@@ -188,7 +185,7 @@ $(document).ready(function () {
                     toastify(
                         "Error",
                         err?.responseJSON?.message ?? "Please try again later",
-                        "bottom"
+                        "bottom",
                     );
                 } finally {
                     unBlockUI();
@@ -309,7 +306,7 @@ function validateStep(step) {
         const alert = $(
             '<div class="alert alert-danger alert-validation" role="alert">' +
                 '<i class="fas fa-exclamation-triangle"></i> Please fill in all required fields before proceeding.' +
-                "</div>"
+                "</div>",
         );
         currentSection.prepend(alert);
 
@@ -333,15 +330,15 @@ function getSiswaEreport(branch, level, nis, resolve, reject) {
                 json.ortu_ayah != ""
                     ? json.ortu_ayah
                     : json.ortu_ibu != ""
-                    ? json.ortu_ibu
-                    : json.wali
+                      ? json.ortu_ibu
+                      : json.wali,
             );
             $("#relationship").val(
                 json.ortu_ayah != ""
                     ? "father"
                     : json.ortu_ibu != ""
-                    ? "mother"
-                    : "guardian"
+                      ? "mother"
+                      : "guardian",
             );
             $("#phone").val(normalizePhone(json.ortu_notelp));
             $("#address").val(json.ortu_alamat);
@@ -349,7 +346,7 @@ function getSiswaEreport(branch, level, nis, resolve, reject) {
                 $("#childName").val(json.nama);
                 $("#birthPlace").val(json.tmp_lahir);
                 $("#birthDate").val(
-                    moment(json.tgl_lahir).format("DD MMMM YYYY")
+                    moment(json.tgl_lahir).format("DD MMMM YYYY"),
                 );
                 $("#currentSchool").val("Mutiara Harapan Islamic School");
             }
@@ -359,10 +356,10 @@ function getSiswaEreport(branch, level, nis, resolve, reject) {
             toastify(
                 "Error",
                 err?.responseJSON?.message ?? "Please try again later",
-                "bottom"
+                "bottom",
             );
             reject(err);
-        }
+        },
     );
 }
 
@@ -387,7 +384,7 @@ function submitForm() {
         childName: $("#childName").val(),
         placeOfBirth: $("#birthPlace").val(),
         dateOfBirth: moment($("#birthDate").val(), "DD MMMM YYYY").format(
-            "YYYY-MM-DD"
+            "YYYY-MM-DD",
         ),
         currentSchool: $("#currentSchool").val(),
         childSosmed: $("#socialMedia").val(),
@@ -417,9 +414,9 @@ function submitForm() {
             toastify(
                 "Error",
                 err?.responseJSON?.message ?? "Please try again later",
-                "bottom"
+                "bottom",
             );
-        }
+        },
     );
 }
 
@@ -437,17 +434,55 @@ function getLevelsAndGrades(branchId) {
             levels = json;
             levels.forEach((level) => {
                 $("#level").append(
-                    `<option value="${level.id}">${level.name}</option>`
+                    `<option value="${level.id}">${level.name}</option>`,
                 );
             });
+
+            if (schoolVisit && schoolVisit.level) {
+                $("#level").val(schoolVisit.level.id).trigger("change");
+                $("#grade").val(schoolVisit.grade.id).trigger("change");
+            }
         },
         function (err) {
             toastify(
                 "Error",
                 err?.responseJSON?.message ?? "Please try again later",
-                "bottom"
+                "bottom",
             );
-        }
+        },
+    );
+}
+
+function getSchoolVisitByCode(resolve, reject) {
+    const code = $("#visitCode").val().trim();
+    blockUI();
+    ajax(
+        null,
+        `/schoolvisit/student/${code}`,
+        "GET",
+        function (json) {
+            schoolVisit = json;
+            $("#prospects_id").val(json.prospect.id);
+            $("#parentName").val(json.parent_name);
+            $("#email").val(json.email);
+            $("#phone").val(json.phone_number);
+            $("#zipCode").val(json.zipcode);
+            $("#childName").val(json.child_name);
+            $("#currentSchool").val(json.current_school);
+            $("#enrollmentCode").val(json.code);
+            $("#branch").val(json.branch.id).trigger("change");
+            $("#academic-year").val(json.academic_year).trigger("change");
+
+            $("#visitCode").removeClass("is-invalid");
+            resolve(json);
+        },
+        function (err) {
+            $("#visitCode").addClass("is-invalid");
+            $("#visitCodeTextError").text(
+                err?.responseJSON?.message ?? "Please try again later",
+            );
+            reject(err);
+        },
     );
 }
 
@@ -467,7 +502,7 @@ function getProspectByCode(code, resolve, reject) {
             $("#childName").val(json.child_name);
             $("#birthPlace").val(json.place_of_birth);
             $("#birthDate").val(
-                moment(json.date_of_birth).format("DD MMMM YYYY")
+                moment(json.date_of_birth).format("DD MMMM YYYY"),
             );
             $("#currentSchool").val(json.current_school);
 
@@ -477,10 +512,10 @@ function getProspectByCode(code, resolve, reject) {
         function (err) {
             $("#visitCode").addClass("is-invalid");
             $("#visitCodeTextError").text(
-                err?.responseJSON?.message ?? "Please try again later"
+                err?.responseJSON?.message ?? "Please try again later",
             );
             reject(err);
-        }
+        },
     );
 }
 function getParentMHPortal(branch, username, password, resolve, reject) {
@@ -500,7 +535,7 @@ function getParentMHPortal(branch, username, password, resolve, reject) {
                         siswa.level,
                         siswa.nis,
                         resolve,
-                        reject
+                        reject,
                     );
                 }
             } else {
@@ -516,11 +551,11 @@ function getParentMHPortal(branch, username, password, resolve, reject) {
                         <div class="form-check">
                             <input class="form-check-input" type="radio" name="student-portal"
                                 id="${val.nis}" data-level="${
-                        val.level
-                    }" value="${val.nis}" required />
+                                    val.level
+                                }" value="${val.nis}" required />
                             <label class="form-check-label" for="${val.nis}">
                                 <i class="fas fa-times-circle"></i> ${toTitleCase(
-                                    val.student_name
+                                    val.student_name,
                                 )} /  ${toTitleCase(val.level)}
                             </label>
                         </div>
@@ -531,13 +566,13 @@ function getParentMHPortal(branch, username, password, resolve, reject) {
         },
         function (err) {
             $("#mhis-portal-username, #mhis-portal-password").addClass(
-                "is-invalid"
+                "is-invalid",
             );
             $(".mhPortalTextError").text(
-                err?.responseJSON?.message ?? "Please try again later"
+                err?.responseJSON?.message ?? "Please try again later",
             );
             reject(err);
-        }
+        },
     );
 }
 
@@ -558,9 +593,9 @@ function getPriceByBranchLevel(branchId, levelId) {
             toastify(
                 "Error",
                 err?.responseJSON?.message ?? "Please try again later",
-                "bottom"
+                "bottom",
             );
-        }
+        },
     );
 }
 
@@ -577,8 +612,8 @@ function getBankCharger() {
             toastify(
                 "Error",
                 err?.responseJSON?.message ?? "Please try again later",
-                "bottom"
+                "bottom",
             );
-        }
+        },
     );
 }
