@@ -1,3 +1,30 @@
+<div class="card shadow-sm">
+    <div class="card-body py-2">
+        <div class="row text-center">
+            <div class="col">
+                <div class="small text-muted">Total</div>
+                <div class="h5 mb-0">{{ $summary['total'] ?? 0 }}</div>
+            </div>
+            <div class="col">
+                <div class="small text-muted">Registered</div>
+                <div class="h5 mb-0">{{ $summary['registered'] ?? 0 }}</div>
+            </div>
+            <div class="col">
+                <div class="small text-muted">Present</div>
+                <div class="h5 mb-0">{{ $summary['present'] ?? 0 }}</div>
+            </div>
+            <div class="col">
+                <div class="small text-muted">Cancelled</div>
+                <div class="h5 mb-0">{{ $summary['cancel'] ?? 0 }}</div>
+            </div>
+            <div class="col">
+                <div class="small text-muted">Absent</div>
+                <div class="h5 mb-0">{{ $summary['absent'] ?? 0 }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @forelse ($visits as $visit)
     <div class="card">
         <div class="card-body">
@@ -77,9 +104,32 @@
                         <div class="info-group">
                             <div class="info-label">Academic Info</div>
                             <div class="info-value">
-                                Academic Year: {{ $visit->academic_year }}<br>
-                                Branch: {{ $visit->branch_name ?? '-' }}<br>
-                                Level: {{ $visit->level_name ?? '-' }} / {{ $visit->grade_name ?? '-' }}
+                                @if (isset($visit->level->division->name))
+                                    @php
+                                        $div = strtolower($visit->level->division->name);
+                                        $badgeClass = 'bg-secondary text-white';
+                                        switch ($div) {
+                                            case 'preschool':
+                                                $badgeClass = 'bg-warning text-dark';
+                                                break;
+                                            case 'primary':
+                                                $badgeClass = 'bg-success text-white';
+                                                break;
+                                            case 'secondary':
+                                                $badgeClass = 'bg-info text-white';
+                                                break;
+                                            case 'development class':
+                                                $badgeClass = 'bg-purple text-white'; // may need custom color
+                                                break;
+                                        }
+                                    @endphp
+                                    Academic Year: {{ $visit->academic_year }}<br>
+                                    Branch: {{ $visit->branch_name ?? '-' }}<br>
+                                    Level:
+                                    <span class="badge {{ $badgeClass }}" style="opacity:.85; font-size:.85em;">
+                                        {{ $visit->level->name ?? '-' }}/{{ $visit->grade->name ?? '-' }}
+                                    </span>
+                                @endif
                             </div>
                         </div>
                     </div>

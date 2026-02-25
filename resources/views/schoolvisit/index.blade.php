@@ -2,6 +2,11 @@
 
 @section('content-style')
     <link rel="stylesheet" href="/assets/static/css/enrolment.css?v=1.0.0">
+    <style>
+        .bg-purple {
+            background-color: #6f42c1 !important;
+        }
+    </style>
 @endsection
 
 @section('content-child')
@@ -81,6 +86,7 @@
                 </div>
             </div>
         </div>
+
 
         <div id="schoolvisit-list" class="mt-3">
             @include('schoolvisit._list')
@@ -208,9 +214,10 @@
                 }, 400);
             });
 
-            $('#filter-level, #filter-branch, #filter-status').on('change', function() {
-                loadSchoolvisit();
-            });
+            $('#filter-level, #filter-branch, #filter-status , #filter-grade, #filter-start-date, #filter-end-date')
+                .on('change keyup', function() {
+                    loadSchoolvisit();
+                });
 
             $(document).on('click', '#schoolvisit-list .pagination a', function(e) {
                 e.preventDefault();
@@ -223,6 +230,23 @@
                 $('#id').val(id);
                 $('#primary').modal('show')
             })
+
+            $("#filter-start-date").on("changeDate", function() {
+                let value = $(this).val();
+
+                if (value == "") {
+                    $("#filter-end-date").prop('disabled', true);
+                    $("#filter-end-date").val('');
+                    return;
+                }
+
+                let startDate = moment(value, "DD MMMM YYYY").format("YYYY-MM-DD");
+
+                $("#filter-end-date").prop('disabled', false);
+                $("#filter-end-date").val('');
+                $("#filter-end-date").datepicker("setStartDate", new Date(startDate));
+            });
+
 
             $("#date").on("changeDate", function() {
                 let visitDate = moment($(this).val(), "DD MMMM YYYY").format(
@@ -351,6 +375,7 @@
         }
 
         function loadSchoolvisit(url = "{{ url('/schoolvisit') }}") {
+            blockUI();
             const data = {
                 search: $('#filter-name').val(),
                 start_date: $('#filter-start-date').val(),
@@ -367,6 +392,15 @@
                 type: "GET",
                 success: function(html) {
                     $('#schoolvisit-list').html(html);
+                    unBlockUI();
+                },
+                error: function(err) {
+                    toastify(
+                        "Error",
+                        err?.responseJSON?.message ?? "Please try again later",
+                        "error"
+                    );
+                    unBlockUI();
                 }
             });
         }

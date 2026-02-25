@@ -62,15 +62,44 @@ class SchoolVisitController extends Controller
         if ($request->status && $request->status !== 'all') {
             $query->where('status', $request->status);
         }
+
+        if ($request->start_date && $request->start_date != '') {
+            $startDate = Carbon::createFromFormat('d F Y', $request->start_date)->format('Y-m-d');
+            $endDate = null;
+            if ($request->end_date && $request->end_date != '') {
+                $endDate = Carbon::createFromFormat('d F Y', $request->end_date)->format('Y-m-d');
+                $query->whereBetween('date', [$startDate, $endDate]);
+            }else{
+                $query->where('date', $startDate);
+            }
+        }
         $query->orderBy('date', 'desc');
+
+        $statusQuery = clone $query;
+
+        $statusCounts = $statusQuery
+            ->reorder()
+            ->selectRaw("status, COUNT(*) as total")
+            ->groupBy('status')
+            ->pluck('total', 'status');
+
+        $totalFiltered = (clone $query)->reorder()->count();
+
+        $summary = [
+            'absent' => $statusCounts['absent'] ?? 0,
+            'registered' => $statusCounts['registered'] ?? 0,
+            'present' => $statusCounts['present'] ?? 0,
+            'cancelled' => $statusCounts['cancelled'] ?? 0,
+            'total' => $totalFiltered
+        ];
 
         $visits = $query->paginate(request('perpage')??10)->withQueryString();
 
         if ($request->ajax()) {
-            return view('schoolvisit._list', compact('visits'))->render();
+            return view('schoolvisit._list', compact('visits', 'summary'))->render();
         }
 
-        return view('schoolvisit.index', ["title" => "School Visit List", "visits" => $visits]);
+        return view('schoolvisit.index', ["title" => "School Visit List", "visits" => $visits, "summary" => $summary]);
     }
 
     public function code($code){
