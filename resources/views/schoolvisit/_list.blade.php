@@ -158,5 +158,5 @@
 @endforelse
 
 <div class="mt-3">
-    {{ $visits->links() }}
+    {{ $visits->onEachSide(0)->links() }}
 </div>
