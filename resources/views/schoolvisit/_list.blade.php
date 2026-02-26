@@ -55,13 +55,13 @@
                 @endphp
 
                 <div class="col-md-5">
-                    <label>Kode : {{ $visit->code }} <span
-                            class="badge {{ $bg }}">{{ ucwords($visit->status) }}</span>
-                    </label><br>
+                    <label>Kode : {{ $visit->code }}</label><br>
                     <div class="student-name">{{ ucwords($visit->child_name) }}</div>
                 </div>
                 <div class="col-md-6 text-end" style="vertical-align: middle">
-                    <a data-id="{{ $visit->id }}" href="/schoolvisit/{{ $visit->id }}/edit"
+                    <a data-id="{{ $visit->prospects_id }}" title="view history"
+                        class="btn btn-sm btn-success btn-history"><i class="fa fa-history"></i></a>
+                    <a href="/schoolvisit/{{ $visit->id }}/edit" title="View Detail"
                         class="btn btn-sm btn-primary view-detail"><i class="fa fa-eye"></i></a>
                     <div class="btn-group">
                         <button class="btn btn-sm btn-info dropdown-toggle" type="button" id="dropdownMenuButtonEmoji"
@@ -93,8 +93,7 @@
                             <div class="info-value">
                                 Date: {{ $visit->dateTime() }}<br>
                                 Number of Visitors: {{ $visit->number_visitor }}<br>
-                                Already Enroled: <span
-                                    class="badge text-bg-secondary">{{ ucfirst($visit->already_enrol) }}</span>
+                                Status: <span class="badge {{ $bg }}">{{ ucwords($visit->status) }}</span>
                             </div>
                         </div>
                     </div>
@@ -144,6 +143,135 @@
                             <div class="info-value">
                                 {{ $visit->email }}<br>
                                 {{ $visit->phone_number }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div id="visit-history">
+                        @php
+                            $prospect = $visit->prospect;
+                            $enrolment = optional($prospect)->enrolment;
+                            $admission = optional($enrolment)->admission;
+                            $documents = optional($admission)->documents ?? collect();
+                            $agreement = optional($admission)->statement ?? null;
+                        @endphp
+
+                        <style>
+                            .completion-tracker {
+                                padding: 8px 10px;
+                                background: linear-gradient(135deg, #f5f7fa 0%, #f0f3f7 100%);
+                                border-radius: 6px;
+                                border-left: 3px solid #6f42c1;
+                            }
+
+                            .steps-container {
+                                display: flex;
+                                justify-content: space-between;
+                                align-items: center;
+                                position: relative;
+                                gap: 5px;
+                            }
+
+                            .steps-container::before {
+                                content: '';
+                                position: absolute;
+                                top: 14px;
+                                left: 25px;
+                                right: 25px;
+                                height: 1px;
+                                background: #ddd;
+                                z-index: 0;
+                            }
+
+                            .step {
+                                flex: 1;
+                                text-align: center;
+                                position: relative;
+                                z-index: 1;
+                                display: flex;
+                                flex-direction: column;
+                                align-items: center;
+                                gap: 3px;
+                            }
+
+                            .step-circle {
+                                width: 28px;
+                                height: 28px;
+                                border-radius: 50%;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                font-weight: 600;
+                                color: white;
+                                font-size: 0.75rem;
+                                transition: all 0.3s ease;
+                                position: relative;
+                            }
+
+                            .step.completed .step-circle {
+                                background: #4CAF50;
+                                box-shadow: 0 2px 6px rgba(76, 175, 80, 0.3);
+                            }
+
+                            .step.expired .step-circle {
+                                background: #af4c4c;
+                                box-shadow: 0 2px 6px rgba(76, 175, 80, 0.3);
+                            }
+
+                            .step.active .step-circle {
+                                background: #2196F3;
+                                box-shadow: 0 2px 6px rgba(33, 150, 243, 0.3);
+                            }
+
+                            .step.pending .step-circle {
+                                background: #bdc3c7;
+                            }
+
+                            .step-label {
+                                font-size: 0.65rem;
+                                font-weight: 500;
+                                color: #555;
+                                line-height: 1;
+                            }
+
+                            .completed .step-label {
+                                color: #4CAF50;
+                                font-weight: 600;
+                            }
+
+                            .active .step-label {
+                                color: #2196F3;
+                                font-weight: 600;
+                            }
+                        </style>
+
+                        <div class="completion-tracker">
+                            <div class="steps-container">
+                                <div
+                                    class="step {{ !isset($enrolment) ? 'pending' : ($enrolment->payment_status == 'PAID' ? 'completed' : ($enrolment->payment_status == 'PENDING' ? 'active' : 'expired')) }}">
+                                    <div class="step-circle"><i class="fa fa-credit-card"></i></div>
+                                    <div class="step-label">Payment
+                                        <small><i>{{ !isset($enrolment) ? '' : "($enrolment->payment_status)" }}</i></small>
+                                    </div>
+                                </div>
+                                <div
+                                    class="step {{ !isset($admission) ? 'pending' : ($admission->is_complete == 1 ? 'completed' : 'active') }}">
+                                    <div class="step-circle"><i class="fa fa-user"></i></div>
+                                    <div class="step-label">Enrolment</div>
+                                </div>
+                                <div class="step {{ count($documents) < 4 ? 'pending' : 'completed' }}">
+                                    <div class="step-circle"><i class="fa fa-folder"></i></div>
+                                    <div class="step-label">Documents</div>
+                                </div>
+                                <div
+                                    class="step {{ !isset($agreement) ? 'pending' : ($agreement->is_completed == 1 ? 'completed' : 'active') }}">
+                                    <div class="step-circle"><i class="fa fa-check-square"></i></div>
+                                    <div class="step-label">Agreement</div>
+                                </div>
                             </div>
                         </div>
                     </div>

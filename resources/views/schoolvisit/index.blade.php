@@ -147,6 +147,29 @@
                 </div>
             </div>
         </div>
+
+        <!-- history/timeline modal -->
+        <div class="modal fade" id="historyModal" tabindex="-1" aria-labelledby="historyModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header bg-secondary">
+                        <h5 class="modal-title white" id="historyModalLabel">Visit History</h5>
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                            <i data-feather="x"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="historyContent">Loading...</div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light-secondary" data-bs-dismiss="modal">
+                            <span>Close</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </section>
 @endsection
 
@@ -229,6 +252,21 @@
                 const id = $(this).data('id');
                 $('#id').val(id);
                 $('#primary').modal('show')
+            })
+
+            // open history/timeline modal
+            $('#schoolvisit-list').on('click', '.btn-history', function(e) {
+                e.preventDefault();
+                const id = $(this).data('id');
+                $('#historyContent').html('Loading...');
+                $('#historyModal').modal('show');
+
+                $.get(`/schoolvisit/${id}/history`, function(html) {
+                    $('#historyContent').html(html);
+                }).fail(function() {
+                    $('#historyContent').html(
+                        '<div class="text-danger">Unable to load history.</div>');
+                });
             })
 
             $("#filter-start-date").on("changeDate", function() {

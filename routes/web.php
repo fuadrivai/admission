@@ -110,6 +110,9 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
             Route::get('datatables', [SchoolVisitController::class, 'datatables'])->name('list-schoolvisit');
             Route::get('setting', [SchoolVisitController::class, 'setting'])->name('schoolvisit-setting');
             Route::post('max-capacity', [SchoolVisitController::class, 'postMax'])->name('post-max');
+            // history/timeline endpoint for AJAX modal
+            Route::get('{schoolvisit}/history', [SchoolVisitController::class, 'history'])->name('history');
+            Route::get('handle/olddata', [SchoolVisitController::class, 'handleOldData'])->name('handleOldData');
             Route::resource('/', SchoolVisitController::class)->parameters(['' => 'schoolvisit']);
         });
 

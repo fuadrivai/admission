@@ -67,6 +67,11 @@ class AdmissionStatementImplement implements AdmissionStatementService{
                             'mime' => 'application/pdf',
                         ])
                 );
+
+                $admission->activities()->create([
+                    'prospects_id' => $admission->enrolment->prospects_id,
+                    'note'=>"statement data record completed on ". Carbon::now()->toDateTimeString(),
+                ]);
             }
         }
         

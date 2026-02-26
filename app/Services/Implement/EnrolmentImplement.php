@@ -126,6 +126,11 @@ class EnrolmentImplement implements EnrolmentService
         $data['payment_url'] = $xendit['invoice_url'];
         $enrolment = Enrolment::create($data);
 
+        $enrolment->activities()->create([
+            'prospects_id' => $enrolment->prospects_id,
+            'note'=>"Enrolment created with invoice ID " . $enrolment->invoice_id . " and payment status: " . $enrolment->payment_status,
+        ]);
+
         $enrolment['subject'] = "Enrolment Payment of $enrolment->child_name - Mutiara Harapan Islamic School";
         $enrolment['template'] = 'email-template.enrolment';
         $enrolment['level_name'] = $level_name;

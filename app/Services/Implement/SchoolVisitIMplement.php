@@ -109,6 +109,11 @@ class SchoolVisitIMplement implements SchoolVisitService
 
             $schoolVisit = SchoolVisit::create($value);
 
+            $schoolVisit->activities()->create([
+                'prospect_id' =>  $value['prospects_id'],
+                'note'=>"Registered for school visit on " . Carbon::parse($schoolVisit->date)->format('F j, Y') . " at " . Carbon::parse($schoolVisit->time)->format('g:i A'),
+            ]);
+
             $schoolVisit['dateDate'] = Carbon::parse($schoolVisit['date'])->format('l, F j, Y');
             $schoolVisit['subject'] = "MHIS Visit Confirmation";
             $schoolVisit['template'] = 'email-template.schoolvisit';
@@ -140,6 +145,11 @@ class SchoolVisitIMplement implements SchoolVisitService
     public function put($visit, $data)
     {
         $visit->update($data);
+
+        $visit->activities()->create([
+            'prospects_id' => $visit->prospects_id,
+            'note'=>"Update for school visit status to " . $data['status'] . " on " . Carbon::now()->format('F j, Y'),
+        ]);
         return $visit;
     }
 
@@ -190,6 +200,11 @@ class SchoolVisitIMplement implements SchoolVisitService
         foreach ($visits as $visit) {
             $visit->status = 'absent';
             $visit->save();
+
+            $visit->activities()->create([
+                'prospects_id' => $visit->prospects_id,
+                'note'=>'Status change by System: Marked as absent due to no-show on ' . Carbon::parse($visit->date)->format('F j, Y'),
+            ]);
         }
     }
 

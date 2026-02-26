@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Prospects;
 use App\Models\SchoolVisit;
 use App\Services\BranchService;
 use App\Services\HolidayService;
+use App\Services\ProspectService;
 use App\Services\SchoolVisitMessageService;
 use App\Services\SchoolVisitService;
 use Carbon\Carbon;
@@ -23,22 +25,25 @@ class SchoolVisitController extends Controller
     private BranchService $branchService;
     private HolidayService $holidayService;
     private SchoolVisitMessageService $messageService;
+    private ProspectService $prospectService;
 
     public function __construct(
         SchoolVisitService $schooolVisitService,
         BranchService $branchService,
         HolidayService $holidayService,
-        SchoolVisitMessageService $messageService
+        SchoolVisitMessageService $messageService,
+        ProspectService $prospectService
     )
     {
         $this->schooolVisitService = $schooolVisitService;
         $this->branchService = $branchService;
         $this->holidayService = $holidayService;
         $this->messageService = $messageService;
+        $this->prospectService = $prospectService;
     }
     public function index(Request $request)
     {
-        $query = SchoolVisit::query();
+        $query = SchoolVisit::with(['prospect.enrolment.admission', 'prospect.enrolment.admission.documents', 'prospect.enrolment.admission.statement', 'prospect.activities']);
 
         if ($request->search) {
             $query->where(function ($q) use ($request) {
@@ -140,6 +145,12 @@ class SchoolVisitController extends Controller
         return redirect()
         ->back()
         ->with('success', 'Maximum capacity has been updated successfully.');
+    }
+
+    public function history($id)
+    {
+        $prospect = $this->prospectService->show($id);
+        return view('schoolvisit._history', compact('prospect'))->render();
     }
 
     public function datatables(UtilitiesRequest $request)
@@ -299,5 +310,35 @@ class SchoolVisitController extends Controller
     {
         $this->schooolVisitService->changeStatusViaCron();
         return response()->json(['message' => 'Status updated successfully']);
+    }
+
+    public function handleOldData()
+    {
+
+        $visits = SchoolVisit::whereNull('prospects_id')->get();
+        foreach ($visits as $visit) {
+            $prospect = Prospects::create([
+                'code' => $visit->code,
+                'child_name' => $visit->child_name,
+                'current_school' => $visit->current_school,
+                'parent_name' => $visit->parent_name,
+                'email' => $visit->email,
+                'phone_number' => $visit->phone_number,
+                'zipcode' => $visit->zipcode,
+                'address' => null,
+                'relationship' => null,
+                'date_of_birth' => null,
+                'place_of_birth' => null,
+                'source_module' => 'schoolvisit',
+            ]);
+
+            $visit->prospects_id = $prospect->id;
+            $visit->save();
+
+            $visit->activities()->create([
+                'prospects_id' => $prospect->id,
+                'note' => "Registered for school visit on " . Carbon::parse($visit->date)->format('F j, Y') . " at " . Carbon::parse($visit->time)->format('g:i A')
+            ]);
+        }
     }
 }

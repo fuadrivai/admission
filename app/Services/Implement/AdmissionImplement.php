@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 
 use function App\Helpers\imageToBase64;
 use function App\Helpers\normalizePhoneNumber;
@@ -52,7 +53,7 @@ class AdmissionImplement implements AdmissionService
                         ->where('code', $code)->first();
         if (!$admission){
             $enrolment = Enrolment::with(['branch', 'grade', 'level'])->where('code', $code)->firstOrFail();
-            if ($enrolment) {
+            if ($enrolment->payment_status == 'PAID') {
                 $applicantData = [
                     'fullname' => $enrolment->child_name,
                     'date_of_birth'=>$enrolment->date_of_birth,
@@ -87,10 +88,19 @@ class AdmissionImplement implements AdmissionService
                 ];
                 ApplicantParent::create($parentData);
 
+                $admission->activities()->create([
+                    'prospects_id' => $enrolment->prospects_id,
+                    'note'=>"Student data record created on ". Carbon::now()->toDateTimeString(),
+                ]);
+
                 return Admission::with(['applicant','enrolment','branch','level','grade'])
                         ->where('code', $code)->first();
-            }else{
-                return response()->json(['message'=>"no code found in enrolment or admission"],404);
+            }else if($enrolment->payment_status == 'PENDING'){
+                throw new \Exception("Enrolment has not been paid.");
+            } else if($enrolment->payment_status == 'EXPIRED'){
+                throw new \Exception("Enrolment has been EXPIRED");
+            } else{
+                throw new \Exception("no code found in enrolment or admission");
             }
         }
         return $admission;
@@ -239,6 +249,10 @@ class AdmissionImplement implements AdmissionService
             $admission = Admission::with(['applicant.parents','level','branch','grade'])->findOrFail($admissionId);
 
             $admission->update(['is_complete' => 1]);
+            $admission->activities()->create([
+                'prospects_id' => $admission->enrolment->prospects_id,
+                'note'=>"Student data record completed on ". Carbon::now()->toDateTimeString(),
+            ]);
 
             $pdfPath = $this->generateEnrolmentPdf($admission);
 

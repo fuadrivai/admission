@@ -15,6 +15,11 @@ class Admission extends Model
         'is_complete' => 'boolean',
     ];
 
+    public function activities()
+    {
+        return $this->morphMany(ProspectActivity::class, 'activityable');
+    }
+
     public function applicant()
     {
         return $this->belongsTo(Applicant::class);

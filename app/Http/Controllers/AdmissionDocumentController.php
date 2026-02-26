@@ -211,6 +211,11 @@ class AdmissionDocumentController extends Controller
                 );
             }
 
+            $admission->activities()->create([
+                'prospects_id' => $admission->enrolment->prospects_id,
+                'note'=>"document upload completed on ". Carbon::now()->toDateTimeString(),
+            ]);
+
             return response()->json([
                 'message'  => 'Dokumen berhasil digabung menjadi 1 PDF',
                 'pdf_path' => "admission/{$request->admission_id}/all-documents.pdf"

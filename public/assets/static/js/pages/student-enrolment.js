@@ -334,8 +334,7 @@ async function checkAdmissionByCode() {
             window.location.href = `/document/${path}/${code}`;
             return false;
         } else {
-            getAdmissionByCode();
-            return true;
+            return getAdmissionByCode();
         }
     } catch (err) {
         toastify(
@@ -354,12 +353,14 @@ async function getAdmissionByCode() {
         getLevelsAndGrades(admission);
         enrolment = admission.enrolment;
         fillStudent();
+        return true;
     } catch (err) {
         toastify(
             "Error",
             err?.responseJSON?.message ?? "Please try again later",
             "bottom",
         );
+        return false;
     }
 }
 

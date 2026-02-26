@@ -23,6 +23,11 @@ class Enrolment extends Model
         return $this->belongsTo(Prospects::class, 'prospects_id');
     }
 
+    public function activities()
+    {
+        return $this->morphMany(ProspectActivity::class, 'activityable');
+    }
+
     public function branch()
     {
         return $this->belongsTo(Branch::class, 'branch_id');

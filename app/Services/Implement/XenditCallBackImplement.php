@@ -51,11 +51,19 @@ class XenditCallBackImplement implements XenditCallBackService
     private function enrolment($table, $externalId, $data){
 
         $paidDate     = $data['paid_at'] ?? null;
-        Enrolment::where('invoice_id', $externalId)
-            ->update([
-                'payment_status'     => $this->mapStatus($data['status']),
-                'payment_date'    => Carbon::parse($paidDate)->setTimezone('Asia/Jakarta')->format('Y-m-d H:i:s'),
-            ]);
+        $enrolment = Enrolment::where('invoice_id', $externalId)->first();
+        $enrolment->update([
+            'payment_status' => $this->mapStatus($data['status']),
+            'payment_date'   => $paidDate
+                ? Carbon::parse($paidDate)
+                    ->setTimezone('Asia/Jakarta')
+                    ->format('Y-m-d H:i:s')
+                : null,
+        ]);
+        $enrolment->activities()->create([
+            'prospects_id' => $enrolment->prospects_id,
+            'note'        => "Payment status updated to " . $this->mapStatus($data['status']) . " Via Xendit",
+        ]);
         $enrolment = (array) DB::table($table)
             ->where('invoice_id', $externalId)
             ->first();
