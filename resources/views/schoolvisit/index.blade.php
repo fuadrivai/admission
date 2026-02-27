@@ -1,7 +1,7 @@
 @extends('main-layout.index')
 
 @section('content-style')
-    <link rel="stylesheet" href="/assets/static/css/enrolment.css?v=1.0.0">
+    <link rel="stylesheet" href="/assets/static/css/enrolment.css?v=1.0.1">
     <style>
         .bg-purple {
             background-color: #6f42c1 !important;

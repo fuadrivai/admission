@@ -110,7 +110,7 @@ class SchoolVisitIMplement implements SchoolVisitService
             $schoolVisit = SchoolVisit::create($value);
 
             $schoolVisit->activities()->create([
-                'prospect_id' =>  $value['prospects_id'],
+                'prospects_id' =>  $value['prospects_id'],
                 'note'=>"Registered for school visit on " . Carbon::parse($schoolVisit->date)->format('F j, Y') . " at " . Carbon::parse($schoolVisit->time)->format('g:i A'),
             ]);
 
