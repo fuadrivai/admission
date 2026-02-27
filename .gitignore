@@ -17,3 +17,4 @@ yarn-error.log
 /.idea
 /.vscode
 /.well-known
+/.well-known/acme-challenge
