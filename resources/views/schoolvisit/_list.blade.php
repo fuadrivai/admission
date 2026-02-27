@@ -15,7 +15,7 @@
             </div>
             <div class="col">
                 <div class="small text-muted">Cancelled</div>
-                <div class="h5 mb-0">{{ $summary['cancel'] ?? 0 }}</div>
+                <div class="h5 mb-0">{{ $summary['cancelled'] ?? 0 }}</div>
             </div>
             <div class="col">
                 <div class="small text-muted">Absent</div>
