@@ -6,6 +6,7 @@ use App\Http\Controllers\AdmissionStatementController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BankChargerController;
 use App\Http\Controllers\BranchController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DivisionController;
 use App\Http\Controllers\EnrolmentController;
 use App\Http\Controllers\EnrolmentPriceController;
@@ -91,9 +92,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
     Route::get('/price/branch/level/{branchId}/{levelId}', [EnrolmentPriceController::class, 'getRegistrationPrice']);
 
     Route::group(['middleware' => 'auth'], function () {
-        Route::get('/', function () {
-            return view('main-layout.index');
-        });
+        Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
         Route::post('/logout', [AuthController::class, 'logout']);
 
