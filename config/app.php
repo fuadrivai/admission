@@ -195,6 +195,7 @@ return [
         App\Providers\AdmissionProvider::class,
         App\Providers\AdmissionDocumentProvider::class,
         App\Providers\AdmissionStatementProvider::class,
+        App\Providers\AcademicYearProvider::class,
 
     ],
 
