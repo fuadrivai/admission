@@ -18,3 +18,4 @@ yarn-error.log
 /.vscode
 /.well-known
 /.well-known/acme-challenge
+/.env.local
