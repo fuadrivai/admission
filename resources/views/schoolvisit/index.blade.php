@@ -27,6 +27,8 @@
                                     class="form-control" id="filter-name" name="filter-name">
                             </div>
                         </div>
+                    </div>
+                    <div class="row">
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label for="filter-start-date">Start date</label>
@@ -40,6 +42,28 @@
                                 <lable for="filter-end-date">End date</lable>
                                 <input disabled type="text" class="form-control date-picker" id="filter-end-date"
                                     name="filter-end-date">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="filter-enrol">Already Enrol</label>
+                                <select id="filter-enrol" name="filter-enrol" class="form-select" style="width: 100%">
+                                    <option value="all">All</option>
+                                    <option value="yes">Yes</option>
+                                    <option value="no">No</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="filter-payment">Payment</label>
+                                <select disabled id="filter-payment" name="filter-payment" class="form-select"
+                                    style="width: 100%">
+                                    <option value="all">All</option>
+                                    <option value="PENDING">PENDING</option>
+                                    <option value="PAID">PAID</option>
+                                    <option value="EXPIRED">EXPIRED</option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -237,7 +261,7 @@
                 }, 400);
             });
 
-            $('#filter-level, #filter-branch, #filter-status , #filter-grade, #filter-start-date, #filter-end-date')
+            $('#filter-level, #filter-branch, #filter-status , #filter-grade, #filter-start-date, #filter-end-date, #filter-enrol, #filter-payment')
                 .on('change keyup', function() {
                     loadSchoolvisit();
                 });
@@ -284,6 +308,15 @@
                 $("#filter-end-date").val('');
                 $("#filter-end-date").datepicker("setStartDate", new Date(startDate));
             });
+
+            $('#filter-enrol').on('change', function() {
+                if (this.value == "yes") {
+                    $('#filter-payment').attr('disabled', false);
+                } else {
+                    $('#filter-payment').attr('disabled', true);
+                    $('#filter-payment').val('all').trigger('change');
+                }
+            })
 
 
             $("#date").on("changeDate", function() {
@@ -422,6 +455,8 @@
                 level: $('#filter-level').val(),
                 grade: $('#filter-grade').val(),
                 status: $('#filter-status').val(),
+                enrol: $('#filter-enrol').val(),
+                payment: $('#filter-payment').val(),
             };
 
             $.ajax({

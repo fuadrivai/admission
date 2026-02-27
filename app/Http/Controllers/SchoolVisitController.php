@@ -54,6 +54,24 @@ class SchoolVisitController extends Controller
                 });
         }
 
+        if ($request->enrol && $request->enrol !== 'all') {
+            if ($request->enrol === 'yes') {
+                $query->whereHas('prospect.enrolment',function($q) use ($request) {
+                    if ($request->payment == 'PAID') {
+                        $q->where('payment_status', 'PAID');
+                    }
+                    if ($request->payment == 'PENDING') {
+                        $q->where('payment_status', 'PENDING');
+                    }
+                    if ($request->payment == 'EXPIRED') {
+                        $q->where('payment_status', 'EXPIRED');
+                    }
+                });
+            } elseif ($request->enrol === 'no') {
+                $query->whereDoesntHave('prospect.enrolment');
+            } 
+        }
+
         if ($request->level && $request->level !== 'all') {
             $query->where('level_id', $request->level);
         }
@@ -89,12 +107,26 @@ class SchoolVisitController extends Controller
 
         $totalFiltered = (clone $query)->reorder()->count();
 
+        $enrolledCount = (clone $query)->whereHas('prospect.enrolment')->count();
+
         $summary = [
             'absent' => $statusCounts['absent'] ?? 0,
             'registered' => $statusCounts['registered'] ?? 0,
             'present' => $statusCounts['present'] ?? 0,
             'cancelled' => $statusCounts['cancelled'] ?? 0,
-            'total' => $totalFiltered
+            'total' => $totalFiltered,
+            'enrolSummary' => [
+                'enrolled' => $enrolledCount,
+                'paid' => (clone $query)->whereHas('prospect.enrolment', function($q) {
+                    $q->where('payment_status', 'PAID');
+                })->count(),
+                'pending' => (clone $query)->whereHas('prospect.enrolment', function($q) {
+                    $q->where('payment_status', 'PENDING');
+                })->count(),
+                'expired' => (clone $query)->whereHas('prospect.enrolment', function($q) {
+                    $q->where('payment_status', 'EXPIRED');
+                })->count(),
+            ],
         ];
 
         $visits = $query->paginate(request('perpage')??10)->withQueryString();

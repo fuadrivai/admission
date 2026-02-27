@@ -1,25 +1,44 @@
 <div class="card shadow-sm">
     <div class="card-body py-2">
-        <div class="row text-center">
-            <div class="col">
+        <div class="row text-center gy-2">
+            <div class="col-6 col-md">
                 <div class="small text-muted">Total</div>
                 <div class="h5 mb-0">{{ $summary['total'] ?? 0 }}</div>
             </div>
-            <div class="col">
+            <div class="col-6 col-md">
                 <div class="small text-muted">Registered</div>
                 <div class="h5 mb-0">{{ $summary['registered'] ?? 0 }}</div>
             </div>
-            <div class="col">
+            <div class="col-6 col-md">
                 <div class="small text-muted">Present</div>
                 <div class="h5 mb-0">{{ $summary['present'] ?? 0 }}</div>
             </div>
-            <div class="col">
+            <div class="col-6 col-md">
                 <div class="small text-muted">Cancelled</div>
                 <div class="h5 mb-0">{{ $summary['cancelled'] ?? 0 }}</div>
             </div>
-            <div class="col">
+            <div class="col-6 col-md">
                 <div class="small text-muted">Absent</div>
                 <div class="h5 mb-0">{{ $summary['absent'] ?? 0 }}</div>
+            </div>
+            <hr>
+        </div>
+        <div class="row text-center gy-2">
+            <div class="col-6 col-md">
+                <div class="small text-muted">Total Enrol</div>
+                <div class="h5 mb-0">{{ $summary['enrolSummary']['enrolled'] ?? 0 }}</div>
+            </div>
+            <div class="col-6 col-md">
+                <div class="small text-muted">Pending</div>
+                <div class="h5 mb-0">{{ $summary['enrolSummary']['pending'] ?? 0 }}</div>
+            </div>
+            <div class="col-6 col-md">
+                <div class="small text-muted">Paid</div>
+                <div class="h5 mb-0">{{ $summary['enrolSummary']['paid'] ?? 0 }}</div>
+            </div>
+            <div class="col-6 col-md">
+                <div class="small text-muted">Expired</div>
+                <div class="h5 mb-0">{{ $summary['enrolSummary']['expired'] ?? 0 }}</div>
             </div>
         </div>
     </div>
