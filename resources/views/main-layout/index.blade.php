@@ -27,8 +27,9 @@
                 <div class="sidebar-header position-relative">
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="logo">
-                            <a href="/"><img src="/assets/compiled/svg/logo.svg" alt="Logo"
-                                    srcset=""></a>
+                            <a href="/"><img style="width:3.5rem !important; height:3.5rem !important;"
+                                    src="/assets/images/logo.png" alt="Logo" srcset=""> Admission
+                            </a>
                         </div>
 
                         <div class="sidebar-toggler  x">
