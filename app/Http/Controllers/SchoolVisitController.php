@@ -373,4 +373,5 @@ class SchoolVisitController extends Controller
             ]);
         }
     }
+
 }

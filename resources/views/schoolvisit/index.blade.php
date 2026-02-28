@@ -510,6 +510,7 @@
                 id: $('#id').val(),
                 date: moment($('#date').val(), 'DD MMMM YYYY').format('YYYY-MM-DD'),
                 time: $('#selectedTime').val(),
+                status: 'registered'
             }
             try {
                 blockUI();

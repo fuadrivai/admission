@@ -11,9 +11,10 @@ use App\Models\WhatsappCode;
 use App\Services\ProspectService;
 use App\Services\SchoolVisitService;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Config;
+use Spatie\GoogleCalendar\Event;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Config;
 
 use function App\Helpers\generate;
 use function App\Helpers\normalizePhoneNumber;
@@ -106,6 +107,9 @@ class SchoolVisitIMplement implements SchoolVisitService
                     $value['prospects_id'] = $data['prospects_id'];
                 }
             }
+            $event = $this->saveGoogleCalendar($value);
+
+            $value['google_event_id'] = $event->id;
 
             $schoolVisit = SchoolVisit::create($value);
 
@@ -144,13 +148,61 @@ class SchoolVisitIMplement implements SchoolVisitService
 
     public function put($visit, $data)
     {
-        $visit->update($data);
+        DB::beginTransaction();
+        try {
+            $visit->update($data);
+            $visit->activities()->create([
+                'prospects_id' => $visit->prospects_id,
+                'note' => "Update school visit status to {$visit->status} on " .
+                    now()->format('F j, Y'),
+            ]);
 
-        $visit->activities()->create([
-            'prospects_id' => $visit->prospects_id,
-            'note'=>"Update for school visit status to " . $data['status'] . " on " . Carbon::now()->format('F j, Y'),
-        ]);
-        return $visit;
+            switch ($visit->status) {
+                case 'registered':
+                    $dateTime = Carbon::parse($visit->date . ' ' . $visit->time,'Asia/Jakarta');
+                    if ($visit->google_event_id) {
+                        try {
+                            $event = Event::find($visit->google_event_id);
+                            if ($event) {
+                                $event->startDateTime = $dateTime;
+                                $event->endDateTime   = (clone $dateTime)->addHour();
+
+                                $event->addAttendee(['email' => $visit->email,'responseStatus' => 'accepted']);
+                                $event->guestsCanModify = false;
+                                $event->guestsCanInviteOthers = false;
+                                $event->guestsCanSeeOtherGuests = true;
+                                $event->save();
+                            }
+                        } catch (\Exception $e) {
+                            $newEvent = $this->saveGoogleCalendar($visit->toArray());
+                            $visit->google_event_id = $newEvent->id;
+                            $visit->save();
+                        }
+                    } else {
+                        $newEvent = $this->saveGoogleCalendar($visit->toArray());
+                        $visit->google_event_id = $newEvent->id;
+                        $visit->save();
+                    }
+                    break;
+
+                case 'cancelled':
+                    if ($visit->google_event_id) {
+                        try {
+                            Event::find($visit->google_event_id)->delete();
+                        } catch (\Exception $e) {
+                            // ignore kalau sudah terhapus
+                        }
+                    }
+                    break;
+            }
+
+            DB::commit();
+            return $visit;
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
     }
 
     public function fetch($data)
@@ -241,6 +293,27 @@ Mutiara Harapan Islamic School";
         ];
 
         return $this->prospectService->post($prospectData);
+    }
+
+    function saveGoogleCalendar($visit)
+    {
+        $dateTime = Carbon::parse($visit['date'] . ' ' . $visit['time'].':00');
+
+        $event = new Event();
+        $event->name = "School Visit - " . $visit['level_name'] . " - " . $visit['child_name'];
+        $event->startDateTime = $dateTime;
+        $event->endDateTime = $dateTime->addHour();
+        $event->description = "School visit for " . $visit['child_name'] . " (" . $visit['parent_name'] . "/" . $visit['phone_number'] . ") at " . $visit['branch_name'] . " - " . $visit['level_name'];
+        $eventEmail = EmailSetting::where('branch_id', $visit['branch_id'])->first()->from_address; 
+        $event->addAttendee(['email' => $eventEmail]);
+        $event->addAttendee(['email' => $visit['email'],'responseStatus' => 'accepted']);
+
+        $event->guestsCanModify = false;
+        $event->guestsCanInviteOthers = false;
+        $event->guestsCanSeeOtherGuests = true;
+        $event=$event->save();
+
+        return $event;
     }
     
 }
