@@ -305,7 +305,7 @@ Mutiara Harapan Islamic School";
         $event->endDateTime = $dateTime->addHour();
         $event->description = "School visit for " . $visit['child_name'] . " (" . $visit['parent_name'] . "/" . $visit['phone_number'] . ") at " . $visit['branch_name'] . " - " . $visit['level_name'];
         $eventEmail = EmailSetting::where('branch_id', $visit['branch_id'])->first()->from_address; 
-        $event->addAttendee(['email' => $eventEmail]);
+        // $event->addAttendee(['email' => $eventEmail]);
         $event->addAttendee(['email' => $visit['email'],'responseStatus' => 'accepted']);
 
         $event->guestsCanModify = false;
