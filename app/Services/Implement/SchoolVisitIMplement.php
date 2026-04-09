@@ -64,7 +64,6 @@ class SchoolVisitIMplement implements SchoolVisitService
                 throw new \Exception("The selected time slot for the school visit is already full. Kindly choose a different time.");
             }
 
-            // $code = generateUniqueCode();
             $phone = normalizePhoneNumber($data['phone_number']);
             $value = [
                 'code' => null,
@@ -89,6 +88,7 @@ class SchoolVisitIMplement implements SchoolVisitService
                 'time' => $data['time'],
                 'number_visitor' => $data['number_visitor'],
                 'already_enrol' => $data['already_enrol'],
+                'reason_for_visit' => $data['reason_for_visit'],
                 'roles' => $data['roles'],
                 'status' => "registered",
             ];

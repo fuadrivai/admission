@@ -204,179 +204,193 @@
                                 </div>
                             </div>
                             <hr>
-                            <h4 class="mb-4">Child Form</h4>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="child-name" class="form-label">Child's Name <span
-                                                class="required">*</span></label>
-                                        <input type="text" name="child_name" class="form-control" id="child-name"
-                                            required />
-                                        <div class="invalid-feedback">
-                                            Please provide your child's name.
+                            <div id="child-body">
+                                <h4 class="mb-4">Child Form</h4>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="child-name" class="form-label">Child's Name <span
+                                                    class="required">*</span></label>
+                                            <input type="text" name="child_name" class="form-control"
+                                                id="child-name" required />
+                                            <div class="invalid-feedback">
+                                                Please provide your child's name.
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="current-school" class="form-label">Current School <span
+                                                    class="required">*</span></label>
+                                            <input type="text" name="current_school" class="form-control"
+                                                id="current-school" required />
+                                            <div class="invalid-feedback">
+                                                Please provide the current school name.
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="current-school" class="form-label">Current School <span
-                                                class="required">*</span></label>
-                                        <input type="text" name="current_school" class="form-control"
-                                            id="current-school" required />
-                                        <div class="invalid-feedback">
-                                            Please provide the current school name.
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label for="visit-time" class="form-label">MHIS Branch
-                                            <span class="required">*</span></label>
-                                        <select style="width: 100%" class="form-select required-select2 select2"
-                                            name="branch_id" id="branch" required>
-                                            <option disabled selected value="">Select a branch</option>
-                                            @foreach ($branches as $item)
-                                                <option value="{{ $item->id }}">{{ $item->name }}</option>
-                                            @endforeach
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="visit-time" class="form-label">MHIS Branch
+                                                <span class="required">*</span></label>
+                                            <select style="width: 100%" class="form-select required-select2 select2"
+                                                name="branch_id" id="branch" required>
+                                                <option disabled selected value="">Select a branch</option>
+                                                @foreach ($branches as $item)
+                                                    <option value="{{ $item->id }}">{{ $item->name }}</option>
+                                                @endforeach
 
-                                        </select>
-                                        <div class="invalid-feedback">
-                                            Please select a MHIS branch to be visited.
+                                            </select>
+                                            <div class="invalid-feedback">
+                                                Please select a MHIS branch to be visited.
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="visit-level" class="form-label">Level
+                                                <span class="required">*</span></label>
+                                            <select style="width: 100%" name="level_id"
+                                                class="form-select required-select2 select2" id="visit-level" disabled
+                                                required>
+                                                <option disabled selected value="">Select Level</option>
+                                            </select>
+                                            <div class="invalid-feedback">
+                                                Please select at least one level.
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="visit-level" class="form-label">Grade
+                                                <span class="required">*</span></label>
+                                            <select disabled style="width: 100%"
+                                                class="form-select required-select2 select2" name="grade_id"
+                                                id="grade" required>
+                                                <option disabled selected value="">Select Grade</option>
+                                            </select>
+                                            <div class="invalid-feedback">
+                                                Please select at least one grade.
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label for="visit-level" class="form-label">Level
-                                            <span class="required">*</span></label>
-                                        <select style="width: 100%" name="level_id"
-                                            class="form-select required-select2 select2" id="visit-level" disabled
-                                            required>
-                                            <option disabled selected value="">Select Level</option>
-                                        </select>
-                                        <div class="invalid-feedback">
-                                            Please select at least one level.
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="academic-year" class="form-label">Academic Year <span
+                                                    class="required">*</span></label>
+                                            <select style="width: 100%" name="academic_year"
+                                                class="form-select required-select2 select2 academic-year"
+                                                id="academic-year" disabled required>
+                                                <option disabled selected value="">Select Academic Year</option>
+                                            </select>
+                                            <div class="invalid-feedback">
+                                                Please select an academic year.
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="hear-about" class="form-label">How did you heard about MHIS?
+                                                <span class="required">*</span></label>
+                                            <select style="width: 100%" name="info_from"
+                                                class="form-select required-select2 select2" id="hear-about" required>
+                                                <option disabled selected value="">Select an option</option>
+                                                <option value="website">Website</option>
+                                                <option value="instagram">Instagram</option>
+                                                <option value="facebook">Facebook</option>
+                                                <option value="friends">Friends/Family</option>
+                                                <option value="mhisparent">MHIS Parent</option>
+                                                <option value="google">Google Search</option>
+                                                <option value="others">Others</option>
+                                            </select>
+                                            <div class="invalid-feedback">
+                                                Please select how you heard about us.
+                                            </div>
+                                        </div>
+                                        <div class="form-group mt-2" id="hear-other-group" style="display:none;">
+                                            <input type="text" class="form-control" id="hear-other-text"
+                                                name="info_from_message" placeholder="Please specify" />
+                                            <div class="invalid-feedback">
+                                                Please specify how you heard about us.
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label for="visit-level" class="form-label">Grade
-                                            <span class="required">*</span></label>
-                                        <select disabled style="width: 100%"
-                                            class="form-select required-select2 select2" name="grade_id"
-                                            id="grade" required>
-                                            <option disabled selected value="">Select Grade</option>
-                                        </select>
-                                        <div class="invalid-feedback">
-                                            Please select at least one grade.
+                                <hr>
+                                <h4 class="mb-4">Schedule</h4>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="visit-date" class="form-label">Preferred Visit Date
+                                                <span class="required">*</span></label>
+                                            <input type="text"name="date" class="form-control date-picker" required
+                                                id="visit-date">
+                                            <div class="invalid-feedback">
+                                                Please select a visit date (Monday-Saturday only).
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="academic-year" class="form-label">Academic Year <span
-                                                class="required">*</span></label>
-                                        <select style="width: 100%" name="academic_year"
-                                            class="form-select required-select2 select2 academic-year"
-                                            id="academic-year" disabled required>
-                                            <option disabled selected value="">Select Academic Year</option>
-                                        </select>
-                                        <div class="invalid-feedback">
-                                            Please select an academic year.
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="hear-about" class="form-label">How did you heard about MHIS? <span
-                                                class="required">*</span></label>
-                                        <select style="width: 100%" name="info_from"
-                                            class="form-select required-select2 select2" id="hear-about" required>
-                                            <option disabled selected value="">Select an option</option>
-                                            <option value="website">Website</option>
-                                            <option value="instagram">Instagram</option>
-                                            <option value="facebook">Facebook</option>
-                                            <option value="friends">Friends/Family</option>
-                                            <option value="mhisparent">MHIS Parent</option>
-                                            <option value="google">Google Search</option>
-                                            <option value="others">Others</option>
-                                        </select>
-                                        <div class="invalid-feedback">
-                                            Please select how you heard about us.
-                                        </div>
-                                    </div>
-                                    <div class="form-group mt-2" id="hear-other-group" style="display:none;">
-                                        <input type="text" class="form-control" id="hear-other-text"
-                                            name="info_from_message" placeholder="Please specify" />
-                                        <div class="invalid-feedback">
-                                            Please specify how you heard about us.
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <hr>
-                            <h4 class="mb-4">Schedule</h4>
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label for="visit-date" class="form-label">Preferred Visit Date
-                                            <span class="required">*</span></label>
-                                        <input type="text"name="date" class="form-control date-picker" required
-                                            id="visit-date">
-                                        <div class="invalid-feedback">
-                                            Please select a visit date (Monday-Saturday only).
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label for="visit-time" class="form-label">Preferred Visit Time
-                                            <span class="required">*</span></label>
-                                        <select disabled style="width: 100%"
-                                            class="form-select required-select2 select2" name="time"
-                                            id="visit-time" required>
-                                            <option disabled selected value="">Select time</option>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="visit-time" class="form-label">Preferred Visit Time
+                                                <span class="required">*</span></label>
+                                            <select disabled style="width: 100%"
+                                                class="form-select required-select2 select2" name="time"
+                                                id="visit-time" required>
+                                                <option disabled selected value="">Select time</option>
 
-                                        </select>
-                                        <div class="invalid-feedback">
-                                            Please select a time between 07:30 - 15:00.
+                                            </select>
+                                            <div class="invalid-feedback">
+                                                Please select a time between 07:30 - 15:00.
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="visitors-count" class="form-label">Number of Visitors
+                                                <span class="required">*</span></label>
+                                            <input type="number" name="number_visitor" class="form-control"
+                                                id="visitors-count" min="1" max="5" required />
+                                            <div class="invalid-feedback">
+                                                Please specify number of visitors (minimum 1 and maximum 5).
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label for="reason_for_visit" class="form-label">Kindly let us know the
+                                                purpose of your visit to MHIS
+                                                <span class="required">*</span></label>
+                                            <textarea required name="reason_for_visit" class="form-control" id="reason_for_visit" rows="3"
+                                                placeholder="If you have any specific questions or requests for your visit, please let us know here."></textarea>
+                                            <div class="invalid-feedback">
+                                                Please specify the purpose of your visit to MHIS.
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label for="visitors-count" class="form-label">Number of Visitors
-                                            <span class="required">*</span></label>
-                                        <input type="number" name="number_visitor" class="form-control"
-                                            id="visitors-count" min="1" max="5" required />
-                                        <div class="invalid-feedback">
-                                            Please specify number of visitors (minimum 1 and maximum 5).
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="checkbox-group">
-                                <p>
-                                    <strong>I declare that I am willing to follow the school rules
-                                        <span class="required">*</span></strong>
-                                </p>
+                                <div class="checkbox-group">
+                                    <p>
+                                        <strong>I declare that I am willing to follow the school rules
+                                            <span class="required">*</span></strong>
+                                    </p>
 
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <button type="button" class="btn btn-outline-secondary previous-btn"
-                                    id="previous-btn">
-                                    <i class="fas fa-arrow-left me-2"></i>Previous
-                                </button>
-                                <button type="submit" class="btn btn-success submit-btn" id="submit-btn">
-                                    <span class="submit-text">Submit</span>
-                                    <span class="spinner-border spinner-border-sm d-none" role="status"
-                                        aria-hidden="true"></span>
-                                </button>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <button type="button" class="btn btn-outline-secondary previous-btn"
+                                        id="previous-btn">
+                                        <i class="fas fa-arrow-left me-2"></i>Previous
+                                    </button>
+                                    <button type="submit" class="btn btn-success submit-btn" id="submit-btn">
+                                        <span class="submit-text">Submit</span>
+                                        <span class="spinner-border spinner-border-sm d-none" role="status"
+                                            aria-hidden="true"></span>
+                                    </button>
+                                </div>
                             </div>
                         </form>
                     </div>
@@ -401,7 +415,7 @@
     <script src="/assets/extensions/toastify-js/src/toastify.js"></script>
     <script src="/assets/compiled/js/script.js?v=1.1.4"></script>
     <script src="/assets/static/js/constant.js?v=1.1.5"></script>
-    <script src="/assets/static/js/pages/school-visit.js?v=1.1.7"></script>
+    <script src="/assets/static/js/pages/school-visit.js?v=1.1.8"></script>
 </body>
 
 </html>

@@ -82,25 +82,25 @@
                         class="btn btn-sm btn-success btn-history"><i class="fa fa-history"></i></a>
                     <a href="/schoolvisit/{{ $visit->id }}/edit" title="View Detail"
                         class="btn btn-sm btn-primary view-detail"><i class="fa fa-eye"></i></a>
-                    <div class="btn-group">
-                        <button class="btn btn-sm btn-info dropdown-toggle" type="button" id="dropdownMenuButtonEmoji"
-                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i
-                                class="fa fa-cog"></i>
-                        </button>
-                        <div class="dropdown-menu bg-danger ob" aria-labelledby="dropdownMenuButtonEmoji">
-                            <button class="dropdown-item text-white btn-edit" data-id="{{ $visit->id }}"><i
-                                    class="fa fa-pencil"></i>
-                                Reschedule</button>
-                            <button class="dropdown-item text-white btn-confirm"
-                                onclick="changeStatus('present',{{ $visit->id }})" data-id="{{ $visit->id }}"><i
-                                    class="bi bi-star"></i>
-                                Confirm</button>
-                            <button class="dropdown-item text-white btn-detail"
-                                onclick="changeStatus('cancelled',{{ $visit->id }})"
-                                data-id="{{ $visit->id }}"><i class="fa fa-trash"></i>
-                                Cancel</button>
+                    @if ($visit->status != 'present')
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-info dropdown-toggle" type="button"
+                                id="dropdownMenuButtonEmoji" data-bs-toggle="dropdown" aria-haspopup="true"
+                                aria-expanded="false"><i class="fa fa-cog"></i>
+                            </button>
+                            <div class="dropdown-menu bg-danger ob" aria-labelledby="dropdownMenuButtonEmoji">
+                                <button class="dropdown-item text-white btn-edit" data-id="{{ $visit->id }}">
+                                    <i class="fa fa-pencil"></i> Reschedule
+                                </button>
+                                <button class="dropdown-item text-white btn-confirm" data-id="{{ $visit->id }}">
+                                    <i class="bi bi-star"></i> Confirm
+                                </button>
+                                <button class="dropdown-item text-white btn-cancel" data-id="{{ $visit->id }}">
+                                    <i class="fa fa-trash"></i>Cancel
+                                </button>
+                            </div>
                         </div>
-                    </div>
+                    @endif
                 </div>
                 <hr>
             </div>

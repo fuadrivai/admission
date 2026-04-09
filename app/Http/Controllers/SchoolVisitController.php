@@ -332,6 +332,7 @@ class SchoolVisitController extends Controller
             'roles.*.value' => 'required|string',
             'code' => 'nullable',
             'prospects_id' => 'nullable',
+            'reason_for_visit' => 'required|string',
         ]);
 
         $visit = $this->schooolVisitService->post($validated);

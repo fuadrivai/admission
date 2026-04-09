@@ -133,7 +133,7 @@
                             <div class="row">
                                 <div class="col-12">
                                     <input type="text" class="d-none" id="id">
-                                    <label for="date" class="form-label required-label">Observation Date</label>
+                                    <label for="date" class="form-label required-label">Visit Date</label>
                                     <input type="text" name="date" class="form-control date-picker" required
                                         id="date">
                                     <div class="invalid-feedback">
@@ -156,6 +156,15 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <label for="date" class="form-label required-label">Reason</label>
+                                    <textarea class="form-control" required name="note" id="note" rows="3"></textarea>
+                                    <div class="invalid-feedback">
+                                        Insert a valid reason
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-light-secondary" data-bs-dismiss="modal">
@@ -163,6 +172,115 @@
                                 <span class="d-none d-sm-block">Close</span>
                             </button>
                             <button type="submit" id="btn-accept" class="btn btn-primary ms-1">
+                                <i class="bx bx-check d-block d-sm-none"></i>
+                                <span class="d-none d-sm-block">Submit</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        {{-- modal confirmation present --}}
+        <div class="modal fade text-left" id="modal-present" tabindex="-1" role="dialog"
+            aria-labelledby="myModalConfirmation" aria-hidden="true">
+            <div class="modal-dialog modal-md modal-dialog-centered modal-dialog-scrollable" role="document">
+                <div class="modal-content">
+                    <form id="form-confirm" action="" autocomplete="off" class="needs-validation" novalidate>
+                        @csrf
+                        <div class="modal-header bg-primary">
+                            <h5 class="modal-title white" id="myModalConfirmation">Visit Confirmation</h5>
+                            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                <i data-feather="x"></i>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-12">
+                                    <label for="date" class="form-label required-label">Enrolment
+                                        Consideration</label>
+                                    <textarea class="form-control" required name="enrolment_consideration" id="enrolment_consideration" rows="3"></textarea>
+                                    <div class="invalid-feedback">
+                                        Insert a valid text
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <input type="text" class="d-none" id="id-visit">
+                                    <label for="reason_for_enrolment" class="form-label required-label">Enrolment
+                                        Reason</label>
+                                    <select name="reason_for_enrolment" class="form-select reason"
+                                        id="reason_for_enrolment" required>
+                                        <option value="">Select Reason</option>
+                                    </select>
+                                    <div class="invalid-feedback">
+                                        Insert a valid reason
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <input type="text" class="d-none" id="id-visit">
+                                    <label for="reason_for_not_enrolment" class="form-label required-label">Not Enrolment
+                                        Reason</label>
+                                    <select name="reason_for_not_enrolment" class="form-select reason"
+                                        id="reason_for_not_enrolment" required>
+                                        <option value="">Select Reason</option>
+                                    </select>
+                                    <div class="invalid-feedback">
+                                        Insert a valid reason
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-light-secondary" data-bs-dismiss="modal">
+                                <i class="bx bx-x d-block d-sm-none"></i>
+                                <span class="d-none d-sm-block">Close</span>
+                            </button>
+                            <button type="submit" id="btn-confirm" class="btn btn-primary ms-1">
+                                <i class="bx bx-check d-block d-sm-none"></i>
+                                <span class="d-none d-sm-block">Submit</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade text-left" id="modal-cancel" tabindex="-1" role="dialog"
+            aria-labelledby="myModalLabel160" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+                <div class="modal-content">
+                    <form id="form-cancel" action="" autocomplete="off" class="needs-validation" novalidate>
+                        @csrf
+                        <div class="modal-header bg-primary">
+                            <h5 class="modal-title white" id="myModalLabel160">Cancel Visit
+                            </h5>
+                            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                <i data-feather="x"></i>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-12">
+                                    <label for="date" class="form-label required-label">Reason</label>
+                                    <input type="hidden" id="id-cancel">
+                                    <textarea class="form-control" required name="note" id="note-cancel" rows="3"></textarea>
+                                    <div class="invalid-feedback">
+                                        Insert a valid reason
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-light-secondary" data-bs-dismiss="modal">
+                                <i class="bx bx-x d-block d-sm-none"></i>
+                                <span class="d-none d-sm-block">Close</span>
+                            </button>
+                            <button type="submit" id="btn-cancel" class="btn btn-primary ms-1">
                                 <i class="bx bx-check d-block d-sm-none"></i>
                                 <span class="d-none d-sm-block">Submit</span>
                             </button>
@@ -200,12 +318,14 @@
 
 @section('content-script')
     <script src="/assets/extensions/moment/moment.js"></script>
+    <script src="/assets/static/js/constant.js"></script>
     <script>
         let branches = [];
         let levels = [];
         let typingTimer;
         $(document).ready(function() {
-            getBranch()
+            getBranch();
+            getEnrolmentReasons();
             $('#filter-branch').on('change', function() {
                 let branchVal = $(this).val();
                 if (branchVal == "all") {
@@ -292,6 +412,16 @@
                         '<div class="text-danger">Unable to load history.</div>');
                 });
             })
+            $('#schoolvisit-list').on('click', '.btn-confirm', function(e) {
+                const id = $(this).data('id');
+                $('#id-visit').val(id);
+                $('#modal-present').modal('show')
+            })
+            $('#schoolvisit-list').on('click', '.btn-cancel', function(e) {
+                const id = $(this).data('id');
+                $('#id-cancel').val(id);
+                $('#modal-cancel').modal('show')
+            })
 
             $("#filter-start-date").on("changeDate", function() {
                 let value = $(this).val();
@@ -373,6 +503,71 @@
                     $(form).addClass("was-validated");
                     form.reportValidity();
                     $('#btn-accept').attr('disabled', false)
+                }
+            })
+
+            $('.modal').on('hidden.bs.modal', function() {
+                $(this).find('form')[0].reset();
+                $(this).find('form').removeClass('was-validated');
+                $(this).find('.is-invalid').removeClass('is-invalid');
+                $('button').attr('disabled', false);
+            })
+
+            $('#form-confirm').on('submit', function(e) {
+                e.preventDefault();
+                const form = this;
+
+                if (form.checkValidity()) {
+                    $('#btn-confirm').attr('disabled', true)
+                    $(form).addClass("was-validated");
+
+                    if ($("#enrolment_consideration").val() == "" || $("#enrolment_consideration").val() ==
+                        null) {
+                        $("#enrolment_consideration").addClass("is-invalid");
+                        form.reportValidity();
+                        return false;
+                    }
+
+                    $('.modal').modal('hide')
+                    blockUI();
+                    changeStatus('present', {
+                        id: $('#id-visit').val(),
+                        enrolment_consideration: $('#enrolment_consideration').val(),
+                        reason_for_enrol: $('#reason_for_enrolment').val(),
+                        reason_not_enrol: $('#reason_for_not_enrolment').val(),
+                    });
+                } else {
+                    $(form).addClass("was-validated");
+                    form.reportValidity();
+                    $('#btn-confirm').attr('disabled', false)
+                }
+            })
+            $('#form-cancel').on('submit', function(e) {
+                e.preventDefault();
+                const form = this;
+
+                if (form.checkValidity()) {
+                    $('#btn-cancel').attr('disabled', true)
+                    $(form).addClass("was-validated");
+
+                    if ($("#note-cancel").val() == "" || $("#note-cancel").val() ==
+                        null) {
+                        $("#note-cancel").addClass("is-invalid");
+                        form.reportValidity();
+                        return false;
+                    }
+
+                    $('.modal').modal('hide')
+                    blockUI();
+                    changeStatus('cancelled', {
+                        id: $('#id-cancel').val(),
+                        note: $('#note-cancel').val(),
+                        status: 'cancelled'
+                    });
+                } else {
+                    $(form).addClass("was-validated");
+                    form.reportValidity();
+                    $('#btn-cancel').attr('disabled', false)
                 }
             })
         });
@@ -478,12 +673,10 @@
             });
         }
 
-        async function changeStatus(status, id) {
-            const data = {
-                _token: $('meta[name="csrf-token"]').attr('content'),
-                id: id,
-                status: status
-            }
+        async function changeStatus(status, data) {
+            data._token = $('meta[name="csrf-token"]').attr('content');
+            data.status = status;
+
             try {
                 blockUI();
                 let visit = await ajaxPromise(
@@ -510,6 +703,7 @@
                 id: $('#id').val(),
                 date: moment($('#date').val(), 'DD MMMM YYYY').format('YYYY-MM-DD'),
                 time: $('#selectedTime').val(),
+                note: $('#note').val(),
                 status: 'registered'
             }
             try {
@@ -531,6 +725,14 @@
                 );
             }
             $('#btn-accept').attr('disabled', false)
+        }
+
+        function getEnrolmentReasons() {
+            enrolReasons.forEach(reason => {
+                $('.reason').append(`
+                    <option value="${reason}">${reason}</option>
+                `);
+            });
         }
     </script>
 @endsection

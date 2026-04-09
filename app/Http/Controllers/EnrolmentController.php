@@ -116,7 +116,7 @@ class EnrolmentController extends Controller
     public function showByCode($code)
     {
         try {
-            $enrolment = $this->enrolmentService->showByCode($code,['branch', 'grade', 'level']);
+            $enrolment = $this->enrolmentService->showByCode($code,['branch', 'grade', 'level','prospect']);
             return response()->json($enrolment);
         } catch (ModelNotFoundException $e) {
             return response()->json([
