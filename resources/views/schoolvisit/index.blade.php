@@ -15,7 +15,7 @@
             <div class="card-body">
                 <p class="d-inline-flex gap-1">
                     <a data-bs-toggle="collapse" href="#collapse-filter" aria-expanded="false" aria-controls="collapse-filter">
-                        Insert Filter <i class="fa fa-caret-down"></i>
+                        <i class="fa fa-filter"></i> Insert Filter <i class="fa fa-caret-down"></i>
                     </a>
                 </p>
                 <div class="collapse" id="collapse-filter">
@@ -34,7 +34,6 @@
                                 <label for="filter-start-date">Start date</label>
                                 <input type="text"name="filter-start-date" class="form-control date-picker"
                                     id="filter-start-date">
-
                             </div>
                         </div>
                         <div class="col-md-3">
@@ -107,6 +106,14 @@
                             </div>
                         </div>
                     </div>
+                    <div class="row">
+                        <hr>
+                        <div class="col-md-12 text-center">
+                            <button onclick="download()" class="btn btn-sm btn-success" type="submit">
+                                <i class="fa fa-download"></i> Download excel
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -116,8 +123,8 @@
             @include('schoolvisit._list')
         </div>
 
-        <div class="modal fade text-left" id="primary" tabindex="-1" role="dialog" aria-labelledby="myModalLabel160"
-            aria-hidden="true">
+        <div class="modal fade text-left" id="primary" tabindex="-1" role="dialog"
+            aria-labelledby="myModalLabel160" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
                 <div class="modal-content">
                     <form id="form-date" action="" autocomplete="off" class="needs-validation" novalidate>
@@ -195,6 +202,16 @@
                             </button>
                         </div>
                         <div class="modal-body">
+                            <div class="row">
+                                <div class="col-12">
+                                    <label for="admission_staff" class="form-label required-label">Admission Staff</label>
+                                    <input type="text" name="admission_staff" class="form-control" required
+                                        id="admission_staff">
+                                    <div class="invalid-feedback">
+                                        Insert a valid date
+                                    </div>
+                                </div>
+                            </div>
                             <div class="row">
                                 <div class="col-12">
                                     <label for="date" class="form-label required-label">Enrolment
@@ -494,8 +511,6 @@
                         form.reportValidity();
                         return false;
                     }
-
-
                     $('.modal').modal('hide')
                     blockUI();
                     reschedule();
@@ -535,6 +550,7 @@
                         enrolment_consideration: $('#enrolment_consideration').val(),
                         reason_for_enrol: $('#reason_for_enrolment').val(),
                         reason_not_enrol: $('#reason_for_not_enrolment').val(),
+                        admission_staff: $('#admission_staff').val(),
                     });
                 } else {
                     $(form).addClass("was-validated");
@@ -725,6 +741,23 @@
                 );
             }
             $('#btn-accept').attr('disabled', false)
+        }
+
+        function download() {
+            const data = {
+                search: $('#filter-name').val(),
+                start_date: $('#filter-start-date').val(),
+                end_date: $('#filter-end-date').val(),
+                branch: $('#filter-branch').val(),
+                level: $('#filter-level').val(),
+                grade: $('#filter-grade').val(),
+                status: $('#filter-status').val(),
+                enrol: $('#filter-enrol').val(),
+                payment: $('#filter-payment').val(),
+            };
+
+            let queryString = new URLSearchParams(data).toString();
+            window.location.href = `/schoolvisit/export?${queryString}`;
         }
 
         function getEnrolmentReasons() {

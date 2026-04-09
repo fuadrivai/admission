@@ -113,6 +113,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
             // history/timeline endpoint for AJAX modal
             Route::get('{schoolvisit}/history', [SchoolVisitController::class, 'history'])->name('history');
             Route::get('handle/olddata', [SchoolVisitController::class, 'handleOldData'])->name('handleOldData');
+            Route::get('export', [SchoolVisitController::class, 'export'])->name('export');
             Route::resource('/', SchoolVisitController::class)->parameters(['' => 'schoolvisit']);
         });
 

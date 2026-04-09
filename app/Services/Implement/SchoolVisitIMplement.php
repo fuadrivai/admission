@@ -2,6 +2,7 @@
 
 namespace App\Services\Implement;
 
+use App\Exports\SchoolVisitExport;
 use App\Mail\AdmissionEmail;
 use App\Models\EmailSetting;
 use App\Models\Level;
@@ -15,6 +16,7 @@ use Illuminate\Support\Facades\Config;
 use Spatie\GoogleCalendar\Event;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Maatwebsite\Excel\Excel;
 
 use function App\Helpers\generate;
 use function App\Helpers\normalizePhoneNumber;
@@ -33,6 +35,100 @@ class SchoolVisitIMplement implements SchoolVisitService
     public function get()
     {
         return SchoolVisit::all();
+    }
+
+    public function search($request)
+    {
+        $query = SchoolVisit::with(['prospect.enrolment.admission', 'prospect.enrolment.admission.documents', 'prospect.enrolment.admission.statement', 'prospect.activities']);
+
+        if ($request->search) {
+            $query->where(function ($q) use ($request) {
+                $q->where('code', 'like', '%'.$request->search.'%')
+                ->orWhere('parent_name', 'like', '%'.$request->search.'%')
+                ->orWhere('email', 'like', '%'.$request->search.'%')
+                ->orWhere('child_name', 'like', '%'.$request->search.'%');
+                });
+        }
+
+        if ($request->enrol && $request->enrol !== 'all') {
+            if ($request->enrol === 'yes') {
+                $query->whereHas('prospect.enrolment',function($q) use ($request) {
+                    if ($request->payment == 'PAID') {
+                        $q->where('payment_status', 'PAID');
+                    }
+                    if ($request->payment == 'PENDING') {
+                        $q->where('payment_status', 'PENDING');
+                    }
+                    if ($request->payment == 'EXPIRED') {
+                        $q->where('payment_status', 'EXPIRED');
+                    }
+                });
+            } elseif ($request->enrol === 'no') {
+                $query->whereDoesntHave('prospect.enrolment');
+            } 
+        }
+
+        if ($request->level && $request->level !== 'all') {
+            $query->where('level_id', $request->level);
+        }
+        if ($request->branch && $request->branch !== 'all') {
+            $query->where('branch_id', $request->branch);
+        }
+        if ($request->grade && $request->grade !== 'all') {
+            $query->where('grade_id', $request->grade);
+        }
+        if ($request->status && $request->status !== 'all') {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->start_date && $request->start_date != '') {
+            $startDate = Carbon::createFromFormat('d F Y', $request->start_date)->format('Y-m-d');
+            $endDate = null;
+            if ($request->end_date && $request->end_date != '') {
+                $endDate = Carbon::createFromFormat('d F Y', $request->end_date)->format('Y-m-d');
+                $query->whereBetween('date', [$startDate, $endDate]);
+            }else{
+                $query->where('date', $startDate);
+            }
+        }
+        $query->orderBy('date', 'desc');
+        return $query;
+    }
+
+    public function summary($query)
+    {
+        $statusQuery = clone $query;
+
+        $statusCounts = $statusQuery
+            ->reorder()
+            ->selectRaw("status, COUNT(*) as total")
+            ->groupBy('status')
+            ->pluck('total', 'status');
+
+        $totalFiltered = (clone $query)->reorder()->count();
+
+        $enrolledCount = (clone $query)->whereHas('prospect.enrolment')->count();
+
+        $summary = [
+            'absent' => $statusCounts['absent'] ?? 0,
+            'registered' => $statusCounts['registered'] ?? 0,
+            'present' => $statusCounts['present'] ?? 0,
+            'cancelled' => $statusCounts['cancelled'] ?? 0,
+            'total' => $totalFiltered,
+            'enrolSummary' => [
+                'enrolled' => $enrolledCount,
+                'paid' => (clone $query)->whereHas('prospect.enrolment', function($q) {
+                    $q->where('payment_status', 'PAID');
+                })->count(),
+                'pending' => (clone $query)->whereHas('prospect.enrolment', function($q) {
+                    $q->where('payment_status', 'PENDING');
+                })->count(),
+                'expired' => (clone $query)->whereHas('prospect.enrolment', function($q) {
+                    $q->where('payment_status', 'EXPIRED');
+                })->count(),
+            ],
+        ];
+        return $summary;
     }
 
     public function show($id)
@@ -314,6 +410,11 @@ Mutiara Harapan Islamic School";
         $event=$event->save();
 
         return $event;
+    }
+
+    public function export($data)
+    {
+       //
     }
     
 }

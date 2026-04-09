@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\SchoolVisitExport;
 use App\Models\Prospects;
 use App\Models\SchoolVisit;
 use App\Services\BranchService;
@@ -11,6 +12,7 @@ use App\Services\SchoolVisitMessageService;
 use App\Services\SchoolVisitService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Utilities\Request as UtilitiesRequest;
 
 class SchoolVisitController extends Controller
@@ -43,94 +45,9 @@ class SchoolVisitController extends Controller
     }
     public function index(Request $request)
     {
-        $query = SchoolVisit::with(['prospect.enrolment.admission', 'prospect.enrolment.admission.documents', 'prospect.enrolment.admission.statement', 'prospect.activities']);
-
-        if ($request->search) {
-            $query->where(function ($q) use ($request) {
-                $q->where('code', 'like', '%'.$request->search.'%')
-                ->orWhere('parent_name', 'like', '%'.$request->search.'%')
-                ->orWhere('email', 'like', '%'.$request->search.'%')
-                ->orWhere('child_name', 'like', '%'.$request->search.'%');
-                });
-        }
-
-        if ($request->enrol && $request->enrol !== 'all') {
-            if ($request->enrol === 'yes') {
-                $query->whereHas('prospect.enrolment',function($q) use ($request) {
-                    if ($request->payment == 'PAID') {
-                        $q->where('payment_status', 'PAID');
-                    }
-                    if ($request->payment == 'PENDING') {
-                        $q->where('payment_status', 'PENDING');
-                    }
-                    if ($request->payment == 'EXPIRED') {
-                        $q->where('payment_status', 'EXPIRED');
-                    }
-                });
-            } elseif ($request->enrol === 'no') {
-                $query->whereDoesntHave('prospect.enrolment');
-            } 
-        }
-
-        if ($request->level && $request->level !== 'all') {
-            $query->where('level_id', $request->level);
-        }
-        if ($request->branch && $request->branch !== 'all') {
-            $query->where('branch_id', $request->branch);
-        }
-        if ($request->grade && $request->grade !== 'all') {
-            $query->where('grade_id', $request->grade);
-        }
-        if ($request->status && $request->status !== 'all') {
-            $query->where('status', $request->status);
-        }
-
-        if ($request->start_date && $request->start_date != '') {
-            $startDate = Carbon::createFromFormat('d F Y', $request->start_date)->format('Y-m-d');
-            $endDate = null;
-            if ($request->end_date && $request->end_date != '') {
-                $endDate = Carbon::createFromFormat('d F Y', $request->end_date)->format('Y-m-d');
-                $query->whereBetween('date', [$startDate, $endDate]);
-            }else{
-                $query->where('date', $startDate);
-            }
-        }
-        $query->orderBy('date', 'desc');
-
-        $statusQuery = clone $query;
-
-        $statusCounts = $statusQuery
-            ->reorder()
-            ->selectRaw("status, COUNT(*) as total")
-            ->groupBy('status')
-            ->pluck('total', 'status');
-
-        $totalFiltered = (clone $query)->reorder()->count();
-
-        $enrolledCount = (clone $query)->whereHas('prospect.enrolment')->count();
-
-        $summary = [
-            'absent' => $statusCounts['absent'] ?? 0,
-            'registered' => $statusCounts['registered'] ?? 0,
-            'present' => $statusCounts['present'] ?? 0,
-            'cancelled' => $statusCounts['cancelled'] ?? 0,
-            'total' => $totalFiltered,
-            'enrolSummary' => [
-                'enrolled' => $enrolledCount,
-                'paid' => (clone $query)->whereHas('prospect.enrolment', function($q) {
-                    $q->where('payment_status', 'PAID');
-                })->count(),
-                'pending' => (clone $query)->whereHas('prospect.enrolment', function($q) {
-                    $q->where('payment_status', 'PENDING');
-                })->count(),
-                'expired' => (clone $query)->whereHas('prospect.enrolment', function($q) {
-                    $q->where('payment_status', 'EXPIRED');
-                })->count(),
-            ],
-        ];
-
+        $query = $this->schooolVisitService->search($request);
+        $summary = $this->schooolVisitService->summary($query);
         $visits = $query->paginate(request('perpage')??10)->withQueryString();
-
         if ($request->ajax()) {
             return view('schoolvisit._list', compact('visits', 'summary'))->render();
         }
@@ -373,6 +290,17 @@ class SchoolVisitController extends Controller
                 'note' => "Registered for school visit on " . Carbon::parse($visit->date)->format('F j, Y') . " at " . Carbon::parse($visit->time)->format('g:i A')
             ]);
         }
+    }
+
+    public function export(Request $request)
+    {
+        $query = $this->schooolVisitService->search($request);
+        $file = Excel::raw(new SchoolVisitExport($query->get()), \Maatwebsite\Excel\Excel::XLSX);
+        $timestamps = Carbon::now()->format('Ymd_His');
+        return response($file, 200, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Disposition' => 'attachment; filename="School_Visit_Report_' . $timestamps . '.xlsx"',
+        ]);
     }
 
 }
