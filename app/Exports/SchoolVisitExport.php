@@ -49,7 +49,7 @@ class SchoolVisitExport implements
         return [
             $this->rowNumber++,
             $dateTime,
-            "Admission Staff",
+            $visit->admission_staff ?? '-',
             $visit->parent_name ?? '-',
             $visit->child_name ?? '-',
             $visit->branch_name ?? '-',
