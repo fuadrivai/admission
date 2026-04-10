@@ -48,6 +48,8 @@ class SchoolVisitExport implements
 
         return [
             $this->rowNumber++,
+            $visit->code ?? '-',
+            $visit->status ?? '-',
             $dateTime,
             $visit->admission_staff ?? '-',
             $visit->parent_name ?? '-',
@@ -72,6 +74,8 @@ class SchoolVisitExport implements
             [],
             [
                 "No",
+                "Code",
+                "Status",
                 "Visit Date",
                 "Admission Staff",
                 "Parent Name",
@@ -99,23 +103,23 @@ class SchoolVisitExport implements
                 $sheet = $event->sheet->getDelegate();
 
                 //  TITLE
-                $sheet->mergeCells('A1:O1');
+                $sheet->mergeCells('A1:Q1');
                 $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(16);
                 $sheet->getStyle('A1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
                 $sheet->getRowDimension(1)->setRowHeight(25);
 
                 //  HEADER
-                $sheet->getStyle('A3:O3')->getFont()->setBold(true);
-                $sheet->getStyle('A3:O3')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-                $sheet->getStyle('A3:O3')->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
+                $sheet->getStyle('A3:Q3')->getFont()->setBold(true);
+                $sheet->getStyle('A3:Q3')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                $sheet->getStyle('A3:Q3')->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
 
                 // Background header
-                $sheet->getStyle('A3:O3')->getFill()
+                $sheet->getStyle('A3:Q3')->getFill()
                     ->setFillType(Fill::FILL_SOLID)
                     ->getStartColor()->setARGB('FFEFEFEF');
 
                 // Border header
-                $sheet->getStyle('A3:O3')->getBorders()
+                $sheet->getStyle('A3:Q3')->getBorders()
                     ->getAllBorders()
                     ->setBorderStyle(Border::BORDER_THIN);
 
@@ -123,27 +127,27 @@ class SchoolVisitExport implements
                 $endRow = ($visits ? $visits->count() : 0) + 4;
 
                 // Border data
-                $sheet->getStyle("A4:O{$endRow}")
+                $sheet->getStyle("A4:Q{$endRow}")
                     ->getBorders()
                     ->getAllBorders()
                     ->setBorderStyle(Border::BORDER_THIN);
 
-                // Wrap text (kolom panjang)
-                $sheet->getStyle("O4:O{$endRow}")
-                    ->getAlignment()
-                    ->setWrapText(true);
+                // // Wrap text (kolom panjang)
+                // $sheet->getStyle("P4:P{$endRow}")
+                //     ->getAlignment()
+                //     ->setWrapText(true);
 
-                $sheet->getStyle("K4:O{$endRow}")
-                    ->getAlignment()
-                    ->setWrapText(true);
+                // $sheet->getStyle("K4:P{$endRow}")
+                //     ->getAlignment()
+                //     ->setWrapText(true);
 
                 // Vertical align
-                $sheet->getStyle("A4:O{$endRow}")
+                $sheet->getStyle("A4:Q{$endRow}")
                     ->getAlignment()
                     ->setVertical(Alignment::VERTICAL_TOP);
 
                 // AUTO WIDTH
-                foreach (range('A', 'O') as $col) {
+                foreach (range('A', 'Q') as $col) {
                     $sheet->getColumnDimension($col)->setAutoSize(true);
                 }
             }
