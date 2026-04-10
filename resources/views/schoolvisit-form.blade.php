@@ -180,7 +180,7 @@
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class="form-group">
                                         <label for="email" class="form-label">Email <span
                                                 class="required">*</span></label>
@@ -191,14 +191,13 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-8">
                                     <div class="form-group">
-                                        <label for="zip-code" class="form-label">Zip Code of Your Current Address
+                                        <label for="address" class="form-label">Address
                                             <span class="required">*</span></label>
-                                        <input type="text" name="zipcode" class="form-control" id="zip-code"
-                                            required />
+                                        <textarea required name="address" class="form-control" id="address" rows="3" placeholder=""></textarea>
                                         <div class="invalid-feedback">
-                                            Please provide your zip code.
+                                            Please provide a valid address.
                                         </div>
                                     </div>
                                 </div>

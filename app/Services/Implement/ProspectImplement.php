@@ -44,8 +44,8 @@ class ProspectImplement implements ProspectService
             'parent_name'   => $data['parent_name'],
             'email'         => $data['email'],
             'phone_number'  => $data['phone_number'],
-            'zipcode'       => $data['zipcode'],
-            'address'       => $data['address'],
+            'zipcode'       => $data['zipcode']??"",
+            'address'       => $data['address']??"",
             'relationship'  => $data['relationship'],
             'source_module' =>  $data['source_module'],
         ]);

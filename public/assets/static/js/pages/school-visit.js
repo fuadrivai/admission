@@ -331,7 +331,7 @@ function getEnrolmentByCode(resolve, reject) {
             $("#parent-name").val(json.parent_name);
             $("#email").val(json.email);
             $("#phone").val(json.phone_number);
-            $("#zip-code").val(json.zipcode);
+            $("#address").val(json.address ?? "");
             $("#child-name").val(json.child_name);
             $("#current-school").val(json.current_school);
             $("#enrollment-code").val(json.code);
