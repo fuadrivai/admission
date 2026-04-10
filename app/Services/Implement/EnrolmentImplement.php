@@ -119,7 +119,7 @@ class EnrolmentImplement implements EnrolmentService
             "amount"=> $data['amount_paid'],
             "payer_email"=> $data['email'],
             "description"=> "Enrolment payment -". $data['child_name'],
-            "invoice_duration"=> (60*60*24*3)
+            "invoice_duration"=> (60*60*24*7)
         ];
         $xendit = createXenditInvoice($payload);
         $data['payment_status'] = $xendit['status'];

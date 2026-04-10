@@ -162,15 +162,6 @@
                             ">
                                                     {{ $data['code'] }}
                                                 </p>
-                                                <p
-                                                    style="
-                              margin: 8px 0 0;
-                              color: #666666;
-                              font-size: 12px;
-                              font-style: italic;
-                            ">
-                                                    Please include in all communications
-                                                </p>
                                             </div>
                                         </td>
 
@@ -486,10 +477,26 @@
                       padding-left: 10px;
                       border-left: 3px solid #f0e6d6;
                     ">
-                                    After making the payment, you will receive an email
-                                    containing the enrolment documents that need to be completed
-                                    and signed. Please ensure that all documents are submitted
-                                    within <strong>two weeks</strong> after purchasing the form.
+                                    After making the payment, you will receive an email containing the enrolment
+                                    documents that need to be completed and signed.
+                                </p>
+                                <p
+                                    style="
+                      margin: 0 0 18px;
+                      padding-left: 10px;
+                      border-left: 3px solid #f0e6d6;
+                    ">
+                                    Please note that the Virtual Account (VA) is only active for 7 days. Kindly ensure
+                                    that the payment is completed within this period before the VA expires.
+                                </p>
+                                <p
+                                    style="
+                      margin: 0 0 18px;
+                      padding-left: 10px;
+                      border-left: 3px solid #f0e6d6;
+                    ">
+                                    Once the payment has been successfully made, all required documents must be
+                                    completed and submitted within 7 days.
                                 </p>
 
                                 <!-- Important Note Box -->
@@ -517,10 +524,9 @@
                               margin-bottom: 5px;
                             ">Important
                                                     Note:</strong>
-                                                If there is no further information or confirmation
-                                                from parents within <strong>one month</strong>, it
-                                                will be considered a withdrawal. Kindly note that all
-                                                payments made are <strong>non-refundable</strong>.
+                                                If there is no further information or confirmation from parents within
+                                                <strong>two weeks</strong>, it will be considered a withdrawal. Kindly
+                                                note that all payments made are <strong>non-refundable</strong>.
                                             </p>
                                         </td>
                                     </tr>
@@ -544,15 +550,13 @@
                             line-height: 1.6;
                             font-style: italic;
                           ">
-                                                Setelah melakukan pembayaran, Ayah/Bunda akan menerima
-                                                email berisi dokumen pendaftaran yang perlu dilengkapi
-                                                dan ditandatangani paling lambat dalam
-                                                <strong>dua minggu</strong>. Apabila tidak ada
-                                                konfirmasi dari Ayah/Bunda dalam waktu
-                                                <strong>satu bulan</strong>, maka pendaftaran akan
-                                                dianggap mengundurkan diri. Perlu diperhatikan bahwa
-                                                seluruh pembayaran yang telah dilakukan bersifat tidak
-                                                dapat dikembalikan (non-refundable).
+                                                Setelah melakukan pembayaran, Ayah/Bunda akan menerima email berisi
+                                                dokumen pendaftaran yang perlu dilengkapi dan ditandatangani paling
+                                                lambat dalam <strong>satu minggu</strong>. Apabila tidak ada konfirmasi
+                                                dari Ayah/Bunda dalam waktu <strong>dua minggu</strong>, maka
+                                                pendaftaran akan dianggap mengundurkan diri. Perlu diperhatikan bahwa
+                                                seluruh pembayaran yang telah dilakukan bersifat tidak dapat
+                                                dikembalikan (non-refundable)
                                             </p>
                                         </td>
                                     </tr>
