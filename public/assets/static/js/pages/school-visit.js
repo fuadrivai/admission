@@ -327,7 +327,7 @@ function getEnrolmentByCode(resolve, reject) {
         "GET",
         function (json) {
             enrolment = json;
-            $("#prospects_id").val(json.id);
+            $("#prospects_id").val(json.prospect?.id ?? "");
             $("#parent-name").val(json.parent_name);
             $("#email").val(json.email);
             $("#phone").val(json.phone_number);

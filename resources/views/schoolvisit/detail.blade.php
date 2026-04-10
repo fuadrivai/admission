@@ -111,6 +111,10 @@
                                 <div class="detail-label"><i class="fa fa-comment me-1"></i>Message</div>
                                 <div class="detail-value">{{ $visit->info_from_message ?? '-' }}</div>
                             </div>
+                            <div class="d-flex info-group">
+                                <div class="detail-label"><i class="fa fa-history me-1"></i>Why Visit</div>
+                                <div class="detail-value">{{ $visit->reason_for_visit ?? '-' }}</div>
+                            </div>
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -162,6 +166,25 @@
                                 @else
                                     <span class="text-muted">-</span>
                                 @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="section-card">
+                            <h6 class="mb-3"><i class="fa fa-address-book me-1"></i>Admission Note</h6>
+                            <div class="d-flex info-group">
+                                <div class="detail-label">Enrolment consideration</div>
+                                <div class="detail-value">: {{ $visit->enrolment_consideration ?? '-' }}</div>
+                            </div>
+                            <div class="d-flex info-group">
+                                <div class="detail-label"><i class="fa fa-check me-1"></i>Reason Enrol</div>
+                                <div class="detail-value">: {{ $visit->reason_for_enrol ?? '-' }}</div>
+                            </div>
+                            <div class="d-flex info-group">
+                                <div class="detail-label"><i class="fa fa-times me-1"></i>Reason Not Enrol</div>
+                                <div class="detail-value">: {{ $visit->reason_not_enrol ?? '-' }}</div>
                             </div>
                         </div>
                     </div>

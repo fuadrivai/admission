@@ -60,3 +60,12 @@ const jobs = [
     "Ibu Rumah Tangga",
     "Lainnya",
 ];
+
+const enrolReasons = [
+    "Islamic Values",
+    "International Curriculum",
+    "Islamic International",
+    "Destination School",
+    "Fitrah Based Education",
+    "Digital learning",
+];

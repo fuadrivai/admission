@@ -1,5 +1,4 @@
 @php
-    // ensure we have the proper variable from controller
     $activities = $prospect->activities ?? collect();
 @endphp
 
