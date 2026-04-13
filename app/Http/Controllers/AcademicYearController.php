@@ -101,4 +101,9 @@ class AcademicYearController extends Controller
 
         return response()->json(['success' => true]);
     }
+
+    public function getActive(){
+        $years = $this->academicYearService->getActive();
+        return response()->json($years);
+    }
 }

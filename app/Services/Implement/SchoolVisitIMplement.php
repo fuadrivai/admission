@@ -160,6 +160,12 @@ class SchoolVisitIMplement implements SchoolVisitService
                 throw new \Exception("The selected time slot for the school visit is already full. Kindly choose a different time.");
             }
 
+            $schoolVisit = null;
+
+            if (!empty($data['code'])) {
+                $schoolVisit = SchoolVisit::where('code', $data['code'])->first();
+            }
+            
             $phone = normalizePhoneNumber($data['phone_number']);
             $value = [
                 'code' => null,
@@ -176,6 +182,7 @@ class SchoolVisitIMplement implements SchoolVisitService
                 'level_name' => $data['level_name'],
                 'grade_id' => $data['grade_id'],
                 'grade_name' => $data['grade_name'],
+                'academic_year_id' => $data['academic_year_id'],
                 'academic_year' => $data['academic_year'],
                 'current_school' => $data['current_school'],
                 'info_from' => $data['info_from'],
@@ -183,36 +190,53 @@ class SchoolVisitIMplement implements SchoolVisitService
                 'date' => $data['date'],
                 'time' => $data['time'],
                 'number_visitor' => $data['number_visitor'],
-                'already_enrol' => $data['already_enrol'],
                 'reason_for_visit' => $data['reason_for_visit'],
                 'roles' => $data['roles'],
                 'status' => "registered",
             ];
 
-            if ($value['already_enrol']!="yes") {
-                $level = Level::find($value['level_id']);
-                $value['code'] = generate($level->branch_code);
-                $prospects = $this->saveProspects($value);
-                $value['prospects_id'] = $prospects->id;
+            if ($schoolVisit) {
+                if ($schoolVisit->status == "present") {
+                    throw new \Exception("Based on our records, you have previously visited our school. We kindly invite you to proceed with re-registration or contact our Admissions team for further assistance.");
+                }
+
+                $newData = collect($value)->except(['_token', 'id','code','prospects_id'])
+                            ->filter(function ($value) {
+                                return !is_null($value);
+                            })
+                            ->toArray();
+                $schoolVisit = $this->updateVisit($schoolVisit, $newData);
+                $this->syncGoogleCalendar($schoolVisit);
+                $schoolVisit->activities()->create([
+                    'prospects_id' =>  $data['prospects_id'],
+                    'note'=>"Update for school visit on " . Carbon::parse($schoolVisit->date)->format('F j, Y') . " at " . Carbon::parse($schoolVisit->time)->format('g:i A'),
+                ]);
             }else{
-                $value['code'] = $data['code'];
-                if(!isset($data['prospects_id']) || is_null($data['prospects_id']) || empty($data['prospects_id'])||$data['prospects_id'] == ''){
-                    $prospects = $this->saveProspects($value);   
+                if ($value['already_enrol']!="yes") {
+                    $level = Level::find($value['level_id']);
+                    $value['code'] = generate($level->branch_code);
+                    $prospects = $this->saveProspects($value);
                     $value['prospects_id'] = $prospects->id;
                 }else{
-                    $value['prospects_id'] = $data['prospects_id'];
+                    $value['code'] = $data['code'];
+                    if(!isset($data['prospects_id']) || is_null($data['prospects_id']) || empty($data['prospects_id'])||$data['prospects_id'] == ''){
+                        $prospects = $this->saveProspects($value);   
+                        $value['prospects_id'] = $prospects->id;
+                    }else{
+                        $value['prospects_id'] = $data['prospects_id'];
+                    }
                 }
+
+                $event = $this->saveGoogleCalendar($value);
+
+                $value['google_event_id'] = $event->id;
+
+                $schoolVisit = SchoolVisit::create($value);
+                $schoolVisit->activities()->create([
+                    'prospects_id' =>  $value['prospects_id'],
+                    'note'=>"Registered for school visit on " . Carbon::parse($schoolVisit->date)->format('F j, Y') . " at " . Carbon::parse($schoolVisit->time)->format('g:i A'),
+                ]);
             }
-            $event = $this->saveGoogleCalendar($value);
-
-            $value['google_event_id'] = $event->id;
-
-            $schoolVisit = SchoolVisit::create($value);
-
-            $schoolVisit->activities()->create([
-                'prospects_id' =>  $value['prospects_id'],
-                'note'=>"Registered for school visit on " . Carbon::parse($schoolVisit->date)->format('F j, Y') . " at " . Carbon::parse($schoolVisit->time)->format('g:i A'),
-            ]);
 
             $schoolVisit['dateDate'] = Carbon::parse($schoolVisit['date'])->format('l, F j, Y');
             $schoolVisit['subject'] = "MHIS Visit Confirmation";
@@ -246,53 +270,9 @@ class SchoolVisitIMplement implements SchoolVisitService
     {
         DB::beginTransaction();
         try {
-            $visit->update($data);
-            $visit->activities()->create([
-                'prospects_id' => $visit->prospects_id,
-                'note' => "Update school visit status to {$visit->status} on " .
-                    now()->format('F j, Y'),
-            ]);
-
-            switch ($visit->status) {
-                case 'registered':
-                    $dateTime = Carbon::parse($visit->date . ' ' . $visit->time,'Asia/Jakarta');
-                    if ($visit->google_event_id) {
-                        try {
-                            $event = Event::find($visit->google_event_id);
-                            if ($event) {
-                                $event->startDateTime = $dateTime;
-                                $event->endDateTime   = (clone $dateTime)->addHour();
-
-                                $event->addAttendee(['email' => $visit->email,'responseStatus' => 'accepted']);
-                                $event->guestsCanModify = false;
-                                $event->guestsCanInviteOthers = false;
-                                $event->guestsCanSeeOtherGuests = true;
-                                $event->save();
-                            }
-                        } catch (\Exception $e) {
-                            $newEvent = $this->saveGoogleCalendar($visit->toArray());
-                            $visit->google_event_id = $newEvent->id;
-                            $visit->save();
-                        }
-                    } else {
-                        $newEvent = $this->saveGoogleCalendar($visit->toArray());
-                        $visit->google_event_id = $newEvent->id;
-                        $visit->save();
-                    }
-                    break;
-
-                case 'cancelled':
-                    if ($visit->google_event_id) {
-                        try {
-                            Event::find($visit->google_event_id)->delete();
-                        } catch (\Exception $e) {
-                            // ignore kalau sudah terhapus
-                        }
-                    }
-                    break;
-            }
-
+            $visit = $this->updateVisit($visit,$data);
             DB::commit();
+            $this->syncGoogleCalendar($visit);
             return $visit;
 
         } catch (\Exception $e) {
@@ -414,6 +394,55 @@ Mutiara Harapan Islamic School";
     public function export($data)
     {
        //
+    }
+
+    private function updateVisit($visit,$data){
+        $visit->update($data);
+        $visit->activities()->create([
+            'prospects_id' => $visit->prospects_id,
+            'note' => "Update school visit status to {$visit->status} on " .
+                now()->format('F j, Y'),
+        ]);
+        return $visit;
+    }
+
+    private function syncGoogleCalendar($visit){
+        switch ($visit->status) {
+            case 'registered':
+                $dateTime = Carbon::parse($visit->date . ' ' . $visit->time,'Asia/Jakarta');
+                if ($visit->google_event_id) {
+                    try {
+                        $event = Event::find($visit->google_event_id);
+                        if ($event) {
+                            $event->startDateTime = $dateTime;
+                            $event->endDateTime   = (clone $dateTime)->addHour();
+                            $event->addAttendee(['email' => $visit->email,'responseStatus' => 'accepted']);
+                            $event->guestsCanModify = false;
+                            $event->guestsCanInviteOthers = false;
+                            $event->guestsCanSeeOtherGuests = true;
+                            $event->save();
+                        }
+                    } catch (\Exception $e) {
+                        $newEvent = $this->saveGoogleCalendar($visit->toArray());
+                        $visit->google_event_id = $newEvent->id;
+                        $visit->save();
+                    }
+                } else {
+                    $newEvent = $this->saveGoogleCalendar($visit->toArray());
+                    $visit->google_event_id = $newEvent->id;
+                    $visit->save();
+                }
+                break;
+            case 'cancelled':
+                if ($visit->google_event_id) {
+                    try {
+                        Event::find($visit->google_event_id)->delete();
+                    } catch (\Exception $e) {
+                        // ignore kalau sudah terhapus
+                    }
+                }
+                break;
+        }
     }
     
 }

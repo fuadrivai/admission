@@ -235,6 +235,7 @@ class SchoolVisitController extends Controller
             'level_name' => '',
             'grade_id' => 'required|integer',
             'grade_name' => '',
+            'academic_year_id' => 'required|integer',
             'academic_year' => 'required|string',
             'current_school' => 'required|string',
             'info_from' => 'required|string',

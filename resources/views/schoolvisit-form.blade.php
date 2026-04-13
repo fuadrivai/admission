@@ -103,7 +103,8 @@
                         <div class="row" id="row-code">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="form-label">Is your child already enroled in our school?</label>
+                                    <label class="form-label">Is your child already enroled or visit in our
+                                        school?</label>
                                     <div class="radio-group">
                                         <div class="radio-item">
                                             <input type="radio" class="required-radio" id="enrolled-yes"
@@ -126,12 +127,12 @@
                                 </div>
                             </div>
                             <div class="form-group" id="enrollment-code-group" style="display:none;">
-                                <label for="enrollment-code" class="form-label">Enrolment Code <span
-                                        class="required">*</span></label>
-                                <input type="text" class="form-control" id="enrollment-code"
-                                    name="enrollment_code" />
+                                <label for="enrollment-code" class="form-label">Enrolment Code or School Visit Code
+                                    <span class="required">*</span></label>
+                                <input type="text" class="form-control" id="enrollment-code" name="enrollment_code"
+                                    placeholder="MHIS-XXXXXX" />
                                 <div class="invalid-feedback" id="enrollment-codeTextError">Please provide the
-                                    enrolment code.</div>
+                                    valid code.</div>
                             </div>
                         </div>
                         <div class="text-center mt-4">
@@ -281,9 +282,9 @@
                                         <div class="form-group">
                                             <label for="academic-year" class="form-label">Academic Year <span
                                                     class="required">*</span></label>
-                                            <select style="width: 100%" name="academic_year"
-                                                class="form-select required-select2 select2 academic-year"
-                                                id="academic-year" disabled required>
+                                            <select class="form-select required-select2 select2 academic-year"
+                                                id="academic-year" name="academic_year_id" disabled required
+                                                style="width: 100%">
                                                 <option disabled selected value="">Select Academic Year</option>
                                             </select>
                                             <div class="invalid-feedback">
@@ -414,7 +415,7 @@
     <script src="/assets/extensions/toastify-js/src/toastify.js"></script>
     <script src="/assets/compiled/js/script.js?v=1.1.4"></script>
     <script src="/assets/static/js/constant.js?v=1.1.5"></script>
-    <script src="/assets/static/js/pages/school-visit.js?v=1.1.9"></script>
+    <script src="/assets/static/js/pages/school-visit.js?v=1.1.10"></script>
 </body>
 
 </html>

@@ -13,7 +13,7 @@ class AcademicYearImplement implements AcademicYearService
     }
     public function getActive()
     {
-        return AcademicYear::where('is_active', 1)->get();
+        return AcademicYear::where('is_active', 1)->orderBy('name','desc')->get();
     }
     public function show($id)
     {

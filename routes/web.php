@@ -86,6 +86,8 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
 
     Route::get('/mhis/portal/parent', [ParentsStudentController::class, 'getParentStudent']);
     Route::get('/ereport/siswa', [SiswaEreportController::class, 'getSiswaByNis']);
+
+    Route::get('/academic-year/active',[AcademicYearController::class,'getActive']);
     
 
 

@@ -9,6 +9,8 @@ class SchoolVisit extends Model
 {
     use HasFactory;
     protected $guarded = ['id'];
+    protected $hidden = ['academic_year_id'];
+    protected $with = ['branch','year'];
 
     protected $casts = [
         'roles' => 'array',
@@ -36,6 +38,10 @@ class SchoolVisit extends Model
     public function grade()
     {
         return $this->belongsTo(Grade::class, 'grade_id');
+    }
+    public function year()
+    {
+        return $this->belongsTo(AcademicYear::class, 'academic_year_id');
     }
 
     public function dateTime()

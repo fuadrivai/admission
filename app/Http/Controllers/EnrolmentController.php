@@ -222,6 +222,4 @@ class EnrolmentController extends Controller
             'data'      => $enrolment,
         ]);
     }
-
-    
 }

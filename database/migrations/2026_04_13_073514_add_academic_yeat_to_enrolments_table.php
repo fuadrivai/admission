@@ -14,7 +14,7 @@ class AddAcademicYeatToEnrolmentsTable extends Migration
     public function up()
     {
         Schema::table('enrolments', function (Blueprint $table) {
-                $table->unsignedBigInteger('academic_year_id')->nullable()->after('grade_name');
+                $table->unsignedBigInteger('academic_year_id')->nullable()->after('grade_id');
                 $table->foreign('academic_year_id')->references('id')->on('academic_years')->onDelete('set null');
         });
     }

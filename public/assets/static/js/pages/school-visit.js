@@ -1,8 +1,9 @@
 let levels = [];
 let enrolment = null;
+let schoolVisit = null;
 
 $(document).ready(function () {
-    getAcademicYear();
+    getActiveAY();
     setAnimationFadeout();
     appendRules();
     appendTimes();
@@ -176,6 +177,7 @@ $(document).ready(function () {
             dataJSON.level_name = $("#visit-level option:selected").text();
             dataJSON.grade_name = $("#grade option:selected").text();
             dataJSON.branch_name = $("#branch option:selected").text();
+            dataJSON.academic_year = $("#academic-year option:selected").text();
             dataJSON.roles = schoolVisitForm.rules;
             postSchoolVisit(dataJSON);
         }
@@ -273,6 +275,7 @@ function checkHoliday(date, dataThis) {
         }
     });
 }
+
 function checkCapacity(date, time, dataThis) {
     ajax(
         null,
@@ -338,12 +341,25 @@ function getEnrolmentByCode(resolve, reject) {
             $("#branch").val(json.branch.id).trigger("change");
             // $("#visit-level").val(json.level.id).trigger("change");
             // // $("#grade").val(json.grade.id).trigger("change");
-            $("#academic-year").val(json.academic_year).trigger("change");
+            if (json.year) {
+                $("#academic-year").val(json.year.id).trigger("change");
+            } else if (json.academic_year) {
+                $("#academic-year option").each(function () {
+                    if ($(this).text() === json.academic_year) {
+                        $(this).prop("selected", true);
+                    }
+                });
+
+                $("#academic-year").trigger("change");
+            }
 
             $("#enrollment-code").removeClass("is-invalid");
             resolve(json);
         },
         function (err) {
+            if (err.status == 404) {
+                getvisitCode(code);
+            }
             $("#enrollment-code").addClass("is-invalid");
             $("#enrollment-codeTextError").text(
                 err?.responseJSON?.message ?? "Please try again later",
@@ -351,6 +367,46 @@ function getEnrolmentByCode(resolve, reject) {
             reject(err);
         },
     );
+}
+
+async function getvisitCode(code) {
+    schoolVisit = await ajaxPromise(
+        null,
+        `/schoolvisit/student/${code}`,
+        "GET",
+    );
+
+    $("#prospects_id").val(visit.prospect?.id ?? "");
+    $("#parent-name").val(visit.parent_name);
+    $("#email").val(visit.email);
+    $("#phone").val(visit.phone_number);
+    $("#address").val(visit.address ?? "");
+    $("#child-name").val(visit.child_name);
+    $("#current-school").val(visit.current_school);
+    $("#enrollment-code").val(visit.code);
+    $("#branch").val(visit.branch.id).trigger("change");
+    $("#hear-about").val(visit.info_from).trigger("change");
+    $("#visitors-count").val(visit.number_visitor);
+    $("#reason_for_visit").val(visit.reason_for_visit);
+    $("#visit-date").val(moment(visit.date).format("DD MMMM YYYY"));
+    $("#visit-time").val(moment(visit.time, "HH:mm:ss").format("HH:mm"));
+
+    if (visit.year) {
+        $("#academic-year").val(visit.year.id).trigger("change");
+    } else if (visit.academic_year) {
+        $("#academic-year option").each(function () {
+            if ($(this).text() === visit.academic_year) {
+                $(this).prop("selected", true);
+            }
+        });
+
+        $("#academic-year").trigger("change");
+    }
+    $("#intro-section").fadeOut(400, function () {
+        $("#form-section").fadeIn(600);
+        $("html, body").animate({ scrollTop: 0 }, 300);
+    });
+    unBlockUI();
 }
 
 function getLevelsAndGrades(branchId) {
@@ -373,7 +429,32 @@ function getLevelsAndGrades(branchId) {
             if (enrolment && enrolment.level) {
                 $("#visit-level").val(enrolment.level.id).trigger("change");
                 $("#grade").val(enrolment.grade.id).trigger("change");
+            } else if (schoolVisit && schoolVisit.level) {
+                $("#visit-level").val(schoolVisit.level.id).trigger("change");
+                $("#grade").val(schoolVisit.grade.id).trigger("change");
             }
+        },
+        function (err) {
+            toastify(
+                "Error",
+                err?.responseJSON?.message ?? "Please try again later",
+                "bottom",
+            );
+        },
+    );
+}
+function getActiveAY() {
+    blockUI();
+    ajax(
+        null,
+        `/academic-year/active`,
+        "GET",
+        function (json) {
+            json.forEach((val) => {
+                $("#academic-year").append(`
+                    <option value="${val.id}">${val.name}</option>    
+                `);
+            });
         },
         function (err) {
             toastify(

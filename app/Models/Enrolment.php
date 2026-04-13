@@ -9,14 +9,29 @@ class Enrolment extends Model
 {
     use HasFactory;
     protected $guarded = ['id'];
-    protected $hidden = ['branch_id', 'grade_id', 'branch_id', 'level_id', 'prospects_id', 'created_at', 'updated_at'];
-    protected $with = ['branch'];
+    
+    protected $hidden = [
+        'branch_id',
+        'grade_id',
+        'level_id',
+        'prospects_id',
+        'academic_year_id',
+        'created_at',
+        'updated_at',
+    ];
+
+    protected $with = ['branch','year'];
 
     protected $casts = [
         'already_visit'      => 'boolean',
         'open_day_visited'   => 'boolean',
         'date_of_birth'      => 'date',
     ];
+
+    public function year()
+    {
+        return $this->belongsTo(AcademicYear::class,'academic_year_id');
+    }
 
     public function prospect()
     {
@@ -41,6 +56,7 @@ class Enrolment extends Model
     {
         return $this->belongsTo(Grade::class, 'grade_id');
     }
+    
     public function admission()
     {
         return $this->hasOne(Admission::class);
