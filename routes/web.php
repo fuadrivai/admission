@@ -4,6 +4,7 @@ use App\Http\Controllers\AdmissionController;
 use App\Http\Controllers\AdmissionDocumentController;
 use App\Http\Controllers\AdmissionStatementController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AcademicYearController;
 use App\Http\Controllers\BankChargerController;
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\DivisionController;
@@ -153,6 +154,11 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
             Route::get('/form/email/{id}', [SettingController::class, 'emailEditForm']);
             Route::put('/form/email', [SettingController::class, 'putEmail']);
             Route::post('/form/email', [SettingController::class, 'postEmail']);
+
+            Route::prefix('year')->name('year.')->group(function () {
+                Route::get('datatables', [AcademicYearController::class, 'datatables'])->name('datatables');
+                Route::resource('', AcademicYearController::class)->parameters(['' => 'year']);
+            });
             // Route::resource('', DivisionController::class)->parameters(['' => 'division']);
         });
         Route::resource('holiday', HolidayController::class)->parameters(['' => 'holiday']);

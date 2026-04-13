@@ -25,6 +25,8 @@ class AcademicYearImplement implements AcademicYearService
         $academicYear = AcademicYear::create([
             'name' => $data['name'],
             'is_active' => $data['is_active'] == "true" ? 1 : 0,
+            'start_date' => $data['start_date'],
+            'end_date' => $data['end_date'],
         ]);
 
         return $academicYear;
@@ -36,6 +38,8 @@ class AcademicYearImplement implements AcademicYearService
         $academicYear->update([
             'name'     => $data['name'],
             'is_active'     => $data['is_active'] == "true" ? 1 : 0,
+            'start_date' => $data['start_date'],
+            'end_date' => $data['end_date'],
         ]);
 
         return $academicYear;

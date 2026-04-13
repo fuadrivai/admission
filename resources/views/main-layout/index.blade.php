@@ -124,6 +124,8 @@
                             </a>
                             <ul class="submenu ">
                                 <li class="submenu-item"><a href="/setting/form" class="submenu-link">General</a>
+                                <li class="submenu-item"><a href="/setting/year" class="submenu-link">Academic
+                                        Year</a>
                                 </li>
                                 <li class="submenu-item"><a href="/setting/password/change"
                                         class="submenu-link">Users</a></li>
