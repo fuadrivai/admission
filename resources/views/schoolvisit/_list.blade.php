@@ -44,13 +44,32 @@
     </div>
 </div>
 
+<div class="row mb-3">
+    {{-- <div class="col-6 text-start">
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="select-all">
+            <label class="form-check-label fw-bold" for="select-all">
+                Select All Visits
+            </label>
+        </div>
+    </div> --}}
+    <div class="col-md-12 text-end">
+        <button id="delete-selected" class="btn btn-danger btn-sm" style="display:none;">
+            <i class="fa fa-trash"></i> Selected (0)
+        </button>
+    </div>
+</div>
+
 @forelse ($visits as $visit)
     <div class="card">
         <div class="card-body">
             <div class="row">
                 <div class="col-md-1">
-                    <div class="student-avatar">
-                        {{ ucfirst(\App\Helpers\avatarName($visit->child_name)) }}</div>
+                    <div class="d-flex">
+                        <input type="checkbox" class="form-check-input me-2 visit-checkbox" value="{{ $visit->id }}">
+                        <div class="student-avatar">
+                            {{ ucfirst(\App\Helpers\avatarName($visit->child_name)) }}</div>
+                    </div>
                 </div>
                 @php
                     $bg = 'bg-default';
@@ -74,7 +93,7 @@
                 @endphp
 
                 <div class="col-md-5">
-                    <label>Kode : {{ $visit->code }}</label><br>
+                    <label>Kode : <span class="code">{{ $visit->code }}</span> </label><br>
                     <div class="student-name">{{ ucwords($visit->child_name) }}</div>
                 </div>
                 <div class="col-md-6 text-end" style="vertical-align: middle">
@@ -96,7 +115,10 @@
                                     <i class="bi bi-star"></i> Confirm
                                 </button>
                                 <button class="dropdown-item text-white btn-cancel" data-id="{{ $visit->id }}">
-                                    <i class="fa fa-trash"></i>Cancel
+                                    <i class="fa fa-times"></i> Cancel
+                                </button>
+                                <button class="dropdown-item text-white btn-delete" data-id="{{ $visit->id }}">
+                                    <i class="fa fa-trash"></i> Delete (This action cannot be undone)
                                 </button>
                             </div>
                         </div>

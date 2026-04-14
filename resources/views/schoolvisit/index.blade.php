@@ -329,6 +329,34 @@
                 </div>
             </div>
         </div>
+
+        <!-- Delete Confirmation Modal -->
+        <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header bg-danger">
+                        <h5 class="modal-title text-white" id="deleteModalLabel">Confirm Deletion</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="text-center"><b>Are you sure you want to delete the selected visits?
+                                <br>This action cannot be undone.</b>
+                        </p>
+                        <div id="selectedVisitsList" class="mt-3">
+                            <!-- Selected visits will be listed here -->
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button onclick="deleteSelected()" type="button" class="btn btn-danger">
+                            <i class="fa fa-trash"></i> Delete Selected
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </section>
 @endsection
 
@@ -340,6 +368,7 @@
         let branches = [];
         let levels = [];
         let typingTimer;
+        let selectedVisitId = [];
         $(document).ready(function() {
             getBranch();
             getEnrolmentReasons();
@@ -522,7 +551,7 @@
             })
 
             $('.modal').on('hidden.bs.modal', function() {
-                $(this).find('form')[0].reset();
+                $(this).find('form')[0]?.reset();
                 $(this).find('form').removeClass('was-validated');
                 $(this).find('.is-invalid').removeClass('is-invalid');
                 $('button').attr('disabled', false);
@@ -586,7 +615,62 @@
                     $('#btn-cancel').attr('disabled', false)
                 }
             })
+
+            $(document).on('change', '.visit-checkbox', function() {
+                const visitId = $(this).val();
+                if ($(this).is(':checked')) {
+                    selectedVisitId.push({
+                        id: visitId,
+                        name: $(this).closest('.card').find('.student-name').text(),
+                        code: $(this).closest('.card').find('.code').text()
+                    });
+                } else {
+                    selectedVisitId = selectedVisitId.filter(visit => visit.id != visitId);
+                }
+                toggleDeleteButton();
+            });
+
+            $(document).on('click', '.btn-delete', async function() {
+                const visitId = $(this).data('id');
+                blockUI();
+                let confirmDelete = confirm("Are you sure you want to delete selected data?");
+                if (!confirmDelete) return;
+
+                try {
+                    let data = await ajaxPromise(null, `/schoolvisit/${visitId}`, "DELETE");
+                    toastify("success", "Selected visits deleted successfully", "bottom");
+                    toggleDeleteButton();
+                    loadSchoolvisit();
+                    $('#deleteModal').modal('hide');
+                } catch (error) {
+                    toastify("error", err?.responseJSON?.message ?? "Failed to delete selected visits",
+                        "bottom");
+                }
+
+            })
+
+            $('#schoolvisit-list').on('click', '#delete-selected', function() {
+                if (selectedVisitId.length === 0) return;
+
+                let listHtml = '<ol class="list-group list-group-numbered">';
+                selectedVisitId.forEach(visit => {
+                    listHtml +=
+                        `<li class="list-group-item">Kode: ${visit.code} - ${visit.name}</li>`;
+                });
+                listHtml += '</ol>';
+                $('#selectedVisitsList').html(listHtml);
+                $('#deleteModal').modal('show');
+            });
         });
+
+        function toggleDeleteButton() {
+            if (selectedVisitId.length > 0) {
+                $('#delete-selected').html(`<i class="fa fa-trash"></i> Delete Selected (${selectedVisitId.length})`)
+                    .show();
+            } else {
+                $('#delete-selected').hide();
+            }
+        }
 
         function checkCapacity(date, time, dataThis) {
             ajax(
@@ -676,6 +760,12 @@
                 type: "GET",
                 success: function(html) {
                     $('#schoolvisit-list').html(html);
+                    $('.visit-checkbox').each(function() {
+                        if (selectedVisitId.includes($(this).val())) {
+                            $(this).prop('checked', true);
+                        }
+                    });
+                    toggleDeleteButton();
                     unBlockUI();
                 },
                 error: function(err) {
@@ -695,11 +785,7 @@
 
             try {
                 blockUI();
-                let visit = await ajaxPromise(
-                    data,
-                    `/schoolvisit/${data.id}`,
-                    "PUT",
-                );
+                let visit = await ajaxPromise(data, `/schoolvisit/${data.id}`, "PUT");
                 toastify("success", "Status berhasil diubah", "bottom");
                 setTimeout(function() {
                     loadSchoolvisit();
@@ -735,7 +821,7 @@
                 }, 1000);
             } catch (err) {
                 toastify(
-                    "Error",
+                    "error",
                     err?.responseJSON?.message ?? "Please try again later",
                     "bottom",
                 );
@@ -766,6 +852,25 @@
                     <option value="${reason}">${reason}</option>
                 `);
             });
+        }
+
+        async function deleteSelected() {
+            if (selectedVisitId.length === 0) return;
+            blockUI();
+            let codes = selectedVisitId.map(visit => visit.code);
+
+            try {
+                let data = await ajaxPromise({
+                    codes
+                }, `/schoolvisit/delete/many`, "POST");
+                toastify("success", "Selected visits deleted successfully", "bottom");
+                selectedVisitId = [];
+                toggleDeleteButton();
+                loadSchoolvisit();
+                $('#deleteModal').modal('hide');
+            } catch (error) {
+                toastify("error", err?.responseJSON?.message ?? "Failed to delete selected visits", "bottom");
+            }
         }
     </script>
 @endsection

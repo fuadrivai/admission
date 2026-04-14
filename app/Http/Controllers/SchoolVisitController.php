@@ -216,9 +216,9 @@ class SchoolVisitController extends Controller
      * @param  \App\Models\SchoolVisit  $schoolVisit
      * @return \Illuminate\Http\Response
      */
-    public function destroy(SchoolVisit $schoolVisit)
+    public function destroy($id)
     {
-        //
+        return $this->schooolVisitService->delete($id);
     }
 
     public function post(Request $request)
@@ -301,6 +301,12 @@ class SchoolVisitController extends Controller
             'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             'Content-Disposition' => 'attachment; filename="School_Visit_Report_' . $timestamps . '.xlsx"',
         ]);
+    }
+
+    public function deleteMany(Request $request)
+    {
+        $data = $this->schooolVisitService->deleteMany($request);
+        return $data;
     }
 
 }

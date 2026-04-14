@@ -228,9 +228,15 @@
     border-bottom-style: solid;
 }
 
-.parent-block-father { border-bottom-color: #667eea; }
-.parent-block-mother { border-bottom-color: #ffc107; }
-.parent-block-guardian { border-bottom-color: #17a2b8; }
+.parent-block-father {
+    border-bottom-color: #667eea;
+}
+.parent-block-mother {
+    border-bottom-color: #ffc107;
+}
+.parent-block-guardian {
+    border-bottom-color: #17a2b8;
+}
 
 .info-section-full {
     max-width: 100%;

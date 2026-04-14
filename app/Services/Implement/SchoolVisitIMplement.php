@@ -5,8 +5,10 @@ namespace App\Services\Implement;
 use App\Exports\SchoolVisitExport;
 use App\Mail\AdmissionEmail;
 use App\Models\EmailSetting;
+use App\Models\Enrolment;
 use App\Models\Level;
 use App\Models\MaxCapacity;
+use App\Models\Prospects;
 use App\Models\SchoolVisit;
 use App\Models\WhatsappCode;
 use App\Services\ProspectService;
@@ -288,11 +290,81 @@ class SchoolVisitIMplement implements SchoolVisitService
 
     public function delete($id)
     {
-        $visit = SchoolVisit::find($id);
-        if (!$visit) {
-            return response()->json(['message' => 'Data not found'], 404);
+        DB::beginTransaction();
+
+        try {
+            $visit = SchoolVisit::findOrFail($id);
+            $visit->activities()->create([
+                'prospects_id' => $visit->prospects_id,
+                'note' => 'School visit deleted',
+            ]);
+            $hasEnrolment = Enrolment::where('code', $visit->code)->exists();
+            if ($hasEnrolment) {
+                $enrolment = Enrolment::where('code', $visit->code)->first();
+                $enrolment->activities()->create([
+                    'prospects_id' => $enrolment->prospects_id,
+                    'note' => 'School visit data deleted but enrolment still exists. Please contact the school for further information.',
+                ]);
+                $visit->delete();
+                Prospects::where('code', $visit->code)->update(['source_module' => 'enrolment']);
+            } else {
+                $visit->delete();
+                Prospects::where('code', $visit->code)->delete();
+            }
+            DB::commit();
+            return "Deleted successfully";
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
         }
-        $visit->delete();
+    }
+
+    public function deleteMany($request)
+    {
+        $codes = $request->input('codes', []);
+
+        if (!is_array($codes) || empty($codes)) {
+            return response()->json([
+                'message' => 'No codes provided'
+            ], 400);
+        }
+
+        DB::beginTransaction();
+
+        try {
+            $enrolmentCodes = Enrolment::whereIn('code', $codes)
+                ->pluck('code')
+                ->toArray();
+
+            $codesWithEnrolment = $enrolmentCodes;
+            $codesWithoutEnrolment = array_diff($codes, $codesWithEnrolment);
+
+            SchoolVisit::whereIn('code', $codes)->delete();
+
+            if (!empty($codesWithEnrolment)) {
+                foreach ($codesWithEnrolment as $code) {
+                    $enrolment = Enrolment::where('code', $code)->first();
+                    $enrolment->activities()->create([
+                        'prospects_id' => $enrolment->prospects_id,
+                        'note' => 'School visit data deleted but enrolment still exists. Please contact the school for further information.',
+                    ]);
+                }
+                Prospects::whereIn('code', $codesWithEnrolment)
+                    ->update(['source_module' => 'enrolment']);
+            }
+
+            if (!empty($codesWithoutEnrolment)) {
+                Prospects::whereIn('code', $codesWithoutEnrolment)->delete();
+            }
+
+            DB::commit();
+
+            return 'Deleted successfully';
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
     }
     
     public function maxCapacity()

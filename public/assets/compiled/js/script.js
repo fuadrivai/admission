@@ -80,8 +80,9 @@ function toastify(type = "success", message, position = "top") {
 function ajax(data, url, method, callback, callbackError) {
     $.ajax({
         url: url,
-        data: data,
+        data: JSON.stringify(data),
         type: method,
+        contentType: "application/json",
         headers: {
             "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
         },

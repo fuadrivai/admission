@@ -13,6 +13,7 @@ interface SchoolVisitService
     public function put($visit,$data);
     public function fetch($data);
     public function delete($id);
+    public function deleteMany($request);
     public function maxCapacity();
     public function postMax($data);
     public function search($request);

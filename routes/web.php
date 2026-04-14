@@ -45,6 +45,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
     Route::get('/school-visit/capacity/check', [SchoolVisitController::class, 'checkCapacity']);
     Route::get('/schoolvisit/student/{code}', [SchoolVisitController::class, 'code'])->name('schoolvisit.code');
     Route::get('/schoolvisit/cron/status', [SchoolVisitController::class, 'changeStatusViaCron'])->name('schoolvisit.cron');
+    
 
     Route::get('observation-form', [ObservationController::class, 'form'])->name('observation-form');
     Route::get('observation-success', [ObservationController::class, 'success'])->name('success');
@@ -117,6 +118,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
             Route::get('{schoolvisit}/history', [SchoolVisitController::class, 'history'])->name('history');
             Route::get('handle/olddata', [SchoolVisitController::class, 'handleOldData'])->name('handleOldData');
             Route::get('export', [SchoolVisitController::class, 'export'])->name('export');
+            Route::post('delete/many', [SchoolVisitController::class, 'deleteMany'])->name('schoolvisit.deleteMany');
             Route::resource('/', SchoolVisitController::class)->parameters(['' => 'schoolvisit']);
         });
 

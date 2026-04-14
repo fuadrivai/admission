@@ -381,12 +381,15 @@ function getLevelsAndGrades(branchId) {
                     `<option value="${level.id}">${level.name}</option>`,
                 );
             });
-            if (prospect.enrolment && prospect.enrolment.level) {
+            if (prospect?.enrolment && prospect?.enrolment?.level) {
                 $("#visit-level")
                     .val(prospect.enrolment.level.id)
                     .trigger("change");
                 $("#grade").val(prospect.enrolment.grade.id).trigger("change");
-            } else if (prospect.school_visit && prospect.school_visit.level) {
+            } else if (
+                prospect?.school_visit &&
+                prospect?.school_visit?.level
+            ) {
                 $("#visit-level")
                     .val(prospect.school_visit.level.id)
                     .trigger("change");
