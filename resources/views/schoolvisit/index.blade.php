@@ -643,7 +643,8 @@
                     loadSchoolvisit();
                     $('#deleteModal').modal('hide');
                 } catch (error) {
-                    toastify("error", err?.responseJSON?.message ?? "Failed to delete selected visits",
+                    toastify("error", error?.responseJSON?.message ??
+                        "Failed to delete selected visits",
                         "bottom");
                 }
 
