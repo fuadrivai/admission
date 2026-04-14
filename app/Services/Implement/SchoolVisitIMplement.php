@@ -391,11 +391,6 @@ Mutiara Harapan Islamic School";
         return $event;
     }
 
-    public function export($data)
-    {
-       //
-    }
-
     private function updateVisit($visit,$data){
         $visit->update($data);
         $visit->activities()->create([

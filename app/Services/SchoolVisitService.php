@@ -15,7 +15,6 @@ interface SchoolVisitService
     public function delete($id);
     public function maxCapacity();
     public function postMax($data);
-    public function export($data);
     public function search($request);
     public function summary($data);
 }

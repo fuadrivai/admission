@@ -91,7 +91,7 @@ class ProspectController extends Controller
 
     public function getByCode($code)
     {
-        $prospect = $this->prospectService->getbyCode($code);
+        $prospect = $this->prospectService->getbyCode($code)->load(['schoolVisit.level.grades','schoolVisit.grade','enrolment.level.grades','enrolment.grade']);
         return $prospect;
     }
 }

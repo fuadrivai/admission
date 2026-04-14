@@ -16,7 +16,7 @@ class Prospects extends Model
     }
     public function schoolVisit()
     {
-        return $this->hasOne(Enrolment::class);
+        return $this->hasOne(SchoolVisit::class);
     }
 
     public function activities()

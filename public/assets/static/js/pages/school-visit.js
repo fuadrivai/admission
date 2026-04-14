@@ -1,6 +1,5 @@
 let levels = [];
-let enrolment = null;
-let schoolVisit = null;
+let prospect = null;
 
 $(document).ready(function () {
     getActiveAY();
@@ -152,6 +151,7 @@ $(document).ready(function () {
         if (!validateRequiredSelect2()) {
             return false;
         }
+
         if (!validateRadio()) {
             return false;
         }
@@ -210,7 +210,7 @@ function changeVisitTime(isDisabled) {
 }
 
 function setAnimationFadeout() {
-    $("#next-btn").click(function () {
+    $("#next-btn").click(async function () {
         const selectedRadio = $('input[name="already_enrol"]:checked');
         if (selectedRadio.length === 0) {
             return;
@@ -223,28 +223,12 @@ function setAnimationFadeout() {
             } else {
                 $("#enrollment-code").removeClass("is-invalid");
             }
-            getEnrolmentByCode(
-                function (json) {
-                    $("#intro-section").fadeOut(400, function () {
-                        $("#form-section").fadeIn(600);
-                        $("html, body").animate({ scrollTop: 0 }, 300);
-                    });
-                    unBlockUI();
-                },
-                function (err) {
-                    toastify(
-                        "Error",
-                        err?.responseJSON?.message ?? "Please try again later",
-                        "error",
-                    );
-                    unBlockUI();
-                },
-            );
+            getStudentCode();
         } else {
             $("#intro-section").fadeOut(400, function () {
                 $("#form-section").fadeIn(600);
                 $("html, body").animate({ scrollTop: 0 }, 300);
-                enrolment = null;
+                prospect = null;
                 $("#form-section input").val("");
                 // $("#form-section select").val("").trigger("change");
             });
@@ -321,92 +305,63 @@ function postSchoolVisit(data) {
     );
 }
 
-function getEnrolmentByCode(resolve, reject) {
-    const code = $("#enrollment-code").val().trim();
-    blockUI();
-    ajax(
-        null,
-        `/enrolment/student/${code}`,
-        "GET",
-        function (json) {
-            enrolment = json;
-            $("#prospects_id").val(json.prospect?.id ?? "");
-            $("#parent-name").val(json.parent_name);
-            $("#email").val(json.email);
-            $("#phone").val(json.phone_number);
-            $("#address").val(json.address ?? "");
-            $("#child-name").val(json.child_name);
-            $("#current-school").val(json.current_school);
-            $("#enrollment-code").val(json.code);
-            $("#branch").val(json.branch.id).trigger("change");
-            // $("#visit-level").val(json.level.id).trigger("change");
-            // // $("#grade").val(json.grade.id).trigger("change");
-            if (json.year) {
-                $("#academic-year").val(json.year.id).trigger("change");
-            } else if (json.academic_year) {
-                $("#academic-year option").each(function () {
-                    if ($(this).text() === json.academic_year) {
-                        $(this).prop("selected", true);
-                    }
-                });
+async function getStudentCode() {
+    try {
+        blockUI();
+        const code = $("#enrollment-code").val().trim();
+        prospect = await ajaxPromise(null, `/prospect/code/${code}`, "GET");
+        $("#prospects_id").val(prospect?.id ?? "");
+        $("#parent-name").val(prospect.parent_name);
+        $("#email").val(prospect.email);
+        $("#phone").val(prospect.phone_number);
+        $("#address").val(prospect.address ?? "");
+        $("#child-name").val(prospect.child_name);
+        $("#current-school").val(prospect.current_school);
+        $("#enrollment-code").val(prospect.code);
 
-                $("#academic-year").trigger("change");
-            }
+        $("#hear-about")
+            .val(prospect?.school_visit?.info_from ?? "")
+            .trigger("change");
+        $("#visitors-count").val(prospect?.school_visit?.number_visitor);
+        $("#reason_for_visit").val(prospect?.school_visit?.reason_for_visit);
 
-            $("#enrollment-code").removeClass("is-invalid");
-            resolve(json);
-        },
-        function (err) {
-            if (err.status == 404) {
-                getvisitCode(code);
-            }
-            $("#enrollment-code").addClass("is-invalid");
-            $("#enrollment-codeTextError").text(
-                err?.responseJSON?.message ?? "Please try again later",
-            );
-            reject(err);
-        },
-    );
-}
+        let academic_year = prospect.enrolment
+            ? prospect.enrolment.academic_year
+            : prospect.school_visit.academic_year;
 
-async function getvisitCode(code) {
-    schoolVisit = await ajaxPromise(
-        null,
-        `/schoolvisit/student/${code}`,
-        "GET",
-    );
+        let branch = prospect.enrolment
+            ? prospect.enrolment.branch
+            : prospect.school_visit.branch;
 
-    $("#prospects_id").val(visit.prospect?.id ?? "");
-    $("#parent-name").val(visit.parent_name);
-    $("#email").val(visit.email);
-    $("#phone").val(visit.phone_number);
-    $("#address").val(visit.address ?? "");
-    $("#child-name").val(visit.child_name);
-    $("#current-school").val(visit.current_school);
-    $("#enrollment-code").val(visit.code);
-    $("#branch").val(visit.branch.id).trigger("change");
-    $("#hear-about").val(visit.info_from).trigger("change");
-    $("#visitors-count").val(visit.number_visitor);
-    $("#reason_for_visit").val(visit.reason_for_visit);
-    $("#visit-date").val(moment(visit.date).format("DD MMMM YYYY"));
-    $("#visit-time").val(moment(visit.time, "HH:mm:ss").format("HH:mm"));
+        $("#branch").val(branch.id).trigger("change");
 
-    if (visit.year) {
-        $("#academic-year").val(visit.year.id).trigger("change");
-    } else if (visit.academic_year) {
-        $("#academic-year option").each(function () {
-            if ($(this).text() === visit.academic_year) {
-                $(this).prop("selected", true);
-            }
+        let year = prospect.enrolment
+            ? prospect.enrolment.year
+            : prospect.school_visit.year;
+
+        if (year) {
+            $("#academic-year").val(year.id).trigger("change");
+        } else if (academic_year) {
+            $("#academic-year option").each(function () {
+                if ($(this).text() === academic_year) {
+                    $(this).prop("selected", true);
+                }
+            });
+            $("#academic-year").trigger("change");
+        }
+        $("#intro-section").fadeOut(400, function () {
+            $("#form-section").fadeIn(600);
+            $("html, body").animate({ scrollTop: 0 }, 300);
         });
-
-        $("#academic-year").trigger("change");
+        unBlockUI();
+    } catch (error) {
+        let errMessage =
+            error?.responseJSON?.message ?? "Please try again later";
+        $("#enrollment-code").addClass("is-invalid");
+        $("#enrollment-codeTextError").text(errMessage);
+        toastify("Error", errMessage, "error");
+        unBlockUI();
     }
-    $("#intro-section").fadeOut(400, function () {
-        $("#form-section").fadeIn(600);
-        $("html, body").animate({ scrollTop: 0 }, 300);
-    });
-    unBlockUI();
 }
 
 function getLevelsAndGrades(branchId) {
@@ -426,12 +381,18 @@ function getLevelsAndGrades(branchId) {
                     `<option value="${level.id}">${level.name}</option>`,
                 );
             });
-            if (enrolment && enrolment.level) {
-                $("#visit-level").val(enrolment.level.id).trigger("change");
-                $("#grade").val(enrolment.grade.id).trigger("change");
-            } else if (schoolVisit && schoolVisit.level) {
-                $("#visit-level").val(schoolVisit.level.id).trigger("change");
-                $("#grade").val(schoolVisit.grade.id).trigger("change");
+            if (prospect.enrolment && prospect.enrolment.level) {
+                $("#visit-level")
+                    .val(prospect.enrolment.level.id)
+                    .trigger("change");
+                $("#grade").val(prospect.enrolment.grade.id).trigger("change");
+            } else if (prospect.school_visit && prospect.school_visit.level) {
+                $("#visit-level")
+                    .val(prospect.school_visit.level.id)
+                    .trigger("change");
+                $("#grade")
+                    .val(prospect.school_visit.grade.id)
+                    .trigger("change");
             }
         },
         function (err) {

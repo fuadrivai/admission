@@ -19,18 +19,15 @@ class ProspectImplement implements ProspectService
         return Prospects::with($with)-> findOrFail($id);
     }
     
-    public function getbyCode($code, $with=[])
+    public function getbyCode($code)
     {
         $prospect = Prospects::where('code', $code)->first();
 
         if (!$prospect) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Code not found or invalid.'
-            ], 404);
+            throw new \Exception("Code not found or invalid.");
         }
 
-        return response()->json($prospect);
+        return $prospect;
     }
 
     public function post($data)
