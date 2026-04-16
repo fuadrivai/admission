@@ -10,8 +10,8 @@
         <h5 class="mb-2">{{ config('student_enrolment.step1.labels.text2.english') }}</h5>
         <ol class="mb-0">
             <li>{{ config('student_enrolment.step1.labels.text3.english') }}</li>
-            <li>{{ config('student_enrolment.step1.labels.text4.english') }}</li>
             <li>{{ config('student_enrolment.step1.labels.text5.english') }}</li>
+            <li>{{ config('student_enrolment.step1.labels.text4.english') }}</li>
         </ol>
     </div>
 
@@ -29,9 +29,11 @@
                     placeholder="kode pendaftaran Ananda" required>
                 <input type="text" class="form-control" id="admissionID" hidden>
                 <input type="text" class="form-control" id="applicantId" hidden>
-                <div class="error-message" id="enrollmentCode-error">Harap masukkan kode pendaftaran yang valid
-                </div>
+                <div class="error-message" id="enrollmentCode-error">Please enter a valid enrolment code from the
+                    Admission email. <br><small><i>Harap masukkan kode pendaftaran yang valid dari email
+                            Admission.</i></small></div>
             </div>
         </div>
     </div>
+</div>
 </div>

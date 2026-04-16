@@ -21,7 +21,7 @@ return [
                 'indonesian'=>'',
             ],
             'text4'=>[
-                'english'=>'Parent consent letter',
+                'english'=>'Parent consent form',
                 'indonesian'=>'',
             ],
             'text5'=>[
@@ -42,7 +42,7 @@ return [
                 'indonesian'=>'',
             ],
             'text9'=>[
-                'english'=>'School Visit Code/Enrolment Code',
+                'english'=>'Enrolment Code',
                 'indonesian'=>'',
             ],
         ]

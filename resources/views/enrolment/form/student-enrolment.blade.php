@@ -113,10 +113,10 @@
         <div class="wizard-navigation">
             <div>
                 <button type="button" class="btn btn-outline-primary-custom" id="prev-btn" disabled>
-                    <i class="bi bi-chevron-left"></i> Sebelumnya
+                    <i class="bi bi-chevron-left"></i> Previous
                 </button>
                 <button type="button" class="btn btn-primary-custom" id="next-btn">
-                    Selanjutnya <i class="bi bi-chevron-right"></i>
+                    Next <i class="bi bi-chevron-right"></i>
                 </button>
             </div>
         </div>
