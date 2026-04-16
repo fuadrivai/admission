@@ -5,7 +5,7 @@ let bankCharger = 0;
 let schoolVisit = null;
 
 $(document).ready(function () {
-    getAcademicYear();
+    getActiveAY();
     getBankCharger();
 
     $("#branch").on("change", function () {
@@ -190,6 +190,12 @@ $(document).ready(function () {
                 } finally {
                     unBlockUI();
                 }
+            } else if (currentStep === 4) {
+                let isValid = await submitForm();
+                if (isValid) {
+                    currentStep++;
+                    showStep(currentStep);
+                }
             } else {
                 if (currentStep < totalSteps) {
                     currentStep++;
@@ -255,7 +261,7 @@ function showStep(step) {
     $("html, body").animate({ scrollTop: 0 }, 300);
 }
 
-function validateStep(step) {
+async function validateStep(step) {
     let isValid = true;
     const currentSection = $(`.section-step[data-step="${step}"]`);
 
@@ -274,8 +280,8 @@ function validateStep(step) {
                     $(`input[name="${name}"]`).first().addClass("is-invalid");
                 }
             } else if (field.attr("type") === "email") {
-                isValid = false;
                 if (!validateEmail(field.val())) {
+                    isValid = false;
                     field.addClass("is-invalid");
                 } else {
                     isValid = true;
@@ -312,11 +318,7 @@ function validateStep(step) {
 
         // Scroll to alert
         $("html, body").animate({ scrollTop: alert.offset().top - 100 }, 300);
-    } else if (step === 4) {
-        // Submit form
-        submitForm();
     }
-
     return isValid;
 }
 
@@ -364,60 +366,63 @@ function getSiswaEreport(branch, level, nis, resolve, reject) {
 }
 
 function submitForm() {
-    const formData = {
-        alreadyVisit: $('input[name="visitedBefore"]:checked').val(),
-        code: $("#visitCode").val(),
-        prospectsId: $("#prospects_id").val(),
-        isCurrentStudent: $('input[name="currentMHIS"]:checked').val(),
-        studentBranch: $("#branch-portal").val(),
-        mhisPortalUsername: $("#mhis-portal-username").val(),
-        branch: $("#branch").val(),
-        level: $("#level").val(),
-        grade: $("#grade").val(),
-        academicYear: $("#academic-year").val(),
-        parentName: $("#parentName").val(),
-        email: $("#email").val(),
-        phone: normalizePhone($("#phone").val()),
-        relationship: $("#relationship").val(),
-        zipCode: $("#zipCode").val(),
-        address: $("#address").val(),
-        childName: $("#childName").val(),
-        placeOfBirth: $("#birthPlace").val(),
-        dateOfBirth: moment($("#birthDate").val(), "DD MMMM YYYY").format(
-            "YYYY-MM-DD",
-        ),
-        currentSchool: $("#currentSchool").val(),
-        childSosmed: $("#socialMedia").val(),
-        opendayVisited: $('input[name="openDay"]:checked').val(),
-        knowledgeAboutProgram: $('input[name="knowProgram"]:checked').val(),
-        infoFrom: $("#hearAbout").val(),
-        infoFromMessage: $("#hear-other-text").val(),
-        reasonForEnrolment: $("#enrollReason").val(),
-        prefferedProgram: $("#bestProgram").val(),
-        expectationMhisImpact: $('input[name="standards"]:checked').val(),
-        recommenderName: $("#recommenderName").val(),
-        recommenderPhone: $("#recommenderPhone").val(),
-        recommenderChildName: $("#recommenderChildName").val(),
-        recommenderChildClass: $("#recommenderChildClass").val(),
-    };
-    blockUI();
-    ajax(
-        formData,
-        "/enrolment/post",
-        "POST",
-        function (json) {
-            console.log(json);
-            // currentStep = 5;
-            // showStep(currentStep);
-        },
-        function (err) {
-            toastify(
-                "Error",
-                err?.responseJSON?.message ?? "Please try again later",
-                "bottom",
-            );
-        },
-    );
+    return new Promise((resolve) => {
+        const formData = {
+            alreadyVisit: $('input[name="visitedBefore"]:checked').val(),
+            code: $("#visitCode").val(),
+            prospectsId: $("#prospects_id").val(),
+            isCurrentStudent: $('input[name="currentMHIS"]:checked').val(),
+            studentBranch: $("#branch-portal").val(),
+            mhisPortalUsername: $("#mhis-portal-username").val(),
+            branch: $("#branch").val(),
+            level: $("#level").val(),
+            grade: $("#grade").val(),
+            academicYearId: $("#academic-year").val(),
+            academicYear: $("#academic-year option:selected").text(),
+            parentName: $("#parentName").val(),
+            email: $("#email").val(),
+            phone: normalizePhone($("#phone").val()),
+            relationship: $("#relationship").val(),
+            zipCode: $("#zipCode").val(),
+            address: $("#address").val(),
+            childName: $("#childName").val(),
+            placeOfBirth: $("#birthPlace").val(),
+            dateOfBirth: moment($("#birthDate").val(), "DD MMMM YYYY").format(
+                "YYYY-MM-DD",
+            ),
+            currentSchool: $("#currentSchool").val(),
+            childSosmed: $("#socialMedia").val(),
+            opendayVisited: $('input[name="openDay"]:checked').val(),
+            knowledgeAboutProgram: $('input[name="knowProgram"]:checked').val(),
+            infoFrom: $("#hearAbout").val(),
+            infoFromMessage: $("#hear-other-text").val(),
+            reasonForEnrolment: $("#enrollReason").val(),
+            prefferedProgram: $("#bestProgram").val(),
+            expectationMhisImpact: $('input[name="standards"]:checked').val(),
+            recommenderName: $("#recommenderName").val(),
+            recommenderPhone: $("#recommenderPhone").val(),
+            recommenderChildName: $("#recommenderChildName").val(),
+            recommenderChildClass: $("#recommenderChildClass").val(),
+        };
+        blockUI();
+        ajax(
+            formData,
+            "/enrolment/post",
+            "POST",
+            function (json) {
+                console.log(json);
+                resolve(true);
+            },
+            function (err) {
+                toastify(
+                    "Error",
+                    err?.responseJSON?.message ?? "Please try again later",
+                    "bottom",
+                );
+                resolve(false);
+            },
+        );
+    });
 }
 
 function getLevelsAndGrades(branchId) {
@@ -607,6 +612,29 @@ function getBankCharger() {
         function (json) {
             bankCharger = parseFloat(json.price ?? 0);
             $("#bank-form").text(formatNumber(bankCharger));
+        },
+        function (err) {
+            toastify(
+                "Error",
+                err?.responseJSON?.message ?? "Please try again later",
+                "bottom",
+            );
+        },
+    );
+}
+
+function getActiveAY() {
+    blockUI();
+    ajax(
+        null,
+        `/academic-year/active`,
+        "GET",
+        function (json) {
+            json.forEach((val) => {
+                $("#academic-year").append(`
+                    <option value="${val.id}">${val.name}</option>    
+                `);
+            });
         },
         function (err) {
             toastify(

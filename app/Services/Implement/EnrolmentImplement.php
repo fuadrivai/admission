@@ -60,6 +60,7 @@ class EnrolmentImplement implements EnrolmentService
             'branch_id'                => $request->branch,
             'level_id'                 => $request->level,
             'grade_id'                 => $request->grade,
+            'academic_year_id'         => $request->academicYearId,
             'academic_year'            => $request->academicYear,
             'parent_name'              => $request->parentName,
             'email'                    => $request->email,
