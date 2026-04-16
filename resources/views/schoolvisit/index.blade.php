@@ -427,7 +427,7 @@
                 }, 400);
             });
 
-            $('#filter-level, #filter-branch, #filter-status , #filter-grade, #filter-start-date, #filter-end-date, #filter-enrol, #filter-payment')
+            $('#filter-level, #filter-branch, #filter-status , #filter-grade, #filter-enrol, #filter-payment')
                 .on('change keyup', function() {
                     loadSchoolvisit();
                 });
@@ -483,6 +483,10 @@
                 $("#filter-end-date").prop('disabled', false);
                 $("#filter-end-date").val('');
                 $("#filter-end-date").datepicker("setStartDate", new Date(startDate));
+                loadSchoolvisit();
+            });
+            $("#filter-end-date").on("changeDate", function() {
+                loadSchoolvisit();
             });
 
             $('#filter-enrol').on('change', function() {

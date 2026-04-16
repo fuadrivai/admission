@@ -52,13 +52,50 @@ class EnrolmentController extends Controller
             $query->where('payment_status', $request->status);
         }
 
+        
+
+        $statusQuery = clone $query;
+
+        $statusCounts = $statusQuery
+            ->reorder()
+            ->selectRaw("payment_status, COUNT(*) as total")
+            ->groupBy('payment_status')
+            ->pluck('total', 'payment_status');
+
+        $totalFiltered = (clone $query)->reorder()->count();
+
+        $visitCount = (clone $query)->whereHas('prospect.schoolVisit')->count();
+
+        $summary = [
+            'pending' => $statusCounts['PENDING'] ?? 0,
+            'paid' => $statusCounts['PAID'] ?? 0,
+            'expired' => $statusCounts['EXPIRED'] ?? 0,
+            'cancelled' => $statusCounts['CANCELLED'] ?? 0,
+            'total' => $totalFiltered,
+            'visitSummary' => [
+                'visit' => $visitCount,
+                'registered' => (clone $query)->whereHas('prospect.schoolVisit', function($q) {
+                    $q->where('status', 'registered');
+                })->count(),
+                'present' => (clone $query)->whereHas('prospect.schoolVisit', function($q) {
+                    $q->where('status', 'present');
+                })->count(),
+                'cancelled' => (clone $query)->whereHas('prospect.schoolVisit', function($q) {
+                    $q->where('status', 'cancelled');
+                })->count(),
+                'absent' => (clone $query)->whereHas('prospect.schoolVisit', function($q) {
+                    $q->where('status', 'absent');
+                })->count(),
+            ],
+        ];
+
         $enrolments = $query->paginate(request('perpage')??10)->withQueryString();
 
         if ($request->ajax()) {
-            return view('enrolment._list', compact('enrolments'))->render();
+            return view('enrolment._list', compact('enrolments', 'summary'))->render();
         }
 
-        return view('enrolment.index', ["title" => "Enrolment", "enrolments" => $enrolments]);
+        return view('enrolment.index', ["title" => "Enrolment", "enrolments" => $enrolments, "summary" => $summary]);
     }
 
    public function datatables(UtilitiesRequest $request)

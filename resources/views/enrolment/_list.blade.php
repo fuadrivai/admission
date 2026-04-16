@@ -1,3 +1,53 @@
+<div class="card shadow-sm">
+    <div class="card-body py-2">
+        <div class="row text-center gy-2">
+            <div class="col-6 col-md">
+                <div class="small text-muted">Total</div>
+                <div class="h5 mb-0">{{ $summary['total'] ?? 0 }}</div>
+            </div>
+            <div class="col-6 col-md">
+                <div class="small text-muted">Pending</div>
+                <div class="h5 mb-0">{{ $summary['pending'] ?? 0 }}</div>
+            </div>
+            <div class="col-6 col-md">
+                <div class="small text-muted">Paid</div>
+                <div class="h5 mb-0">{{ $summary['paid'] ?? 0 }}</div>
+            </div>
+            <div class="col-6 col-md">
+                <div class="small text-muted">Expired</div>
+                <div class="h5 mb-0">{{ $summary['expired'] ?? 0 }}</div>
+            </div>
+            <div class="col-6 col-md">
+                <div class="small text-muted">Cancelled</div>
+                <div class="h5 mb-0">{{ $summary['cancelled'] ?? 0 }}</div>
+            </div>
+            <hr>
+        </div>
+        <div class="row text-center gy-2">
+            <div class="col-6 col-md">
+                <div class="small text-muted">Total Visit</div>
+                <div class="h5 mb-0">{{ $summary['visitSummary']['visit'] ?? 0 }}</div>
+            </div>
+            <div class="col-6 col-md">
+                <div class="small text-muted">Registered</div>
+                <div class="h5 mb-0">{{ $summary['visitSummary']['registered'] ?? 0 }}</div>
+            </div>
+            <div class="col-6 col-md">
+                <div class="small text-muted">Present</div>
+                <div class="h5 mb-0">{{ $summary['visitSummary']['present'] ?? 0 }}</div>
+            </div>
+            <div class="col-6 col-md">
+                <div class="small text-muted">Absent</div>
+                <div class="h5 mb-0">{{ $summary['visitSummary']['absent'] ?? 0 }}</div>
+            </div>
+            <div class="col-6 col-md">
+                <div class="small text-muted">Cancelled</div>
+                <div class="h5 mb-0">{{ $summary['visitSummary']['cancelled'] ?? 0 }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @forelse ($enrolments as $enrolment)
     <div class="card">
         <div class="card-body">
@@ -64,6 +114,45 @@
                     </div>
                 </div>
             </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div id="visit-history">
+                        @php
+                            $prospect = $enrolment->prospect;
+                            $visit = optional($prospect)->schoolVisit;
+                            $admission = optional($enrolment)->admission;
+                            $documents = optional($admission)->documents ?? collect();
+                            $agreement = optional($admission)->statement ?? null;
+                        @endphp
+
+                        <div class="completion-tracker">
+                            <div class="steps-container">
+                                <div
+                                    class="step {{ !isset($visit) ? 'pending' : ($visit->status == 'present' ? 'completed' : ($visit->status == 'registered' ? 'active' : 'expired')) }}">
+                                    <div class="step-circle"><i class="fa fa-graduation-cap"></i></div>
+                                    <div class="step-label">Visit
+                                        <small><i>{{ !isset($visit) ? '(Not Scheduled)' : "($visit->status)" }}</i></small>
+                                    </div>
+                                </div>
+                                <div
+                                    class="step {{ !isset($admission) ? 'pending' : ($admission->is_complete == 1 ? 'completed' : 'active') }}">
+                                    <div class="step-circle"><i class="fa fa-user"></i></div>
+                                    <div class="step-label">Enrolment</div>
+                                </div>
+                                <div class="step {{ count($documents) < 4 ? 'pending' : 'completed' }}">
+                                    <div class="step-circle"><i class="fa fa-folder"></i></div>
+                                    <div class="step-label">Documents</div>
+                                </div>
+                                <div
+                                    class="step {{ !isset($agreement) ? 'pending' : ($agreement->is_completed == 1 ? 'completed' : 'active') }}">
+                                    <div class="step-circle"><i class="fa fa-check-square"></i></div>
+                                    <div class="step-label">Agreement</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 @empty
@@ -73,5 +162,5 @@
 @endforelse
 
 <div class="mt-3">
-    {{ $enrolments->links() }}
+    {{ $enrolments->onEachSide(0)->links() }}
 </div>

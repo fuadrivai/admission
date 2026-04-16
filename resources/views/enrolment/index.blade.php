@@ -78,6 +78,14 @@
                             </div>
                         </div>
                     </div>
+                    <div class="row">
+                        <hr>
+                        <div class="col-md-12 text-center">
+                            <button onclick="download()" class="btn btn-sm btn-success" type="submit">
+                                <i class="fa fa-download"></i> Download excel
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -152,7 +160,27 @@
                 }, 400);
             });
 
-            $('#filter-level, #filter-branch, #filter-status').on('change', function() {
+            $('#filter-level, #filter-branch, #filter-status').on('change keyup', function() {
+                loadEnrolments();
+            });
+
+            $("#filter-start-date").on("changeDate", function() {
+                let value = $(this).val();
+
+                if (value == "") {
+                    $("#filter-end-date").prop('disabled', true);
+                    $("#filter-end-date").val('');
+                    return;
+                }
+
+                let startDate = moment(value, "DD MMMM YYYY").format("YYYY-MM-DD");
+
+                $("#filter-end-date").prop('disabled', false);
+                $("#filter-end-date").val('');
+                $("#filter-end-date").datepicker("setStartDate", new Date(startDate));
+                loadEnrolments();
+            });
+            $("#filter-end-date").on("changeDate", function() {
                 loadEnrolments();
             });
 
@@ -162,6 +190,21 @@
                 loadEnrolments(url);
             });
         });
+
+        function download() {
+            // const data = {
+            //     search: $('#filter-name').val(),
+            //     start_date: $('#filter-start-date').val(),
+            //     end_date: $('#filter-end-date').val(),
+            //     branch: $('#filter-branch').val(),
+            //     level: $('#filter-level').val(),
+            //     grade: $('#filter-grade').val(),
+            //     status: $('#filter-status').val(),
+            // };
+
+            // let queryString = new URLSearchParams(data).toString();
+            // window.location.href = `/enrolment/export?${queryString}`;
+        }
 
         function getBranch() {
             blockUI();
@@ -187,7 +230,7 @@
             );
         }
 
-        function loadEnrolments(url = "{{ url('/enrolments') }}") {
+        function loadEnrolments(url = "/enrolment") {
             const data = {
                 search: $('#filter-name').val(),
                 start_date: $('#filter-start-date').val(),

@@ -2,7 +2,6 @@
 
 namespace App\Services\Implement;
 
-use App\Exports\SchoolVisitExport;
 use App\Mail\AdmissionEmail;
 use App\Models\EmailSetting;
 use App\Models\Enrolment;
@@ -18,7 +17,6 @@ use Illuminate\Support\Facades\Config;
 use Spatie\GoogleCalendar\Event;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
-use Maatwebsite\Excel\Excel;
 
 use function App\Helpers\generate;
 use function App\Helpers\normalizePhoneNumber;
