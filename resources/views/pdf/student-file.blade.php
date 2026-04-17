@@ -161,7 +161,7 @@
             @foreach ($groups as $file)
                 <div class="img-box @if ($loop->index > 1) img-box-full @endif">
                     <div class="img-label">{{ $file['label'] ?? 'Document' }}</div>
-                    <img src="{{ $file['path'] }}" alt="{{ $file['label'] ?? 'document' }}">
+                    <img src="{{ $file['image'] }}" alt="{{ $file['label'] ?? 'document' }}">
                 </div>
                 @if (!$loop->last)
                     <div class="page-break"></div>
