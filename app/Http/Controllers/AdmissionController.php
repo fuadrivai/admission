@@ -82,7 +82,9 @@ class AdmissionController extends Controller
             abort(404);
         }
 
-        return response()->file($fullPath);
+        return response()->file($fullPath,[
+            'Content-Type' => mime_content_type($fullPath),
+        ]);
     }
 
     /**

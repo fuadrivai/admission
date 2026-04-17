@@ -78,7 +78,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
     Route::get('document/statement/{id}/agreement/{role}', [AdmissionStatementController::class, 'getAgreement'])->name('admission.getAgreement');
     
     Route::get('document/success/{code}', [AdmissionController::class, 'success'])->name('admission.success');
-    Route::get('/documents/path/{path}', [AdmissionController::class, 'path'])->where('path', '.*');
+    Route::get('/document/path/{path}', [AdmissionController::class, 'path'])->where('path', '.*');
 
     Route::get('/level/branch/{id}', [LevelController::class, 'getByBranch'])->name('getByBranch');
     Route::get('/holiday/check/{date}', [HolidayController::class, 'isHoliday']);
