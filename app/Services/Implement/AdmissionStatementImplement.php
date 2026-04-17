@@ -144,6 +144,7 @@ class AdmissionStatementImplement implements AdmissionStatementService{
 
     private function generateStatementPdf($admission)
     {
+        $student_name = $admission->applicant->fullname;
         $parents = $admission->applicant->parents->keyBy('role');
         $role = $admission->statement->actor;
 
@@ -158,11 +159,11 @@ class AdmissionStatementImplement implements AdmissionStatementService{
         $dompdf->setPaper('A4');
         $dompdf->render();
 
-        $path = 'admission/enrolment/statement-'.$admission->code.'.pdf';
+        $path = $admission['code']. '/Statement-'.$student_name .'.pdf';
 
-        Storage::put($path, $dompdf->output());
+        Storage::disk('admission')->put($path, $dompdf->output());
 
-        return storage_path('app/'.$path);
+        return Storage::disk('admission')->path($path);
     }
 
 }
