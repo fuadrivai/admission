@@ -6,6 +6,7 @@ use App\Models\Admission;
 use App\Services\AdmissionService;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class AdmissionController extends Controller
 {
@@ -72,6 +73,16 @@ class AdmissionController extends Controller
         }
 
         return view('document.index', ["title" => "Document", "admissions" => $admissions]);
+    }
+
+    public function path($path){
+        $fullPath = Storage::disk('admission')->path($path);
+
+        if (!file_exists($fullPath)) {
+            abort(404);
+        }
+
+        return response()->file($fullPath);
     }
 
     /**

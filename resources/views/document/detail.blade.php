@@ -721,7 +721,7 @@
                                             $isImage = in_array($ext, $imageExts);
                                             $fileUrl = str_starts_with($document->file_path ?? '', 'http')
                                                 ? $document->file_path
-                                                : url('documents/' . $document->file_path);
+                                                : url('document/path/' . $document->file_path);
                                         @endphp
                                         <div class="document-card">
                                             <div class="document-card-label">
