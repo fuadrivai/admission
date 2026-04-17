@@ -112,11 +112,11 @@ class AdmissionDocumentController extends Controller
 
                     $image = Image::make($file)
                         ->orientate() // fix rotasi iPhone
-                        ->resize(1500, null, function ($constraint) {
+                        ->resize(1000, null, function ($constraint) {
                             $constraint->aspectRatio();
                             $constraint->upsize();
                         })
-                        ->encode('jpg', 70); // compress (0–100)
+                        ->encode('jpg', 60); // compress (0–100)
 
                     Storage::disk('admission')->put($path, (string) $image);
 
@@ -217,6 +217,8 @@ class AdmissionDocumentController extends Controller
             $this->compressPdf($tempPath, $finalPdfPath);
 
             unlink($tempPath);
+            
+            $this->deleteFolder($outputDir);
 
             $admission->subject  = 'Submitted Documents Summary';
             $admission->template = 'email-template.student-file';
@@ -333,10 +335,28 @@ class AdmissionDocumentController extends Controller
         $command = "gs -sDEVICE=pdfwrite \
             -dCompatibilityLevel=1.4 \
             -dPDFSETTINGS=/ebook \
+            -dDownsampleColorImages=true \
+            -dColorImageResolution=100 \
             -dNOPAUSE -dQUIET -dBATCH \
             -sOutputFile={$destination} {$source}";
 
         exec($command);
+    }
+    
+    private function deleteFolder($dir)
+    {
+        if (!is_dir($dir)) return;
+    
+        foreach (scandir($dir) as $file) {
+            if ($file != '.' && $file != '..') {
+                $path = $dir . '/' . $file;
+                is_dir($path)
+                    ? $this->deleteFolder($path)
+                    : unlink($path);
+            }
+        }
+    
+        rmdir($dir);
     }
 
 }
