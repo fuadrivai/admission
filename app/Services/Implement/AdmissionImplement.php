@@ -381,11 +381,12 @@ class AdmissionImplement implements AdmissionService
             ->setPaper('a4', 'portrait')
             ->setWarnings(false);
 
-        $path = 'admission/enrolment/student-' . $admission->code . '.pdf';
 
-        Storage::put($path, $pdf->output());
+        $path = $admission['code']. '/Enrolment-'.$admission['applicant']['child_name'].'.pdf';
 
-        return storage_path('app/' . $path);
+        Storage::disk('admission')->put($path, $pdf->output());
+
+        return Storage::disk('admission')->path($path);
     }
 
 }
