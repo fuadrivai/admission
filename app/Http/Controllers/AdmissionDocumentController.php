@@ -133,34 +133,35 @@ class AdmissionDocumentController extends Controller
 
             foreach ($documents as $doc) {
                 $sourcePath = Storage::disk('admission')->path($doc->file_path);
-                if (!file_exists($sourcePath)) continue;
-                $label = strtoupper(str_replace('_', ' ', $doc->type));
-                $ext   = strtolower(pathinfo($sourcePath, PATHINFO_EXTENSION));
+                dd($sourcePath);
+                // if (!file_exists($sourcePath)) continue;
+                // $label = strtoupper(str_replace('_', ' ', $doc->type));
+                // $ext   = strtolower(pathinfo($sourcePath, PATHINFO_EXTENSION));
 
-                if (in_array($ext, ['jpg', 'jpeg', 'png'])) {
-                    $outputPath = "{$outputDir}/{$doc->id}.jpg";
-                    $this->normalizeImage($sourcePath, $outputPath);
-                    $images[] = [
-                        'label' => $label,
-                        'path'  => $outputPath,
-                    ];
-                }
+                // if (in_array($ext, ['jpg', 'jpeg', 'png'])) {
+                //     $outputPath = "{$outputDir}/{$doc->id}.jpg";
+                //     $this->normalizeImage($sourcePath, $outputPath);
+                //     $images[] = [
+                //         'label' => $label,
+                //         'path'  => $outputPath,
+                //     ];
+                // }
 
-                if ($ext === 'pdf') {
-                    $pdf = new PdfToImage($sourcePath);
-                    $pdf->setResolution(200);
-                    for ($i = 1; $i <= $pdf->getNumberOfPages(); $i++) {
-                        $tmpPath   = "{$outputDir}/{$doc->id}_tmp_{$i}.jpg";
-                        $finalPath = "{$outputDir}/{$doc->id}_page_{$i}.jpg";
-                        $pdf->setPage($i)->saveImage($tmpPath);
-                        $this->normalizeImage($tmpPath, $finalPath);
-                        unlink($tmpPath);
-                        $images[] = [
-                            'label' => "{$label}",
-                            'path'  => $finalPath,
-                        ];
-                    }
-                }
+                // if ($ext === 'pdf') {
+                //     $pdf = new PdfToImage($sourcePath);
+                //     $pdf->setResolution(200);
+                //     for ($i = 1; $i <= $pdf->getNumberOfPages(); $i++) {
+                //         $tmpPath   = "{$outputDir}/{$doc->id}_tmp_{$i}.jpg";
+                //         $finalPath = "{$outputDir}/{$doc->id}_page_{$i}.jpg";
+                //         $pdf->setPage($i)->saveImage($tmpPath);
+                //         $this->normalizeImage($tmpPath, $finalPath);
+                //         unlink($tmpPath);
+                //         $images[] = [
+                //             'label' => "{$label}",
+                //             'path'  => $finalPath,
+                //         ];
+                //     }
+                // }
             }
 
             if (empty($images)) {
