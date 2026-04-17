@@ -115,7 +115,7 @@ class XenditCallBackImplement implements XenditCallBackService
         $dompdf->setPaper('A4');
         $dompdf->render();
 
-        $path = $enrolment['code'].'-'.$enrolment['child_name'].'/receipt-'.$enrolment['invoice_id'].'.pdf';
+        $path = 'document/'.$enrolment['code'].'-'.$enrolment['child_name'].'/receipt-'.$enrolment['invoice_id'].'.pdf';
 
         Storage::disk('admission')->put($path, $dompdf->output());
 
