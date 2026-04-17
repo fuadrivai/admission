@@ -13,6 +13,8 @@ use Spatie\PdfToImage\Pdf as PdfToImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use Intervention\Image\Facades\Image;
+use Illuminate\Support\Str;
 use Imagick;
 use ImagickPixel;
 
@@ -101,8 +103,31 @@ class AdmissionDocumentController extends Controller
                 if (!$request->hasFile($field)) continue;
 
                 $file = $request->file($field);
+                $ext  = strtolower($file->getClientOriginalExtension());
+                $filename = Str::random(20) . '.jpg'; // kita paksa jadi JPG
+                $path = "{$baseFolder}/originals/{$filename}";
+                // $path = $file->store("{$baseFolder}/originals",'admission');
 
-                $path = $file->store("{$baseFolder}/originals",'admission');
+                if (in_array($ext, ['jpg', 'jpeg', 'png'])) {
+
+                    $image = Image::make($file)
+                        ->orientate() // fix rotasi iPhone
+                        ->resize(1500, null, function ($constraint) {
+                            $constraint->aspectRatio();
+                            $constraint->upsize();
+                        })
+                        ->encode('jpg', 70); // compress (0–100)
+
+                    Storage::disk('admission')->put($path, (string) $image);
+
+                } else {
+                    // file non-image (pdf, dll)
+                    $filename = Str::random(20) . '.' . $ext;
+
+                    Storage::disk('admission')->putFileAs("{$baseFolder}/originals",$file,$filename);
+
+                    $path = "{$baseFolder}/originals/{$filename}";
+                }
 
                 AdmissionDocument::updateOrCreate(
                     [
@@ -183,11 +208,15 @@ class AdmissionDocumentController extends Controller
             ->setPaper('a4')
             ->setWarnings(false);
 
+            $tempPath = storage_path('app/temp-' . uniqid() . '.pdf');
+            $pdf->save($tempPath);
+
             $filename = "Documents-{$admission->applicant->fullname}";
 
             $finalPdfPath = Storage::disk('admission')->path("{$baseFolder}/{$filename}.pdf");
+            $this->compressPdf($tempPath, $finalPdfPath);
 
-            $pdf->save($finalPdfPath);
+            unlink($tempPath);
 
             $admission->subject  = 'Submitted Documents Summary';
             $admission->template = 'email-template.student-file';
@@ -294,6 +323,20 @@ class AdmissionDocumentController extends Controller
         $img->setImageFormat('jpg');
         $img->writeImage($outputPath);
         $img->clear();
+    }
+
+    private function compressPdf($source, $destination)
+    {
+        $source = escapeshellarg($source);
+        $destination = escapeshellarg($destination);
+
+        $command = "gs -sDEVICE=pdfwrite \
+            -dCompatibilityLevel=1.4 \
+            -dPDFSETTINGS=/ebook \
+            -dNOPAUSE -dQUIET -dBATCH \
+            -sOutputFile={$destination} {$source}";
+
+        exec($command);
     }
 
 }
