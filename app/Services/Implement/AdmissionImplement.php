@@ -364,6 +364,7 @@ class AdmissionImplement implements AdmissionService
 
     private function generateEnrolmentPdf($admission)
     {
+        $student_name = $admission->applicant->fullname;
         $parents = $admission->applicant->parents->keyBy('role');
         $father   = $parents->get('father');
         $mother   = $parents->get('mother');
@@ -382,7 +383,7 @@ class AdmissionImplement implements AdmissionService
             ->setWarnings(false);
 
 
-        $path = $admission['code']. '/Enrolment-'.$admission['applicant']['child_name'].'.pdf';
+        $path = $admission['code']. '/Enrolment-'.$student_name .'.pdf';
 
         Storage::disk('admission')->put($path, $pdf->output());
 
