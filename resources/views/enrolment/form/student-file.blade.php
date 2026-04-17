@@ -169,8 +169,7 @@
                     Format: JPG, PNG, or PDF. Maximum file size is 5MB. Please ensure the documents are clearly
                     readable.
                 </div>
-                <input type="file" id="ktp_fatherInput" class="file-input" accept="image/*,.pdf"
-                    capture="environment" />
+                <input type="file" id="ktp_fatherInput" class="file-input" accept="image/*,.pdf" />
                 <button type="button" class="upload-btn"
                     onclick="document.getElementById('ktp_fatherInput').click()">
                     <i class="bi bi-upload"></i> Upload File
@@ -184,8 +183,7 @@
                     Format: JPG, PNG, or PDF. Maximum file size is 5MB. Please ensure the documents are clearly
                     readable.
                 </div>
-                <input type="file" id="ktp_motherInput" class="file-input" accept="image/*,.pdf"
-                    capture="environment" />
+                <input type="file" id="ktp_motherInput" class="file-input" accept="image/*,.pdf" />
                 <button type="button" class="upload-btn"
                     onclick="document.getElementById('ktp_motherInput').click()">
                     <i class="bi bi-upload"></i> Upload File
@@ -199,8 +197,7 @@
                     Format: JPG, PNG, or PDF. Maximum file size is 5MB. Please ensure the documents are clearly
                     readable.
                 </div>
-                <input type="file" id="birth_certificateInput" class="file-input" accept="image/*,.pdf"
-                    capture="environment" />
+                <input type="file" id="birth_certificateInput" class="file-input" accept="image/*,.pdf" />
                 <button type="button" class="upload-btn"
                     onclick="document.getElementById('birth_certificateInput').click()">
                     <i class="bi bi-upload"></i> Upload File
@@ -214,8 +211,7 @@
                     Format: JPG, PNG, or PDF. Maximum file size is 5MB. Please ensure the documents are clearly
                     readable.
                 </div>
-                <input type="file" id="family_cardInput" class="file-input" accept="image/*,.pdf"
-                    capture="environment" />
+                <input type="file" id="family_cardInput" class="file-input" accept="image/*,.pdf" />
                 <button type="button" class="upload-btn"
                     onclick="document.getElementById('family_cardInput').click()">
                     <i class="bi bi-upload"></i> Upload File
