@@ -12,6 +12,7 @@ use Carbon\Carbon;
 use Spatie\PdfToImage\Pdf as PdfToImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Imagick;
 use ImagickPixel;
 
@@ -87,6 +88,8 @@ class AdmissionDocumentController extends Controller
     public function store(Request $request)
     {
         try {
+            $admission =  $this->admissionService->show($request->admission_id);
+            $baseFolder = $admission->code;
             $mapping = [
                 'ktp_father'        => 'father',
                 'ktp_mother'        => 'mother',
@@ -99,10 +102,7 @@ class AdmissionDocumentController extends Controller
 
                 $file = $request->file($field);
 
-                $path = $file->store(
-                    "admission/{$request->admission_id}/originals",
-                    'public'
-                );
+                $path = $file->store("{$baseFolder}/originals",'admission');
 
                 AdmissionDocument::updateOrCreate(
                     [
@@ -125,14 +125,14 @@ class AdmissionDocumentController extends Controller
                 ->get();
 
             $images    = [];
-            $outputDir = storage_path("app/public/admission/{$request->admission_id}/processed");
+            $outputDir = Storage::disk('admission')->path("{$baseFolder}/processed");
 
             if (!is_dir($outputDir)) {
                 mkdir($outputDir, 0755, true);
             }
 
             foreach ($documents as $doc) {
-                $sourcePath = storage_path('app/public/' . $doc->file_path);
+                $sourcePath = Storage::disk('admission')->path($doc->file_path);
                 if (!file_exists($sourcePath)) continue;
                 $label = strtoupper(str_replace('_', ' ', $doc->type));
                 $ext   = strtolower(pathinfo($sourcePath, PATHINFO_EXTENSION));
@@ -170,7 +170,6 @@ class AdmissionDocumentController extends Controller
             }
 
             
-            $admission =  $this->admissionService->show($request->admission_id);
             $logoPath = public_path('assets/images/Logo-all-branch.png');
             $imageBase64 = imageToBase64($logoPath);
 
@@ -182,11 +181,9 @@ class AdmissionDocumentController extends Controller
             ->setPaper('a4')
             ->setWarnings(false);
 
-            $filename = "documents-{$admission->code}";
+            $filename = "Documents-{$admission->applicant->fullname}";
 
-            $finalPdfPath = storage_path(
-                "app/public/admission/{$request->admission_id}/$filename.pdf"
-            );
+            $finalPdfPath = Storage::disk('admission')->path("{$baseFolder}/{$filename}.pdf");
 
             $pdf->save($finalPdfPath);
 
