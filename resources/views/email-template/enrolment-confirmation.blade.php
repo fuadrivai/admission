@@ -461,7 +461,7 @@
                       border-left: 3px solid #f0e6d6;
                     ">
                                     All enrolment forms must be submitted within
-                                    <strong>two weeks</strong> to move forward with the
+                                    <strong>one week</strong> to move forward with the
                                     observation and interview. Please read the terms and
                                     conditions carefully within the parental statement form.
                                 </p>
@@ -493,7 +493,7 @@
                                                     Note:</strong>
                                                 If there is no further information or confirmation
                                                 from parents within
-                                                <strong>one month</strong>, it will be considered a
+                                                <strong>two weeks</strong>, it will be considered a
                                                 withdrawal. Please note that all payments are
                                                 <strong>non-refundable</strong>, except in cases where
                                                 the observation results indicate that your child
@@ -522,9 +522,9 @@
                             font-style: italic;
                           ">
                                                 Semua dokumen pendaftaran harus dikumpulkan dalam
-                                                <strong>2 minggu</strong> untuk lanjut ke observasi
+                                                <strong>1 minggu</strong> untuk lanjut ke observasi
                                                 dan interview. Jika tidak ada konfirmasi lebih lanjut
-                                                dari Ayah dan Bunda dalam <strong>1 bulan</strong>,
+                                                dari Ayah dan Bunda dalam <strong>2 minggu</strong>,
                                                 maka akan dianggap mengundurkan diri. Perlu
                                                 diperhatikan, seluruh pembayaran bersifat
                                                 <strong>non-refundable</strong>.

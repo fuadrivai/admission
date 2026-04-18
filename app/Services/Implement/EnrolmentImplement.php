@@ -125,6 +125,8 @@ class EnrolmentImplement implements EnrolmentService
         $xendit = createXenditInvoice($payload);
         $data['payment_status'] = $xendit['status'];
         $data['payment_url'] = $xendit['invoice_url'];
+        $data['create_va_date'] = $xendit['created'];
+        $data['expiry_va_date'] = $xendit['expiry_date'];
         $enrolment = Enrolment::create($data);
 
         $enrolment->activities()->create([
