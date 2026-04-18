@@ -11,6 +11,7 @@ use App\Services\BankChargerService;
 use App\Services\EnrolmentPriceService;
 use App\Services\EnrolmentService;
 use App\Services\ProspectService;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Mail;
 
@@ -125,8 +126,8 @@ class EnrolmentImplement implements EnrolmentService
         $xendit = createXenditInvoice($payload);
         $data['payment_status'] = $xendit['status'];
         $data['payment_url'] = $xendit['invoice_url'];
-        $data['create_va_date'] = $xendit['created'];
-        $data['expiry_va_date'] = $xendit['expiry_date'];
+        $data['create_va_date'] =  Carbon::parse($xendit['created']);
+        $data['expiry_va_date'] = Carbon::parse($xendit['expiry_date']);
         $enrolment = Enrolment::create($data);
 
         $enrolment->activities()->create([
