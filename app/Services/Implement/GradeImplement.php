@@ -18,6 +18,11 @@ class GradeImplement implements GradeService
         return Grade::with('level')->findOrFail($id);
     }
 
+    public function byLevelId($id)
+    {
+        return Grade::where('level_id', $id)->get();
+    }
+
     public function post($data)
     {
         $division = Division::create([

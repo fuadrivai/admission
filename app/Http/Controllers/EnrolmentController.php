@@ -28,6 +28,8 @@ class EnrolmentController extends Controller
     {
         $query = Enrolment::query();
 
+        $query->orderBy('created_at', 'desc');
+
         if ($request->search) {
             $query->where(function ($q) use ($request) {
                 $q->where('code', 'like', '%'.$request->search.'%')

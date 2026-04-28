@@ -13,11 +13,16 @@ class LevelImplement implements LevelService
         return Level::with(['grades', 'division', 'branch'])->get();
     }
 
-    public function getByBranch($branchId)
+    public function getByBranch($branchId, $search = null)
     {
-        return Level::with(['grades', 'division', 'branch'])
-            ->where('branch_id', $branchId)
-            ->get();
+        $query = Level::with(['grades', 'division', 'branch'])
+            ->where('branch_id', $branchId);
+
+        if ($search) {
+            $query->where('name', 'like', "%$search%");
+        }
+
+        return $query->get();
     }
 
     public function show($id)

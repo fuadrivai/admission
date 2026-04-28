@@ -20,6 +20,11 @@ class AcademicYearImplement implements AcademicYearService
         return AcademicYear::findOrFail($id);
     }
 
+    public function byName($name)
+    {
+        return AcademicYear::where('name','LIKE', "%$name%")->first();
+    }
+
     public function post($data)
     {
         $academicYear = AcademicYear::create([

@@ -6,6 +6,7 @@ interface AcademicYearService
 {
     public function get();
     public function getActive();
+    public function byName($name);
     public function show($id);
     public function post($data);
     public function put($data);

@@ -1,13 +1,12 @@
 <!doctype html>
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml"
-    xmlns:o="urn:schemas-microsoft-com:office:office">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="x-apple-disable-message-reformatting" />
-    <title>Enrolment Confirmation - Mutiara Harapan Islamic School</title>
+    <title>Enrolment Payment - Mutiara Harapan Islamic School</title>
 </head>
 
 <body
@@ -15,13 +14,11 @@
       margin: 0;
       padding: 0;
       background-color: #f9f7f4;
-      font-family:
-        &quot;Arial&quot;, &quot;Helvetica Neue&quot;, Helvetica, sans-serif;
+      font-family: &quot;Arial&quot;, Poppins;
       -webkit-text-size-adjust: 100%;
       -ms-text-size-adjust: 100%;
     ">
     <center style="width: 100%; background-color: #f9f7f4">
-        <!-- Decorative Top Border -->
         <table role="presentation" align="center" border="0" cellpadding="0" cellspacing="0" width="100%"
             style="max-width: 600px">
             <tr>
@@ -70,7 +67,7 @@
                 font-weight: bold;
                 letter-spacing: 0.5px;
               ">
-                        Enrolment Confirmation
+                        Enrolment Payment
                     </h1>
 
                     <!-- Arabic Greeting -->
@@ -82,7 +79,6 @@
                 font-weight: bold;
                 line-height: 1.4;
               ">
-                        ٱلسَّلَامُ عَلَيْكُمْ وَرَحْمَةُ ٱللَّٰهِ وَبَرَكَاتُهُ
                     </p>
                 </td>
             </tr>
@@ -98,147 +94,101 @@
             ">
                     <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%"
                         style="background-color: #ffffff">
-                        <!-- Student Information -->
+                        <!-- Enrolment Code & Student Info -->
                         <tr>
-                            <td style="padding: 0 0 15px">
-                                <div
-                                    style="
-                      background-color: #f8f9fa;
-                      border-radius: 8px;
-                      padding: 20px;
-                      border-left: 4px solid #800000;
-                    ">
-                                    <p
-                                        style="
-                        margin: 0 0 10px;
-                        color: #800000;
-                        font-size: 14px;
-                        font-weight: bold;
-                        text-transform: uppercase;
-                        letter-spacing: 0.5px;
-                      ">
-                                        Student Information
-                                    </p>
-                                    <table role="presentation" border="0" cellpadding="0" cellspacing="0"
-                                        width="100%">
-                                        <tr>
-                                            <td style="padding: 0 0 5px">
+                            <td style="padding: 0 0 25px">
+                                <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%"
+                                    style="border-collapse: separate; border-spacing: 0">
+                                    <tr>
+                                        <!-- Enrolment Code Box -->
+                                        <td width="50%" valign="top" style="padding-right: 10px">
+                                            <div
+                                                style="
+                            background-color: #fdf8f3;
+                            border: 2px dashed #d4af37;
+                            border-radius: 8px;
+                            padding: 18px 15px;
+                            text-align: center;
+                          ">
+                                                <p
+                                                    style="
+                              margin: 0 0 8px;
+                              color: #800000;
+                              font-size: 11px;
+                              font-weight: bold;
+                              text-transform: uppercase;
+                              letter-spacing: 0.5px;
+                            ">
+                                                    Please use this code for all enrolment-related
+                                                    matters
+                                                </p>
                                                 <p
                                                     style="
                               margin: 0;
-                              font-size: 18px;
+                              font-size: 22px;
+                              color: #800000;
+                              font-weight: bold;
+                              letter-spacing: 1px;
+                              font-family: &quot;Arial&quot;, Poppins;
+                            ">
+                                                    {{ $data['code'] }}
+                                                </p>
+                                            </div>
+                                        </td>
+
+                                        <!-- Student Information -->
+                                        <td width="50%" valign="top" style="padding-left: 10px">
+                                            <div
+                                                style="
+                            background-color: #f8f9fa;
+                            border-radius: 8px;
+                            padding: 18px 15px;
+                            border-left: 4px solid #800000;
+                          ">
+                                                <p
+                                                    style="
+                              margin: 0 0 8px;
+                              color: #800000;
+                              font-size: 13px;
+                              font-weight: bold;
+                              text-transform: uppercase;
+                              letter-spacing: 0.5px;
+                            ">
+                                                    Student Information
+                                                </p>
+                                                <p
+                                                    style="
+                              margin: 0;
+                              font-size: 16px;
                               color: #333333;
                               font-weight: bold;
                             ">
                                                     {{ $data['child_name'] }}
                                                 </p>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <p style="margin: 0; color: #666666; font-size: 14px">
-                                                    Enrolment Year:
-                                                    <strong style="color: #800000">{{ $data['academic_year'] }}</strong>
+                                                <p
+                                                    style="
+                              margin: 5px 0 0;
+                              color: #666666;
+                              font-size: 13px;
+                            ">
+                                                    Enrolment Year: {{ $data['academic_year'] }}
                                                 </p>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <p style="margin: 0; color: #666666; font-size: 14px">
-                                                    Level:
-                                                    <strong style="color: #800000">{{ $data['level_name'] }} /
-                                                        {{ $data['grade_name'] }}</strong>
+                                                <p
+                                                    style="
+                              margin: 5px 0 0;
+                              color: #666666;
+                              font-size: 13px;
+                            ">
+                                                    Level: {{ $data['level_name'] }} / {{ $data['grade_name'] }}
                                                 </p>
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
                             </td>
                         </tr>
 
-                        <!-- Enrolment Code -->
-                        <tr>
-                            <td style="padding: 0 0 25px">
-                                <div
-                                    style="
-                background-color: #fdf8f3;
-                border: 2px dashed #d4af37;
-                border-radius: 8px;
-                padding: 20px;
-                text-align: center;
-            ">
-                                    <p
-                                        style="
-                    margin: 0 0 12px;
-                    color: #800000;
-                    font-size: 14px;
-                    font-weight: bold;
-                    text-transform: uppercase;
-                    letter-spacing: 0.5px;
-                ">
-                                        Enrolment Code
-                                    </p>
-
-                                    <!-- Copy-friendly Code Box -->
-                                    <div
-                                        style="
-                    background-color: #ffffff;
-                    border: 2px solid #800000;
-                    border-radius: 6px;
-                    padding: 15px 10px;
-                    margin: 0 0 12px;
-                ">
-                                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-                                            <tr>
-                                                <td align="center">
-                                                    <p
-                                                        style="
-                                    margin: 0;
-                                    font-size: 24px;
-                                    color: #800000;
-                                    font-weight: bold;
-                                    letter-spacing: 1px;
-                                    font-family: 'Courier New', monospace;
-                                    padding: 5px 0;
-                                    user-select: all;
-                                    cursor: text;
-                                ">
-                                                        {{ $data['code'] }}
-                                                    </p>
-                                                </td>
-                                                <td width="40" align="center" valign="middle">
-                                                    <div
-                                                        style="
-                                    background-color: #800000;
-                                    color: white;
-                                    border-radius: 4px;
-                                    padding: 6px 8px;
-                                    font-size: 12px;
-                                    font-weight: bold;
-                                ">
-                                                        📋
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </div>
-
-                                    <p
-                                        style="
-                    margin: 0;
-                    color: #666666;
-                    font-size: 13px;
-                    font-style: italic;
-                ">
-                                        <span style="color: #800000; font-weight: bold">Tip:</span>
-                                        Click the code, then press <b>Ctrl + C</b> (or long-press on mobile)
-                                    </p>
-                                </div>
-                            </td>
-                        </tr>
-
-
-                        <!-- Welcome Message -->
+                        <!-- Introduction -->
                         <tr>
                             <td
                                 style="
@@ -249,24 +199,25 @@
                     line-height: 1.7;
                   ">
                                 <p style="margin: 0 0 18px">
-                                    Dear parents, thank you for completing the enrolment payment
-                                    for
-                                    <strong style="color: #800000">{{ $data['child_name'] }}</strong>
-                                    at MHIS. We are delighted to welcome your child to our
-                                    school community.
+                                    Dear Parents of
+                                    <strong style="color: #800000">{{ $data['child_name'] }}</strong>,<br />
+                                    Thank you for trusting Mutiara Harapan Islamic School as
+                                    part of {{ $data['child_name'] }}’s educational journey. At
+                                    MHIS, we are committed to educating students who are rooted
+                                    in Islamic values, have exemplary character, and are
+                                    equipped with the skills to succeed in an ever-changing
+                                    world.
                                 </p>
                                 <p style="margin: 0">
-                                    Along with this email, you will find the following online
-                                    enrolment documents, which can be completed in just a few
-                                    minutes. We have also attached the proof of payment for the
-                                    enrolment form.
+                                    To support a smooth and seamless enrolment process, please
+                                    find the payment guidelines below:
                                 </p>
                             </td>
                         </tr>
 
-                        <!-- Documents Checklist -->
+                        <!-- Payment Table -->
                         <tr>
-                            <td style="padding: 0 0 25px">
+                            <td style="padding: 0 0 20px">
                                 <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%"
                                     style="
                       border-collapse: separate;
@@ -280,6 +231,7 @@
                                     <tr>
                                         <th
                                             style="
+                          border-bottom: 1px solid #e8e4e0;
                           padding: 18px 15px;
                           text-align: left;
                           background-color: #faf9f7;
@@ -287,12 +239,12 @@
                           font-weight: bold;
                           font-size: 14px;
                           letter-spacing: 0.5px;
-                          width: 40px;
                         ">
                                             No.
                                         </th>
                                         <th
                                             style="
+                          border-bottom: 1px solid #e8e4e0;
                           padding: 18px 15px;
                           text-align: left;
                           background-color: #faf9f7;
@@ -301,18 +253,29 @@
                           font-size: 14px;
                           letter-spacing: 0.5px;
                         ">
-                                            Documents
+                                            Payment Details
+                                        </th>
+                                        <th
+                                            style="
+                          border-bottom: 1px solid #e8e4e0;
+                          padding: 18px 15px;
+                          text-align: right;
+                          background-color: #faf9f7;
+                          color: #800000;
+                          font-weight: bold;
+                          font-size: 14px;
+                          letter-spacing: 0.5px;
+                        ">
+                                            Amount
                                         </th>
                                     </tr>
-                                    <!-- Table Row 1 -->
+                                    <!-- Table Rows -->
                                     <tr>
                                         <td
                                             style="
                           border-bottom: 1px solid #f0f0f0;
                           padding: 16px 15px;
                           text-align: left;
-                          font-weight: bold;
-                          color: #800000;
                         ">
                                             1
                                         </td>
@@ -322,83 +285,142 @@
                           padding: 16px 15px;
                           text-align: left;
                         ">
-                                            <p
-                                                style="
-                            margin: 0 0 8px;
-                            font-weight: bold;
-                            color: #333;
-                          ">
-                                                Receipt of your payment
-                                            </p>
-                                            <p
-                                                style="
-                            margin: 0;
-                            color: #666666;
-                            font-size: 14px;
-                            font-style: italic;
-                          ">
-                                                Tanda terima atas pembayaran Ayah/Bunda (terlampir)
-                                            </p>
+                                            Registration Fee
+                                        </td>
+                                        <td
+                                            style="
+                          border-bottom: 1px solid #f0f0f0;
+                          padding: 16px 15px;
+                          text-align: right;
+                        ">
+                                            Rp.
+                                            {{ number_format($data['registration_fee'], 0, ',', '.') }}
                                         </td>
                                     </tr>
-                                    <!-- Table Row 2 -->
                                     <tr>
                                         <td
                                             style="
+                          border-bottom: 1px solid #f0f0f0;
                           padding: 16px 15px;
                           text-align: left;
-                          font-weight: bold;
-                          color: #800000;
                         ">
                                             2
                                         </td>
-                                        <td style="padding: 16px 15px; text-align: left">
-                                            <p
-                                                style="
-                            margin: 0 0 8px;
-                            font-weight: bold;
-                            color: #333;
-                          ">
-                                                Enrolment document
-                                            </p>
-                                            <p
-                                                style="
-                            margin: 0 0 12px;
-                            color: #666666;
-                            font-size: 14px;
-                            font-style: italic;
-                          ">
-                                                Dokumen pendaftaran (orang tua wajib mengisi form
-                                                online terlampir)
-                                            </p>
+                                        <td
+                                            style="
+                          border-bottom: 1px solid #f0f0f0;
+                          padding: 16px 15px;
+                          text-align: left;
+                        ">
+                                            {{ $data['option'] }}
+                                        </td>
+                                        <td
+                                            style="
+                          border-bottom: 1px solid #f0f0f0;
+                          padding: 16px 15px;
+                          text-align: right;
+                        ">
+                                            Rp.
+                                            {{ number_format($data['custom_payment'], 0, ',', '.') }}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td
+                                            style="
+                          border-bottom: 1px solid #f0f0f0;
+                          padding: 16px 15px;
+                          text-align: left;
+                        ">
+                                            3
+                                        </td>
+                                        <td
+                                            style="
+                          border-bottom: 1px solid #f0f0f0;
+                          padding: 16px 15px;
+                          text-align: left;
+                        ">
+                                            Bank Charges
+                                        </td>
+                                        <td
+                                            style="
+                          border-bottom: 1px solid #f0f0f0;
+                          padding: 16px 15px;
+                          text-align: right;
+                        ">
+                                            Rp. {{ number_format($data['bank_charger'], 0, ',', '.') }}
+                                        </td>
+                                    </tr>
+                                    <!-- Table Footer -->
+                                    <tr>
+                                        <td style="
+                          padding: 18px 15px;
+                          text-align: left;
+                          font-weight: bold;
+                          color: #800000;
+                          background-color: #fcfaf8;
+                        "
+                                            colspan="2">
+                                            Discount
+                                        </td>
+                                        <td
+                                            style="
+                          padding: 18px 15px;
+                          text-align: right;
+                          font-weight: bold;
+                          color: #800000;
+                          background-color: #fcfaf8;
+                        ">
+                                            Rp. {{ number_format($data['discount'], 0, ',', '.') }}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="
+                          padding: 18px 15px;
+                          text-align: left;
+                          font-weight: bold;
+                          color: #800000;
+                          background-color: #fcfaf8;
+                        "
+                                            colspan="2">
+                                            Total Amount
+                                        </td>
+                                        <td
+                                            style="
+                          padding: 18px 15px;
+                          text-align: right;
+                          font-weight: bold;
+                          color: #800000;
+                          background-color: #fcfaf8;
+                        ">
+                                            Rp. {{ number_format($data['amount_paid'], 0, ',', '.') }}
                                         </td>
                                     </tr>
                                 </table>
                             </td>
                         </tr>
 
-                        <!-- Enrolment Form Button -->
+                        <!-- Payment Guide Button -->
                         <tr>
                             <td align="center" style="padding: 0 0 30px">
-                                <a href="https://admission.mhis.link/document/student?code={{ $data['code'] }}"
+                                <a href="{{ $data['payment_url'] }}"
                                     style="
                       background-color: #800000;
                       border: 2px solid #800000;
                       border-radius: 8px;
                       color: #ffffff;
                       display: inline-block;
-                      font-family: &quot;Arial&quot;, sans-serif;
-                      font-size: 17px;
+                      font-family: &quot;Arial&quot;, Poppins;
+                      font-size: 16px;
                       font-weight: bold;
-                      line-height: 52px;
+                      line-height: 48px;
                       text-align: center;
                       text-decoration: none;
-                      width: 280px;
+                      width: 260px;
                       -webkit-text-size-adjust: none;
                       mso-hide: all;
                       box-shadow: 0 4px 12px rgba(128, 0, 0, 0.15);
                     ">
-                                    <span style="color: #ffffff">📝 Complete Enrolment Form</span>
+                                    <span style="color: #ffffff">📘 View Payment Guide</span>
                                 </a>
                                 <p
                                     style="
@@ -407,12 +429,13 @@
                       font-size: 13px;
                       font-style: italic;
                     ">
-                                    Click to access and complete the three required forms
+                                    Click for detailed payment instructions & banking
+                                    information
                                 </p>
                             </td>
                         </tr>
 
-                        <!-- Important Instructions -->
+                        <!-- Payment Guide Section -->
                         <tr>
                             <td
                                 style="
@@ -435,15 +458,6 @@
                             font-weight: bold;
                             letter-spacing: 0.3px;
                           ">
-                                                <span
-                                                    style="
-                              background-color: #800000;
-                              color: white;
-                              padding: 3px 8px;
-                              border-radius: 3px;
-                              margin-right: 10px;
-                              font-size: 13px;
-                            ">!</span>
                                                 Important Instructions
                                             </h3>
                                         </td>
@@ -460,10 +474,28 @@
                       padding-left: 10px;
                       border-left: 3px solid #f0e6d6;
                     ">
-                                    All enrolment forms must be submitted within
-                                    <strong>one week</strong> to move forward with the
-                                    observation and interview. Please read the terms and
-                                    conditions carefully within the parental statement form.
+                                    After making the payment, you will receive an email
+                                    containing the enrolment documents that need to be completed
+                                    and signed.
+                                </p>
+                                <p
+                                    style="
+                      margin: 0 0 18px;
+                      padding-left: 10px;
+                      border-left: 3px solid #f0e6d6;
+                    ">
+                                    Please note that the Virtual Account (VA) is only active for
+                                    7 days. Kindly ensure that the payment is completed within
+                                    this period before the VA expires.
+                                </p>
+                                <p
+                                    style="
+                      margin: 0 0 18px;
+                      padding-left: 10px;
+                      border-left: 3px solid #f0e6d6;
+                    ">
+                                    Once the payment has been successfully made, all required
+                                    documents must be completed and submitted within 7 days.
                                 </p>
 
                                 <!-- Important Note Box -->
@@ -494,10 +526,8 @@
                                                 If there is no further information or confirmation
                                                 from parents within
                                                 <strong>two weeks</strong>, it will be considered a
-                                                withdrawal. Please note that all payments are
-                                                <strong>non-refundable</strong>, except in cases where
-                                                the observation results indicate that your child
-                                                cannot proceed with the MHIS enrolment process.
+                                                withdrawal. Kindly note that all payments made are
+                                                <strong>non-refundable</strong>.
                                             </p>
                                         </td>
                                     </tr>
@@ -521,13 +551,15 @@
                             line-height: 1.6;
                             font-style: italic;
                           ">
-                                                Semua dokumen pendaftaran harus dikumpulkan dalam
-                                                <strong>1 minggu</strong> untuk lanjut ke observasi
-                                                dan interview. Jika tidak ada konfirmasi lebih lanjut
-                                                dari Ayah dan Bunda dalam <strong>2 minggu</strong>,
-                                                maka akan dianggap mengundurkan diri. Perlu
-                                                diperhatikan, seluruh pembayaran bersifat
-                                                <strong>non-refundable</strong>.
+                                                Setelah melakukan pembayaran, Ayah/Bunda akan menerima
+                                                email berisi dokumen pendaftaran yang perlu dilengkapi
+                                                dan ditandatangani paling lambat dalam
+                                                <strong>satu minggu</strong>. Apabila tidak ada
+                                                konfirmasi dari Ayah/Bunda dalam waktu
+                                                <strong>dua minggu</strong>, maka pendaftaran akan
+                                                dianggap mengundurkan diri. Perlu diperhatikan bahwa
+                                                seluruh pembayaran yang telah dilakukan bersifat tidak
+                                                dapat dikembalikan (non-refundable)
                                             </p>
                                         </td>
                                     </tr>
@@ -535,7 +567,7 @@
                             </td>
                         </tr>
 
-                        <!-- Welcome Message -->
+                        <!-- Contact Section -->
                         <tr>
                             <td style="padding: 25px 0 10px; text-align: left">
                                 <table role="presentation" border="0" cellpadding="0" cellspacing="0"
@@ -543,32 +575,28 @@
                                     style="
                       background: linear-gradient(to right, #fdf8f3, #faf9f7);
                       border-radius: 8px;
-                      padding: 25px;
+                      padding: 20px;
                     ">
                                     <tr>
                                         <td
                                             style="
                           color: #444444;
-                          font-size: 16px;
+                          font-size: 15px;
                           line-height: 1.7;
-                          text-align: center;
                         ">
-                                            <p
-                                                style="
-                            margin: 0 0 15px;
-                            font-weight: bold;
-                            color: #800000;
-                          ">
-                                                Thank you for trusting us in your child's journey.
+                                            <p style="margin: 0 0 12px">
+                                                Should you have any questions or require assistance
+                                                with the enrolment process, our admissions team is
+                                                ready to help:
                                             </p>
-                                            <p
-                                                style="
-                            margin: 0;
-                            font-size: 18px;
-                            color: #800000;
-                            font-weight: bold;
-                          ">
-                                                Welcome to MHIS—Home of The Champions!
+                                            <p style="margin: 0">
+                                                <strong style="color: #800000">📞 Contact:</strong>
+                                                <a href="https://wa.me/6281291823247" target="_blank">
+                                                    +62 812 9182 3247 </a><br />
+                                                <strong style="color: #800000">🕗 Office Hours:</strong>
+                                                8:00 a.m. – 3:00 p.m.<br />
+                                                Please mention Enrolment Code:
+                                                <strong>{{ $data['code'] }}</strong>
                                             </p>
                                         </td>
                                     </tr>
@@ -609,7 +637,7 @@
                 font-size: 15px;
                 line-height: 1.6;
               ">
-                        Warm regards,<br />
+                        With warm regards,<br />
                         <strong
                             style="
                   font-size: 18px;
@@ -617,8 +645,8 @@
                   display: block;
                   margin: 15px 0 5px;
                   letter-spacing: 0.5px;
-                ">Admission
-                            Mutiara Harapan Islamic School</strong>
+                ">Mutiara
+                            Harapan Islamic School</strong>
                         <em style="color: #d4af37; font-size: 14px">Home of The Champions</em>
                     </p>
                 </td>
@@ -636,12 +664,17 @@
               border-top: 1px solid #e8e4e0;
             ">
                     <p style="margin: 0 0 10px">
-                        &copy; 2025 Mutiara Harapan Islamic School. All Rights Reserved.
+                        &copy; 2026 Mutiara Harapan Islamic School. All Rights Reserved.
                     </p>
                     <p style="margin: 0; font-size: 11px; color: #999999">
-                        This email confirms successful enrolment payment receipt.<br />
+                        This email was sent to you as part of the official enrolment
+                        process.<br />
                         Jl. Pondok Kacang Raya No.2 Pondok Kacang Timur, Pondok Aren
-                        Tangerang Selatan – 15426
+                        Tangerang Selatan – 15426 <br /><a href="https://wa.me/6281291823247" target="_blank">
+                            +62 812 9182 3247
+                        </a>
+                        |
+                        <a href="mailto:admission@mutiaraharapan.sch.id">admission@mutiaraharapan.sch.id</a>
                     </p>
                 </td>
             </tr>

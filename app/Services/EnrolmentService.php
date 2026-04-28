@@ -8,6 +8,7 @@ interface EnrolmentService
     public function show($id);
     public function showByCode($code, $with=[]);
     public function post($data);
+    public function postForm($data);
     public function put($data);
     public function delete($id);
 }

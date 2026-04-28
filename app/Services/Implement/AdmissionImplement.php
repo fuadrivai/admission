@@ -78,7 +78,7 @@ class AdmissionImplement implements AdmissionService
                 $admission = Admission::create($admissionData);
 
                 $parentData = [
-                    'role'=>$enrolment->relationship,
+                    'role'=>$enrolment->relationship??"mother",
                     'applicant_id'=>$applicant->id,
                     'fullname'=>$enrolment->parent_name,
                     'phone'=>$enrolment->phone_number,

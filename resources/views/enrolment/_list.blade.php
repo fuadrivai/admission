@@ -57,7 +57,13 @@
                 </div>
                 <div class="col-md-5">
                     <label for="">Kode : {{ $enrolment->code }} <span
-                            class="badge text-bg-secondary">{{ ucfirst($enrolment->source_data) }}</span> </label><br>
+                            class="badge text-bg-{{ $enrolment->source_data === 'internal' ? 'secondary' : 'danger' }}">
+                            {{ ucfirst($enrolment->source_data) }}
+                        </span>
+                        <span class="badge text-bg-{{ $enrolment->data_from === 'custom_form' ? 'primary' : '' }}">
+                            {{ $enrolment->data_from == 'custom_form' ? 'Custom Form' : 'Web Form' }}
+                        </span>
+                    </label><br>
                     <div class="student-name">{{ $enrolment->child_name }}</div>
                 </div>
                 <div class="col-md-6 text-end" style="vertical-align: middle">

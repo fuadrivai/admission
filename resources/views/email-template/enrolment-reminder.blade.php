@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="x-apple-disable-message-reformatting" />
-    <title>Enrolment Payment - Mutiara Harapan Islamic School</title>
 </head>
 
 <body
@@ -67,7 +66,7 @@
                 font-weight: bold;
                 letter-spacing: 0.5px;
               ">
-                        Enrolment Payment
+                        Enrolment Payment Reminder
                     </h1>
 
                     <!-- Arabic Greeting -->
@@ -79,6 +78,8 @@
                 font-weight: bold;
                 line-height: 1.4;
               ">
+                        ٱلسَّلَامُ عَلَيْكُمْ وَرَحْمَةُ ٱللَّٰهِ وَبَرَكَاتُهُ
+                    </p>
                 </td>
             </tr>
 
@@ -99,42 +100,6 @@
                                 <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%"
                                     style="border-collapse: separate; border-spacing: 0">
                                     <tr>
-                                        <!-- Enrolment Code Box -->
-                                        <td width="50%" valign="top" style="padding-right: 10px">
-                                            <div
-                                                style="
-                            background-color: #fdf8f3;
-                            border: 2px dashed #d4af37;
-                            border-radius: 8px;
-                            padding: 18px 15px;
-                            text-align: center;
-                          ">
-                                                <p
-                                                    style="
-                              margin: 0 0 8px;
-                              color: #800000;
-                              font-size: 11px;
-                              font-weight: bold;
-                              text-transform: uppercase;
-                              letter-spacing: 0.5px;
-                            ">
-                                                    Please use this code for all enrolment-related
-                                                    matters
-                                                </p>
-                                                <p
-                                                    style="
-                              margin: 0;
-                              font-size: 22px;
-                              color: #800000;
-                              font-weight: bold;
-                              letter-spacing: 1px;
-                              font-family: &quot;Arial&quot;, Poppins;
-                            ">
-                                                    {{ $data['code'] }}
-                                                </p>
-                                            </div>
-                                        </td>
-
                                         <!-- Student Information -->
                                         <td width="50%" valign="top" style="padding-left: 10px">
                                             <div
@@ -180,6 +145,14 @@
                             ">
                                                     Level: {{ $data['level_name'] }} / {{ $data['grade_name'] }}
                                                 </p>
+                                                <p
+                                                    style="
+                              margin: 5px 0 0;
+                              color: #666666;
+                              font-size: 13px;
+                            ">
+                                                    Branch: {{ $data['branch_name'] }}
+                                                </p>
                                             </div>
                                         </td>
                                     </tr>
@@ -200,14 +173,15 @@
                                 <p style="margin: 0 0 18px">
                                     Dear Parents of
                                     <strong style="color: #800000">{{ $data['child_name'] }}</strong>,<br />
-                                    Thank you for trusting Mutiara Harapan Islamic School as
-                                    part of {{ $data['child_name'] }}’s educational journey. At
-                                    MHIS, we are committed to educating students who are rooted
-                                    in Islamic values, have exemplary character, and are
-                                    equipped with the skills to succeed in an ever-changing
-                                    world.
+                                    This is a kind reminder to complete the payment for your
+                                    child’s registration form.
                                 </p>
-                                <p style="margin: 0">
+                                <p style="margin: 0 0 18px">
+                                    Please note that the admission process can only proceed once
+                                    the form payment has been completed. We kindly ask you to
+                                    make the payment at your earliest convenience.
+                                </p>
+                                <p style="margin: 0 0 18px">
                                     To support a smooth and seamless enrolment process, please
                                     find the payment guidelines below:
                                 </p>
@@ -352,29 +326,6 @@
                         <!-- Payment Guide Button -->
                         <tr>
                             <td align="center" style="padding: 0 0 30px">
-                                <!--[if mso]>
-                    <v:roundrect
-                      xmlns:v="urn:schemas-microsoft-com:vml"
-                      xmlns:w="urn:schemas-microsoft-com:office:word"
-                      href="[INSERT_PAYMENT_GUIDE_URL_HERE]"
-                      style="height: 48px; v-text-anchor: middle; width: 260px"
-                      arcsize="10%"
-                      strokecolor="#800000"
-                      fillcolor="#800000"
-                    >
-                      <w:anchorlock />
-                      <center
-                        style="
-                          color: #ffffff;
-                          font-family: sans-serif;
-                          font-size: 16px;
-                          font-weight: bold;
-                        "
-                      >
-                        View Payment Guide
-                      </center>
-                    </v:roundrect>
-                  <![endif]-->
                                 <a href="{{ $data['payment_url'] }}"
                                     style="
                       background-color: #800000;
@@ -418,60 +369,8 @@
                     font-size: 15px;
                     line-height: 1.7;
                   ">
-                                <!-- Section Title -->
-                                <table role="presentation" border="0" cellpadding="0" cellspacing="0"
-                                    width="100%" style="margin-bottom: 18px">
-                                    <tr>
-                                        <td valign="middle">
-                                            <h3
-                                                style="
-                            margin: 0;
-                            font-size: 17px;
-                            color: #800000;
-                            font-weight: bold;
-                            letter-spacing: 0.3px;
-                          ">
-                                                Important Instructions
-                                            </h3>
-                                        </td>
-                                        <td width="80" align="right" valign="middle">
-                                            <div style="font-size: 24px; color: #d4af37">•</div>
-                                        </td>
-                                    </tr>
-                                </table>
-
-                                <!-- Main Instructions -->
-                                <p
-                                    style="
-                      margin: 0 0 18px;
-                      padding-left: 10px;
-                      border-left: 3px solid #f0e6d6;
-                    ">
-                                    After making the payment, you will receive an email containing the enrolment
-                                    documents that need to be completed and signed.
-                                </p>
-                                <p
-                                    style="
-                      margin: 0 0 18px;
-                      padding-left: 10px;
-                      border-left: 3px solid #f0e6d6;
-                    ">
-                                    Please note that the Virtual Account (VA) is only active for 7 days. Kindly ensure
-                                    that the payment is completed within this period before the VA expires.
-                                </p>
-                                <p
-                                    style="
-                      margin: 0 0 18px;
-                      padding-left: 10px;
-                      border-left: 3px solid #f0e6d6;
-                    ">
-                                    Once the payment has been successfully made, all required documents must be
-                                    completed and submitted within 7 days.
-                                </p>
-
                                 <!-- Important Note Box -->
-                                <table role="presentation" border="0" cellpadding="0" cellspacing="0"
-                                    width="100%"
+                                <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%"
                                     style="
                       background-color: #fdf8f3;
                       border-radius: 6px;
@@ -492,41 +391,11 @@
                               color: #800000;
                               display: block;
                               margin-bottom: 5px;
-                            ">Important
-                                                    Note:</strong>
-                                                If there is no further information or confirmation from parents within
-                                                <strong>two weeks</strong>, it will be considered a withdrawal. Kindly
-                                                note that all payments made are <strong>non-refundable</strong>.
-                                            </p>
-                                        </td>
-                                    </tr>
-                                </table>
-
-                                <!-- Indonesian Version -->
-                                <table role="presentation" border="0" cellpadding="0" cellspacing="0"
-                                    width="100%"
-                                    style="
-                      background-color: #f8f9fa;
-                      border-radius: 6px;
-                      border-left: 4px solid #800000;
-                    ">
-                                    <tr>
-                                        <td style="padding: 16px 20px">
-                                            <p
-                                                style="
-                            margin: 0;
-                            color: #555555;
-                            font-size: 14px;
-                            line-height: 1.6;
-                            font-style: italic;
-                          ">
-                                                Setelah melakukan pembayaran, Ayah/Bunda akan menerima email berisi
-                                                dokumen pendaftaran yang perlu dilengkapi dan ditandatangani paling
-                                                lambat dalam <strong>satu minggu</strong>. Apabila tidak ada konfirmasi
-                                                dari Ayah/Bunda dalam waktu <strong>dua minggu</strong>, maka
-                                                pendaftaran akan dianggap mengundurkan diri. Perlu diperhatikan bahwa
-                                                seluruh pembayaran yang telah dilakukan bersifat tidak dapat
-                                                dikembalikan (non-refundable)
+                            ">Note:</strong>
+                                                If you have already completed the payment, please
+                                                disregard this message. Should you need any
+                                                assistance, feel free to contact our Admissions team.
+                                                Thank you for your cooperation.
                                             </p>
                                         </td>
                                     </tr>
@@ -536,7 +405,7 @@
 
                         <!-- Contact Section -->
                         <tr>
-                            <td style="padding: 25px 0 10px; text-align: left">
+                            <td style="text-align: left">
                                 <table role="presentation" border="0" cellpadding="0" cellspacing="0"
                                     width="100%"
                                     style="
@@ -646,11 +515,6 @@
                 </td>
             </tr>
         </table>
-        <!--[if (gte mso 9)|(IE)]>
-        </td>
-        </tr>
-        </table>
-        <![endif]-->
     </center>
 </body>
 

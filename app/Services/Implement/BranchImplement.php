@@ -12,6 +12,11 @@ class BranchImplement implements BranchService
         return Branch::with($with)->get();
     }
 
+    public function getByName($name)
+    {
+        return Branch::where('name','like','%'.$name.'%')->first();
+    }
+
     public function show($id,$with=[])
     {
         return Branch::with($with)-> findOrFail($id);
