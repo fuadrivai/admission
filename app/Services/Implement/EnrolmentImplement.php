@@ -133,7 +133,7 @@ class EnrolmentImplement implements EnrolmentService
         
         $data['custom_payment'] = $parseValue['seat_rsvp'] > 0 ? $parseValue['seat_rsvp']:$parseValue['full_payment'];
         $data['discount'] = $parseValue['registration_discount'];
-        $data['amount_paid'] = $data['bank_charger'] + $data['registration_fee'] + $data['custom_payment'];
+        $data['amount_paid'] = $data['bank_charger'] + ($data['registration_fee']-$data['discount']) + $data['custom_payment'];
         $data['invoice_id'] =  codeGenerator('enrolments','invoice_id','INV-ENROL');
         $data['noted'] = "Enrolment created with custom form input: " . $request->option . " resulting in custom form value: " . $data['custom_payment']. " academic year: " . $request->academicYear . " with discount applied: " . $parseValue['registration_discount'];
 
