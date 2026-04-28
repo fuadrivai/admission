@@ -351,28 +351,7 @@
                                         </td>
                                     </tr>
                                     <!-- Table Footer -->
-                                    <tr>
-                                        <td style="
-                          padding: 18px 15px;
-                          text-align: left;
-                          font-weight: bold;
-                          color: #800000;
-                          background-color: #fcfaf8;
-                        "
-                                            colspan="2">
-                                            Discount
-                                        </td>
-                                        <td
-                                            style="
-                          padding: 18px 15px;
-                          text-align: right;
-                          font-weight: bold;
-                          color: #800000;
-                          background-color: #fcfaf8;
-                        ">
-                                            Rp. {{ number_format($data['discount'], 0, ',', '.') }}
-                                        </td>
-                                    </tr>
+
                                     <tr>
                                         <td style="
                           padding: 18px 15px;
