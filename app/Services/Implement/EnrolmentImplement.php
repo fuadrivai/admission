@@ -129,7 +129,7 @@ class EnrolmentImplement implements EnrolmentService
         $data['bank_charger'] = $bank->price;
         
         $parseValue= $this->calculateSeatAndForm($request, $enrolForm->price);
-        $data['registration_fee'] = $parseValue['registration_form'];
+        $data['registration_fee'] = $enrolForm->price;
         
         $data['custom_payment'] = $parseValue['seat_rsvp'] > 0 ? $parseValue['seat_rsvp']:$parseValue['full_payment'];
         $data['discount'] = $parseValue['registration_discount'];
