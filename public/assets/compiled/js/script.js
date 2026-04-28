@@ -1,5 +1,14 @@
 $(document).ajaxStop($.unblockUI);
 $(document).ready(function () {
+    
+    setInterval(() => {
+        fetch('/csrf-token')
+            .then(res => res.json())
+            .then(data => {
+                document.querySelector('meta[name="csrf-token"]').setAttribute('content', data.token);
+            });
+    }, 3 * 60 * 1000);
+    
     $(".select2").select2({});
     $(".select2").on("select2:open", function () {
         $("input.select2-search__field")[0].focus();

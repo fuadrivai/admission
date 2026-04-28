@@ -53,6 +53,7 @@
             <!-- Form Content -->
             <div class="form-content">
                 <form id="enrollmentForm" novalidate autocomplete="off">
+                    @csrf
                     <!-- Section 1: Visit Confirmation -->
                     <div class="section-step active" data-step="1">
                         <div class="section-title">

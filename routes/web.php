@@ -94,6 +94,11 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
 
 
     Route::get('/price/branch/level/{branchId}/{levelId}', [EnrolmentPriceController::class, 'getRegistrationPrice']);
+    
+    
+    Route::get('/csrf-token', function () {
+        return response()->json(['token' => csrf_token()]);
+    });
 
     Route::group(['middleware' => 'auth'], function () {
         Route::get('/', function () {

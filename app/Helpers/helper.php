@@ -34,14 +34,18 @@ function generate($prefix, $table = 'prospects', $column = 'code')
 {
     $lastCode = DB::table($table)
         ->where($column, 'like', $prefix . '%')
-        ->orderBy($column, 'desc')
+        ->orderByRaw("CAST(REPLACE($column, '$prefix', '') AS UNSIGNED) DESC")
         ->value($column);
+
     if (!$lastCode) {
         return $prefix . '20';
     }
-    $number = (int) str_replace($prefix, '', $lastCode);
-    $nextNumber = $number + 1;
-    return $prefix . $nextNumber;
+
+    preg_match('/(\d+)$/', $lastCode, $matches);
+
+    $number = isset($matches[1]) ? (int)$matches[1] : 19;
+
+    return $prefix . ($number + 1);
 }
 
 function generateUniqueCode()
