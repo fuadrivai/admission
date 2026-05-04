@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\EnrolmentExport;
 use App\Models\Enrolment;
 use App\Services\BranchService;
 use App\Services\EnrolmentService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Utilities\Request as UtilitiesRequest;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Maatwebsite\Excel\Facades\Excel;
 
 class EnrolmentController extends Controller
 {
@@ -26,73 +29,9 @@ class EnrolmentController extends Controller
     }
     public function index(Request $request)
     {
-        $query = Enrolment::query();
-
-        $query->orderBy('created_at', 'desc');
-
-        if ($request->search) {
-            $query->where(function ($q) use ($request) {
-                $q->where('code', 'like', '%'.$request->search.'%')
-                ->orWhere('parent_name', 'like', '%'.$request->search.'%')
-                ->orWhere('email', 'like', '%'.$request->search.'%')
-                ->orWhere('child_name', 'like', '%'.$request->search.'%')
-                ->orWhere('invoice_id', 'like', '%'.$request->search.'%')
-                ->orWhere('phone_number', 'like', '%'.$request->search.'%');
-                });
-        }
-
-        if ($request->level && $request->level !== 'all') {
-            $query->where('level_id', $request->level);
-        }
-        if ($request->branch && $request->branch !== 'all') {
-            $query->where('branch_id', $request->branch);
-        }
-        if ($request->grade && $request->grade !== 'all') {
-            $query->where('grade_id', $request->grade);
-        }
-        if ($request->status && $request->status !== 'all') {
-            $query->where('payment_status', $request->status);
-        }
-
-        
-
-        $statusQuery = clone $query;
-
-        $statusCounts = $statusQuery
-            ->reorder()
-            ->selectRaw("payment_status, COUNT(*) as total")
-            ->groupBy('payment_status')
-            ->pluck('total', 'payment_status');
-
-        $totalFiltered = (clone $query)->reorder()->count();
-
-        $visitCount = (clone $query)->whereHas('prospect.schoolVisit')->count();
-
-        $summary = [
-            'pending' => $statusCounts['PENDING'] ?? 0,
-            'paid' => $statusCounts['PAID'] ?? 0,
-            'expired' => $statusCounts['EXPIRED'] ?? 0,
-            'cancelled' => $statusCounts['CANCELLED'] ?? 0,
-            'total' => $totalFiltered,
-            'visitSummary' => [
-                'visit' => $visitCount,
-                'registered' => (clone $query)->whereHas('prospect.schoolVisit', function($q) {
-                    $q->where('status', 'registered');
-                })->count(),
-                'present' => (clone $query)->whereHas('prospect.schoolVisit', function($q) {
-                    $q->where('status', 'present');
-                })->count(),
-                'cancelled' => (clone $query)->whereHas('prospect.schoolVisit', function($q) {
-                    $q->where('status', 'cancelled');
-                })->count(),
-                'absent' => (clone $query)->whereHas('prospect.schoolVisit', function($q) {
-                    $q->where('status', 'absent');
-                })->count(),
-            ],
-        ];
-
+        $query = $this->enrolmentService->search($request);
+        $summary = $this->enrolmentService->summary($query);
         $enrolments = $query->paginate(request('perpage')??10)->withQueryString();
-
         if ($request->ajax()) {
             return view('enrolment._list', compact('enrolments', 'summary'))->render();
         }
@@ -261,5 +200,16 @@ class EnrolmentController extends Controller
             'message'   => 'Enrolment form submitted successfully.',
             'data'      => $enrolment,
         ]);
+    }
+
+    public function export(Request $request)
+    {
+        $query = $this->enrolmentService->search($request);
+        $timestamps = Carbon::now()->format('Ymd_His');
+        return Excel::download(
+            new EnrolmentExport($query->get()),
+            'Enrolment_Report_' . $timestamps . '.xlsx',
+            \Maatwebsite\Excel\Excel::XLSX
+        );
     }
 }

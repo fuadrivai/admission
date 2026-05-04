@@ -132,6 +132,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
             Route::get('datatables', [EnrolmentController::class, 'datatables'])->name('list-enrolment');
             Route::get('setting', [EnrolmentController::class, 'setting'])->name('enrolment-setting');
             Route::post('max-capacity', [EnrolmentController::class, 'postMax'])->name('post-max');
+            Route::get('export', [EnrolmentController::class, 'export'])->name('export');
             Route::resource('/', EnrolmentController::class)->parameters(['' => 'enrolment']);
         });
 

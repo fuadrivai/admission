@@ -492,4 +492,98 @@ class EnrolmentImplement implements EnrolmentService
 
         return $result;
     }
+
+    public function search($request)
+    {
+        $query = Enrolment::query();
+
+        $query->orderBy('created_at', 'desc');
+
+        if ($request->search) {
+            $query->where(function ($q) use ($request) {
+                $q->where('code', 'like', '%'.$request->search.'%')
+                ->orWhere('parent_name', 'like', '%'.$request->search.'%')
+                ->orWhere('email', 'like', '%'.$request->search.'%')
+                ->orWhere('child_name', 'like', '%'.$request->search.'%')
+                ->orWhere('invoice_id', 'like', '%'.$request->search.'%')
+                ->orWhere('phone_number', 'like', '%'.$request->search.'%');
+                });
+        }
+
+        if ($request->level && $request->level !== 'all') {
+            $query->where('level_id', $request->level);
+        }
+        if ($request->branch && $request->branch !== 'all') {
+            $query->where('branch_id', $request->branch);
+        }
+        if ($request->grade && $request->grade !== 'all') {
+            $query->where('grade_id', $request->grade);
+        }
+        if ($request->status && $request->status !== 'all') {
+            $query->where('payment_status', $request->status);
+        }
+
+        if ($request->source_data && $request->source_data !== 'all') {
+            $query->where('source_data', $request->source_data);
+        }
+
+        if ($request->data_from && $request->data_from !== 'all') {
+            $query->where('data_from', $request->data_from);
+        }
+
+        if ($request->regis_place && $request->regis_place !== 'all') {
+            $query->where('regis_place', $request->regis_place);
+        }
+
+        if ($request->start_date && $request->start_date != '') {
+            $startDate = Carbon::createFromFormat('d F Y', $request->start_date)->format('Y-m-d');
+            $endate = null;
+            if ($request->end_date && $request->end_date != '') {
+                $endate = Carbon::createFromFormat('d F Y', $request->end_date)->format('Y-m-d');
+                $query->whereBetween('created_at', [$startDate, $endate]);
+            }else{
+                $query->where('created_at', $startDate);
+            }
+        }
+        return $query;
+    }
+
+    public function summary($query)
+    {
+        $statusQuery = clone $query;
+
+        $statusCounts = $statusQuery
+            ->reorder()
+            ->selectRaw("payment_status, COUNT(*) as total")
+            ->groupBy('payment_status')
+            ->pluck('total', 'payment_status');
+
+        $totalFiltered = (clone $query)->reorder()->count();
+
+        $visitCount = (clone $query)->whereHas('prospect.schoolVisit')->count();
+
+        $summary = [
+            'pending' => $statusCounts['PENDING'] ?? 0,
+            'paid' => $statusCounts['PAID'] ?? 0,
+            'expired' => $statusCounts['EXPIRED'] ?? 0,
+            'cancelled' => $statusCounts['CANCELLED'] ?? 0,
+            'total' => $totalFiltered,
+            'visitSummary' => [
+                'visit' => $visitCount,
+                'registered' => (clone $query)->whereHas('prospect.schoolVisit', function($q) {
+                    $q->where('status', 'registered');
+                })->count(),
+                'present' => (clone $query)->whereHas('prospect.schoolVisit', function($q) {
+                    $q->where('status', 'present');
+                })->count(),
+                'cancelled' => (clone $query)->whereHas('prospect.schoolVisit', function($q) {
+                    $q->where('status', 'cancelled');
+                })->count(),
+                'absent' => (clone $query)->whereHas('prospect.schoolVisit', function($q) {
+                    $q->where('status', 'absent');
+                })->count(),
+            ],
+        ];
+        return $summary;
+    }
 }

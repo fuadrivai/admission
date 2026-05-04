@@ -41,6 +41,53 @@
                     <div class="row">
                         <div class="col-md-3">
                             <div class="form-group">
+                                <label for="filter-source-data">Parent</label>
+                                <select id="filter-source-data" name="filter-source-data" class="form-select"
+                                    style="width: 100%">
+                                    <option value="all">All</option>
+                                    <option value="internal">Internal</option>
+                                    <option value="external">External</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="filter-data-from">Payment Source</label>
+                                <select id="filter-data-from" name="filter-data-from" class="form-select"
+                                    style="width: 100%">
+                                    <option value="all">All</option>
+                                    <option value="custom_form">Custom Payment</option>
+                                    <option value="web_form">Dashboard</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="filter-regis-place">Place</label>
+                                <select id="filter-regis-place" disabled name="filter-regis-place" class="form-select"
+                                    style="width: 100%">
+                                    <option value="all">All</option>
+                                    <option value="Exhibition">Exhibition</option>
+                                    <option value="School">School</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="filter-status">Status</label>
+                                <select id="filter-status" name="filter-status" class="form-select" style="width: 100%">
+                                    <option value="all">All status</option>
+                                    <option value="PENDING">Pending</option>
+                                    <option value="PAID">Paid</option>
+                                    <option value="EXPIRED">Expired</option>
+                                    <option value="CANCEL">Cancel</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
                                 <label for="filter-branch">Branch</label>
                                 <select id="filter-branch" name="filter-branch" class="form-select" style="width: 100%">
                                     <option value="all">All Branches</option>
@@ -62,18 +109,6 @@
                                 <select id="filter-grade" disabled name="filter-grade" class="form-select"
                                     style="width: 100%">
                                     <option value="all">All Grades</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label for="filter-status">Status</label>
-                                <select id="filter-status" name="filter-status" class="form-select" style="width: 100%">
-                                    <option value="all">All status</option>
-                                    <option value="PENDING">Pending</option>
-                                    <option value="PAID">Paid</option>
-                                    <option value="EXPIRED">Expired</option>
-                                    <option value="CANCEL">Cancel</option>
                                 </select>
                             </div>
                         </div>
@@ -160,7 +195,27 @@
                 }, 400);
             });
 
-            $('#filter-level, #filter-branch, #filter-status').on('change keyup', function() {
+            $('#filter-level, #filter-branch, #filter-status, #filter-source-data')
+                .on('change keyup', function() {
+                    loadEnrolments();
+                });
+
+            $("#filter-data-from").on("change", function() {
+                let value = $(this).val();
+
+                if (value != "custom_form") {
+                    $("#filter-regis-place").prop('disabled', true);
+                    $("#filter-regis-place").val('all').trigger('change');
+                    return;
+                }
+
+                $("#filter-regis-place").prop('disabled', false);
+                $("#filter-regis-place").val('all').trigger('change');
+
+                loadEnrolments();
+            });
+
+            $('#filter-regis-place').on('change', function() {
                 loadEnrolments();
             });
 
@@ -230,6 +285,24 @@
             );
         }
 
+        function download() {
+            const data = {
+                search: $('#filter-name').val(),
+                start_date: $('#filter-start-date').val(),
+                end_date: $('#filter-end-date').val(),
+                branch: $('#filter-branch').val(),
+                level: $('#filter-level').val(),
+                grade: $('#filter-grade').val(),
+                status: $('#filter-status').val(),
+                source_data: $('#filter-source-data').val(),
+                data_from: $('#filter-data-from').val(),
+                regis_place: $('#filter-regis-place').val(),
+            };
+
+            let queryString = new URLSearchParams(data).toString();
+            window.location.href = `/enrolment/export?${queryString}`;
+        }
+
         function loadEnrolments(url = "/enrolment") {
             const data = {
                 search: $('#filter-name').val(),
@@ -239,6 +312,9 @@
                 level: $('#filter-level').val(),
                 grade: $('#filter-grade').val(),
                 status: $('#filter-status').val(),
+                source_data: $('#filter-source-data').val(),
+                data_from: $('#filter-data-from').val(),
+                regis_place: $('#filter-regis-place').val(),
             };
 
             $.ajax({

@@ -11,4 +11,6 @@ interface EnrolmentService
     public function postForm($data);
     public function put($data);
     public function delete($id);
+    public function search($search);
+    public function summary($search);
 }
