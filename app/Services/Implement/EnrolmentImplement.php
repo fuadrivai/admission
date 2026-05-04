@@ -540,9 +540,9 @@ class EnrolmentImplement implements EnrolmentService
             $endate = null;
             if ($request->end_date && $request->end_date != '') {
                 $endate = Carbon::createFromFormat('d F Y', $request->end_date)->format('Y-m-d');
-                $query->whereBetween('created_at', [$startDate, $endate]);
+                $query->whereBetween('created_at', [$startDate ." 00:00:00", $endate ." 23:59:59"]);
             }else{
-                $query->where('created_at', $startDate);
+                $query->whereBetween('created_at', [$startDate ." 00:00:00", $startDate ." 23:59:59"]);
             }
         }
         return $query;
