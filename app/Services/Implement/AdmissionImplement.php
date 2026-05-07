@@ -263,7 +263,9 @@ class AdmissionImplement implements AdmissionService
 
             $emails = $admission->applicant->parents
                 ->pluck('email')
-                ->filter()
+                ->filter(function ($email) {
+                    return filter_var($email, FILTER_VALIDATE_EMAIL);
+                })
                 ->unique()
                 ->values()
                 ->toArray();
@@ -285,13 +287,15 @@ class AdmissionImplement implements AdmissionService
                 if (!empty($principal_email)) {
                     $admission->subject  = 'Submitted Personal Information';
                     $admission->template = 'email-template.student-information';
-                    Mail::to($principal_email)->send(
-                        (new AdmissionEmail($admission))
-                            ->attach($pdfPath, [
-                                'as'   => 'student-information-'.$admission->code.'.pdf',
-                                'mime' => 'application/pdf',
-                            ])
-                    );
+                    if (filter_var($principal_email, FILTER_VALIDATE_EMAIL)) {
+                        Mail::to($principal_email)->send(
+                            (new AdmissionEmail($admission))
+                                ->attach($pdfPath, [
+                                    'as'   => 'student-information-'.$admission->code.'.pdf',
+                                    'mime' => 'application/pdf',
+                                ])
+                        );
+                    }
                 }
             }
         });
