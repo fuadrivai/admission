@@ -125,8 +125,8 @@
                 <div class="db-card">
                     <div class="db-card-header">
                         <div>
-                            <p class="db-card-title">Schedule</p>
-                            <p class="db-card-sub">Google Calendar schedule</p>
+                            <p class="db-card-title">School Visit</p>
+                            <p class="db-card-sub">Google Calendar</p>
                         </div>
                     </div>
                     <div class="db-card-body">
