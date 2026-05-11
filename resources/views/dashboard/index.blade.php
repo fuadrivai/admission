@@ -1,7 +1,8 @@
 @extends('main-layout.index')
 
 @section('content-style')
-    <link rel="stylesheet" href="/assets/static/css/dashboard.css?v=1.0.1">
+    <link rel="stylesheet"
+        href="/assets/static/css/dashboard.css?v={{ filemtime(public_path('assets/static/css/dashboard.css')) }}">
 @endsection
 
 @section('content-child')
@@ -125,32 +126,15 @@
                     <div class="db-card-header">
                         <div>
                             <p class="db-card-title">Schedule</p>
-                            <p class="db-card-sub">Upcoming school visit dates</p>
+                            <p class="db-card-sub">Google Calendar schedule</p>
                         </div>
                     </div>
                     <div class="db-card-body">
-                        <div class="cal-header">
-                            <button class="cal-nav-btn" onclick="prevMonth()"><i class="bi bi-chevron-left"></i></button>
-                            <h6 id="calTitle"></h6>
-                            <button class="cal-nav-btn" onclick="nextMonth()"><i class="bi bi-chevron-right"></i></button>
-                        </div>
-                        <div class="cal-grid" id="calGrid"></div>
-
-                        {{-- Mini summary --}}
-                        <div class="d-flex gap-2 mt-3">
-                            <div class="stat-mini">
-                                <div class="num text-primary">8</div>
-                                <div class="lbl">Scheduled</div>
-                            </div>
-                            <div class="stat-mini">
-                                <div class="num text-success">5</div>
-                                <div class="lbl">Completed</div>
-                            </div>
-                            <div class="stat-mini">
-                                <div class="num" style="color:var(--danger);">3</div>
-                                <div class="lbl">Pending</div>
-                            </div>
-                        </div>
+                        <iframe class="schedule-embed"
+                            src="https://calendar.google.com/calendar/embed?src=c_s5q1v17u6t1o005crn4ac8kj0k%40group.calendar.google.com&ctz=Asia%2FJakarta"
+                            style="border:0; width:100%;" width="800" height="600" frameborder="0" scrolling="no"
+                            loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Google Calendar">
+                        </iframe>
                     </div>
                 </div>
             </div>
@@ -279,7 +263,8 @@
                                         $avatarBg = '#6f42c1';
                                     }
                                 @endphp
-                                <div class="activity-avatar" style="background:{{ $avatarBg }}; color:{{ $avatarTextColor }};">
+                                <div class="activity-avatar"
+                                    style="background:{{ $avatarBg }}; color:{{ $avatarTextColor }};">
                                     {{ strtoupper(substr($level->name, 0, 2)) }}
                                 </div>
                                 <div class="flex-1">
@@ -372,5 +357,7 @@
 
 @section('content-script')
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
-    <script src="/assets/static/js/pages/dashboard.js?v=1.1.6"></script>
+    <script
+        src="/assets/static/js/pages/dashboard.js?v={{ filemtime(public_path('assets/static/js/pages/dashboard.js')) }}">
+    </script>
 @endsection
