@@ -11,6 +11,7 @@ use App\Http\Controllers\DivisionController;
 use App\Http\Controllers\EnrolmentController;
 use App\Http\Controllers\EnrolmentPriceController;
 use App\Http\Controllers\HolidayController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LevelController;
 use App\Http\Controllers\ObservationController;
 use App\Http\Controllers\ObservationDateController;
@@ -101,9 +102,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
     });
 
     Route::group(['middleware' => 'auth'], function () {
-        Route::get('/', function () {
-            return view('main-layout.index');
-        });
+        Route::get('/', [HomeController::class, 'index'])->name('home');
 
         Route::post('/logout', [AuthController::class, 'logout']);
 

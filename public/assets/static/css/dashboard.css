@@ -1,0 +1,541 @@
+/* ─── Base ─────────────────────────────────────────────────── */
+:root {
+    --primary: #4361ee;
+    --success: #2cb67d;
+    --warning: #f9c74f;
+    --danger: #ef233c;
+    --info: #48cae4;
+    --purple: #7b5ea7;
+    --card-radius: 1.25rem;
+    --shadow-sm: 0 2px 12px rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.1);
+}
+
+.db-wrapper {
+    padding: 0.25rem 0 2rem;
+}
+
+/* ─── Page Header ──────────────────────────────────────────── */
+.db-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.db-header-title h4 {
+    font-size: 1.45rem;
+    font-weight: 700;
+    margin: 0 0 0.2rem;
+    color: #1a1a2e;
+}
+
+.db-header-title p {
+    color: #8a93a5;
+    font-size: 0.88rem;
+    margin: 0;
+}
+
+.db-date-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: white;
+    border: 1px solid #e8eaf0;
+    border-radius: 0.75rem;
+    padding: 0.55rem 1rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #4a4f6a;
+    white-space: nowrap;
+    box-shadow: var(--shadow-sm);
+}
+
+.db-date-badge i {
+    color: var(--primary);
+}
+
+.db-branch-filter .form-select {
+    background: white;
+    border: 1px solid #e8eaf0;
+    border-radius: 0.75rem;
+    padding: 0.5rem 2.25rem 0.5rem 0.875rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #4a4f6a;
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+    min-width: 10rem;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.db-branch-filter .form-select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.12);
+    outline: none;
+}
+
+/* ─── KPI Cards ────────────────────────────────────────────── */
+.kpi-card {
+    border: none;
+    border-radius: var(--card-radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+    position: relative;
+}
+
+.kpi-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.14);
+}
+
+.kpi-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+}
+
+.kpi-card.c-primary::before {
+    background: var(--primary);
+}
+
+.kpi-card.c-success::before {
+    background: var(--success);
+}
+
+.kpi-card.c-warning::before {
+    background: var(--warning);
+}
+
+.kpi-card.c-info::before {
+    background: var(--info);
+}
+
+.kpi-card .card-body {
+    padding: 1.5rem;
+    background: white;
+}
+
+.kpi-icon {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 0.875rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    margin-bottom: 1.1rem;
+}
+
+.kpi-icon.ic-primary {
+    background: rgba(67, 97, 238, 0.12);
+    color: var(--primary);
+}
+
+.kpi-icon.ic-success {
+    background: rgba(44, 182, 125, 0.12);
+    color: var(--success);
+}
+
+.kpi-icon.ic-warning {
+    background: rgba(249, 199, 79, 0.18);
+    color: #c68c00;
+}
+
+.kpi-icon.ic-info {
+    background: rgba(72, 202, 228, 0.14);
+    color: #0099b8;
+}
+
+.kpi-value {
+    font-size: 2.1rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    line-height: 1;
+    margin-bottom: 0.35rem;
+}
+
+.kpi-label {
+    font-size: 0.82rem;
+    color: #8a93a5;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.kpi-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 0.25rem 0.65rem;
+    border-radius: 100px;
+}
+
+.kpi-badge.up {
+    background: rgba(44, 182, 125, 0.1);
+    color: var(--success);
+}
+
+.kpi-badge.down {
+    background: rgba(239, 35, 60, 0.1);
+    color: var(--danger);
+}
+
+.kpi-badge.neu {
+    background: rgba(72, 202, 228, 0.12);
+    color: #0099b8;
+}
+
+/* ─── Section Cards ────────────────────────────────────────── */
+.db-card {
+    background: white;
+    border-radius: var(--card-radius);
+    box-shadow: var(--shadow-md);
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    height: 100%;
+}
+
+.db-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 1.5rem 1.5rem 0;
+    gap: 1rem;
+}
+
+.db-card-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin: 0 0 0.2rem;
+}
+
+.db-card-sub {
+    font-size: 0.82rem;
+    color: #8a93a5;
+    margin: 0;
+}
+
+.db-card-body {
+    padding: 1.25rem 1.5rem 1.5rem;
+}
+
+/* ─── Chart ────────────────────────────────────────────────── */
+.chart-wrap {
+    position: relative;
+    width: 100%;
+}
+
+.chart-tabs .btn {
+    font-size: 0.78rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+}
+
+.chart-legend {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+    padding: 0.75rem 0 0;
+}
+
+.chart-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8rem;
+    color: #4a4f6a;
+    font-weight: 500;
+}
+
+.legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+
+/* ─── Calendar ─────────────────────────────────────────────── */
+.cal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+}
+
+.cal-header h6 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin: 0;
+}
+
+.cal-nav-btn {
+    background: #f3f4f8;
+    border: none;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #4a4f6a;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.cal-nav-btn:hover {
+    background: var(--primary);
+    color: white;
+}
+
+.cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+
+.cal-day-name {
+    text-align: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #8a93a5;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0;
+}
+
+.cal-cell {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.6rem;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: #1a1a2e;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    background: transparent;
+}
+
+.cal-cell:hover {
+    background: #f3f4f8;
+}
+
+.cal-cell.is-today {
+    background: var(--primary);
+    color: white;
+    font-weight: 700;
+    box-shadow: 0 4px 14px rgba(67, 97, 238, 0.35);
+}
+
+.cal-cell.is-other {
+    color: #c8ccd8;
+    cursor: default;
+}
+
+.cal-cell.is-other:hover {
+    background: transparent;
+}
+
+.cal-dot {
+    position: absolute;
+    bottom: 3px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--success);
+}
+
+.cal-cell.is-today .cal-dot {
+    background: rgba(255, 255, 255, 0.85);
+}
+
+/* ─── Upcoming Events ──────────────────────────────────────── */
+.event-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.875rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f1f3f7;
+}
+
+.event-item:last-child {
+    border-bottom: none;
+}
+
+.event-dot-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 4px;
+}
+
+.event-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.event-line {
+    width: 1.5px;
+    flex: 1;
+    background: #e8eaf0;
+    margin-top: 4px;
+    min-height: 20px;
+}
+
+.event-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #1a1a2e;
+    margin-bottom: 0.15rem;
+}
+
+.event-meta {
+    font-size: 0.78rem;
+    color: #8a93a5;
+}
+
+/* ─── Grade Progress Bars ──────────────────────────────────── */
+.grade-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.grade-label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #4a4f6a;
+    min-width: 4rem;
+}
+
+.grade-bar-wrap {
+    flex: 1;
+    background: #f1f3f7;
+    border-radius: 100px;
+    height: 8px;
+    overflow: hidden;
+}
+
+.grade-bar {
+    height: 100%;
+    border-radius: 100px;
+    background: linear-gradient(90deg, var(--primary) 0%, #738df8 100%);
+    transition: width 0.6s ease;
+}
+
+.grade-count {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    min-width: 2rem;
+    text-align: right;
+}
+
+/* ─── Activity Feed ────────────────────────────────────────── */
+.activity-item {
+    display: flex;
+    gap: 0.875rem;
+    padding: 0.875rem 0;
+    border-bottom: 1px solid #f1f3f7;
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+.activity-avatar {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 0.65rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    color: white;
+}
+
+.activity-text {
+    font-size: 0.84rem;
+    color: #4a4f6a;
+    line-height: 1.5;
+    flex: 1;
+}
+
+.activity-text strong {
+    color: #1a1a2e;
+}
+
+.activity-time {
+    font-size: 0.75rem;
+    color: #b0b7c8;
+    white-space: nowrap;
+}
+
+/* ─── Summary Stats ────────────────────────────────────────── */
+.stat-mini {
+    text-align: center;
+    padding: 1rem;
+    border-radius: 1rem;
+    background: #f8f9fc;
+    flex: 1;
+}
+
+.stat-mini .num {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #1a1a2e;
+}
+
+.stat-mini .lbl {
+    font-size: 0.75rem;
+    color: #8a93a5;
+    margin-top: 0.15rem;
+}
+
+/* ─── Responsive ───────────────────────────────────────────── */
+@media (max-width: 768px) {
+    .db-header {
+        margin-bottom: 1.25rem;
+    }
+
+    .kpi-value {
+        font-size: 1.7rem;
+    }
+
+    .db-card-header,
+    .db-card-body {
+        padding-left: 1.25rem;
+        padding-right: 1.25rem;
+    }
+
+    .db-card-header {
+        padding-top: 1.25rem;
+    }
+}

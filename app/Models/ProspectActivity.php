@@ -13,7 +13,7 @@ class ProspectActivity extends Model
 
     public function prospect()
     {
-        return $this->belongsTo(Prospects::class);
+        return $this->belongsTo(Prospects::class, 'prospects_id', 'id');
     }
 
     public function activityable()

@@ -18,6 +18,10 @@ class Prospects extends Model
     {
         return $this->hasOne(SchoolVisit::class);
     }
+    public function obsservation()
+    {
+        return $this->hasOne(Observation::class);
+    }
 
     public function activities()
     {
