@@ -146,7 +146,7 @@ return [
             'collation' => 'utf8mb4_unicode_ci',
         ],
 
-        'bintaro_ereport_seconday' => [
+        'bintaro_ereport_secondary' => [
             'driver' => 'mysql',
             'host' => env('BINTARO_EREPORT_SECONDARY_DB_HOST', '127.0.0.1'),
             'port' => env('BINTARO_EREPORT_SECONDARY_DB_PORT', '3306'),

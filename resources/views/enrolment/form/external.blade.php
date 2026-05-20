@@ -415,7 +415,10 @@
                                 What specifically makes you want to enrol in MHIS? <span
                                     class="required-asterisk">*</span>
                             </label>
-                            <input type="text" class="form-control" id="enrollReason" required />
+                            <input type="text" class="form-control" id="enrollReason" maxlength="230" required />
+                            <div class="invalid-feedback" id="enrollReasonMaxError" style="display:none;">
+                                Maximum 230 characters reached.
+                            </div>
                         </div>
                         <div class="mb-4">
                             <label for="bestProgram" class="form-label">
@@ -424,7 +427,10 @@
                                 <br><small>Program MHIS mana yang paling sesuai dengan yang Ayah/Bunda cari untuk
                                     Ananda?</small>
                             </label>
-                            <input type="text" class="form-control" id="bestProgram" required />
+                            <input type="text" class="form-control" id="bestProgram" maxlength="230" required />
+                            <div class="invalid-feedback" id="bestProgramMaxError" style="display:none;">
+                                Maximum 230 characters reached.
+                            </div>
                         </div>
                         <div class="mb-4">
                             <label class="form-label">
@@ -532,7 +538,7 @@
     <script src="/assets/extensions/bootstrap-datepicker/js/jquery.timepicker.min.js"></script>
     <script src="/assets/extensions/toastify-js/src/toastify.js"></script>
     <script src="/assets/compiled/js/script.js?v=1.1.6"></script>
-    <script src="/assets/static/js/pages/enrolment-external.js?v=1.1.6"></script>
+    <script src="/assets/static/js/pages/enrolment-external.js?v=1.1.7"></script>
 </body>
 
 </html>

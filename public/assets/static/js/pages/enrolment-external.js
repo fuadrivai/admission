@@ -8,6 +8,9 @@ $(document).ready(function () {
     getActiveAY();
     getBankCharger();
 
+    // Keep Next button disabled until current step is valid.
+    updateNextButtonState();
+
     $("#branch").on("change", function () {
         const id = $(this).val();
         getLevelsAndGrades(id);
@@ -216,6 +219,21 @@ $(document).ready(function () {
     $("#backToFormBtn").click(function () {
         window.location.reload();
     });
+
+    $(document).on(
+        "input change",
+        ".section-step input, .section-step select, .section-step textarea",
+        function () {
+            updateNextButtonState();
+        },
+    );
+
+    $("#enrollReason, #bestProgram").on("input", function () {
+        toggleMaxLengthWarning($(this));
+    });
+
+    toggleMaxLengthWarning($("#enrollReason"));
+    toggleMaxLengthWarning($("#bestProgram"));
 });
 
 function showStep(step) {
@@ -257,16 +275,31 @@ function showStep(step) {
             .addClass("btn-next");
         $("#buttonGroup").show();
     }
+
+    updateNextButtonState();
+
     // Smooth scroll to top
     $("html, body").animate({ scrollTop: 0 }, 300);
 }
 
-async function validateStep(step) {
+function isFieldFilled(field) {
+    const value = field.val();
+    if (Array.isArray(value)) {
+        return value.length > 0;
+    }
+    return String(value ?? "").trim() !== "";
+}
+
+function checkStepValidity(step, showError) {
     let isValid = true;
     const currentSection = $(`.section-step[data-step="${step}"]`);
 
-    currentSection.find(".alert-validation").remove();
-    currentSection.find(".is-invalid").removeClass("is-invalid");
+    if (showError) {
+        currentSection.find(".alert-validation").remove();
+        currentSection.find(".is-invalid").removeClass("is-invalid");
+    }
+
+    const checkedRadioNames = new Set();
 
     currentSection
         .find("input[required], select[required], textarea[required]")
@@ -275,40 +308,49 @@ async function validateStep(step) {
 
             if (field.attr("type") === "radio") {
                 const name = field.attr("name");
+                if (checkedRadioNames.has(name)) {
+                    return;
+                }
+                checkedRadioNames.add(name);
+
                 if (!$(`input[name="${name}"]:checked`).length) {
                     isValid = false;
-                    $(`input[name="${name}"]`).first().addClass("is-invalid");
+                    if (showError) {
+                        $(`input[name="${name}"]`)
+                            .first()
+                            .addClass("is-invalid");
+                    }
+                }
+            } else if (!isFieldFilled(field)) {
+                isValid = false;
+                if (showError) {
+                    if (field.hasClass("select2-hidden-accessible")) {
+                        field
+                            .next(".select2")
+                            .find(".select2-selection")
+                            .addClass("is-invalid");
+                    } else {
+                        field.addClass("is-invalid");
+                    }
                 }
             } else if (field.attr("type") === "email") {
                 if (!validateEmail(field.val())) {
                     isValid = false;
-                    field.addClass("is-invalid");
-                } else {
-                    isValid = true;
-                    field.removeClass("is-invalid");
+                    if (showError) {
+                        field.addClass("is-invalid");
+                    }
                 }
             } else if (field.attr("type") === "tel") {
-                isValid = false;
                 if (!validatePhone(field.val())) {
-                    field.addClass("is-invalid");
-                } else {
-                    isValid = true;
-                    field.removeClass("is-invalid");
-                }
-            } else if (!field.val()) {
-                isValid = false;
-                if (field.hasClass("select2-hidden-accessible")) {
-                    field
-                        .next(".select2")
-                        .find(".select2-selection")
-                        .addClass("is-invalid");
-                } else {
-                    field.addClass("is-invalid");
+                    isValid = false;
+                    if (showError) {
+                        field.addClass("is-invalid");
+                    }
                 }
             }
         });
 
-    if (!isValid) {
+    if (!isValid && showError) {
         const alert = $(
             '<div class="alert alert-danger alert-validation" role="alert">' +
                 '<i class="fas fa-exclamation-triangle"></i> Please fill in all required fields before proceeding.' +
@@ -320,6 +362,100 @@ async function validateStep(step) {
         $("html, body").animate({ scrollTop: alert.offset().top - 100 }, 300);
     }
     return isValid;
+}
+
+function validateStep(step) {
+    return checkStepValidity(step, true);
+}
+
+function updateFieldInvalidState(field, isInvalid) {
+    if (field.attr("type") === "radio") {
+        const name = field.attr("name");
+        const radioGroup = $(`input[name="${name}"]`);
+        if (isInvalid) {
+            radioGroup.first().addClass("is-invalid");
+        } else {
+            radioGroup.removeClass("is-invalid");
+        }
+        return;
+    }
+
+    if (field.hasClass("select2-hidden-accessible")) {
+        const select2Selection = field
+            .next(".select2")
+            .find(".select2-selection");
+        if (isInvalid) {
+            select2Selection.addClass("is-invalid");
+        } else {
+            select2Selection.removeClass("is-invalid");
+        }
+        return;
+    }
+
+    if (isInvalid) {
+        field.addClass("is-invalid");
+    } else {
+        field.removeClass("is-invalid");
+    }
+}
+
+function syncStepInvalidClasses(step) {
+    const currentSection = $(`.section-step[data-step="${step}"]`);
+    const checkedRadioNames = new Set();
+
+    currentSection
+        .find("input[required], select[required], textarea[required]")
+        .each(function () {
+            const field = $(this);
+            let invalid = false;
+
+            if (field.attr("type") === "radio") {
+                const name = field.attr("name");
+                if (checkedRadioNames.has(name)) {
+                    return;
+                }
+                checkedRadioNames.add(name);
+                invalid = !$(`input[name="${name}"]:checked`).length;
+            } else if (!isFieldFilled(field)) {
+                invalid = true;
+            } else if (field.attr("type") === "email") {
+                invalid = !validateEmail(field.val());
+            } else if (field.attr("type") === "tel") {
+                invalid = !validatePhone(field.val());
+            }
+
+            updateFieldInvalidState(field, invalid);
+        });
+}
+
+function updateNextButtonState() {
+    const canProceed = checkStepValidity(currentStep, false);
+    $("#nextBtn").prop("disabled", !canProceed);
+    syncStepInvalidClasses(currentStep);
+}
+
+function toggleMaxLengthWarning(field) {
+    const maxLength = Number(field.attr("maxlength") || 0);
+    if (!maxLength) {
+        return;
+    }
+
+    const feedbackId = `${field.attr("id")}MaxError`;
+    const feedback = $(`#${feedbackId}`);
+    if (!feedback.length) {
+        return;
+    }
+
+    const isAtMax = String(field.val() ?? "").length >= maxLength;
+    if (isAtMax) {
+        field.addClass("is-invalid");
+        feedback.show();
+    } else {
+        if (field.val()) {
+            field.removeClass("is-invalid");
+        }
+        feedback.hide();
+    }
 }
 
 function getSiswaEreport(branch, level, nis, resolve, reject) {
