@@ -98,8 +98,8 @@ return [
                 'indonesian'=>'Biaya Ujian International yang bersifat wajib dan besarnya ditetapkan pada saat ujian akan dilaksanakan.',
             ],
             'text9'=>[
-                'english'=>'Learning Resource Fees, including printed textbooks and/or digital learning resources, shall be charged according to the publisher\'s terms.',
-                'indonesian'=>'Biaya sumber pembelajaran yang besarnya ditetapkan berdasarkan info dari penerbit.',
+                'english'=>'Learning Resources Fee (including textbooks, digital resources, and the Learning Management System) will be announced at a later date, as the fee is subject to pricing determined by third-party providers.',
+                'indonesian'=>'Biaya Learning Resources, termasuk buku pelajaran, sumber belajar digital, dan Learning Management System (LMS), akan diumumkan kemudian setelah terdapat penetapan harga dari penyedia pihak ketiga.',
             ],
             'text10'=>[
                 'english'=>'Extracurricular Fees shall be charged in accordance with the extracurricular activities selected for my child.',
