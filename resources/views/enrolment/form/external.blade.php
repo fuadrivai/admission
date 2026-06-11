@@ -56,119 +56,125 @@
                     @csrf
                     <!-- Section 1: Visit Confirmation -->
                     <div class="section-step active" data-step="1">
-                        <div class="section-title">
-                            <i class="fas fa-school"></i> Visit Confirmation
-                        </div>
-                        <label class="form-label">
-                            Have you visited our school?
-                            <span class="required-asterisk">*</span>
-                        </label>
-                        <div class="radio-group">
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="visitedBefore" id="visitYes"
-                                    value="true" required />
-                                <label class="form-check-label" for="visitYes">
-                                    <i class="fas fa-check-circle"></i> Yes, I have visited
-                                    before
-                                </label>
+                        <div id="mhportal-section">
+                            <div class="section-title">
+                                <i class="fas fa-mobile"></i> MHIS Portal Access
                             </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="visitedBefore" id="visitNo"
-                                    value="false" />
-                                <label class="form-check-label" for="visitNo">
-                                    <i class="fas fa-times-circle"></i> No, this is my first
-                                    time
-                                </label>
+                            <label class="form-label">
+                                Is your child currently studying at MHIS?
+                                <span class="required-asterisk">*</span>
+                            </label>
+                            <div class="radio-group">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="currentMHIS" id="currentYes"
+                                        value="yes" required />
+                                    <label class="form-check-label" for="currentYes">
+                                        <i class="fas fa-check-circle"></i> Yes
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="currentMHIS" id="currentNo"
+                                        value="no" />
+                                    <label class="form-check-label" for="currentNo">
+                                        <i class="fas fa-times-circle"></i> No
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="currentMHIS"
+                                        id="yesSiblingRegistration" value="yes_sibling_registration" />
+                                    <label class="form-check-label" for="yesSiblingRegistration">
+                                        <i class="fas fa-times-circle"></i> Yes, but I would like to register a sibling
+                                    </label>
+                                </div>
                             </div>
-                        </div>
-                        <div id="codeInputWrapper" style="display: none">
-                            <div class="code-input-wrapper">
-                                <label for="visitCode" class="form-label">
-                                    Enter your visit code
-                                    <span class="required-asterisk">*</span>
-                                </label>
-                                <input type="hidden" id="prospects_id" name="prospects_id">
-                                <input type="text" class="form-control" id="visitCode"
-                                    placeholder="e.g., VISIT2024001" />
-                                <div class="invalid-feedback" id="visitCodeTextError">Invalid School Visit Code</div>
-                            </div>
-                        </div>
-                        <br>
-                        <label class="form-label">
-                            Is your child currently studying at MHIS?
-                            <span class="required-asterisk">*</span>
-                        </label>
-                        <div class="radio-group">
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="currentMHIS" id="currentYes"
-                                    value="yes" required />
-                                <label class="form-check-label" for="currentYes">
-                                    <i class="fas fa-check-circle"></i> Yes
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="currentMHIS" id="currentNo"
-                                    value="no" />
-                                <label class="form-check-label" for="currentNo">
-                                    <i class="fas fa-times-circle"></i> No
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="currentMHIS"
-                                    id="yesSiblingRegistration" value="yes_sibling_registration" />
-                                <label class="form-check-label" for="yesSiblingRegistration">
-                                    <i class="fas fa-times-circle"></i> Yes, but I would like to register a sibling
-                                </label>
-                            </div>
-                        </div>
-                        <div id="codeInputPortal" style="display: none">
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="code-input-wrapper">
-                                        <label for="branch-portal" class="form-label">
-                                            Which MHIS branch is your child currently attending?
-                                            <span class="required-asterisk">*</span>
-                                        </label>
-                                        <select class="form-select required-select2" name="branch-portal"
-                                            id="branch-portal">
-                                            <option disabled selected value="">Select branch...</option>
-                                            @foreach ($branches as $item)
-                                                <option value="{{ $item->name }}">{{ $item->name }}</option>
-                                            @endforeach
-                                        </select>
+                            <div id="codeInputPortal" style="display: none">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="code-input-wrapper">
+                                            <label for="branch-portal" class="form-label">
+                                                Which MHIS branch is your child currently attending?
+                                                <span class="required-asterisk">*</span>
+                                            </label>
+                                            <select class="form-select required-select2" name="branch-portal"
+                                                id="branch-portal">
+                                                <option disabled selected value="">Select branch...</option>
+                                                @foreach ($branches as $item)
+                                                    <option value="{{ $item->name }}">{{ $item->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="code-input-wrapper">
+                                            <label for="mhis-portal" class="form-label">
+                                                Enter MHIS Portal Username
+                                                <span class="required-asterisk">*</span>
+                                            </label>
+                                            <input type="text" class="form-control" id="mhis-portal-username"
+                                                placeholder="P0xx / PB0xx / PS0xx" />
+                                            <div class="invalid-feedback mhPortalTextError">Invalid username or
+                                                password</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="code-input-wrapper">
+                                            <label for="mhis-portal" class="form-label">
+                                                Enter MHIS Portal Password
+                                                <span class="required-asterisk">*</span>
+                                            </label>
+                                            <input type="password" class="form-control" id="mhis-portal-password" />
+                                            <div class="invalid-feedback">Invalid username or
+                                                password</div>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="col-md-4">
-                                    <div class="code-input-wrapper">
-                                        <label for="mhis-portal" class="form-label">
-                                            Enter MHIS Portal Username
-                                            <span class="required-asterisk">*</span>
-                                        </label>
-                                        <input type="text" class="form-control" id="mhis-portal-username"
-                                            placeholder="P0xx / PB0xx / PS0xx" />
-                                        <div class="invalid-feedback mhPortalTextError">Invalid username or
-                                            password</div>
+                                <div class="row justify-content-center pt-3" id="row-button" style="display: none">
+                                    <div class="col-md-4 text-center">
+                                        <button type="button" id="btn-portal"
+                                            class="btn btn-lg btn-primary">Enter</button>
                                     </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="code-input-wrapper">
-                                        <label for="mhis-portal" class="form-label">
-                                            Enter MHIS Portal Password
-                                            <span class="required-asterisk">*</span>
-                                        </label>
-                                        <input type="password" class="form-control" id="mhis-portal-password" />
-                                        <div class="invalid-feedback">Invalid username or
-                                            password</div>
+                                    <div class="col-md-12 pt-2" id="list-student">
                                     </div>
                                 </div>
                             </div>
-                            <div class="row justify-content-center pt-3" id="row-button" style="display: none">
-                                <div class="col-md-4 text-center">
-                                    <button type="button" id="btn-portal"
-                                        class="btn btn-lg btn-primary">Enter</button>
+                        </div>
+                        <div id="schoolvisit-section" class="mt-4" style="display: none">
+                            <div class="section-title">
+                                <i class="fas fa-school"></i> Visit Confirmation
+                            </div>
+                            <label class="form-label">
+                                Have you visited our school?
+                                <span class="required-asterisk">*</span>
+                            </label>
+                            <div class="radio-group">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="visitedBefore"
+                                        id="visitYes" value="true" required />
+                                    <label class="form-check-label" for="visitYes">
+                                        <i class="fas fa-check-circle"></i> Yes, I have visited
+                                        before
+                                    </label>
                                 </div>
-                                <div class="col-md-12 pt-2" id="list-student">
-
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="visitedBefore"
+                                        id="visitNo" value="false" />
+                                    <label class="form-check-label" for="visitNo">
+                                        <i class="fas fa-times-circle"></i> No, this is my first
+                                        time
+                                    </label>
+                                </div>
+                            </div>
+                            <div id="codeInputWrapper" style="display: none">
+                                <div class="code-input-wrapper">
+                                    <label for="visitCode" class="form-label">
+                                        Enter your visit code
+                                        <span class="required-asterisk">*</span>
+                                    </label>
+                                    <input type="hidden" id="prospects_id" name="prospects_id">
+                                    <input type="text" class="form-control" id="visitCode"
+                                        placeholder="e.g., VISIT2024001" />
+                                    <div class="invalid-feedback" id="visitCodeTextError">Invalid School Visit Code
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -538,7 +544,7 @@
     <script src="/assets/extensions/bootstrap-datepicker/js/jquery.timepicker.min.js"></script>
     <script src="/assets/extensions/toastify-js/src/toastify.js"></script>
     <script src="/assets/compiled/js/script.js?v=1.1.6"></script>
-    <script src="/assets/static/js/pages/enrolment-external.js?v=1.1.7"></script>
+    <script src="/assets/static/js/pages/enrolment-external.js?v=1.1.8"></script>
 </body>
 
 </html>

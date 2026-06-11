@@ -101,6 +101,14 @@ $(document).ready(function () {
             parentOption.hide();
             mhisParentOption.show();
         }
+
+        if (val != "yes") {
+            $("#schoolvisit-section").slideDown(300);
+            $('input[name="visitedBefore"]').prop("required", true);
+        } else {
+            $("#schoolvisit-section").slideUp(300);
+            $('input[name="visitedBefore"]').prop("required", false);
+        }
     });
 
     $("#btn-portal").on("click", async function () {
