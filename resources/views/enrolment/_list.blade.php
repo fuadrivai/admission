@@ -56,10 +56,16 @@
                     <div class="student-avatar">{{ ucfirst(\App\Helpers\avatarName($enrolment->child_name)) }}</div>
                 </div>
                 <div class="col-md-5">
-                    <label for="">Kode : {{ $enrolment->code }} <span
+                    <label for="">Kode : {{ $enrolment->code }}
+                        <span
                             class="badge text-bg-{{ $enrolment->source_data === 'internal' ? 'secondary' : 'danger' }}">
                             {{ ucfirst($enrolment->source_data) }}
                         </span>
+                        <button type="button" class="btn btn-sm btn-light border ms-1 edit-source-data"
+                            data-id="{{ $enrolment->id }}" data-source="{{ $enrolment->source_data }}"
+                            title="Edit Source Data">
+                            <i class="fa fa-pencil"></i>
+                        </button>
                         <span class="badge text-bg-{{ $enrolment->data_from === 'custom_form' ? 'primary' : '' }}">
                             {{ $enrolment->data_from == 'custom_form' ? 'Custom Form' : 'Web Form' }}
                         </span>
@@ -67,10 +73,10 @@
                     <div class="student-name">{{ $enrolment->child_name }}</div>
                 </div>
                 <div class="col-md-6 text-end" style="vertical-align: middle">
-                    <a data-id="{{ $enrolment->id }}" class="btn btn-sm btn-primary view-detail"><i
-                            class="fa fa-eye"></i></a>
-                    <a data-id="{{ $enrolment->id }}" class="btn btn-sm btn-info edit-data"><i
-                            class="fa fa-edit"></i></a>
+                    <a data-id="{{ $enrolment->prospects_id }}" class="btn btn-sm btn-success view-history"><i
+                            class="fa fa-history"></i></a>
+                    <a href="/enrolment/{{ $enrolment->id }}/edit" data-id="{{ $enrolment->id }}"
+                        class="btn btn-sm btn-primary view-detail"><i class="fa fa-eye"></i></a>
                 </div>
                 <hr>
             </div>

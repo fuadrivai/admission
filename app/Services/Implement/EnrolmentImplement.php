@@ -62,7 +62,7 @@ class EnrolmentImplement implements EnrolmentService
 
     public function show($id, $with=[])
     {
-        return Enrolment::with($with)->findOrFail($id);
+        return Enrolment::with('prospect.activities')->findOrFail($id);
     }
 
     public function postForm($request)
@@ -533,6 +533,9 @@ class EnrolmentImplement implements EnrolmentService
 
         if ($request->regis_place && $request->regis_place !== 'all') {
             $query->where('regis_place', $request->regis_place);
+        }
+        if ($request->academic_year && $request->academic_year !== 'all') {
+            $query->where('academic_year_id', $request->academic_year);
         }
 
         if ($request->start_date && $request->start_date != '') {

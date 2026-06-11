@@ -20,8 +20,6 @@ use App\Http\Controllers\ProspectController;
 use App\Http\Controllers\SchoolVisitController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\SiswaEreportController;
-use App\Http\Controllers\XenditCallBackController;
-use App\Models\Prospects;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -132,6 +130,8 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
             Route::get('setting', [EnrolmentController::class, 'setting'])->name('enrolment-setting');
             Route::post('max-capacity', [EnrolmentController::class, 'postMax'])->name('post-max');
             Route::get('export', [EnrolmentController::class, 'export'])->name('export');
+            Route::get('{enrolment}/history', [EnrolmentController::class, 'history'])->name('history');
+            Route::patch('{enrolment}/source-data', [EnrolmentController::class, 'updateSourceData'])->name('source-data.update');
             Route::resource('/', EnrolmentController::class)->parameters(['' => 'enrolment']);
         });
 
@@ -167,6 +167,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
 
             Route::prefix('year')->name('year.')->group(function () {
                 Route::get('datatables', [AcademicYearController::class, 'datatables'])->name('datatables');
+                Route::get('get', [AcademicYearController::class, 'get'])->name('get');
                 Route::resource('', AcademicYearController::class)->parameters(['' => 'year']);
             });
             // Route::resource('', DivisionController::class)->parameters(['' => 'division']);

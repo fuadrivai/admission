@@ -27,7 +27,6 @@
                                 <label for="filter-start-date">Start date</label>
                                 <input type="text"name="filter-start-date" class="form-control date-picker"
                                     id="filter-start-date">
-
                             </div>
                         </div>
                         <div class="col-md-3">
@@ -112,6 +111,14 @@
                                 </select>
                             </div>
                         </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="filter-ay">Academic Year</label>
+                                <select id="filter-ay" name="filter-ay" class="form-select" style="width: 100%">
+                                    <option value="all">All Academic Years</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                     <div class="row">
                         <hr>
@@ -128,6 +135,59 @@
         <div id="enrolment-list">
             @include('enrolment._list')
         </div>
+
+        <!-- history/timeline modal -->
+        <div class="modal fade" id="historyModal" tabindex="-1" aria-labelledby="historyModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header bg-secondary">
+                        <h5 class="modal-title white" id="historyModalLabel">Enrolment History</h5>
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                            <i data-feather="x"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="historyContent">Loading...</div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light-secondary" data-bs-dismiss="modal">
+                            <span>Close</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="sourceDataModal" tabindex="-1" aria-labelledby="sourceDataModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header bg-light">
+                        <h5 class="modal-title" id="sourceDataModalLabel">Edit Source Data</h5>
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                            <i data-feather="x"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="source-data-enrolment-id">
+                        <div class="form-group mb-0">
+                            <label for="source-data-value" class="form-label">Source Data</label>
+                            <select id="source-data-value" class="form-select">
+                                <option value="internal">Internal</option>
+                                <option value="external">External</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" id="save-source-data-btn">
+                            <i class="fa fa-save"></i> Save
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </section>
 @endsection
 
@@ -140,6 +200,7 @@
         let typingTimer;
         $(document).ready(function() {
             getBranch()
+            academicYear()
             $('#filter-branch').on('change', function() {
                 let branchVal = $(this).val();
                 if (branchVal == "all") {
@@ -195,7 +256,7 @@
                 }, 400);
             });
 
-            $('#filter-level, #filter-branch, #filter-status, #filter-source-data')
+            $('#filter-level, #filter-branch, #filter-status, #filter-source-data, #filter-ay')
                 .on('change keyup', function() {
                     loadEnrolments();
                 });
@@ -244,22 +305,64 @@
                 const url = $(this).attr('href');
                 loadEnrolments(url);
             });
+
+            $('#enrolment-list').on('click', '.view-history', function(e) {
+                e.preventDefault();
+                const id = $(this).data('id');
+                $('#historyContent').html('Loading...');
+                $('#historyModal').modal('show');
+
+                $.get(`/enrolment/${id}/history`, function(html) {
+                    $('#historyContent').html(html);
+                }).fail(function() {
+                    $('#historyContent').html(
+                        '<div class="text-danger">Unable to load history.</div>');
+                });
+            });
+
+            $('#enrolment-list').on('click', '.edit-source-data', function() {
+                const enrolmentId = $(this).data('id');
+                const sourceData = ($(this).data('source') || 'external').toString().toLowerCase();
+
+                $('#source-data-enrolment-id').val(enrolmentId);
+                $('#source-data-value').val(sourceData === 'internal' ? 'internal' : 'external');
+                $('#sourceDataModal').modal('show');
+            });
+
+            $('#save-source-data-btn').on('click', function() {
+                const enrolmentId = $('#source-data-enrolment-id').val();
+                const sourceData = $('#source-data-value').val();
+
+                if (!enrolmentId) {
+                    toastify('Error', 'Enrolment ID not found', 'error');
+                    return;
+                }
+
+                $.ajax({
+                    url: `/enrolment/${enrolmentId}/source-data`,
+                    method: 'PATCH',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    data: {
+                        source_data: sourceData
+                    },
+                    success: function() {
+                        $('#sourceDataModal').modal('hide');
+                        loadEnrolments();
+                        toastify('success', 'Source data updated successfully', 'success');
+                    },
+                    error: function(err) {
+                        toastify(
+                            'Error',
+                            err?.responseJSON?.message ?? 'Failed to update source data',
+                            'error'
+                        );
+                    }
+                });
+            });
         });
 
-        function download() {
-            // const data = {
-            //     search: $('#filter-name').val(),
-            //     start_date: $('#filter-start-date').val(),
-            //     end_date: $('#filter-end-date').val(),
-            //     branch: $('#filter-branch').val(),
-            //     level: $('#filter-level').val(),
-            //     grade: $('#filter-grade').val(),
-            //     status: $('#filter-status').val(),
-            // };
-
-            // let queryString = new URLSearchParams(data).toString();
-            // window.location.href = `/enrolment/export?${queryString}`;
-        }
 
         function getBranch() {
             blockUI();
@@ -271,6 +374,29 @@
                     branches = json;
                     branches.forEach((val) => {
                         $("#filter-branch").append(`
+                            <option value="${val.id}">${val.name}</option>
+                        `);
+                    });
+                },
+                function(err) {
+                    toastify(
+                        "Error",
+                        err?.responseJSON?.message ?? "Please try again later",
+                        "error"
+                    );
+                }
+            );
+        }
+
+        function academicYear() {
+            blockUI();
+            ajax(
+                null,
+                `/setting/year/get`,
+                "GET",
+                function(json) {
+                    json.forEach((val) => {
+                        $("#filter-ay").append(`
                             <option value="${val.id}">${val.name}</option>
                         `);
                     });
@@ -297,6 +423,7 @@
                 source_data: $('#filter-source-data').val(),
                 data_from: $('#filter-data-from').val(),
                 regis_place: $('#filter-regis-place').val(),
+                academic_year: $('#filter-ay').val(),
             };
 
             let queryString = new URLSearchParams(data).toString();
@@ -309,6 +436,7 @@
                 start_date: $('#filter-start-date').val(),
                 end_date: $('#filter-end-date').val(),
                 branch: $('#filter-branch').val(),
+                academic_year: $('#filter-ay').val(),
                 level: $('#filter-level').val(),
                 grade: $('#filter-grade').val(),
                 status: $('#filter-status').val(),

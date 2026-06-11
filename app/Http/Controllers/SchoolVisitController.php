@@ -186,7 +186,7 @@ class SchoolVisitController extends Controller
     public function edit($id)
     {
         $schoolVisit = $this->schooolVisitService->show($id);
-        return view('schoolvisit.detail', ["title" => "Edit School Visit", "visit" => $schoolVisit]);
+        return view('schoolvisit.detail', ["title" => "School Visit Detail", "visit" => $schoolVisit]);
     }
 
     /**

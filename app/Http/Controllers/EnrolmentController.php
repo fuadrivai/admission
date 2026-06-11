@@ -6,6 +6,7 @@ use App\Exports\EnrolmentExport;
 use App\Models\Enrolment;
 use App\Services\BranchService;
 use App\Services\EnrolmentService;
+use App\Services\ProspectService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Utilities\Request as UtilitiesRequest;
@@ -22,10 +23,12 @@ class EnrolmentController extends Controller
 
     private BranchService $branchService;
     private EnrolmentService $enrolmentService;
-    public function __construct(BranchService $branchService, EnrolmentService $enrolmentService)
+    private ProspectService $prospectService;
+    public function __construct(BranchService $branchService, EnrolmentService $enrolmentService, ProspectService $prospectService)
     {
         $this->branchService = $branchService;
         $this->enrolmentService = $enrolmentService;
+        $this->prospectService = $prospectService;
     }
     public function index(Request $request)
     {
@@ -116,7 +119,8 @@ class EnrolmentController extends Controller
      */
     public function edit(Enrolment $enrolment)
     {
-        //
+        $enrolment = $this->enrolmentService->show($enrolment->id);
+        return view('enrolment.detail', ["title" => "Enrolment Detail", "enrolment" => $enrolment]);
     }
 
     /**
@@ -212,4 +216,30 @@ class EnrolmentController extends Controller
             \Maatwebsite\Excel\Excel::XLSX
         );
     }
+
+    public function history($id)
+    {
+        $prospect = $this->prospectService->show($id);
+        return view('schoolvisit._history', compact('prospect'))->render();
+    }
+
+    public function updateSourceData(Request $request, Enrolment $enrolment)
+    {
+        $validated = $request->validate([
+            'source_data' => 'required|in:internal,external',
+        ]);
+
+        $enrolment->source_data = $validated['source_data'];
+        $enrolment->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Source data updated successfully.',
+            'data' => [
+                'id' => $enrolment->id,
+                'source_data' => $enrolment->source_data,
+            ],
+        ]);
+    }
+
 }
