@@ -70,7 +70,9 @@
                             {{ $enrolment->data_from == 'custom_form' ? 'Custom Form' : 'Web Form' }}
                         </span>
                     </label><br>
-                    <div class="student-name">{{ $enrolment->child_name }}</div>
+                    <div class="student-name">{{ $enrolment->child_name }} - <i>
+                            {{ isset($enrolment->child_nick_name) ? '(' . $enrolment->child_nick_name . ')' : '' }}</i>
+                    </div>
                 </div>
                 <div class="col-md-6 text-end" style="vertical-align: middle">
                     <a data-id="{{ $enrolment->prospects_id }}" class="btn btn-sm btn-success view-history"><i

@@ -530,6 +530,7 @@ function submitForm() {
             zipCode: $("#zipCode").val(),
             address: $("#address").val(),
             childName: $("#childName").val(),
+            childNickname: $("#childNickname").val(),
             placeOfBirth: $("#birthPlace").val(),
             dateOfBirth: moment($("#birthDate").val(), "DD MMMM YYYY").format(
                 "YYYY-MM-DD",

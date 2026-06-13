@@ -227,6 +227,7 @@ class EnrolmentImplement implements EnrolmentService
             'zipcode'                  => $request->zipCode,
             'address'                  => $request->address,
             'child_name'               => $request->childName,
+            'child_nick_name'          => $request->childNickname,
             'place_of_birth'           => $request->placeOfBirth,
             'date_of_birth'            => $request->dateOfBirth,
             'current_school'           => $request->currentSchool,
@@ -255,7 +256,7 @@ class EnrolmentImplement implements EnrolmentService
         $data['bank_charger'] = $bank->price;
         $data['registration_fee'] = $enrolForm->price;
         $data['amount_paid'] = $data['bank_charger'] + $data['registration_fee'];
-        $data['invoice_id'] =  codeGenerator('enrolments','invoice_id','INV-ENROL');
+        $data['invoice_id'] =  codeGenerator('enrolments','invoice_id',env('PREFIX_XENDIT')??'INV-ENROL');
         $level_name = "";
         $grade_name = Grade::find($data['grade_id'])->name;
 

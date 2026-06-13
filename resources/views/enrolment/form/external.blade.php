@@ -315,6 +315,12 @@
                                 <input type="text" class="form-control" id="childName" required />
                             </div>
                             <div class="col-md-6">
+                                <label for="childNickname" class="form-label">
+                                    Child's Nickname <span class="required-asterisk">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="childNickname" required />
+                            </div>
+                            <div class="col-md-6">
                                 <label for="birthPlace" class="form-label">
                                     Place of Birth <span class="required-asterisk">*</span>
                                 </label>
@@ -327,13 +333,13 @@
                                 <input type="text" readonly class="form-control date-picker" id="birthDate"
                                     required />
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <label for="currentSchool" class="form-label">
                                     Current School <span class="required-asterisk">*</span>
                                 </label>
                                 <input type="text" class="form-control" id="currentSchool" required />
                             </div>
-                            <div class="col-md-6 social-media-field" id="socialMediaWrapper" style="display: none">
+                            <div class="col-md-12 social-media-field" id="socialMediaWrapper" style="display: none">
                                 <label for="socialMedia" class="form-label">
                                     Student's Social Media
                                     <span class="required-asterisk">*</span>

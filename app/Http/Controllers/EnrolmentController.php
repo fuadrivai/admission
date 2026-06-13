@@ -175,6 +175,7 @@ class EnrolmentController extends Controller
             'zipCode'               => 'nullable|string|max:20',
             'address'               => 'required|string',
             'childName'             => 'required|string|max:255',
+            'childNickname'         => 'required|string|max:255',
             'placeOfBirth'          => 'required|string|max:120',
             'dateOfBirth'           => 'required',
             'currentSchool'         => 'nullable|string|max:255',

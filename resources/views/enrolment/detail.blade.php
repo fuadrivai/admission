@@ -250,7 +250,9 @@
                     <div class="d-flex align-items-center gap-3">
                         <div class="student-chip">{{ $enrolment->avatarName() }}</div>
                         <div>
-                            <h4 class="hero-title">{{ $enrolment->child_name ?? '-' }}</h4>
+                            <h4 class="hero-title">{{ $enrolment->child_name ?? '-' }} - <i>
+                                    {{ isset($enrolment->child_nick_name) ? '(' . $enrolment->child_nick_name . ')' : '' }}</i>
+                            </h4>
                             <p class="hero-subtitle">
                                 Code: <strong>{{ $enrolment->code ?? '-' }}</strong>
                                 <span class="mx-1">•</span>
