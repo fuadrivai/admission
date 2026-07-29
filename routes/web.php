@@ -140,6 +140,26 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
         });
         Route::prefix('uniform')->name('uniform.')->group(function () {
             Route::get('setting', [UniformController::class, 'setting'])->name('uniform-setting');
+
+            // Master Product Routes
+            Route::get('products/datatables', [UniformController::class, 'productDatatables'])->name('products.datatables');
+            Route::post('products', [UniformController::class, 'storeProduct'])->name('products.store');
+            Route::get('products/{id}', [UniformController::class, 'showProduct'])->name('products.show');
+            Route::put('products/{id}', [UniformController::class, 'updateProduct'])->name('products.update');
+            Route::delete('products/{id}', [UniformController::class, 'destroyProduct'])->name('products.destroy');
+
+            // Product Price Routes
+            Route::get('prices/datatables', [UniformController::class, 'priceDatatables'])->name('prices.datatables');
+            Route::post('prices', [UniformController::class, 'storePrice'])->name('prices.store');
+            Route::get('prices/{id}', [UniformController::class, 'showPrice'])->name('prices.show');
+            Route::put('prices/{id}', [UniformController::class, 'updatePrice'])->name('prices.update');
+            Route::delete('prices/{id}', [UniformController::class, 'destroyPrice'])->name('prices.destroy');
+            Route::put('prices/{id}/toggle-active', [UniformController::class, 'togglePriceActive'])->name('prices.toggle-active');
+
+            // Helper Options Routes
+            Route::get('get-levels/{branchId}', [UniformController::class, 'getLevelsByBranch'])->name('get-levels');
+            Route::get('get-grades/{levelId}', [UniformController::class, 'getGradesByLevel'])->name('get-grades');
+
             Route::get('uom', [UniformController::class, 'getUom'])->name('uniform.uom');
             Route::post('uom', [UniformController::class, 'postUom'])->name('uniform.uom.post');
             Route::get('size', [UniformController::class, 'getSizes'])->name('uniform.sizes');

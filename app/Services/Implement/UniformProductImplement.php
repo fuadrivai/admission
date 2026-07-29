@@ -20,10 +20,10 @@ class UniformProductImplement implements UniformProductService
     public function post($data)
     {
         $uniformProduct = UniformProduct::create([
-            'name' => $data['name'],
-            'category_id' => $data['category_id'],
-            'has_size' => $data['has_size']??0,
-            'is_active' => $data['is_active']??0,
+            'code'      => $data['code'] ?? null,
+            'name'      => $data['name'],
+            'unit_type' => $data['unit_type'] ?? 'pcs',
+            'has_size'  => $data['has_size'] ?? 0,
         ]);
 
         return $uniformProduct;
@@ -33,10 +33,10 @@ class UniformProductImplement implements UniformProductService
     {
         $uniformProduct = UniformProduct::findOrFail($data['id']);
         $uniformProduct->update([
-            'name'     => $data['name'],
-            'category_id' => $data['category_id'],
-            'has_size' => $data['has_size']??0,
-            'is_active' => $data['is_active']??0,
+            'code'      => $data['code'] ?? $uniformProduct->code,
+            'name'      => $data['name'],
+            'unit_type' => $data['unit_type'] ?? $uniformProduct->unit_type,
+            'has_size'  => $data['has_size'] ?? 0,
         ]);
 
         return $uniformProduct;

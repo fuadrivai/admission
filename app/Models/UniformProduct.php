@@ -13,6 +13,6 @@ class UniformProduct extends Model
 
     public function prices()
     {
-        return $this->hasMany(UniformPrice::class,'product_id');
+        return $this->hasMany(UniformPrice::class,'uniform_product_id');
     }
 }
