@@ -20,6 +20,7 @@ use App\Http\Controllers\ProspectController;
 use App\Http\Controllers\SchoolVisitController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\SiswaEreportController;
+use App\Http\Controllers\UniformController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -56,6 +57,9 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
     Route::get('enrolment/student/{code}', [EnrolmentController::class, 'showByCode'])->name('enrolment.studentShowByCode');
     Route::post('enrolment/post', [EnrolmentController::class, 'post'])->name('enrolment.postForm');
     
+    Route::get('uniform/form', [UniformController::class, 'form'])->name('uniform.form');
+    Route::get('uniform/leaderboard', [UniformController::class, 'leaderboard'])->name('uniform.leaderboard');
+
     Route::get('document/student', [AdmissionController::class, 'studentForm'])->name('admission.studentForm');
     Route::post('document/applicant', [AdmissionController::class, 'postApplicant'])->name('admission.postApplicant');
     Route::get('document/applicant/{id}', [AdmissionController::class, 'getApplicant'])->name('admission.getApplicant');
@@ -133,6 +137,17 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
             Route::get('{enrolment}/history', [EnrolmentController::class, 'history'])->name('history');
             Route::patch('{enrolment}/source-data', [EnrolmentController::class, 'updateSourceData'])->name('source-data.update');
             Route::resource('/', EnrolmentController::class)->parameters(['' => 'enrolment']);
+        });
+        Route::prefix('uniform')->name('uniform.')->group(function () {
+            Route::get('setting', [UniformController::class, 'setting'])->name('uniform-setting');
+            Route::get('uom', [UniformController::class, 'getUom'])->name('uniform.uom');
+            Route::post('uom', [UniformController::class, 'postUom'])->name('uniform.uom.post');
+            Route::get('size', [UniformController::class, 'getSizes'])->name('uniform.sizes');
+            Route::post('size', [UniformController::class, 'postSizes'])->name('uniform.sizes.post');
+            Route::get('category', [UniformController::class, 'getCategories'])->name('uniform.categories');
+            Route::post('category', [UniformController::class, 'postCategories'])->name('uniform.categories.post');
+            Route::get('product', [UniformController::class, 'getProducts'])->name('uniform.products');
+            Route::resource('/', UniformController::class)->parameters(['' => 'uniform']);
         });
 
         Route::prefix('price')->name('price.')->group(function () {
