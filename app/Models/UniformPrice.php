@@ -11,8 +11,10 @@ class UniformPrice extends Model
 
     protected $guarded = ['id'];
     protected $casts = [
-        "price"=>"decimal:2"
+        "price" => "float",
+        "is_active" => "boolean"
     ];
+    protected $with = ['branch', 'level'];
 
     public function product()
     {

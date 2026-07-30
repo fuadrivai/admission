@@ -9,7 +9,9 @@ class UniformProduct extends Model
 {
     use HasFactory;
     protected $guarded = ['id'];
-    protected $with = ['prices'];
+    protected $casts = [
+        "is_active" => "boolean"
+    ];
 
     public function prices()
     {

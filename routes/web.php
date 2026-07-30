@@ -58,6 +58,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
     Route::post('enrolment/post', [EnrolmentController::class, 'post'])->name('enrolment.postForm');
     
     Route::get('uniform/form', [UniformController::class, 'form'])->name('uniform.form');
+    Route::post('uniform/post', [UniformController::class, 'storeOrder'])->name('uniform.postForm');
     Route::get('uniform/leaderboard', [UniformController::class, 'leaderboard'])->name('uniform.leaderboard');
 
     Route::get('document/student', [AdmissionController::class, 'studentForm'])->name('admission.studentForm');
@@ -97,7 +98,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
 
 
     Route::get('/price/branch/level/{branchId}/{levelId}', [EnrolmentPriceController::class, 'getRegistrationPrice']);
-    
+    Route::get('/uniform/products/branch/level', [UniformController::class, 'getProductsByBranchAndLevel']);
     
     Route::get('/csrf-token', function () {
         return response()->json(['token' => csrf_token()]);

@@ -728,9 +728,12 @@
                         }
                     },
                     {
-                        data: 'formatted_price',
+                        data: 'price',
                         name: 'price',
-                        className: 'text-end fw-extrabold text-success fs-6'
+                        className: 'text-end fw-extrabold text-success fs-6',
+                        render: function (data,type,full) {
+                            return 'Rp ' + formatNumber(data);
+                        }
                     },
                     {
                         data: 'is_active',

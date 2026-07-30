@@ -2,14 +2,26 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\AdmissionEmail;
 use App\Models\Branch;
+use App\Models\EmailSetting;
 use App\Models\Grade;
 use App\Models\Level;
 use App\Models\UniformPrice;
 use App\Models\UniformProduct;
-use App\Services\UniformProductService;
+use App\Models\UniformOrder;
+use App\Models\UniformOrderDetail;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Yajra\DataTables\Utilities\Request as UtilitiesRequest;
+
+use function App\Helpers\codeGenerator;
+use function App\Helpers\createXenditInvoice;
+
+
 
 class UniformController extends Controller
 {
@@ -174,9 +186,6 @@ class UniformController extends Controller
             ->addColumn('level_name', function ($row) {
                 return $row->level ? $row->level->name : 'All Levels';
             })
-            ->addColumn('formatted_price', function ($row) {
-                return 'Rp ' . number_format($row->price, 0, ',', '.');
-            })
             ->make(true);
     }
 
@@ -314,6 +323,167 @@ class UniformController extends Controller
     {
         $grades = Grade::where('level_id', $levelId)->get();
         return response()->json($grades);
+    }
+
+    public function form()
+    {
+        $branches = Branch::with(['levels.grades'])->get();
+        $products = UniformProduct::with(['prices'])->get();
+
+        return view('uniform.form', compact('branches', 'products'));
+    }
+
+    public function storeOrder(Request $request)
+    {
+        $validated = $request->validate([
+            'student_name' => 'required|string|max:255',
+            'parent_name'  => 'required|string|max:255',
+            'parent_phone' => 'required|string|max:50',
+            'parent_email' => 'required|email|max:255',
+            'branch'       => 'required|exists:branches,id',
+            'level'        => 'required|exists:levels,id',
+            'grade_id'     => 'required|exists:grades,id',
+            'items'        => 'required|array|min:1',
+            'items.*.product_id' => 'required|exists:uniform_products,id',
+            'items.*.qty'        => 'required|numeric|min:0',
+            'items.*.size'       => 'nullable|string',
+            'bank_charger' => 'required|numeric|min:0',
+            'grand_total'  => 'required|numeric|min:0', 
+        ]);
+
+        $branch = Branch::findOrFail($validated['branch']);
+        $level  = Level::findOrFail($validated['level']);
+        $grade  = Grade::findOrFail($validated['grade_id']);
+
+        $totalSubtotal = 0;
+        $totalItemsCount = 0;
+        $orderDetailsData = [];
+
+        foreach ($validated['items'] as $itemData) {
+            $qty = (float) $itemData['qty'];
+            if ($qty <= 0) continue;
+
+            $product = UniformProduct::findOrFail($itemData['product_id']);
+            $size = $itemData['size'] ?? null;
+
+            $priceQuery = UniformPrice::where('uniform_product_id', $product->id)
+                ->where('branch_id', $branch->id)
+                ->where('level_id', $level->id)
+                ->where('is_active', 1);
+
+            if ($size) {
+                $priceQuery->where('size', $size);
+            }
+
+            $priceModel = $priceQuery->first();
+            $unitPrice = $priceModel ? (float) $priceModel->price : 0;
+            $subtotal  = $unitPrice * $qty;
+
+            $totalSubtotal += $subtotal;
+            $totalItemsCount += ($product->unit_type === 'pcs' ? (int)$qty : 1);
+
+            $orderDetailsData[] = [
+                'uniform_product_id' => $product->id,
+                'product_name'       => $product->name,
+                'product_code'       => $product->code,
+                'unit_type'          => $product->unit_type,
+                'size'               => $size,
+                'qty'                => $qty,
+                'price'              => $unitPrice,
+                'subtotal'           => $subtotal,
+            ];
+        }
+
+        if (empty($orderDetailsData)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please select at least one uniform item with quantity greater than 0.'
+            ], 422);
+        }
+        $dataOrder = [
+            'code'           => codeGenerator("uniform_orders","code","UORD-"),
+            'student_name'   => $validated['student_name'],
+            'parent_name'    => $validated['parent_name'],
+            'parent_phone'   => $validated['parent_phone'],
+            'parent_email'   => $validated['parent_email'],
+            'branch_id'      => $branch->id,
+            'branch_name'    => $branch->name,
+            'level_id'       => $level->id,
+            'level_name'     => $level->name,
+            'grade_id'       => $grade->id,
+            'grade_name'     => $grade->name,
+            'subtotal'       => $totalSubtotal,
+            'discount'       => 0,
+            'bank_charger'   => $validated['bank_charger'],
+            'total_amount'   => $validated['grand_total'],
+            'total_items'    => $totalItemsCount,
+            'order_date'     => now(),
+        ];
+        $payload = [
+            "external_id"=> $dataOrder['code'],
+            "amount"=> $dataOrder['total_amount'],
+            "payer_email"=> $validated['parent_email'],
+            "description"=> "Uniform Order Payment - ". $validated['student_name'] . " for " . $level->name . " " . $grade->name,
+            "invoice_duration"=> (60*60*24*7)
+        ];
+        $xendit = createXenditInvoice($payload);
+        $dataOrder['payment_status'] = $xendit['status'];
+        $dataOrder['order_link'] = $xendit['invoice_url'];
+        $dataOrder['expired_date_va'] = Carbon::parse($xendit['expiry_date']);
+
+        $order = UniformOrder::create($dataOrder);
+
+        foreach ($orderDetailsData as $detail) {
+            $detail['uniform_order_id'] = $order->id;
+            UniformOrderDetail::create($detail);
+        }
+
+        $order['subject'] = "Uniform Payment of $order->student_name - Mutiara Harapan Islamic School";
+        $order['template'] = 'email-template.uniform-payment';
+        $order['level_name'] = $level->name;
+        $order['grade_name'] = $grade->name??"";
+
+        $setting = EmailSetting::where('branch_id',$order['branch_id'])->first();
+        Config::set('mail.default', 'smtp');
+        Config::set('mail.mailers.smtp', [
+            'transport' => $setting->mailer,
+            'host' => $setting->host,
+            'port' => $setting->port,
+            'encryption' => $setting->encryption,
+            'username' => $setting->username,
+            'password' => $setting->app_password,
+            'timeout' => null,
+        ]);
+        Config::set('mail.from', [
+            'address' => $setting->from_address,
+            'name' => $setting->from_name,
+        ]);
+
+        $order['items'] = $orderDetailsData;
+
+        Mail::to($order->parent_email)->send(new AdmissionEmail($order));
+
+        return response()->json([
+            'success'    => true,
+            'message'    => 'Uniform order submitted successfully!',
+            'order_code' => $order->code,
+            'data'       => $order,
+        ]);
+    }
+
+    public function getProductsByBranchAndLevel(Request $request) {
+        $branchId = $request->branch;
+        $levelId = $request->level;
+
+        $products = UniformProduct::with("prices")
+            ->whereHas("prices",function($query) use ($branchId,$levelId){
+                $query->where("branch_id", $branchId)
+                    ->where("level_id", $levelId)
+                    ->where("is_active", 1);
+            })
+            ->get();    
+
+        return response()->json($products);
     }
 }
 
