@@ -531,8 +531,6 @@
               Reserved.
             </p>
             <p style="margin: 0; font-size: 11px; color: #999999">
-                        This email was sent to you as part of the official enrolment
-                        process.<br />
                         Jl. Pondok Kacang Raya No.2 Pondok Kacang Timur, Pondok Aren
                         Tangerang Selatan – 15426 <br /><a href="https://wa.me/6281291823247" target="_blank">
                             +62 812 9182 3247

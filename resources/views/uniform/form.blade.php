@@ -207,14 +207,14 @@
                                             <td data-label="Size">
                                                 @if($product->has_size)
                                                     <select class="form-select form-select-sm item-size" name="items[{{ $index }}][size]" id="size_{{ $product->id }}" data-product-id="{{ $product->id }}" style="max-width: 140px;">
-                                                        <option value="">Select size...</option>
-                                                        <option value="XS">XS</option>
-                                                        <option value="S">S</option>
-                                                        <option value="M">M</option>
-                                                        <option value="L">L</option>
-                                                        <option value="XL">XL</option>
-                                                        <option value="XXL">XXL</option>
-                                                        <option value="XXXL">XXXL</option>
+                                                        @php
+                                                            $sizes = isset($product->prices) && count($product->prices) > 0 
+                                                                ? $product->prices->pluck('size')->unique()->filter()->values()
+                                                                : collect(['XS','S','M','L','XL','XXL','XXXL','4XL','5XL','OTHER']);
+                                                        @endphp
+                                                        @foreach($sizes as $sz)
+                                                            <option value="{{ $sz }}">{{ $sz }}</option>
+                                                        @endforeach
                                                     </select>
                                                 @else
                                                     <span class="text-muted small">-</span>
@@ -229,7 +229,7 @@
                                                     <button class="btn btn-outline-secondary btn-qty-minus" type="button" data-product-id="{{ $product->id }}">-</button>
                                                     <input type="number" class="form-control text-center item-qty" 
                                                         name="items[{{ $index }}][qty]" id="qty_{{ $product->id }}" data-product-id="{{ $product->id }}"
-                                                        min="0" value="0" step="{{ $product->unit_type == 'pcs' ? '1' : '0.5' }}">
+                                                        min="0" value="0" step="{{ $product->unit_type == 'pcs' ? '1' : '1' }}">
                                                     <button class="btn btn-outline-secondary btn-qty-plus" type="button" data-product-id="{{ $product->id }}">+</button>
                                                 </div>
                                             </td>

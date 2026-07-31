@@ -144,7 +144,6 @@ $(document).ready(function () {
 
     // Next / Submit Button Click - make async and await validation
     $("#nextBtn").on("click", async function () {
-        // Await validation which may include async product fetching
         const valid = await validateCurrentStep();
         if (!valid) return;
 
@@ -168,7 +167,6 @@ function getUnitPrice(productId, size) {
     if (!product || !product.prices || product.prices.length === 0) return 0;
 
     const branchId = $("#branch").val();
-    const levelId = $("#level").val();
 
     // 1. Filter active prices
     let activePrices = product.prices.filter(
@@ -178,33 +176,31 @@ function getUnitPrice(productId, size) {
         activePrices = product.prices;
     }
 
-    // 2. Filter by Branch & Level if selected
-    let branchLevelPrices = activePrices;
-    if (branchId && levelId) {
+    // 2. Filter by Branch if selected
+    let branchPrices = activePrices;
+    if (branchId) {
         const filtered = activePrices.filter(
-            (p) =>
-                (!p.branch_id || p.branch_id == branchId) &&
-                (!p.level_id || p.level_id == levelId),
+            (p) => (!p.branch_id || p.branch_id == branchId),
         );
         if (filtered.length > 0) {
-            branchLevelPrices = filtered;
+            branchPrices = filtered;
         }
     }
 
     // 3. Filter by Size if product has size
     if (product.has_size) {
         if (size) {
-            const sizeMatched = branchLevelPrices.find((p) => p.size === size);
+            const sizeMatched = branchPrices.find((p) => p.size === size);
             if (sizeMatched) return parseFloat(sizeMatched.price);
         }
-        return branchLevelPrices.length > 0
-            ? parseFloat(branchLevelPrices[0].price)
+        return branchPrices.length > 0
+            ? parseFloat(branchPrices[0].price)
             : 0;
     }
 
     // 4. Product has no size
-    return branchLevelPrices.length > 0
-        ? parseFloat(branchLevelPrices[0].price)
+    return branchPrices.length > 0
+        ? parseFloat(branchPrices[0].price)
         : 0;
 }
 
@@ -226,34 +222,50 @@ function updateProductSubtotal(productId) {
     $(`#subtotal_display_${productId}`).text(formatRupiah(subtotal));
 }
 
-// Update all product prices in table
+// Update all product prices and populate size select options
 function updateAllProductPrices() {
     productsData.forEach((product) => {
         const branchId = $("#branch").val();
-        const levelId = $("#level").val();
 
-        if (product.has_size && branchId && levelId && product.prices) {
-            const availablePrices = product.prices.filter(
-                (p) =>
-                    p.branch_id == branchId &&
-                    p.level_id == levelId &&
-                    (p.is_active === 1 || p.is_active === true),
-            );
+        if (product.has_size) {
             const sizeSelect = $(`#size_${product.id}`);
             const selectedSize = sizeSelect.val();
 
-            if (availablePrices.length > 0) {
-                sizeSelect
-                    .empty()
-                    .append('<option value="">Select size...</option>');
-                availablePrices.forEach((p) => {
-                    if (p.size) {
-                        sizeSelect.append(
-                            `<option value="${p.size}" ${p.size === selectedSize ? "selected" : ""}>${p.size}</option>`,
-                        );
+            let sizesToRender = [];
+
+            if (product.prices && product.prices.length > 0) {
+                // Filter active prices matching current branch (or general branch)
+                let matchingPrices = product.prices.filter(
+                    (p) =>
+                        (p.is_active == 1 || p.is_active === true) &&
+                        (!p.branch_id || p.branch_id == branchId) &&
+                        p.size
+                );
+
+                if (matchingPrices.length === 0) {
+                    matchingPrices = product.prices.filter(
+                        (p) => (p.is_active == 1 || p.is_active === true) && p.size
+                    );
+                }
+
+                matchingPrices.forEach((p) => {
+                    if (p.size && !sizesToRender.includes(p.size)) {
+                        sizesToRender.push(p.size);
                     }
                 });
             }
+
+            // Fallback default standard sizes if no specific prices exist
+            if (sizesToRender.length === 0) {
+                sizesToRender = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL', '4XL', '5XL', 'OTHER'];
+            }
+
+            sizeSelect.empty().append('<option value="">Select size</option>');
+            sizesToRender.forEach((sz) => {
+                sizeSelect.append(
+                    `<option value="${sz}" ${sz === selectedSize ? "selected" : ""}>${sz}</option>`
+                );
+            });
         }
         updateProductPrice(product.id);
     });

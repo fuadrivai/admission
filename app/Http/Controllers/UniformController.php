@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\UniformOrderExport;
 use App\Mail\AdmissionEmail;
 use App\Models\Branch;
 use App\Models\EmailSetting;
@@ -14,8 +15,10 @@ use App\Models\UniformOrderDetail;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Utilities\Request as UtilitiesRequest;
 
 use function App\Helpers\codeGenerator;
@@ -26,9 +29,234 @@ use function App\Helpers\createXenditInvoice;
 class UniformController extends Controller
 {
 
-    public function index()
+    public function index(Request $request)
     {
-        return redirect()->route('uniform.uniform-setting');
+        $query = UniformOrder::with(['branch', 'level', 'grade', 'details']);
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('code', 'like', "%{$search}%")
+                  ->orWhere('student_name', 'like', "%{$search}%")
+                  ->orWhere('parent_name', 'like', "%{$search}%")
+                  ->orWhere('parent_email', 'like', "%{$search}%")
+                  ->orWhere('parent_phone', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('start_date')) {
+            $startDate = Carbon::parse($request->start_date)->startOfDay();
+            $query->where('created_at', '>=', $startDate);
+        }
+
+        if ($request->filled('end_date')) {
+            $endDate = Carbon::parse($request->end_date)->endOfDay();
+            $query->where('created_at', '<=', $endDate);
+        }
+
+        if ($request->filled('branch') && $request->branch !== 'all') {
+            $query->where('branch_id', $request->branch);
+        }
+
+        if ($request->filled('level') && $request->level !== 'all') {
+            $query->where('level_id', $request->level);
+        }
+
+        if ($request->filled('grade') && $request->grade !== 'all') {
+            $query->where('grade_id', $request->grade);
+        }
+
+        if ($request->filled('status') && $request->status !== 'all') {
+            $query->where('payment_status', $request->status);
+        }
+
+        $query->orderBy('created_at', 'desc');
+
+        $allOrders = (clone $query)->get();
+        $summary = [
+            'total'     => $allOrders->count(),
+            'pending'   => $allOrders->whereIn('payment_status', ['PENDING', 'UNPAID', 'pending', 'unpaid'])->count(),
+            'paid'      => $allOrders->whereIn('payment_status', ['PAID', 'paid', 'SETTLED', 'settled', 'COMPLETED', 'completed'])->count(),
+            'expired'   => $allOrders->whereIn('payment_status', ['EXPIRED', 'expired'])->count(),
+            'cancelled' => $allOrders->whereIn('payment_status', ['CANCEL', 'cancelled', 'CANCELLED'])->count(),
+        ];
+
+        $orders = $query->paginate($request->get('perpage', 10))->withQueryString();
+
+        if ($request->ajax()) {
+            return view('uniform._list', compact('orders', 'summary'))->render();
+        }
+
+        return view('uniform.index', [
+            'title'   => 'Uniform Orders List',
+            'orders'  => $orders,
+            'summary' => $summary,
+        ]);
+    }
+
+    public function export(Request $request)
+    {
+        $query = UniformOrder::with(['branch', 'level', 'grade', 'details']);
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('code', 'like', "%{$search}%")
+                  ->orWhere('student_name', 'like', "%{$search}%")
+                  ->orWhere('parent_name', 'like', "%{$search}%")
+                  ->orWhere('parent_email', 'like', "%{$search}%")
+                  ->orWhere('parent_phone', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('start_date')) {
+            $query->where('created_at', '>=', Carbon::parse($request->start_date)->startOfDay());
+        }
+
+        if ($request->filled('end_date')) {
+            $query->where('created_at', '<=', Carbon::parse($request->end_date)->endOfDay());
+        }
+
+        if ($request->filled('branch') && $request->branch !== 'all') {
+            $query->where('branch_id', $request->branch);
+        }
+
+        if ($request->filled('level') && $request->level !== 'all') {
+            $query->where('level_id', $request->level);
+        }
+
+        if ($request->filled('grade') && $request->grade !== 'all') {
+            $query->where('grade_id', $request->grade);
+        }
+
+        if ($request->filled('status') && $request->status !== 'all') {
+            $query->where('payment_status', $request->status);
+        }
+
+        $orders = $query->orderBy('created_at', 'desc')->get();
+        $timestamps = Carbon::now()->format('Ymd_His');
+
+        return Excel::download(
+            new UniformOrderExport($orders),
+            'Uniform_Orders_Report_' . $timestamps . '.xlsx',
+            \Maatwebsite\Excel\Excel::XLSX
+        );
+    }
+
+    public function leaderboard(Request $request)
+    {
+        $branchId  = $request->get('branch', 'all');
+        $status    = $request->get('status', 'PAID');
+        $startDate = $request->get('start_date');
+        $endDate   = $request->get('end_date');
+
+        $orderQuery = UniformOrder::query();
+
+        if ($branchId !== 'all' && !empty($branchId)) {
+            $orderQuery->where('branch_id', $branchId);
+        }
+
+        if ($status !== 'all' && !empty($status)) {
+            $orderQuery->where('payment_status', $status);
+        }
+
+        if (!empty($startDate)) {
+            $orderQuery->where('created_at', '>=', Carbon::parse($startDate)->startOfDay());
+        }
+
+        if (!empty($endDate)) {
+            $orderQuery->where('created_at', '<=', Carbon::parse($endDate)->endOfDay());
+        }
+
+        $orderIds = (clone $orderQuery)->pluck('id');
+
+        // Overall KPI Metrics
+        $totalOrders  = $orderIds->count();
+        $totalRevenue = (clone $orderQuery)->sum('total_amount');
+        $totalItems   = UniformOrderDetail::whereIn('uniform_order_id', $orderIds)->sum('qty');
+
+        // Product Leaderboard (Ranked by quantity sold)
+        $topProducts = UniformOrderDetail::select(
+                'uniform_product_id',
+                'product_name',
+                'product_code',
+                DB::raw('SUM(qty) as total_qty'),
+                DB::raw('SUM(subtotal) as total_revenue'),
+                DB::raw('COUNT(DISTINCT uniform_order_id) as order_count')
+            )
+            ->whereIn('uniform_order_id', $orderIds)
+            ->groupBy('uniform_product_id', 'product_name', 'product_code')
+            ->orderBy('total_qty', 'desc')
+            ->get();
+
+        foreach ($topProducts as $prod) {
+            $sizeDist = UniformOrderDetail::select('size', DB::raw('SUM(qty) as size_qty'))
+                ->whereIn('uniform_order_id', $orderIds)
+                ->where('uniform_product_id', $prod->uniform_product_id)
+                ->whereNotNull('size')
+                ->where('size', '!=', '')
+                ->groupBy('size')
+                ->orderBy('size_qty', 'desc')
+                ->first();
+            $prod->top_size = $sizeDist ? $sizeDist->size : '-';
+        }
+
+        $topProductName = $topProducts->first()->product_name ?? '-';
+
+        // Branch Leaderboard
+        $branchLeaderboard = (clone $orderQuery)
+            ->select(
+                'branch_id',
+                'branch_name',
+                DB::raw('COUNT(id) as total_orders'),
+                DB::raw('SUM(total_items) as total_items_sold'),
+                DB::raw('SUM(total_amount) as total_revenue')
+            )
+            ->groupBy('branch_id', 'branch_name')
+            ->orderBy('total_revenue', 'desc')
+            ->get();
+
+        // Level Leaderboard
+        $levelLeaderboard = (clone $orderQuery)
+            ->select(
+                'level_id',
+                'level_name',
+                DB::raw('COUNT(id) as total_orders'),
+                DB::raw('SUM(total_amount) as total_revenue')
+            )
+            ->groupBy('level_id', 'level_name')
+            ->orderBy('total_revenue', 'desc')
+            ->get();
+
+        $branches = Branch::all();
+
+        return view('uniform.leaderboard', [
+            'title'             => 'Uniform Sales Leaderboard',
+            'totalOrders'       => $totalOrders,
+            'totalRevenue'      => $totalRevenue,
+            'totalItems'        => $totalItems,
+            'topProductName'    => $topProductName,
+            'topProducts'       => $topProducts,
+            'branchLeaderboard' => $branchLeaderboard,
+            'levelLeaderboard'  => $levelLeaderboard,
+            'branches'          => $branches,
+            'filters'           => [
+                'branch'     => $branchId,
+                'status'     => $status,
+                'start_date' => $startDate,
+                'end_date'   => $endDate,
+            ]
+        ]);
+    }
+
+    public function show($id)
+    {
+        $order = UniformOrder::with(['branch', 'level', 'grade', 'details.product'])->findOrFail($id);
+
+        return view('uniform.detail', [
+            'title' => 'Uniform Order Detail - ' . $order->code,
+            'order' => $order,
+        ]);
     }
 
     public function setting()

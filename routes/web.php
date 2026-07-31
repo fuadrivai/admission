@@ -141,6 +141,8 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
         });
         Route::prefix('uniform')->name('uniform.')->group(function () {
             Route::get('setting', [UniformController::class, 'setting'])->name('uniform-setting');
+            Route::get('export', [UniformController::class, 'export'])->name('export');
+            Route::get('leaderboard', [UniformController::class, 'leaderboard'])->name('leaderboard');
 
             // Master Product Routes
             Route::get('products/datatables', [UniformController::class, 'productDatatables'])->name('products.datatables');

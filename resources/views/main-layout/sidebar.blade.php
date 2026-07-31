@@ -98,11 +98,11 @@
                         <span>Uniform</span>
                     </a>
                     <ul class="submenu ">
-                        <li class="submenu-item"><a href="/uniform" class="submenu-link">List</a></li>
-                        <li class="submenu-item"><a href="/uniform/leaderboard" class="submenu-link">Leaderboard</a>
+                        <li class="submenu-item"><a href="/uniform" class="submenu-link {{ Request::is('uniform') ? 'text-red' : '' }}">List</a></li>
+                        {{-- <li class="submenu-item"><a href="/uniform/leaderboard" class="submenu-link {{ Request::is('uniform/leaderboard') ? 'text-red' : '' }}">Leaderboard</a> --}}
                         </li>
-                        <li class="submenu-item"><a href="/uniform/setting" class="submenu-link">Settings</a></li>
-                        <li class="submenu-item"><a href="/uniform/form" class="submenu-link">Form</a></li>
+                        <li class="submenu-item"><a href="/uniform/setting" class="submenu-link {{ Request::is('uniform/setting') ? 'text-red' : '' }}">Settings</a></li>
+                        <li class="submenu-item"><a href="/uniform/form" class="submenu-link {{ Request::is('uniform/form') ? 'text-red' : '' }}">Form</a></li>
                     </ul>
                 </li>
 
