@@ -156,10 +156,8 @@ class XenditCallBackImplement implements XenditCallBackService
                                     ? Carbon::parse($order['payment_date'])->format('d M Y') 
                                     : Carbon::now()->format('d M Y'),
             'student_name'      => $order['student_name'] ?? '-',
-            'registration_fee'  => number_format($order['subtotal'] ?? 0, 0, ',', '.'),
             'bank_charger'      => number_format($order['bank_charger'] ?? 0, 0, ',', '.'),
             'total'             => number_format($order['total_amount'] ?? 0, 0, ',', '.'),
-            'academic_year'     => '-',
             'level_name'        => $order['level_name'] ?? '-',
             'grade_name'        => $order['grade_name'] ?? '-',
             'description'       => $description ?? 'Uniform Purchase Payment',
