@@ -14,7 +14,7 @@ class UniformPrice extends Model
         "price" => "float",
         "is_active" => "boolean"
     ];
-    protected $with = ['branch', 'level'];
+    protected $with = ['branch'];
 
     public function product()
     {
@@ -24,10 +24,5 @@ class UniformPrice extends Model
     public function branch()
     {
         return $this->belongsTo(Branch::class, 'branch_id');
-    }
-
-    public function level()
-    {
-        return $this->belongsTo(Level::class, 'level_id');
     }
 }

@@ -428,8 +428,13 @@ function showToast(message, type = "info") {
 }
 
 // Render Step 4 Order Summary
-function renderOrderCompleteSummary(orderCode) {
+function renderOrderCompleteSummary(orderCode, orderLink) {
     $("#successOrderCode").text(orderCode || "");
+    if (orderLink) {
+        $("#successPaymentLink").attr("href", orderLink).show();
+    } else {
+        $("#successPaymentLink").hide();
+    }
     $("#summary_student_name").text($("#student_name").val() || "-");
     $("#summary_parent_name").text($("#parent_name").val() || "-");
     
@@ -478,7 +483,7 @@ function submitOrderForm() {
         function (json) {
             if ($.unblockUI) $.unblockUI();
             if (json.success) {
-                renderOrderCompleteSummary(json.order_code);
+                renderOrderCompleteSummary(json.order_code, json.data?.order_link || json.order_link);
                 currentStep = 4;
                 updateStepView();
                 showToast(

@@ -147,7 +147,7 @@
                   <p style="margin: 0">
                     <i
                       >Berikut rincian pembayaran yang Ayah/Bunda pesan atas
-                      nama ananda {{$data['student_name']}} dari {{$data['level_name']}} {{$data['grade_name']}} di Mutiara Harapan Islamic School :</i
+                      nama ananda {{$data['student_name']}} dari {{$data['level_name']}} {{$data['grade_name']}} di Mutiara Harapan Islamic School:</i
                     >
                   </p>
                 </td>
@@ -226,7 +226,7 @@
                                         text-align: left;
                                     "
                                 >
-                                    {{ $item['product_name'] }}
+                                    {{ $item['product_name'] }} {{ $item['size'] ? '(Size: '. $item['size'] . ')' : '' }}
                                 </td>
                                 <td
                                     style="
@@ -244,7 +244,7 @@
                                         text-align: right;
                                     "
                                 >
-                                    Rp. {{ number_format($item['subtotal'], 2, ',', '.') }}
+                                    Rp. {{ number_format($item['subtotal'], 0, ',', '.') }}
                                 </td>
                             </tr>
                     @endforeach
@@ -267,7 +267,7 @@
                           text-align: right;
                         "
                       >
-                        Rp. {{$data['bank_charger']}}
+                        Rp. {{ number_format($data['bank_charger'], 0, ',', '.') }}
                       </td>
                     </tr>
                     <!-- Table Footer -->
@@ -294,7 +294,7 @@
                           background-color: #fcfaf8;
                         "
                       >
-                        Rp. {{$data['total_amount']}}
+                        Rp. {{ number_format($data['total_amount'], 0, ',', '.') }}
                       </td>
                     </tr>
                   </table>
@@ -305,7 +305,7 @@
               <tr>
                 <td align="center" style="padding: 0 0 30px">
                   <a
-                    href="{{ $data['order_link'] }}
+                    href="{{ $data['order_link'] }}"
                     style="
                       background-color: #800000;
                       border: 2px solid #800000;

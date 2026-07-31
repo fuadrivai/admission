@@ -273,13 +273,23 @@
                         <div class="success-message text-center py-3">
                             <div class="success-icon mb-3"><i class="fas fa-check"></i></div>
                             <h3 class="fw-bold text-dark mb-2">Uniform Order Placed Successfully!</h3>
-                            <p class="text-muted mb-4">
-                                Thank you for your order. Order Code: <span id="successOrderCode" class="badge bg-primary fs-6 px-3 py-2"></span>
+                            <p class="text-muted mb-3">
+                                Thank you for your order.
                             </p>
-
+                            <p class="text-muted mb-3">
+                                Your order number is <span id="successOrderCode" class="badge bg-danger fs-6 px-3 py-2"></span>.
+                            </p>
+                            <p class="text-muted mb-4">
+                                Please check your email for the payment instructions. Alternatively, you can click the button below to proceed with your payment.
+                            </p>
+                            <div class="mb-4">
+                                <a id="successPaymentLink" href="#" target="_blank" class="btn btn-danger btn-lg px-4 py-2 fw-bold shadow-sm">
+                                    <i class="fas fa-credit-card me-2"></i>Proceed to Payment
+                                </a>
+                            </div>
                             <!-- Order Summary Card -->
                             <div id="orderSuccessSummary" class="text-start bg-light border rounded-3 p-4 mb-4 mx-auto" style="max-width: 680px;">
-                                <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">
+                                <h6 class="fw-bold text-danger border-bottom pb-2 mb-3">
                                     <i class="fas fa-receipt me-2"></i>Order Summary Details
                                 </h6>
 

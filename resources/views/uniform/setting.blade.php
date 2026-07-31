@@ -107,7 +107,6 @@
 
 @section('content-child')
     <section class="section">
-        <!-- KPI Summary Cards -->
         <div class="row mb-1">
             <div class="col-6 col-lg-3 col-md-6 mb-3 mb-lg-0">
                 <div class="card kpi-card">
@@ -251,7 +250,7 @@
                     <div class="tab-pane fade" id="tab-prices" role="tabpanel" aria-labelledby="prices-tab">
                         <div class="filter-box">
                             <div class="row align-items-end g-3">
-                                <div class="col-md-3">
+                                <div class="col-md-4">
                                     <label class="form-label font-semibold text-secondary small mb-1"><i class="bi bi-box-seam me-1"></i> Master Product</label>
                                     <select class="form-select" id="filterPriceProduct">
                                         <option value="">All Products</option>
@@ -260,7 +259,7 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-md-4">
                                     <label class="form-label font-semibold text-secondary small mb-1"><i class="bi bi-building me-1"></i> Branch</label>
                                     <select class="form-select" id="filterPriceBranch">
                                         <option value="">All Branches</option>
@@ -269,13 +268,7 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                <div class="col-md-3">
-                                    <label class="form-label font-semibold text-secondary small mb-1"><i class="bi bi-diagram-3 me-1"></i> Level</label>
-                                    <select class="form-select" id="filterPriceLevel">
-                                        <option value="">All Levels</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-3">
+                                <div class="col-md-4">
                                     <label class="form-label font-semibold text-secondary small mb-1"><i class="bi bi-toggle-on me-1"></i> Active Status</label>
                                     <select class="form-select" id="filterPriceActive">
                                         <option value="">All Status</option>
@@ -301,7 +294,6 @@
                                     <tr>
                                         <th>Product</th>
                                         <th>Branch</th>
-                                        <th>Level</th>
                                         <th class="text-center">Size</th>
                                         <th class="text-end">Price</th>
                                         <th class="text-center">Status</th>
@@ -416,15 +408,6 @@
                                     @endforeach
                                 </select>
                             </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label for="priceLevelId" class="form-label fw-semibold">Level(s) <span class="text-danger">*</span></label>
-                                <select class="form-select select2" style="width:100%" id="priceLevelId" name="level_id[]" multiple="multiple" data-placeholder="-- Select Level(s) --" required>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="row">
                             <div class="col-md-6 mb-3" id="sizeContainer" style="display: none;">
                                 <label for="priceSize" class="form-label fw-semibold">Size Option(s)</label>
                                 <select class="form-select" id="priceSize" name="size" data-placeholder="-- Select Size(s) --">
@@ -435,10 +418,11 @@
                                     <option value="XL">XL (Extra Large)</option>
                                     <option value="XXL">XXL (Double Extra Large)</option>
                                     <option value="XXXL">XXXL (Triple Extra Large)</option>
+                                    <option value="4XL">4XL (Four Extra Large)</option>
+                                    <option value="5XL">5XL (Five Extra Large)</option>
                                     <option value="OTHER">OTHER (Custom Size)</option>
                                 </select>
                             </div>
-
                             <div class="col-md-6 mb-3">
                                 <label for="priceAmount" class="form-label fw-semibold">Product Price (IDR) <span class="text-danger">*</span></label>
                                 <div class="input-group">
@@ -689,7 +673,6 @@
                     data: function (d) {
                         d.product_id = $('#filterPriceProduct').val();
                         d.branch_id = $('#filterPriceBranch').val();
-                        d.level_id = $('#filterPriceLevel').val();
                         d.is_active = $('#filterPriceActive').val();
                     }
                 },
@@ -709,13 +692,6 @@
                         name: 'branch.name',
                         render: function (data) {
                             return `<span class="badge bg-light-secondary text-dark">${data}</span>`;
-                        }
-                    },
-                    {
-                        data: 'level_name',
-                        name: 'level.name',
-                        render: function (data) {
-                            return `<span class="badge bg-light-info text-info fw-bold">${data}</span>`;
                         }
                     },
                     {
@@ -821,32 +797,9 @@
             });
 
             // Initialize Select2 on modalPrice dropdowns
-            $('#priceLevelId, #priceProductId').select2({
+            $('#priceProductId').select2({
                 dropdownParent: $('#modalPrice'),
                 width: '100%'
-            });
-
-            // Dependent Branch -> Level in Price Modal (Supports Multiple Branch Selection)
-            $('#priceBranchId').on('change', function () {
-                const branchVals = $(this).val();
-                const branchIds = Array.isArray(branchVals) ? branchVals : (branchVals ? [branchVals] : []);
-                $('#priceLevelId').empty();
-                if (branchIds.length > 0) {
-                    let fetchPromises = branchIds.map(bId => $.get(`/uniform/get-levels/${bId}`));
-                    blockUI()
-                    Promise.all(fetchPromises).then(results => {
-                        results.forEach(levels => {
-                            levels.forEach(lvl => {
-                                if ($(`#priceLevelId option[value="${lvl.id}"]`).length === 0) {
-                                    $('#priceLevelId').append(`<option value="${lvl.id}">${lvl.name}</option>`);
-                                }
-                            });
-                        });
-                        $('#priceLevelId').trigger('change');
-                    });
-                } else {
-                    $('#priceLevelId').trigger('change');
-                }
             });
 
             // Submit Price Form
@@ -856,7 +809,6 @@
                 const payload = {
                     product_id: $('#priceProductId').val(),
                     branch_id: $('#priceBranchId').val(),
-                    level_id: $('#priceLevelId').val(),
                     size: $('#priceSize').val() || null,
                     price: $('#priceAmount').val(),
                     is_active: $('#priceIsActive').is(':checked') ? 1 : 0,
@@ -902,19 +854,8 @@
 
                     $('#priceBranchId').val(res.branch_id).trigger('change');
 
-                    // Load levels for branch, then select level
-                    $.get(`/uniform/get-levels/${res.branch_id}`, function (levels) {
-                        $('#priceLevelId').empty();
-                        levels.forEach(function (lvl) {
-                            $('#priceLevelId').append(`<option value="${lvl.id}">${lvl.name}</option>`);
-                        });
-                        $('#priceLevelId').val([res.level_id]).trigger('change');
-                    });
-
                     if (res.size) {
                         $('#priceSize').val(res.size).trigger('change');
-                    } else {
-                        $('#priceSize').val().trigger('change');
                     }
 
                     $('#priceAmount').val(formatNumber(res.price));
@@ -952,7 +893,6 @@
             $('#formPrice')[0].reset();
             $('#priceId').val('');
             $('#priceBranchId').val("").trigger('change');
-            $('#priceLevelId').empty().val([]).trigger('change');
             $('#priceSize').val("").trigger('change');
             $('#sizeContainer').hide();
             $('#modalPriceLabel').html('<i class="bi bi-cash-stack me-2"></i> Set Product Price');

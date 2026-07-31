@@ -152,7 +152,7 @@ class UniformController extends Controller
 
     public function priceDatatables(UtilitiesRequest $request)
     {
-        $query = UniformPrice::select('uniform_prices.*')->with(['product', 'branch', 'level']);
+        $query = UniformPrice::select('uniform_prices.*')->with(['product', 'branch']);
 
         if ($request->filled('product_id')) {
             $query->where('uniform_product_id', $request->product_id);
@@ -160,10 +160,6 @@ class UniformController extends Controller
 
         if ($request->filled('branch_id')) {
             $query->where('branch_id', $request->branch_id);
-        }
-
-        if ($request->filled('level_id')) {
-            $query->where('level_id', $request->level_id);
         }
 
         if ($request->filled('is_active') && $request->is_active !== '') {
@@ -183,9 +179,6 @@ class UniformController extends Controller
             ->addColumn('branch_name', function ($row) {
                 return $row->branch ? $row->branch->name : 'All Branches';
             })
-            ->addColumn('level_name', function ($row) {
-                return $row->level ? $row->level->name : 'All Levels';
-            })
             ->make(true);
     }
 
@@ -194,7 +187,6 @@ class UniformController extends Controller
         $validated = $request->validate([
             'product_id'  => 'required|exists:uniform_products,id',
             'branch_id'   => 'required|exists:branches,id',
-            'level_id.*'  => 'required|exists:levels,id',   
             'size'        => 'nullable|string|max:50',
             'price'       => 'required',
             'is_active'   => 'nullable|boolean',
@@ -204,36 +196,29 @@ class UniformController extends Controller
         $rawPrice = str_replace(',', '', $validated['price']);
         $rawPrice = (float) str_replace('.', '', $rawPrice);
 
-        $levelIds = is_array($validated['level_id']) ? $validated['level_id'] : [$validated['level_id']];
-        $createdPrices = [];
-
-        foreach ($levelIds as $lvlId) {
-            $price = UniformPrice::updateOrCreate(
-                [
-                    'uniform_product_id' => $validated['product_id'],
-                    'branch_id'          => $validated['branch_id'],
-                    'level_id'           => $lvlId,
-                    'size'               => $validated['size'] ?? null,
-                ],
-                [
-                    'price'              => $rawPrice,
-                    'is_active'          => isset($validated['is_active']) && $validated['is_active'] ? 1 : 0,
-                    'description'        => $validated['description'] ?? null,
-                ]
-            );
-            $createdPrices[] = $price;
-        }
+        $price = UniformPrice::updateOrCreate(
+            [
+                'uniform_product_id' => $validated['product_id'],
+                'branch_id'          => $validated['branch_id'],
+                'size'               => $validated['size'] ?? null,
+            ],
+            [
+                'price'              => $rawPrice,
+                'is_active'          => isset($validated['is_active']) && $validated['is_active'] ? 1 : 0,
+                'description'        => $validated['description'] ?? null,
+            ]
+        );
 
         return response()->json([
             'success' => true,
-            'message' => count($createdPrices) . ' Product Price rule(s) saved successfully',
-            'data'    => $createdPrices,
+            'message' => 'Product Price rule saved successfully',
+            'data'    => $price,
         ]);
     }
 
     public function showPrice($id)
     {
-        $price = UniformPrice::with(['product', 'branch', 'level'])->find($id);
+        $price = UniformPrice::with(['product', 'branch'])->find($id);
         if (!$price) {
             return response()->json(['success' => false, 'message' => 'Price rule not found'], 404);
         }
@@ -250,7 +235,6 @@ class UniformController extends Controller
         $validated = $request->validate([
             'product_id'  => 'required|exists:uniform_products,id',
             'branch_id'   => 'required|exists:branches,id',
-            'level_id'    => 'required',
             'size'        => 'nullable|string|max:50',
             'price'       => 'required',
             'is_active'   => 'nullable|boolean',
@@ -259,12 +243,10 @@ class UniformController extends Controller
 
         $rawPrice = str_replace(',', '', $validated['price']);
         $rawPrice = (float) str_replace('.', '', $rawPrice);
-        $lvlId = is_array($validated['level_id']) ? $validated['level_id'][0] : $validated['level_id'];
 
         $priceModel->update([
             'uniform_product_id'  => $validated['product_id'],
             'branch_id'           => $validated['branch_id'],
-            'level_id'            => $lvlId,
             'size'                => $validated['size'] ?? null,
             'price'               => $rawPrice,
             'is_active'           => isset($validated['is_active']) && $validated['is_active'] ? 1 : 0,
@@ -368,7 +350,6 @@ class UniformController extends Controller
 
             $priceQuery = UniformPrice::where('uniform_product_id', $product->id)
                 ->where('branch_id', $branch->id)
-                ->where('level_id', $level->id)
                 ->where('is_active', 1);
 
             if ($size) {
@@ -473,12 +454,10 @@ class UniformController extends Controller
 
     public function getProductsByBranchAndLevel(Request $request) {
         $branchId = $request->branch;
-        $levelId = $request->level;
 
         $products = UniformProduct::with("prices")
-            ->whereHas("prices",function($query) use ($branchId,$levelId){
+            ->whereHas("prices",function($query) use ($branchId){
                 $query->where("branch_id", $branchId)
-                    ->where("level_id", $levelId)
                     ->where("is_active", 1);
             })
             ->get();    

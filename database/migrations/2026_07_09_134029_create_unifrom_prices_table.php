@@ -17,14 +17,13 @@ class CreateUnifromPricesTable extends Migration
             $table->id();
             $table->foreignId('uniform_product_id')->constrained('uniform_products')->onDelete('cascade');
             $table->foreignId('branch_id')->constrained('branches')->onDelete('cascade');
-            $table->foreignId('level_id')->constrained('levels')->onDelete('cascade');
             $table->string('size')->nullable()->comment('if has_size is true : XS,S,M,L,XL,XXL,XXXL,OTHER(custom size),if false : NULL');
             $table->decimal('price', 10, 2)->default(0);
             $table->boolean('is_active')->default(true);
             $table->string('description')->nullable();
             $table->timestamps();
 
-            $table->index(['uniform_product_id', 'branch_id', 'level_id']);
+            $table->index(['uniform_product_id', 'branch_id']);
         });
     }
 
