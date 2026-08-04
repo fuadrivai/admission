@@ -210,7 +210,7 @@ class EnrolmentImplement implements EnrolmentService
 
         $data = [
             'prospects_id'             => null,
-            'already_visit'            => $request->alreadyVisit === 'true'?1:0,
+            'already_visit'            => ($request->alreadyVisit ?? null) === 'true'?1:0,
             'code'                     => null,
             'is_current_student'       => $request->isCurrentStudent,
             'student_branch'           => $request->studentBranch,

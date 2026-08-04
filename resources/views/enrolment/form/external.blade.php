@@ -522,8 +522,12 @@
                                 Thank you for enroling your child at MHIS. Please check the inbox of the email address
                                 you previously provided to make the payment.
                             </p>
+                            <button type="button" class="btn-custom btn-next" id="goToPaymentBtn"
+                                style="margin: 30px auto 0; display: none">
+                                <i class="fas fa-credit-card"></i> Proceed to Payment
+                            </button>
                             <button type="button" class="btn-custom btn-next" id="backToFormBtn"
-                                style="margin: 30px auto 0">
+                                style="margin: 10px auto 0">
                                 <i class="fas fa-arrow-left"></i> Back to Form
                             </button>
                         </div>

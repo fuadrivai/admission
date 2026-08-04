@@ -3,6 +3,7 @@ const totalSteps = 5;
 let levels = [];
 let bankCharger = 0;
 let schoolVisit = null;
+let paymentUrl = null;
 
 $(document).ready(function () {
     getActiveAY();
@@ -226,6 +227,12 @@ $(document).ready(function () {
     // Back to Form button
     $("#backToFormBtn").click(function () {
         window.location.reload();
+    });
+
+    $("#goToPaymentBtn").click(function () {
+        if (paymentUrl) {
+            window.location.href = paymentUrl;
+        }
     });
 
     $(document).on(
@@ -512,10 +519,12 @@ function getSiswaEreport(branch, level, nis, resolve, reject) {
 function submitForm() {
     return new Promise((resolve) => {
         const formData = {
-            alreadyVisit: $('input[name="visitedBefore"]:checked').val(),
+            alreadyVisit:
+                $('input[name="visitedBefore"]:checked').val() ?? "false",
             code: $("#visitCode").val(),
             prospectsId: $("#prospects_id").val(),
-            isCurrentStudent: $('input[name="currentMHIS"]:checked').val(),
+            isCurrentStudent:
+                $('input[name="currentMHIS"]:checked').val() ?? "false",
             studentBranch: $("#branch-portal").val(),
             mhisPortalUsername: $("#mhis-portal-username").val(),
             branch: $("#branch").val(),
@@ -555,7 +564,8 @@ function submitForm() {
             "/enrolment/post",
             "POST",
             function (json) {
-                console.log(json);
+                paymentUrl = json?.data?.payment_url ?? null;
+                $("#goToPaymentBtn").toggle(!!paymentUrl);
                 resolve(true);
             },
             function (err) {

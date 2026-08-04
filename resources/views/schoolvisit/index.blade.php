@@ -241,10 +241,8 @@
                                     <input type="text" class="d-none" id="id-visit">
                                     <label for="reason_for_not_enrolment" class="form-label required-label">Not Enrolment
                                         Reason</label>
-                                    <select name="reason_for_not_enrolment" class="form-select reason"
+                                    <input name="reason_for_not_enrolment" class="form-control reason"
                                         id="reason_for_not_enrolment" required>
-                                        <option value="">Select Reason</option>
-                                    </select>
                                     <div class="invalid-feedback">
                                         Insert a valid reason
                                     </div>
