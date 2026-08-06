@@ -142,7 +142,7 @@
                 <div class="col-md-5">
                     <a href="/applicant/{{ $admission->id }}/edit" class="student-name-link">
                         <label for="">Kode : {{ $admission->code ?? 'N/A' }} <span
-                                class="badge text-bg-secondary">{{ ucfirst($admission->enrolment->source_data) }}</span>
+                                class="badge text-bg-secondary">{{ ucfirst($admission->enrolment->source_data ?? '') }}</span>
                         </label></label><br>
                         <div class="student-name">{{ $admission->applicantName() ?? 'N/A' }}</div>
                     </a>
