@@ -111,7 +111,7 @@ class UniformController extends Controller
 
         $uniform->update([
             'picked_up_at' => now(),
-            'picked_up_by' => auth()->id() ?? "User",
+            'picked_up_by' => auth()->id() ?? 0,
         ]);
 
         $confirmedOrder = $uniform->fresh('pickupUser');
