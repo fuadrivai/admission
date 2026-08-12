@@ -4,16 +4,16 @@ let bankCharger = 0;
 let levels = [];
 let productsData = [];
 let uniform = {
-    student_name : "",
-    parent_name : "",
-    parent_phone : "",
-    parent_email : "",
-    branch : "",
-    level : "",
-    grade_id : "",
-    items : [],
-    grand_total : 0,
-    total_items : 0
+    student_name: "",
+    parent_name: "",
+    parent_phone: "",
+    parent_email: "",
+    branch: "",
+    level: "",
+    grade_id: "",
+    items: [],
+    grand_total: 0,
+    total_items: 0,
 };
 $(document).ready(function () {
     getBankCharger();
@@ -105,6 +105,7 @@ $(document).ready(function () {
     $(document).on("change", ".item-size", function () {
         const productId = $(this).data("product-id");
         updateProductPrice(productId);
+        calculateGrandTotal();
     });
 
     // Qty Stepper (-) Click
@@ -180,7 +181,7 @@ function getUnitPrice(productId, size) {
     let branchPrices = activePrices;
     if (branchId) {
         const filtered = activePrices.filter(
-            (p) => (!p.branch_id || p.branch_id == branchId),
+            (p) => !p.branch_id || p.branch_id == branchId,
         );
         if (filtered.length > 0) {
             branchPrices = filtered;
@@ -193,15 +194,11 @@ function getUnitPrice(productId, size) {
             const sizeMatched = branchPrices.find((p) => p.size === size);
             if (sizeMatched) return parseFloat(sizeMatched.price);
         }
-        return branchPrices.length > 0
-            ? parseFloat(branchPrices[0].price)
-            : 0;
+        return branchPrices.length > 0 ? parseFloat(branchPrices[0].price) : 0;
     }
 
     // 4. Product has no size
-    return branchPrices.length > 0
-        ? parseFloat(branchPrices[0].price)
-        : 0;
+    return branchPrices.length > 0 ? parseFloat(branchPrices[0].price) : 0;
 }
 
 // Update single product price and subtotal
@@ -239,12 +236,14 @@ function updateAllProductPrices() {
                     (p) =>
                         (p.is_active == 1 || p.is_active === true) &&
                         (!p.branch_id || p.branch_id == branchId) &&
-                        p.size
+                        p.size,
                 );
 
                 if (matchingPrices.length === 0) {
                     matchingPrices = product.prices.filter(
-                        (p) => (p.is_active == 1 || p.is_active === true) && p.size
+                        (p) =>
+                            (p.is_active == 1 || p.is_active === true) &&
+                            p.size,
                     );
                 }
 
@@ -257,13 +256,24 @@ function updateAllProductPrices() {
 
             // Fallback default standard sizes if no specific prices exist
             if (sizesToRender.length === 0) {
-                sizesToRender = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL', '4XL', '5XL', 'OTHER'];
+                sizesToRender = [
+                    "XS",
+                    "S",
+                    "M",
+                    "L",
+                    "XL",
+                    "XXL",
+                    "XXXL",
+                    "4XL",
+                    "5XL",
+                    "OTHER",
+                ];
             }
 
             sizeSelect.empty().append('<option value="">Select size</option>');
             sizesToRender.forEach((sz) => {
                 sizeSelect.append(
-                    `<option value="${sz}" ${sz === selectedSize ? "selected" : ""}>${sz}</option>`
+                    `<option value="${sz}" ${sz === selectedSize ? "selected" : ""}>${sz}</option>`,
                 );
             });
         }
@@ -277,8 +287,8 @@ function syncUniformItems() {
     const selectedIds = $("#item_selector").val() || [];
     uniform.items = [];
 
-    selectedIds.forEach(productId => {
-        const product = productsData.find(p => p.id == productId);
+    selectedIds.forEach((productId) => {
+        const product = productsData.find((p) => p.id == productId);
         if (!product) return;
 
         const qty = parseFloat($(`#qty_${productId}`).val()) || 0;
@@ -295,7 +305,7 @@ function syncUniformItems() {
                 size: size,
                 qty: qty,
                 price: unitPrice,
-                subtotal: subtotal
+                subtotal: subtotal,
             });
         }
     });
@@ -308,7 +318,7 @@ function calculateGrandTotal() {
     let totalItems = 0;
     let grandTotal = 0;
 
-    uniform.items.forEach(item => {
+    uniform.items.forEach((item) => {
         totalItems += item.qty;
         grandTotal += item.subtotal;
     });
@@ -332,20 +342,59 @@ async function validateCurrentStep() {
         const parentPhone = $("#parent_phone").val().trim();
         const parentEmail = $("#parent_email").val().trim();
 
-        if (!studentName) { $("#student_name").addClass("is-invalid"); isValid = false; } else { $("#student_name").removeClass("is-invalid"); }
-        if (!parentName) { $("#parent_name").addClass("is-invalid"); isValid = false; } else { $("#parent_name").removeClass("is-invalid"); }
-        if (!parentPhone) { $("#parent_phone").addClass("is-invalid"); isValid = false; } else { $("#parent_phone").removeClass("is-invalid"); }
-        if (!parentEmail || !parentEmail.includes("@")) { $("#parent_email").addClass("is-invalid"); isValid = false; } else { $("#parent_email").removeClass("is-invalid"); }
+        if (!studentName) {
+            $("#student_name").addClass("is-invalid");
+            isValid = false;
+        } else {
+            $("#student_name").removeClass("is-invalid");
+        }
+        if (!parentName) {
+            $("#parent_name").addClass("is-invalid");
+            isValid = false;
+        } else {
+            $("#parent_name").removeClass("is-invalid");
+        }
+        if (!parentPhone) {
+            $("#parent_phone").addClass("is-invalid");
+            isValid = false;
+        } else {
+            $("#parent_phone").removeClass("is-invalid");
+        }
+        if (!parentEmail || !parentEmail.includes("@")) {
+            $("#parent_email").addClass("is-invalid");
+            isValid = false;
+        } else {
+            $("#parent_email").removeClass("is-invalid");
+        }
 
-        if (!isValid) showToast("Please fill in all required student & parent fields correctly.", "error");
+        if (!isValid)
+            showToast(
+                "Please fill in all required student & parent fields correctly.",
+                "error",
+            );
     } else if (currentStep === 2) {
         const branch = $("#branch").val();
         const level = $("#level").val();
         const grade = $("#grade_id").val();
 
-        if (!branch) { $("#branch").next(".select2-container").addClass("is-invalid"); isValid = false; } else { $("#branch").next(".select2-container").removeClass("is-invalid"); }
-        if (!level) { $("#level").next(".select2-container").addClass("is-invalid"); isValid = false; } else { $("#level").next(".select2-container").removeClass("is-invalid"); }
-        if (!grade) { $("#grade_id").next(".select2-container").addClass("is-invalid"); isValid = false; } else { $("#grade_id").next(".select2-container").removeClass("is-invalid"); }
+        if (!branch) {
+            $("#branch").next(".select2-container").addClass("is-invalid");
+            isValid = false;
+        } else {
+            $("#branch").next(".select2-container").removeClass("is-invalid");
+        }
+        if (!level) {
+            $("#level").next(".select2-container").addClass("is-invalid");
+            isValid = false;
+        } else {
+            $("#level").next(".select2-container").removeClass("is-invalid");
+        }
+        if (!grade) {
+            $("#grade_id").next(".select2-container").addClass("is-invalid");
+            isValid = false;
+        } else {
+            $("#grade_id").next(".select2-container").removeClass("is-invalid");
+        }
 
         if (!isValid) {
             showToast("Please select Branch, Level, and Grade.", "error");
@@ -360,22 +409,32 @@ async function validateCurrentStep() {
     } else if (currentStep === 3) {
         const selectedItems = $("#item_selector").val() || [];
         if (selectedItems.length === 0) {
-            showToast("Please select at least 1 uniform item to order.", "error");
-            $("#item_selector").next(".select2-container").addClass("is-invalid");
+            showToast(
+                "Please select at least 1 uniform item to order.",
+                "error",
+            );
+            $("#item_selector")
+                .next(".select2-container")
+                .addClass("is-invalid");
             return false;
         } else {
-            $("#item_selector").next(".select2-container").removeClass("is-invalid");
+            $("#item_selector")
+                .next(".select2-container")
+                .removeClass("is-invalid");
         }
 
         let hasValidQty = false;
-        selectedItems.forEach(productId => {
+        selectedItems.forEach((productId) => {
             if (parseFloat($(`#qty_${productId}`).val()) > 0) {
                 hasValidQty = true;
             }
         });
 
         if (!hasValidQty) {
-            showToast("Please set quantity > 0 for your selected uniform items.", "error");
+            showToast(
+                "Please set quantity > 0 for your selected uniform items.",
+                "error",
+            );
             isValid = false;
         }
     }
@@ -449,21 +508,21 @@ function renderOrderCompleteSummary(orderCode, orderLink) {
     }
     $("#summary_student_name").text($("#student_name").val() || "-");
     $("#summary_parent_name").text($("#parent_name").val() || "-");
-    
+
     const branchName = $("#branch option:selected").text() || "-";
     const levelName = $("#level option:selected").text() || "-";
     const gradeName = $("#grade_id option:selected").text() || "-";
-    
+
     $("#summary_branch_level").text(`${branchName} / ${levelName}`);
     $("#summary_grade").text(gradeName);
 
     const tbody = $("#summary_items_tbody").empty();
     if (uniform.items && uniform.items.length > 0) {
-        uniform.items.forEach(item => {
+        uniform.items.forEach((item) => {
             tbody.append(`
                 <tr>
                     <td>${item.product_name} <small class="text-muted">(${item.product_code})</small></td>
-                    <td class="text-center">${item.size || '-'}</td>
+                    <td class="text-center">${item.size || "-"}</td>
                     <td class="text-center">${item.qty}</td>
                     <td class="text-end">${formatRupiah(item.price)}</td>
                     <td class="text-end fw-semibold">${formatRupiah(item.subtotal)}</td>
@@ -484,7 +543,7 @@ function submitOrderForm() {
     uniform.parent_name = $("#parent_name").val();
     uniform.parent_phone = $("#parent_phone").val();
     uniform.parent_email = $("#parent_email").val();
-    uniform.branch = $("#branch").val();    
+    uniform.branch = $("#branch").val();
     uniform.level = $("#level").val();
     uniform.grade_id = $("#grade_id").val();
     uniform.bank_charger = bankCharger;
@@ -495,7 +554,10 @@ function submitOrderForm() {
         function (json) {
             if ($.unblockUI) $.unblockUI();
             if (json.success) {
-                renderOrderCompleteSummary(json.order_code, json.data?.order_link || json.order_link);
+                renderOrderCompleteSummary(
+                    json.order_code,
+                    json.data?.order_link || json.order_link,
+                );
                 currentStep = 4;
                 updateStepView();
                 showToast(
@@ -503,19 +565,17 @@ function submitOrderForm() {
                     "success",
                 );
             } else {
-                showToast(
-                    json.message || "Failed to submit order.",
-                    "error",
-                );
+                showToast(json.message || "Failed to submit order.", "error");
             }
         },
         function (err) {
             if ($.unblockUI) $.unblockUI();
             showToast(
-                err.responseJSON?.message || "An error occurred while submitting order.",
+                err.responseJSON?.message ||
+                    "An error occurred while submitting order.",
                 "error",
             );
-        }
+        },
     );
 }
 
@@ -556,7 +616,7 @@ function getLevelsAndGrades(branchId) {
                 );
             });
 
-            $("#grade_id").val("").trigger('change').attr('disabled',true);
+            $("#grade_id").val("").trigger("change").attr("disabled", true);
         },
         function (err) {
             toastify(
@@ -571,7 +631,7 @@ function getLevelsAndGrades(branchId) {
 // Fetch product data for selected branch and level
 async function getProduct(branchId, levelId) {
     blockUI();
-    let response =await ajaxPromise(
+    let response = await ajaxPromise(
         null,
         `/uniform/products/branch/level?branch=${branchId}&level=${levelId}`,
         "GET",
@@ -590,12 +650,11 @@ async function getProduct(branchId, levelId) {
     return response;
 }
 
-function generateUniformSelector(){
-    $('#item_selector').empty();
-    productsData.forEach(val=>{
-        $('#item_selector').append(`
+function generateUniformSelector() {
+    $("#item_selector").empty();
+    productsData.forEach((val) => {
+        $("#item_selector").append(`
             <option value="${val.id}">${val.name} ${val.code}</option>
-        `)
-    })
-    
+        `);
+    });
 }

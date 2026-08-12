@@ -635,7 +635,7 @@ class UniformController extends Controller
             "description"=> "Uniform Order Payment - ". $validated['student_name'] . " for " . $level->name . " " . $grade->name,
             "invoice_duration"=> (60*60*24*7)
         ];
-        $xendit = createXenditInvoice($payload);
+        $xendit = createXenditInvoice($payload, $dataOrder['branch_name'] ?? "bintaro");
         $dataOrder['payment_status'] = $xendit['status'];
         $dataOrder['order_link'] = $xendit['invoice_url'];
         $dataOrder['expired_date_va'] = Carbon::parse($xendit['expiry_date']);
@@ -693,4 +693,3 @@ class UniformController extends Controller
         return response()->json($products);
     }
 }
-

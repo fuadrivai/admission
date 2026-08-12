@@ -30,7 +30,9 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
     'xendit' => [
-        'api_key' => env('XENDIT_API_KEY'),
+        'api_key_bintaro' => env('XENDIT_API_KEY_BINTARO'),
+        'api_key_bangka' => env('XENDIT_API_KEY_BANGKA'),
+        'api_key_semarang' => env('XENDIT_API_KEY_SEMARANG'),
     ],
 
 ];

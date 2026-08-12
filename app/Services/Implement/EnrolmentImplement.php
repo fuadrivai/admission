@@ -283,7 +283,8 @@ class EnrolmentImplement implements EnrolmentService
             "description"=> "Enrolment payment -". $data['child_name'] . " for " . $data['academic_year'] . " - " . $level_name . " " . $grade_name,
             "invoice_duration"=> (60*60*24*7)
         ];
-        $xendit = createXenditInvoice($payload);
+        $branch = Branch::find($data['branch_id']);
+        $xendit = createXenditInvoice($payload, $branch->name ?? "bintaro");
         $data['payment_status'] = $xendit['status'];
         $data['payment_url'] = $xendit['invoice_url'];
         $data['create_va_date'] =  Carbon::parse($xendit['created']);

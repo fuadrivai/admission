@@ -146,9 +146,9 @@ function normalizePhoneNumber($phone)
     return $phone;
 }
 
-function createXenditInvoice(array $payload)
+function createXenditInvoice(array $payload,$branchName="bintaro")
 {
-    $apiKey =  config('services.xendit.api_key');
+    $apiKey =  config('services.xendit.api_key_' . strtolower($branchName));
     $response = Http::withBasicAuth($apiKey, '')
         ->withHeaders([
             'Content-Type' => 'application/json'
