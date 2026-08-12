@@ -60,7 +60,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
     Route::get('uniform/list', [UniformController::class, 'open'])->name('uniform.open');
     Route::get('uniform/form', [UniformController::class, 'form'])->name('uniform.form');
     Route::post('uniform/post', [UniformController::class, 'storeOrder'])->name('uniform.postForm');
-    Route::post('{uniform}/pickup', [UniformController::class, 'confirmPickup'])->name('pickup.confirm');
+    Route::post('{uniform}/pickup', [UniformController::class, 'confirmPickup'])->name('uniform.confirm');
     Route::get('uniform/leaderboard', [UniformController::class, 'leaderboard'])->name('uniform.leaderboard');
 
     Route::get('document/student', [AdmissionController::class, 'studentForm'])->name('admission.studentForm');
