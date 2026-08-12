@@ -25,4 +25,9 @@ class UniformPrice extends Model
     {
         return $this->belongsTo(Branch::class, 'branch_id');
     }
+
+    public function level()
+    {
+        return $this->belongsTo(Level::class, 'level_id');
+    }
 }

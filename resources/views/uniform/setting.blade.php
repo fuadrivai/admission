@@ -12,10 +12,12 @@
             transition: transform 0.2s ease, box-shadow 0.2s ease;
             background: #ffffff;
         }
+
         .kpi-card:hover {
             transform: translateY(-3px);
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
         }
+
         .kpi-icon {
             width: 48px;
             height: 48px;
@@ -35,10 +37,12 @@
             transition: all 0.25s ease;
             border: 1px solid transparent;
         }
+
         .custom-nav-pills .nav-link:hover {
             background-color: #f1f5f9;
             color: #435ebe;
         }
+
         .custom-nav-pills .nav-link.active {
             background: linear-gradient(135deg, #435ebe 0%, #25396e 100%);
             color: #ffffff;
@@ -58,26 +62,31 @@
         .table-responsive {
             border-radius: 10px;
         }
+
         .badge-unit-pcs {
             background-color: #e0e7ff;
             color: #4338ca;
             border: 1px solid #c7d2fe;
         }
+
         .badge-unit-meter {
             background-color: #ccfbf1;
             color: #0f766e;
             border: 1px solid #99f6e4;
         }
+
         .badge-size-yes {
             background-color: #dcfce7;
             color: #15803d;
             border: 1px solid #bbf7d0;
         }
+
         .badge-size-no {
             background-color: #f1f5f9;
             color: #64748b;
             border: 1px solid #e2e8f0;
         }
+
         .code-badge {
             font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
             background-color: #f3f4f6;
@@ -94,6 +103,7 @@
             height: 1.25em;
             cursor: pointer;
         }
+
         .form-switch .form-check-input:checked {
             background-color: #198754;
             border-color: #198754;
@@ -119,7 +129,8 @@
                             </div>
                             <div class="col-md-8 col-lg-12 col-xl-8 col-12">
                                 <h6 class="text-muted font-semibold mb-1">Master Products</h6>
-                                <h4 class="font-extrabold mb-0" id="stat-total-products">{{ $stats['total_products'] ?? 0 }}</h4>
+                                <h4 class="font-extrabold mb-0" id="stat-total-products">{{ $stats['total_products'] ?? 0 }}
+                                </h4>
                             </div>
                         </div>
                     </div>
@@ -136,7 +147,8 @@
                             </div>
                             <div class="col-md-8 col-lg-12 col-xl-8 col-12">
                                 <h6 class="text-muted font-semibold mb-1">Price Rules</h6>
-                                <h4 class="font-extrabold mb-0" id="stat-total-prices">{{ $stats['total_prices'] ?? 0 }}</h4>
+                                <h4 class="font-extrabold mb-0" id="stat-total-prices">{{ $stats['total_prices'] ?? 0 }}
+                                </h4>
                             </div>
                         </div>
                     </div>
@@ -153,7 +165,8 @@
                             </div>
                             <div class="col-md-8 col-lg-12 col-xl-8 col-12">
                                 <h6 class="text-muted font-semibold mb-1">Active Prices</h6>
-                                <h4 class="font-extrabold mb-0" id="stat-active-prices">{{ $stats['active_prices'] ?? 0 }}</h4>
+                                <h4 class="font-extrabold mb-0" id="stat-active-prices">{{ $stats['active_prices'] ?? 0 }}
+                                </h4>
                             </div>
                         </div>
                     </div>
@@ -183,12 +196,15 @@
             <div class="card-header bg-transparent border-bottom pt-3 pb-3">
                 <ul class="nav nav-pills custom-nav-pills card-header-pills" id="uniformTabs" role="tablist">
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="products-tab" data-bs-toggle="tab" data-bs-target="#tab-products" type="button" role="tab" aria-controls="tab-products" aria-selected="true">
+                        <button class="nav-link active" id="products-tab" data-bs-toggle="tab"
+                            data-bs-target="#tab-products" type="button" role="tab" aria-controls="tab-products"
+                            aria-selected="true">
                             <i class="bi bi-box-seam me-2"></i> Product
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="prices-tab" data-bs-toggle="tab" data-bs-target="#tab-prices" type="button" role="tab" aria-controls="tab-prices" aria-selected="false">
+                        <button class="nav-link" id="prices-tab" data-bs-toggle="tab" data-bs-target="#tab-prices"
+                            type="button" role="tab" aria-controls="tab-prices" aria-selected="false">
                             <i class="bi bi-tags me-2"></i> Pricing Settings
                         </button>
                     </li>
@@ -210,7 +226,8 @@
                                     </select>
                                 </div>
                                 <div class="col-md-3">
-                                    <label class="form-label font-semibold text-secondary small mb-1">Size Requirement</label>
+                                    <label class="form-label font-semibold text-secondary small mb-1">Size
+                                        Requirement</label>
                                     <select class="form-select" id="filterProductHasSize">
                                         <option value="">All</option>
                                         <option value="1">Has Size Options</option>
@@ -218,10 +235,12 @@
                                     </select>
                                 </div>
                                 <div class="col-md-6 text-end">
-                                    <button type="button" class="btn btn-outline-secondary me-2" id="btnResetProductFilter">
+                                    <button type="button" class="btn btn-outline-secondary me-2"
+                                        id="btnResetProductFilter">
                                         <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
                                     </button>
-                                    <button type="button" class="btn btn-primary font-weight-bold" id="btnOpenAddProduct">
+                                    <button type="button" class="btn btn-primary font-weight-bold"
+                                        id="btnOpenAddProduct">
                                         <i class="bi bi-plus-circle-fill me-1"></i> Add Master Product
                                     </button>
                                 </div>
@@ -251,25 +270,29 @@
                         <div class="filter-box">
                             <div class="row align-items-end g-3">
                                 <div class="col-md-4">
-                                    <label class="form-label font-semibold text-secondary small mb-1"><i class="bi bi-box-seam me-1"></i> Master Product</label>
+                                    <label class="form-label font-semibold text-secondary small mb-1"><i
+                                            class="bi bi-box-seam me-1"></i> Master Product</label>
                                     <select class="form-select" id="filterPriceProduct">
                                         <option value="">All Products</option>
-                                        @foreach($products as $prod)
-                                            <option value="{{ $prod->id }}">{{ $prod->code }} - {{ $prod->name }}</option>
+                                        @foreach ($products as $prod)
+                                            <option value="{{ $prod->id }}">{{ $prod->code }} - {{ $prod->name }}
+                                            </option>
                                         @endforeach
                                     </select>
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label font-semibold text-secondary small mb-1"><i class="bi bi-building me-1"></i> Branch</label>
+                                    <label class="form-label font-semibold text-secondary small mb-1"><i
+                                            class="bi bi-building me-1"></i> Branch</label>
                                     <select class="form-select" id="filterPriceBranch">
                                         <option value="">All Branches</option>
-                                        @foreach($branches as $b)
+                                        @foreach ($branches as $b)
                                             <option value="{{ $b->id }}">{{ $b->name }}</option>
                                         @endforeach
                                     </select>
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label font-semibold text-secondary small mb-1"><i class="bi bi-toggle-on me-1"></i> Active Status</label>
+                                    <label class="form-label font-semibold text-secondary small mb-1"><i
+                                            class="bi bi-toggle-on me-1"></i> Active Status</label>
                                     <select class="form-select" id="filterPriceActive">
                                         <option value="">All Status</option>
                                         <option value="1">Active Only</option>
@@ -277,7 +300,8 @@
                                     </select>
                                 </div>
                                 <div class="col-12 text-end pt-2">
-                                    <button type="button" class="btn btn-outline-secondary me-2" id="btnResetPriceFilter">
+                                    <button type="button" class="btn btn-outline-secondary me-2"
+                                        id="btnResetPriceFilter">
                                         <i class="bi bi-arrow-counterclockwise me-1"></i> Reset Filters
                                     </button>
                                     <button type="button" class="btn btn-success font-weight-bold" id="btnOpenAddPrice">
@@ -318,82 +342,96 @@
                 <form id="formProduct" autocomplete="off">
                     @csrf
                     <input type="hidden" id="productId" name="id">
-                        <div class="modal-header bg-primary text-white py-3">
-                            <h5 class="modal-title text-white fw-bold" id="modalProductLabel">
-                                <i class="bi bi-box-seam me-2"></i> Master Product Form
-                            </h5>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body p-4">
-                            <div class="mb-3">
-                                <label for="productCode" class="form-label fw-semibold">Code<span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="bi bi-qr-code"></i></span>
-                                    <input type="text" class="form-control text-uppercase" id="productCode" name="code" required>
-                                    <button class="btn btn-outline-secondary" type="button" id="btnAutoCode" title="Generate SKU Code">Auto Code</button>
-                                </div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="productName" class="form-label fw-semibold">Product Name <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="bi bi-tag"></i></span>
-                                    <input type="text" class="form-control" id="productName" name="name" required>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="productUnitType" class="form-label fw-semibold">Unit Type <span class="text-danger">*</span></label>
-                                    <select class="form-select" id="productUnitType" name="unit_type" required>
-                                        <option value="pcs">Pcs (Pieces)</option>
-                                        <option value="meter">Meter</option>
-                                    </select>
-                                </div>
-
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label fw-semibold">Size Options</label>
-                                    <div class="form-check form-switch pt-2">
-                                        <input class="form-check-input" type="checkbox" id="productHasSize" name="has_size" value="1">
-                                        <label class="form-check-label fw-semibold text-secondary" for="productHasSize">Has Size Options?</label>
-                                    </div>
-                                </div>
+                    <div class="modal-header bg-primary text-white py-3">
+                        <h5 class="modal-title text-white fw-bold" id="modalProductLabel">
+                            <i class="bi bi-box-seam me-2"></i> Master Product Form
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <div class="mb-3">
+                            <label for="productCode" class="form-label fw-semibold">Code<span
+                                    class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-qr-code"></i></span>
+                                <input type="text" class="form-control text-uppercase" id="productCode"
+                                    name="code" required>
+                                <button class="btn btn-outline-secondary" type="button" id="btnAutoCode"
+                                    title="Generate SKU Code">Auto Code</button>
                             </div>
                         </div>
-                        <div class="modal-footer bg-light px-4 py-3">
-                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                                <i class="bi bi-x-circle me-1"></i> Cancel
-                            </button>
-                            <button type="submit" class="btn btn-primary fw-bold px-4" id="btnSaveProduct">
-                                <i class="bi bi-save me-1"></i> Save Product
-                            </button>
+
+                        <div class="mb-3">
+                            <label for="productName" class="form-label fw-semibold">Product Name <span
+                                    class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-tag"></i></span>
+                                <input type="text" class="form-control" id="productName" name="name" required>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="productUnitType" class="form-label fw-semibold">Unit Type <span
+                                        class="text-danger">*</span></label>
+                                <select class="form-select" id="productUnitType" name="unit_type" required>
+                                    <option value="pcs">Pcs (Pieces)</option>
+                                    <option value="meter">Meter</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">Size Options</label>
+                                <div class="form-check form-switch pt-2">
+                                    <input class="form-check-input" type="checkbox" id="productHasSize" name="has_size"
+                                        value="1">
+                                    <label class="form-check-label fw-semibold text-secondary" for="productHasSize">Has
+                                        Size Options?</label>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </form>
+                    <div class="modal-footer bg-light px-4 py-3">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                            <i class="bi bi-x-circle me-1"></i> Cancel
+                        </button>
+                        <button type="submit" class="btn btn-primary fw-bold px-4" id="btnSaveProduct">
+                            <i class="bi bi-save me-1"></i> Save Product
+                        </button>
+                    </div>
             </div>
+            </form>
         </div>
     </div>
+    </div>
 
-    <div class="modal fade" id="modalPrice" tabindex="-1" aria-labelledby="modalPriceLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal fade" id="modalPrice" tabindex="-1" aria-labelledby="modalPriceLabel" aria-hidden="true"
+        data-bs-backdrop="static">
         <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <form id="formPrice" autocomplete="off">
-                @csrf
-                <input type="hidden" id="priceId" name="id">
+                    @csrf
+                    <input type="hidden" id="priceId" name="id">
                     <div class="modal-header bg-success text-white py-3">
                         <h5 class="modal-title text-white fw-bold" id="modalPriceLabel">
                             <i class="bi bi-cash-stack me-2"></i> Set Product Price
                         </h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
                     </div>
                     <div class="modal-body p-4">
                         <div class="row">
                             <div class="col-md-12 mb-3">
-                                <label for="priceProductId" class="form-label fw-semibold">Master Product <span class="text-danger">*</span></label>
+                                <label for="priceProductId" class="form-label fw-semibold">Master Product <span
+                                        class="text-danger">*</span></label>
                                 <select class="form-select" id="priceProductId" name="product_id" required>
                                     <option value="">-- Select Master Product --</option>
-                                    @foreach($products as $prod)
-                                        <option value="{{ $prod->id }}" data-hassize="{{ $prod->has_size }}" data-code="{{ $prod->code }}">{{ $prod->code }} - {{ $prod->name }} ({{ strtoupper($prod->unit_type) }})</option>
+                                    @foreach ($products as $prod)
+                                        <option value="{{ $prod->id }}" data-hassize="{{ $prod->has_size }}"
+                                            data-code="{{ $prod->code }}">{{ $prod->code }} - {{ $prod->name }}
+                                            ({{ strtoupper($prod->unit_type) }})
+                                        </option>
                                     @endforeach
                                 </select>
                             </div>
@@ -401,16 +439,25 @@
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="priceBranchId" class="form-label fw-semibold">Branch(es) <span class="text-danger">*</span></label>
-                                <select class="form-select" id="priceBranchId" name="branch_id" data-placeholder="-- Select Branch(es) --" required>
-                                    @foreach($branches as $b)
+                                <label for="priceBranchId" class="form-label fw-semibold">Branch(es) <span
+                                        class="text-danger">*</span></label>
+                                <select class="form-select" id="priceBranchId" name="branch_id"
+                                    data-placeholder="-- Select Branch(es) --" required>
+                                    @foreach ($branches as $b)
                                         <option value="{{ $b->id }}">{{ $b->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="priceLevelId" class="form-label fw-semibold">Level</label>
+                                <select class="form-select" id="priceLevelId" name="level_id" disabled>
+                                    <option value="">-- Select Branch First --</option>
+                                </select>
+                            </div>
                             <div class="col-md-6 mb-3" id="sizeContainer" style="display: none;">
                                 <label for="priceSize" class="form-label fw-semibold">Size Option(s)</label>
-                                <select class="form-select" id="priceSize" name="size" data-placeholder="-- Select Size(s) --">
+                                <select class="form-select" id="priceSize" name="size"
+                                    data-placeholder="-- Select Size(s) --">
                                     <option value="XS">XS (Extra Small)</option>
                                     <option value="S">S (Small)</option>
                                     <option value="M">M (Medium)</option>
@@ -424,10 +471,12 @@
                                 </select>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="priceAmount" class="form-label fw-semibold">Product Price (IDR) <span class="text-danger">*</span></label>
+                                <label for="priceAmount" class="form-label fw-semibold">Product Price (IDR) <span
+                                        class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text font-semibold">Rp</span>
-                                    <input type="text" class="form-control number2 text-end font-extrabold fs-5" id="priceAmount" name="price" placeholder="0" required>
+                                    <input type="text" class="form-control number2 text-end font-extrabold fs-5"
+                                        id="priceAmount" name="price" placeholder="0" required>
                                 </div>
                             </div>
                         </div>
@@ -436,14 +485,17 @@
                             <div class="col-md-6 mb-3">
                                 <label class="form-label fw-semibold">Status</label>
                                 <div class="form-check form-switch pt-2">
-                                    <input class="form-check-input" type="checkbox" id="priceIsActive" name="is_active" value="1" checked>
-                                    <label class="form-check-label fw-semibold text-success" for="priceIsActive">Active Price Rule</label>
+                                    <input class="form-check-input" type="checkbox" id="priceIsActive" name="is_active"
+                                        value="1" checked>
+                                    <label class="form-check-label fw-semibold text-success" for="priceIsActive">Active
+                                        Price Rule</label>
                                 </div>
                             </div>
 
                             <div class="col-md-6 mb-3">
                                 <label for="priceDescription" class="form-label fw-semibold">Note / Description</label>
-                                <input type="text" class="form-control" id="priceDescription" name="description" placeholder="e.g., Standard price for Academic Year 2026/2027">
+                                <input type="text" class="form-control" id="priceDescription" name="description"
+                                    placeholder="e.g., Standard price for Academic Year 2026/2027">
                             </div>
                         </div>
                     </div>
@@ -470,7 +522,7 @@
     <script>
         let tblProducts, tblPrices;
 
-        $(document).ready(function () {
+        $(document).ready(function() {
             tblProducts = $('#tbl-products').DataTable({
                 responsive: true,
                 pagingType: 'simple_numbers',
@@ -486,23 +538,22 @@
                 ajax: {
                     url: "{{ route('uniform.products.datatables') }}",
                     type: 'GET',
-                    data: function (d) {
+                    data: function(d) {
                         d.unit_type = $('#filterProductUnit').val();
                         d.has_size = $('#filterProductHasSize').val();
                     }
                 },
-                columns: [
-                    {
+                columns: [{
                         data: 'code',
                         name: 'code',
-                        render: function (data) {
+                        render: function(data) {
                             return `<span class="code-badge">${data || '-'}</span>`;
                         }
                     },
                     {
                         data: 'name',
                         name: 'name',
-                        render: function (data) {
+                        render: function(data) {
                             return `<span class="fw-bold text-dark">${data}</span>`;
                         }
                     },
@@ -510,7 +561,7 @@
                         data: 'unit_type',
                         name: 'unit_type',
                         className: 'text-center',
-                        render: function (data) {
+                        render: function(data) {
                             if (data === 'meter') {
                                 return `<span class="badge badge-unit-meter px-3 py-2 rounded-pill"><i class="bi bi-ruler me-1"></i> Meter</span>`;
                             }
@@ -521,7 +572,7 @@
                         data: 'has_size',
                         name: 'has_size',
                         className: 'text-center',
-                        render: function (data) {
+                        render: function(data) {
                             if (data == 1) {
                                 return `<span class="badge badge-size-yes px-3 py-2 rounded-pill"><i class="bi bi-check-circle me-1"></i> Yes</span>`;
                             }
@@ -532,7 +583,7 @@
                         data: 'price_count',
                         name: 'price_count',
                         className: 'text-center',
-                        render: function (data) {
+                        render: function(data) {
                             return `<span class="badge bg-light-primary text-primary fw-bold px-3 py-2">${data || 0} Rules</span>`;
                         }
                     },
@@ -541,7 +592,7 @@
                         orderable: false,
                         searchable: false,
                         className: 'text-center',
-                        render: function (data, type, row) {
+                        render: function(data, type, row) {
                             return `
                                 <div class="btn-group btn-group-sm" role="group">
                                     <button type="button" class="btn btn-sm btn-outline-success btn-set-price me-1" data-id="${data}" data-name="${row.name}" data-code="${row.code}" data-size="${row.has_size}" title="Set Price For Product">
@@ -558,28 +609,30 @@
                         }
                     }
                 ],
-                order: [[1, 'asc']]
+                order: [
+                    [1, 'asc']
+                ]
             });
 
             // Master Product Filters
-            $('#filterProductUnit, #filterProductHasSize').on('change', function () {
+            $('#filterProductUnit, #filterProductHasSize').on('change', function() {
                 tblProducts.ajax.reload();
             });
 
-            $('#btnResetProductFilter').on('click', function () {
+            $('#btnResetProductFilter').on('click', function() {
                 $('#filterProductUnit').val('');
                 $('#filterProductHasSize').val('');
                 tblProducts.ajax.reload();
             });
 
             // Auto SKU generator helper
-            $('#btnAutoCode').on('click', function () {
+            $('#btnAutoCode').on('click', function() {
                 const randomNum = Math.floor(1000 + Math.random() * 9000);
                 $('#productCode').val(`UNIF-${randomNum}`);
             });
 
             // Open Modal Add Product
-            $('#btnOpenAddProduct').on('click', function () {
+            $('#btnOpenAddProduct').on('click', function() {
                 $('#formProduct')[0].reset();
                 $('#productId').val('');
                 $('#modalProductLabel').html('<i class="bi bi-box-seam me-2"></i> Add New Master Product');
@@ -587,7 +640,7 @@
             });
 
             // Submit Master Product Form
-            $('#formProduct').on('submit', function (e) {
+            $('#formProduct').on('submit', function(e) {
                 e.preventDefault();
                 const id = $('#productId').val();
                 const payload = {
@@ -601,48 +654,53 @@
                 const method = id ? 'PUT' : 'POST';
 
                 blockUI();
-                ajax(payload, url, method, function (res) {
+                ajax(payload, url, method, function(res) {
                     toastify('success', res.message || 'Master Product saved successfully!');
                     $('#modalProduct').modal('hide');
                     tblProducts.ajax.reload(null, false);
                     reloadProductSelectOptions();
                     updateKPIStats();
-                }, function (err) {
-                    const msg = err?.responseJSON?.message || 'Failed to save product. Please check input.';
+                }, function(err) {
+                    const msg = err?.responseJSON?.message ||
+                        'Failed to save product. Please check input.';
                     toastify('error', msg);
                 });
             });
 
             // Edit Master Product
-            $('#tbl-products').on('click', '.btn-edit-product', function () {
+            $('#tbl-products').on('click', '.btn-edit-product', function() {
                 const id = $(this).data('id');
                 blockUI();
-                $.get(`/uniform/products/${id}`, function (res) {
+                $.get(`/uniform/products/${id}`, function(res) {
                     $('#productId').val(res.id);
                     $('#productCode').val(res.code);
                     $('#productName').val(res.name);
                     $('#productUnitType').val(res.unit_type);
                     $('#productHasSize').prop('checked', res.has_size == 1);
-                    $('#modalProductLabel').html('<i class="bi bi-pencil-square me-2"></i> Edit Master Product');
+                    $('#modalProductLabel').html(
+                        '<i class="bi bi-pencil-square me-2"></i> Edit Master Product');
                     $('#modalProduct').modal('show');
-                }).fail(function () {
+                }).fail(function() {
                     toastify('error', 'Could not load product details.');
                 });
             });
 
             // Delete Master Product
-            $('#tbl-products').on('click', '.btn-delete-product', function () {
+            $('#tbl-products').on('click', '.btn-delete-product', function() {
                 const id = $(this).data('id');
-                if (confirm('Are you sure you want to delete this master product? All associated price rules will also be deleted.')) {
+                if (confirm(
+                        'Are you sure you want to delete this master product? All associated price rules will also be deleted.'
+                    )) {
                     blockUI();
-                    ajax({}, `/uniform/products/${id}`, 'DELETE', function (res) {
+                    ajax({}, `/uniform/products/${id}`, 'DELETE', function(res) {
                         toastify('success', res.message || 'Product deleted successfully.');
                         tblProducts.ajax.reload(null, false);
                         tblPrices.ajax.reload(null, false);
                         reloadProductSelectOptions();
                         updateKPIStats();
-                    }, function (err) {
-                        toastify('error', err?.responseJSON?.message || 'Failed to delete product.');
+                    }, function(err) {
+                        toastify('error', err?.responseJSON?.message ||
+                            'Failed to delete product.');
                         tblProducts.ajax.reload(null, false);
                         tblPrices.ajax.reload(null, false);
                     });
@@ -650,7 +708,7 @@
             });
 
             // Quick "Set Price" button from product table row
-            $('#tbl-products').on('click', '.btn-set-price', function () {
+            $('#tbl-products').on('click', '.btn-set-price', function() {
                 const prodId = $(this).data('id');
                 openPriceModalForProduct(prodId);
             });
@@ -670,17 +728,16 @@
                 ajax: {
                     url: "{{ route('uniform.prices.datatables') }}",
                     type: 'GET',
-                    data: function (d) {
+                    data: function(d) {
                         d.product_id = $('#filterPriceProduct').val();
                         d.branch_id = $('#filterPriceBranch').val();
                         d.is_active = $('#filterPriceActive').val();
                     }
                 },
-                columns: [
-                    {
+                columns: [{
                         data: 'product_name',
                         name: 'product.name',
-                        render: function (data, type, row) {
+                        render: function(data, type, row) {
                             return `<div>
                                 <span class="fw-bold text-dark">${data}</span>
                                 <br><small class="code-badge">${row.product_code}</small>
@@ -690,7 +747,7 @@
                     {
                         data: 'branch_name',
                         name: 'branch.name',
-                        render: function (data) {
+                        render: function(data) {
                             return `<span class="badge bg-light-secondary text-dark">${data}</span>`;
                         }
                     },
@@ -698,7 +755,7 @@
                         data: 'size',
                         name: 'size',
                         className: 'text-center',
-                        render: function (data) {
+                        render: function(data) {
                             if (!data) return `<span class="text-muted small">-</span>`;
                             return `<span class="badge bg-primary px-3 py-1">${data}</span>`;
                         }
@@ -707,7 +764,7 @@
                         data: 'price',
                         name: 'price',
                         className: 'text-end fw-extrabold text-success fs-6',
-                        render: function (data,type,full) {
+                        render: function(data, type, full) {
                             return 'Rp ' + formatNumber(data);
                         }
                     },
@@ -715,7 +772,7 @@
                         data: 'is_active',
                         name: 'is_active',
                         className: 'text-center',
-                        render: function (data, type, row) {
+                        render: function(data, type, row) {
                             const checked = data == 1 ? 'checked' : '';
                             return `
                                 <div class="form-check form-switch d-flex justify-content-center">
@@ -727,8 +784,9 @@
                     {
                         data: 'description',
                         name: 'description',
-                        render: function (data) {
-                            return data ? `<span class="text-muted small">${data}</span>` : `<span class="text-muted small italic">-</span>`;
+                        render: function(data) {
+                            return data ? `<span class="text-muted small">${data}</span>` :
+                                `<span class="text-muted small italic">-</span>`;
                         }
                     },
                     {
@@ -736,7 +794,7 @@
                         orderable: false,
                         searchable: false,
                         className: 'text-center',
-                        render: function (data) {
+                        render: function(data) {
                             return `
                                 <div class="btn-group btn-group-sm" role="group">
                                     <button type="button" class="btn btn-sm btn-outline-primary btn-edit-price me-1" data-id="${data}" title="Edit Price Rule">
@@ -750,28 +808,32 @@
                         }
                     }
                 ],
-                order: [[0, 'asc']]
+                order: [
+                    [0, 'asc']
+                ]
             });
 
             // Price Filters
-            $('#filterPriceProduct, #filterPriceBranch, #filterPriceLevel, #filterPriceActive').on('change', function () {
-                tblPrices.ajax.reload();
-            });
+            $('#filterPriceProduct, #filterPriceBranch, #filterPriceLevel, #filterPriceActive').on('change',
+                function() {
+                    tblPrices.ajax.reload();
+                });
 
             // Dependent Branch -> Level Filter Dropdown
-            $('#filterPriceBranch').on('change', function () {
+            $('#filterPriceBranch').on('change', function() {
                 const branchId = $(this).val();
                 $('#filterPriceLevel').html('<option value="">All Levels</option>');
                 if (branchId) {
-                    $.get(`/uniform/get-levels/${branchId}`, function (levels) {
-                        levels.forEach(function (lvl) {
-                            $('#filterPriceLevel').append(`<option value="${lvl.id}">${lvl.name}</option>`);
+                    $.get(`/uniform/get-levels/${branchId}`, function(levels) {
+                        levels.forEach(function(lvl) {
+                            $('#filterPriceLevel').append(
+                                `<option value="${lvl.id}">${lvl.name}</option>`);
                         });
                     });
                 }
             });
 
-            $('#btnResetPriceFilter').on('click', function () {
+            $('#btnResetPriceFilter').on('click', function() {
                 $('#filterPriceProduct').val('');
                 $('#filterPriceBranch').val('');
                 $('#filterPriceLevel').html('<option value="">All Levels</option>');
@@ -780,12 +842,12 @@
             });
 
             // Open Modal Add Price
-            $('#btnOpenAddPrice').on('click', function () {
+            $('#btnOpenAddPrice').on('click', function() {
                 openPriceModalForProduct(null);
             });
 
             // Handle Product Selection Change in Price Modal to show/hide Size container
-            $('#priceProductId').on('change', function () {
+            $('#priceProductId').on('change', function() {
                 const selectedOption = $(this).find('option:selected');
                 const hasSize = selectedOption.data('hassize');
                 if (hasSize == 1) {
@@ -796,6 +858,29 @@
                 }
             });
 
+            $('#priceBranchId').on('change', function() {
+                loadPriceLevels($(this).val());
+            });
+
+            function loadPriceLevels(branchId, selectedLevelId = null) {
+                const $levelSelect = $('#priceLevelId');
+
+                $levelSelect.prop('disabled', true).html('<option value="">-- Select Level --</option>');
+
+                if (!branchId) {
+                    $levelSelect.html('<option value="">-- Select Branch First --</option>');
+                    return;
+                }
+
+                $.get(`/uniform/get-levels/${branchId}`, function(levels) {
+                    levels.forEach(function(level) {
+                        $levelSelect.append(
+                            `<option value="${level.id}">${level.name}</option>`);
+                    });
+                    $levelSelect.val(selectedLevelId).prop('disabled', false);
+                });
+            }
+
             // Initialize Select2 on modalPrice dropdowns
             $('#priceProductId').select2({
                 dropdownParent: $('#modalPrice'),
@@ -803,12 +888,13 @@
             });
 
             // Submit Price Form
-            $('#formPrice').on('submit', function (e) {
+            $('#formPrice').on('submit', function(e) {
                 e.preventDefault();
                 const id = $('#priceId').val();
                 const payload = {
                     product_id: $('#priceProductId').val(),
                     branch_id: $('#priceBranchId').val(),
+                    level_id: $('#priceLevelId').val() || null,
                     size: $('#priceSize').val() || null,
                     price: $('#priceAmount').val(),
                     is_active: $('#priceIsActive').is(':checked') ? 1 : 0,
@@ -819,40 +905,42 @@
                 const method = id ? 'PUT' : 'POST';
 
                 blockUI();
-                ajax(payload, url, method, function (res) {
+                ajax(payload, url, method, function(res) {
                     toastify('success', res.message || 'Price Rule saved successfully!');
                     $('#modalPrice').modal('hide');
                     tblPrices.ajax.reload(null, false);
                     tblProducts.ajax.reload(null, false);
                     updateKPIStats();
-                }, function (err) {
+                }, function(err) {
                     const msg = err?.responseJSON?.message || 'Failed to save price rule.';
                     toastify('error', msg);
                 });
             });
 
             // Toggle Price Status directly from switch
-            $('#tbl-prices').on('change', '.toggle-price-status', function () {
+            $('#tbl-prices').on('change', '.toggle-price-status', function() {
                 const id = $(this).data('id');
                 blockUI();
-                ajax({}, `/uniform/prices/${id}/toggle-active`, 'PUT', function (res) {
+                ajax({}, `/uniform/prices/${id}/toggle-active`, 'PUT', function(res) {
                     toastify('success', res.message);
                     updateKPIStats();
-                }, function (err) {
+                }, function(err) {
                     toastify('error', 'Failed to change price status.');
                     tblPrices.ajax.reload(null, false);
                 });
             });
 
             // Edit Price
-            $('#tbl-prices').on('click', '.btn-edit-price', function () {
+            $('#tbl-prices').on('click', '.btn-edit-price', function() {
                 const id = $(this).data('id');
                 blockUI();
-                $.get(`/uniform/prices/${id}`, function (res) {
+                $.get(`/uniform/prices/${id}`, function(res) {
                     $('#priceId').val(res.id);
-                    $('#priceProductId').val(res.uniform_product_id || res.product_id).trigger('change');
+                    $('#priceProductId').val(res.uniform_product_id || res.product_id).trigger(
+                        'change');
 
-                    $('#priceBranchId').val(res.branch_id).trigger('change');
+                    $('#priceBranchId').val(res.branch_id);
+                    loadPriceLevels(res.branch_id, res.level_id);
 
                     if (res.size) {
                         $('#priceSize').val(res.size).trigger('change');
@@ -862,25 +950,27 @@
                     $('#priceIsActive').prop('checked', res.is_active == 1);
                     $('#priceDescription').val(res.description || '');
 
-                    $('#modalPriceLabel').html('<i class="bi bi-pencil-square me-2"></i> Edit Product Price Rule');
+                    $('#modalPriceLabel').html(
+                        '<i class="bi bi-pencil-square me-2"></i> Edit Product Price Rule');
                     $('#modalPrice').modal('show');
-                }).fail(function () {
+                }).fail(function() {
                     toastify('error', 'Could not load price rule details.');
                 });
             });
 
             // Delete Price Rule
-            $('#tbl-prices').on('click', '.btn-delete-price', function () {
+            $('#tbl-prices').on('click', '.btn-delete-price', function() {
                 const id = $(this).data('id');
                 if (confirm('Are you sure you want to delete this price rule?')) {
                     blockUI();
-                    ajax({}, `/uniform/prices/${id}`, 'DELETE', function (res) {
+                    ajax({}, `/uniform/prices/${id}`, 'DELETE', function(res) {
                         toastify('success', res.message || 'Price rule deleted.');
                         tblPrices.ajax.reload(null, false);
                         tblProducts.ajax.reload(null, false);
                         updateKPIStats();
-                    }, function (err) {
-                        toastify('error', err?.responseJSON?.message || 'Failed to delete price rule.');
+                    }, function(err) {
+                        toastify('error', err?.responseJSON?.message ||
+                            'Failed to delete price rule.');
                         tblPrices.ajax.reload(null, false);
                         updateKPIStats();
                     });
@@ -893,6 +983,7 @@
             $('#formPrice')[0].reset();
             $('#priceId').val('');
             $('#priceBranchId').val("").trigger('change');
+            $('#priceLevelId').prop('disabled', true).html('<option value="">-- Select Branch First --</option>');
             $('#priceSize').val("").trigger('change');
             $('#sizeContainer').hide();
             $('#modalPriceLabel').html('<i class="bi bi-cash-stack me-2"></i> Set Product Price');
@@ -909,13 +1000,14 @@
 
         // Helper: Reload product dropdown in price modal and price filter
         function reloadProductSelectOptions() {
-            $.get('/uniform/product', function (products) {
+            $.get('/uniform/product', function(products) {
                 let filterHtml = '<option value="">All Products</option>';
                 let modalHtml = '<option value="">-- Select Master Product --</option>';
 
-                products.forEach(function (p) {
+                products.forEach(function(p) {
                     filterHtml += `<option value="${p.id}">${p.code} - ${p.name}</option>`;
-                    modalHtml += `<option value="${p.id}" data-hassize="${p.has_size}" data-code="${p.code}">${p.code} - ${p.name} (${p.unit_type.toUpperCase()})</option>`;
+                    modalHtml +=
+                        `<option value="${p.id}" data-hassize="${p.has_size}" data-code="${p.code}">${p.code} - ${p.name} (${p.unit_type.toUpperCase()})</option>`;
                 });
 
                 $('#filterPriceProduct').html(filterHtml);
@@ -925,10 +1017,12 @@
 
         // Helper: Dynamically refresh KPI Stat cards
         function updateKPIStats() {
-            $.get('/uniform/product', function (products) {
+            $.get('/uniform/product', function(products) {
                 $('#stat-total-products').text(products.length);
                 let hasSizeCount = 0;
-                products.forEach(p => { if (p.has_size == 1) hasSizeCount++; });
+                products.forEach(p => {
+                    if (p.has_size == 1) hasSizeCount++;
+                });
                 $('#stat-has-size').text(hasSizeCount);
             });
         }

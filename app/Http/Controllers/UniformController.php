@@ -29,6 +29,100 @@ use function App\Helpers\createXenditInvoice;
 class UniformController extends Controller
 {
 
+    public function open(Request $request)
+    {
+        $query = UniformOrder::with(['branch', 'level', 'grade', 'details', 'pickupUser']);
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($orderQuery) use ($search) {
+                $orderQuery->where('code', 'like', "%{$search}%")
+                    ->orWhere('student_name', 'like', "%{$search}%")
+                    ->orWhere('parent_name', 'like', "%{$search}%")
+                    ->orWhere('parent_phone', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('branch') && $request->branch !== 'all') {
+            $query->where('branch_id', $request->branch);
+        }
+
+        if ($request->filled('level') && $request->level !== 'all') {
+            $query->where('level_id', $request->level);
+        }
+
+        if ($request->filled('product') && $request->product !== 'all') {
+            $query->whereHas('details', function ($detailQuery) use ($request) {
+                $detailQuery->where('uniform_product_id', $request->product);
+            });
+        }
+
+        if ($request->filled('status') && $request->status !== 'all') {
+            $query->where('payment_status', $request->status);
+        }
+
+        if ($request->filled('order_date_from')) {
+            $query->where('order_date', '>=', Carbon::parse($request->order_date_from)->startOfDay());
+        }
+
+        if ($request->filled('order_date_to')) {
+            $query->where('order_date', '<=', Carbon::parse($request->order_date_to)->endOfDay());
+        }
+
+        if ($request->filled('payment_date_from')) {
+            $query->where('payment_date', '>=', Carbon::parse($request->payment_date_from)->startOfDay());
+        }
+
+        if ($request->filled('payment_date_to')) {
+            $query->where('payment_date', '<=', Carbon::parse($request->payment_date_to)->endOfDay());
+        }
+
+        $summaryOrders = (clone $query)->get();
+        $orders = $query->latest()->paginate(12)->appends($request->query());
+
+        return view('uniform.open', [
+            'title' => 'Uniform Collection Monitor',
+            'orders' => $orders,
+            'branches' => Branch::with('levels')->orderBy('name')->get(),
+            'products' => UniformProduct::orderBy('name')->get(),
+            'summary' => [
+                'total' => $summaryOrders->count(),
+                'paid' => $summaryOrders->filter(function ($order) {
+                    return in_array(strtoupper($order->payment_status), ['PAID', 'SETTLED', 'COMPLETED']);
+                })->count(),
+                'pickedUp' => $summaryOrders->whereNotNull('picked_up_at')->count(),
+            ],
+        ]);
+    }
+
+    public function confirmPickup(UniformOrder $uniform)
+    {
+        if (!in_array(strtoupper($uniform->payment_status), ['PAID', 'SETTLED', 'COMPLETED'])) {
+            return response()->json([
+                'message' => 'Only orders with a paid payment status can be marked as collected.',
+            ], 422);
+        }
+
+        if ($uniform->picked_up_at) {
+            return response()->json([
+                'message' => 'This order has already been marked as collected.',
+            ], 422);
+        }
+
+        $uniform->update([
+            'picked_up_at' => now(),
+            'picked_up_by' => auth()->id(),
+        ]);
+
+        $confirmedOrder = $uniform->fresh('pickupUser');
+
+        return response()->json([
+            'message' => 'Uniform collection confirmed.',
+            'picked_up_at' => $confirmedOrder->picked_up_at->format('d M Y, H:i'),
+            'picked_up_by' => optional($confirmedOrder->pickupUser)->name ?? 'User #' . $confirmedOrder->picked_up_by,
+        ]);
+    }
+
     public function index(Request $request)
     {
         $query = UniformOrder::with(['branch', 'level', 'grade', 'details']);
@@ -60,6 +154,12 @@ class UniformController extends Controller
 
         if ($request->filled('level') && $request->level !== 'all') {
             $query->where('level_id', $request->level);
+        }
+
+        if ($request->filled('product') && $request->product !== 'all') {
+            $query->whereHas('details', function ($detailQuery) use ($request) {
+                $detailQuery->where('uniform_product_id', $request->product);
+            });
         }
 
         if ($request->filled('grade') && $request->grade !== 'all') {
@@ -125,12 +225,34 @@ class UniformController extends Controller
             $query->where('level_id', $request->level);
         }
 
+        if ($request->filled('product') && $request->product !== 'all') {
+            $query->whereHas('details', function ($detailQuery) use ($request) {
+                $detailQuery->where('uniform_product_id', $request->product);
+            });
+        }
+
         if ($request->filled('grade') && $request->grade !== 'all') {
             $query->where('grade_id', $request->grade);
         }
 
         if ($request->filled('status') && $request->status !== 'all') {
             $query->where('payment_status', $request->status);
+        }
+
+        if ($request->filled('order_date_from')) {
+            $query->where('order_date', '>=', Carbon::parse($request->order_date_from)->startOfDay());
+        }
+
+        if ($request->filled('order_date_to')) {
+            $query->where('order_date', '<=', Carbon::parse($request->order_date_to)->endOfDay());
+        }
+
+        if ($request->filled('payment_date_from')) {
+            $query->where('payment_date', '>=', Carbon::parse($request->payment_date_from)->startOfDay());
+        }
+
+        if ($request->filled('payment_date_to')) {
+            $query->where('payment_date', '<=', Carbon::parse($request->payment_date_to)->endOfDay());
         }
 
         $orders = $query->orderBy('created_at', 'desc')->get();
@@ -249,6 +371,10 @@ class UniformController extends Controller
         ]);
     }
 
+    public function list()
+    {
+        return redirect()->route('uniform.open');
+    }
     public function show($id)
     {
         $order = UniformOrder::with(['branch', 'level', 'grade', 'details.product'])->findOrFail($id);
@@ -415,6 +541,7 @@ class UniformController extends Controller
         $validated = $request->validate([
             'product_id'  => 'required|exists:uniform_products,id',
             'branch_id'   => 'required|exists:branches,id',
+            'level_id'    => 'nullable|exists:levels,id',
             'size'        => 'nullable|string|max:50',
             'price'       => 'required',
             'is_active'   => 'nullable|boolean',
@@ -428,6 +555,7 @@ class UniformController extends Controller
             [
                 'uniform_product_id' => $validated['product_id'],
                 'branch_id'          => $validated['branch_id'],
+                'level_id'           => $validated['level_id'] ?? null,
                 'size'               => $validated['size'] ?? null,
             ],
             [
@@ -463,6 +591,7 @@ class UniformController extends Controller
         $validated = $request->validate([
             'product_id'  => 'required|exists:uniform_products,id',
             'branch_id'   => 'required|exists:branches,id',
+            'level_id'    => 'nullable|exists:levels,id',
             'size'        => 'nullable|string|max:50',
             'price'       => 'required',
             'is_active'   => 'nullable|boolean',
@@ -475,6 +604,7 @@ class UniformController extends Controller
         $priceModel->update([
             'uniform_product_id'  => $validated['product_id'],
             'branch_id'           => $validated['branch_id'],
+            'level_id'            => $validated['level_id'] ?? null,
             'size'                => $validated['size'] ?? null,
             'price'               => $rawPrice,
             'is_active'           => isset($validated['is_active']) && $validated['is_active'] ? 1 : 0,
