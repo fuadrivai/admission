@@ -77,10 +77,16 @@
                 <i class="fa fa-arrow-left me-1"></i> Back to Uniform List
             </a>
             <div class="d-flex gap-2">
-                @if($order->order_link && !in_array(strtoupper($order->payment_status), ['PAID', 'SETTLED', 'COMPLETED']))
+                @if ($order->order_link && !in_array(strtoupper($order->payment_status), ['PAID', 'SETTLED', 'COMPLETED']))
                     <a href="{{ $order->order_link }}" target="_blank" class="btn btn-success fw-bold">
                         <i class="fa fa-credit-card me-1"></i> Pay Now (Xendit Invoice)
                     </a>
+                @endif
+                @if (!$order->picked_up_at && in_array(strtoupper($order->payment_status), ['PAID', 'SETTLED', 'COMPLETED']))
+                    <button type="button" id="confirm-pickup" class="btn btn-success fw-bold"
+                        data-order="{{ $order->id }}" data-student="{{ e($order->student_name) }}">
+                        <i class="fa fa-check me-1"></i> Confirm Pickup
+                    </button>
                 @endif
             </div>
         </div>
@@ -112,8 +118,11 @@
                         </div>
                         <h3 class="fw-bold text-dark mb-1">{{ $order->student_name }}</h3>
                         <p class="text-muted mb-0 small">
-                            <i class="fa fa-building me-1"></i> {{ $order->branch_name ?? $order->branch->name ?? '-' }} &bull; 
-                            <i class="fa fa-graduation-cap me-1"></i> {{ $order->level_name ?? $order->level->name ?? '-' }} / {{ $order->grade_name ?? $order->grade->name ?? '-' }}
+                            <i class="fa fa-building me-1"></i> {{ $order->branch_name ?? ($order->branch->name ?? '-') }}
+                            &bull;
+                            <i class="fa fa-graduation-cap me-1"></i>
+                            {{ $order->level_name ?? ($order->level->name ?? '-') }}
+                            / {{ $order->grade_name ?? ($order->grade->name ?? '-') }}
                         </p>
                     </div>
                     <div class="col-md-auto text-md-end">
@@ -132,7 +141,8 @@
             <div class="col-md-4">
                 <div class="card summary-card h-100 mb-0">
                     <div class="card-header">
-                        <h6 class="fw-bold text-dark mb-0"><i class="fa fa-user me-2 text-primary"></i>Student & Academic</h6>
+                        <h6 class="fw-bold text-dark mb-0"><i class="fa fa-user me-2 text-primary"></i>Student & Academic
+                        </h6>
                     </div>
                     <div class="card-body p-3">
                         <div class="mb-3">
@@ -141,11 +151,12 @@
                         </div>
                         <div class="mb-3">
                             <div class="info-label">Branch</div>
-                            <div class="info-value">{{ $order->branch_name ?? $order->branch->name ?? '-' }}</div>
+                            <div class="info-value">{{ $order->branch_name ?? ($order->branch->name ?? '-') }}</div>
                         </div>
                         <div class="mb-0">
                             <div class="info-label">Level / Grade</div>
-                            <div class="info-value">{{ $order->level_name ?? $order->level->name ?? '-' }} / {{ $order->grade_name ?? $order->grade->name ?? '-' }}</div>
+                            <div class="info-value">{{ $order->level_name ?? ($order->level->name ?? '-') }} /
+                                {{ $order->grade_name ?? ($order->grade->name ?? '-') }}</div>
                         </div>
                     </div>
                 </div>
@@ -155,7 +166,8 @@
             <div class="col-md-4">
                 <div class="card summary-card h-100 mb-0">
                     <div class="card-header">
-                        <h6 class="fw-bold text-dark mb-0"><i class="fa fa-users me-2 text-primary"></i>Parent / Contact</h6>
+                        <h6 class="fw-bold text-dark mb-0"><i class="fa fa-users me-2 text-primary"></i>Parent / Contact
+                        </h6>
                     </div>
                     <div class="card-body p-3">
                         <div class="mb-3">
@@ -178,12 +190,14 @@
             <div class="col-md-4">
                 <div class="card summary-card h-100 mb-0">
                     <div class="card-header">
-                        <h6 class="fw-bold text-dark mb-0"><i class="fa fa-receipt me-2 text-primary"></i>Order & Payment Status</h6>
+                        <h6 class="fw-bold text-dark mb-0"><i class="fa fa-receipt me-2 text-primary"></i>Order & Payment
+                            Status</h6>
                     </div>
                     <div class="card-body p-3">
                         <div class="mb-3">
                             <div class="info-label">Order Date</div>
-                            <div class="info-value">{{ \Carbon\Carbon::parse($order->created_at)->format('d M Y H:i') }}</div>
+                            <div class="info-value">{{ \Carbon\Carbon::parse($order->created_at)->format('d M Y H:i') }}
+                            </div>
                         </div>
                         <div class="mb-3">
                             <div class="info-label">Payment Status</div>
@@ -191,10 +205,22 @@
                                 <span class="badge {{ $badgeClass }} px-2 py-1">{{ $status }}</span>
                             </div>
                         </div>
-                        <div class="mb-0">
+                        <div class="mb-3">
                             <div class="info-label">Payment Date</div>
                             <div class="info-value">
                                 {{ $order->payment_date ? \Carbon\Carbon::parse($order->payment_date)->format('d M Y H:i') : 'Not paid yet' }}
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="info-label">Picked Up At</div>
+                            <div class="info-value {{ $order->picked_up_at ? 'text-success' : 'text-muted' }}">
+                                {{ $order->picked_up_at ? $order->picked_up_at->format('d M Y H:i') : 'Not collected yet' }}
+                            </div>
+                        </div>
+                        <div class="mb-0">
+                            <div class="info-label">Picked Up By</div>
+                            <div class="info-value {{ $order->picked_up_at ? '' : 'text-muted' }}">
+                                {{ $order->picked_up_at ? optional($order->pickupUser)->name ?? 'User #' . $order->picked_up_by : '-' }}
                             </div>
                         </div>
                     </div>
@@ -206,7 +232,8 @@
         <div class="card summary-card">
             <div class="card-header d-flex align-items-center justify-content-between">
                 <h6 class="fw-bold text-dark mb-0">
-                    <i class="fa fa-list-check me-2 text-primary"></i> Uniform Order Items ({{ $order->total_items }} items)
+                    <i class="fa fa-list-check me-2 text-primary"></i> Uniform Order Items ({{ $order->total_items }}
+                    items)
                 </h6>
             </div>
             <div class="card-body p-0">
@@ -227,13 +254,14 @@
                                 <tr>
                                     <td class="ps-4">
                                         <div class="fw-bold text-dark">{{ $item->product_name }}</div>
-                                        <small class="text-muted">Type: {{ strtoupper($item->unit_type ?? 'PCS') }}</small>
+                                        <small class="text-muted">Type:
+                                            {{ strtoupper($item->unit_type ?? 'PCS') }}</small>
                                     </td>
                                     <td class="text-center">
                                         <span class="badge bg-light text-dark border">{{ $item->product_code }}</span>
                                     </td>
                                     <td class="text-center">
-                                        @if($item->size)
+                                        @if ($item->size)
                                             <span class="badge bg-primary px-3 py-1">{{ $item->size }}</span>
                                         @else
                                             <span class="text-muted small">-</span>
@@ -258,17 +286,20 @@
                         <tfoot class="table-light">
                             <tr>
                                 <td colspan="5" class="text-end fw-bold">Items Subtotal:</td>
-                                <td class="text-end pe-4 fw-bold text-dark">Rp {{ number_format($order->subtotal, 0, ',', '.') }}</td>
+                                <td class="text-end pe-4 fw-bold text-dark">Rp
+                                    {{ number_format($order->subtotal, 0, ',', '.') }}</td>
                             </tr>
-                            @if($order->bank_charger > 0)
+                            @if ($order->bank_charger > 0)
                                 <tr>
                                     <td colspan="5" class="text-end fw-bold">Bank Charge:</td>
-                                    <td class="text-end pe-4 fw-bold text-dark">Rp {{ number_format($order->bank_charger, 0, ',', '.') }}</td>
+                                    <td class="text-end pe-4 fw-bold text-dark">Rp
+                                        {{ number_format($order->bank_charger, 0, ',', '.') }}</td>
                                 </tr>
                             @endif
                             <tr>
                                 <td colspan="5" class="text-end fw-bold fs-6 text-dark">Grand Total Amount:</td>
-                                <td class="text-end pe-4 fw-bold fs-5 text-success">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</td>
+                                <td class="text-end pe-4 fw-bold fs-5 text-success">Rp
+                                    {{ number_format($order->total_amount, 0, ',', '.') }}</td>
                             </tr>
                         </tfoot>
                     </table>
@@ -276,4 +307,44 @@
             </div>
         </div>
     </div>
+@endsection
+
+@section('content-script')
+    <script>
+        const confirmPickupButton = document.getElementById('confirm-pickup');
+
+        if (confirmPickupButton) {
+            confirmPickupButton.addEventListener('click', function() {
+                const studentName = this.dataset.student;
+
+                if (!window.confirm(`Confirm that the uniform has been collected by ${studentName}?`)) {
+                    return;
+                }
+
+                const button = this;
+                button.disabled = true;
+
+                fetch(`/uniform/${button.dataset.order}/pickup`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    }
+                }).then(function(response) {
+                    return response.json().then(function(data) {
+                        if (!response.ok) {
+                            throw new Error(data.message);
+                        }
+
+                        return data;
+                    });
+                }).then(function() {
+                    window.location.reload();
+                }).catch(function(error) {
+                    button.disabled = false;
+                    window.alert(error.message || 'Unable to confirm pickup.');
+                });
+            });
+        }
+    </script>
 @endsection

@@ -54,6 +54,7 @@ class UniformOrderExport implements
 
         $orderDate   = $order->created_at ? Carbon::parse($order->created_at)->format('d F Y H:i') : '-';
         $paymentDate = $order->payment_date ? Carbon::parse($order->payment_date)->format('d F Y H:i') : '-';
+        $pickedUpDate = $order->picked_up_at ? Carbon::parse($order->picked_up_at)->format('d F Y H:i') : '-';
 
         return [
             $this->rowNumber++,
@@ -78,6 +79,7 @@ class UniformOrderExport implements
             $order->total_amount ?? 0,
             strtoupper($order->payment_status ?? 'UNPAID'),
             $paymentDate,
+            $pickedUpDate,
         ];
     }
 
@@ -109,7 +111,8 @@ class UniformOrderExport implements
                 'Bank Charge (IDR)',
                 'Grand Total (IDR)',
                 'Payment Status',
-                'Payment Date'
+                'Payment Date',
+                'Picked Up Date'
             ]
         ];
     }
@@ -120,8 +123,8 @@ class UniformOrderExport implements
             AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
 
-                $sheet->mergeCells('A1:V1');
-                $sheet->mergeCells('A2:V2');
+                $sheet->mergeCells('A1:W1');
+                $sheet->mergeCells('A2:W2');
 
                 $sheet->getStyle('A1')->applyFromArray([
                     'font' => [
@@ -142,7 +145,7 @@ class UniformOrderExport implements
                     ],
                 ]);
 
-                $sheet->getStyle('A4:V4')->applyFromArray([
+                $sheet->getStyle('A4:W4')->applyFromArray([
                     'font' => [
                         'bold' => true,
                         'color' => ['rgb' => 'FFFFFF'],
@@ -160,7 +163,7 @@ class UniformOrderExport implements
                 $lastRow = $sheet->getHighestRow();
 
                 if ($lastRow >= 5) {
-                    $sheet->getStyle('A5:V' . $lastRow)->applyFromArray([
+                    $sheet->getStyle('A5:W' . $lastRow)->applyFromArray([
                         'borders' => [
                             'allBorders' => [
                                 'borderStyle' => Border::BORDER_THIN,
@@ -175,10 +178,10 @@ class UniformOrderExport implements
                     $sheet->getStyle('K5:K' . $lastRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
                     $sheet->getStyle('M5:O' . $lastRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
                     $sheet->getStyle('P5:T' . $lastRow)->getNumberFormat()->setFormatCode('#,##0');
-                    $sheet->getStyle('U5:V' . $lastRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                    $sheet->getStyle('U5:W' . $lastRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
                 }
 
-                foreach (range('A', 'V') as $col) {
+                foreach (range('A', 'W') as $col) {
                     $sheet->getColumnDimension($col)->setAutoSize(true);
                 }
             },

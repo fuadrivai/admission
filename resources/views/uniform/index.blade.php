@@ -9,7 +9,8 @@
         <div class="card shadow-sm mb-3">
             <div class="card-body">
                 <p class="d-inline-flex gap-1 mb-2">
-                    <a data-bs-toggle="collapse" href="#collapse-filter" aria-expanded="false" aria-controls="collapse-filter" class="fw-bold text-primary">
+                    <a data-bs-toggle="collapse" href="#collapse-filter" aria-expanded="false" aria-controls="collapse-filter"
+                        class="fw-bold text-primary">
                         Insert Filter <i class="fa fa-caret-down ms-1"></i>
                     </a>
                 </p>
@@ -102,11 +103,13 @@
                         <h5 class="modal-title text-white fw-bold" id="orderDetailModalLabel">
                             <i class="fa fa-receipt me-2"></i> Uniform Order Items
                         </h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
                     </div>
                     <div class="modal-body p-4" id="orderDetailContent">
                         <div class="text-center text-muted py-4">
-                            <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
+                            <div class="spinner-border text-primary" role="status"><span
+                                    class="visually-hidden">Loading...</span></div>
                         </div>
                     </div>
                     <div class="modal-footer bg-light">
@@ -209,15 +212,43 @@
                 loadOrders(url);
             });
 
+            $(document).on('click', '.confirm-uniform-pickup', function() {
+                const button = $(this);
+                const studentName = button.data('student');
+
+                if (!window.confirm(`Confirm that the uniform has been collected by ${studentName}?`)) {
+                    return;
+                }
+
+                button.prop('disabled', true);
+                $.ajax({
+                    url: `/uniform/${button.data('order')}/pickup`,
+                    type: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                        'Accept': 'application/json'
+                    },
+                    success: function(json) {
+                        toastify('Success', json.message, 'success');
+                        loadOrders();
+                    },
+                    error: function(xhr) {
+                        button.prop('disabled', false);
+                        toastify('Error', xhr.responseJSON?.message ??
+                            'Unable to confirm pickup.', 'error');
+                    }
+                });
+            });
+
             // View Order Detail Modal
             $(document).on('click', '.view-order-details', function(e) {
                 e.preventDefault();
                 const detailsJson = $(this).attr('data-details');
-                
+
                 let details = [];
                 try {
                     details = JSON.parse(detailsJson);
-                } catch(e) {
+                } catch (e) {
                     details = [];
                 }
 
@@ -238,8 +269,10 @@
 
                 if (details && details.length > 0) {
                     details.forEach(item => {
-                        const priceFormatted = 'Rp ' + (parseFloat(item.price) || 0).toLocaleString('id-ID');
-                        const subtotalFormatted = 'Rp ' + (parseFloat(item.subtotal) || 0).toLocaleString('id-ID');
+                        const priceFormatted = 'Rp ' + (parseFloat(item.price) || 0).toLocaleString(
+                            'id-ID');
+                        const subtotalFormatted = 'Rp ' + (parseFloat(item.subtotal) || 0)
+                            .toLocaleString('id-ID');
                         html += `
                             <tr>
                                 <td><span class="fw-bold text-dark">${item.product_name}</span> <small class="text-muted">(${item.product_code})</small></td>

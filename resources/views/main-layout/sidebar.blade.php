@@ -98,40 +98,46 @@
                         <span>Uniform</span>
                     </a>
                     <ul class="submenu ">
-                        <li class="submenu-item"><a href="/uniform" class="submenu-link {{ Request::is('uniform') ? 'text-red' : '' }}">List</a></li>
+                        <li class="submenu-item"><a href="/uniform"
+                                class="submenu-link {{ Request::is('uniform') ? 'text-red' : '' }}">List</a></li>
+                        <li class="submenu-item"><a href="/uniform/list"
+                                class="submenu-link {{ Request::is('uniform/list') ? 'text-red' : '' }}">List
+                                public</a></li>
                         {{-- <li class="submenu-item"><a href="/uniform/leaderboard" class="submenu-link {{ Request::is('uniform/leaderboard') ? 'text-red' : '' }}">Leaderboard</a> --}}
-                        </li>
-                        <li class="submenu-item"><a href="/uniform/setting" class="submenu-link {{ Request::is('uniform/setting') ? 'text-red' : '' }}">Settings</a></li>
-                        <li class="submenu-item"><a href="/uniform/form" class="submenu-link {{ Request::is('uniform/form') ? 'text-red' : '' }}">Form</a></li>
-                    </ul>
                 </li>
+                <li class="submenu-item"><a href="/uniform/setting"
+                        class="submenu-link {{ Request::is('uniform/setting') ? 'text-red' : '' }}">Settings</a></li>
+                <li class="submenu-item"><a href="/uniform/form"
+                        class="submenu-link {{ Request::is('uniform/form') ? 'text-red' : '' }}">Form</a></li>
+            </ul>
+            </li>
 
-                <li class="sidebar-title">Setting</li>
-                <li class="sidebar-item has-sub {{ Request::is('setting*') ? 'active' : '' }}">
-                    <a href="#" class='sidebar-link'>
-                        <i class="fa fa-gear"></i>
-                        <span>Setting</span>
-                    </a>
-                    <ul class="submenu ">
-                        <li class="submenu-item"><a href="/setting/form" class="submenu-link">General</a>
-                        <li class="submenu-item"><a href="/setting/year" class="submenu-link">Academic
-                                Year</a>
-                        </li>
-                        <li class="submenu-item"><a href="/setting/password/change" class="submenu-link">Users</a>
-                        </li>
-                        <li class="submenu-item"><a href="/setting/password/change" class="submenu-link">Change
-                                Password</a></li>
-                        <li class="submenu-item">
-                            <form action="/logout" method="POST">
-                                @csrf
-                                <button type="submit" style="text-decoration: none"
-                                    class="submenu-link btn btn-link align-baseline">
-                                    Logout
-                                </button>
-                            </form>
-                        </li>
-                    </ul>
-                </li>
+            <li class="sidebar-title">Setting</li>
+            <li class="sidebar-item has-sub {{ Request::is('setting*') ? 'active' : '' }}">
+                <a href="#" class='sidebar-link'>
+                    <i class="fa fa-gear"></i>
+                    <span>Setting</span>
+                </a>
+                <ul class="submenu ">
+                    <li class="submenu-item"><a href="/setting/form" class="submenu-link">General</a>
+                    <li class="submenu-item"><a href="/setting/year" class="submenu-link">Academic
+                            Year</a>
+                    </li>
+                    <li class="submenu-item"><a href="/setting/password/change" class="submenu-link">Users</a>
+                    </li>
+                    <li class="submenu-item"><a href="/setting/password/change" class="submenu-link">Change
+                            Password</a></li>
+                    <li class="submenu-item">
+                        <form action="/logout" method="POST">
+                            @csrf
+                            <button type="submit" style="text-decoration: none"
+                                class="submenu-link btn btn-link align-baseline">
+                                Logout
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </li>
             </ul>
         </div>
     </div>

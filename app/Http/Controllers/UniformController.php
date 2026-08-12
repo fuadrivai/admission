@@ -125,7 +125,7 @@ class UniformController extends Controller
 
     public function index(Request $request)
     {
-        $query = UniformOrder::with(['branch', 'level', 'grade', 'details']);
+        $query = UniformOrder::with(['branch', 'level', 'grade', 'details', 'pickupUser']);
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -181,7 +181,7 @@ class UniformController extends Controller
             'cancelled' => $allOrders->whereIn('payment_status', ['CANCEL', 'cancelled', 'CANCELLED'])->count(),
         ];
 
-        $orders = $query->paginate($request->get('perpage', 10))->withQueryString();
+        $orders = $query->paginate($request->get('perpage', 10))->appends($request->query());
 
         if ($request->ajax()) {
             return view('uniform._list', compact('orders', 'summary'))->render();
@@ -377,7 +377,7 @@ class UniformController extends Controller
     }
     public function show($id)
     {
-        $order = UniformOrder::with(['branch', 'level', 'grade', 'details.product'])->findOrFail($id);
+        $order = UniformOrder::with(['branch', 'level', 'grade', 'details.product', 'pickupUser'])->findOrFail($id);
 
         return view('uniform.detail', [
             'title' => 'Uniform Order Detail - ' . $order->code,
