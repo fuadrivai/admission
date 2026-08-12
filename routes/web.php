@@ -57,7 +57,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
     Route::get('enrolment/student/{code}', [EnrolmentController::class, 'showByCode'])->name('enrolment.studentShowByCode');
     Route::post('enrolment/post', [EnrolmentController::class, 'post'])->name('enrolment.postForm');
     
-    Route::get('uniform/list', [UniformController::class, 'list'])->name('uniform.list');
+    Route::get('uniform/list', [UniformController::class, 'open'])->name('uniform.open');
     Route::get('uniform/form', [UniformController::class, 'form'])->name('uniform.form');
     Route::post('uniform/post', [UniformController::class, 'storeOrder'])->name('uniform.postForm');
     Route::get('uniform/leaderboard', [UniformController::class, 'leaderboard'])->name('uniform.leaderboard');
@@ -144,7 +144,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
             Route::get('setting', [UniformController::class, 'setting'])->name('uniform-setting');
             Route::get('export', [UniformController::class, 'export'])->name('export');
             Route::get('leaderboard', [UniformController::class, 'leaderboard'])->name('leaderboard');
-            Route::get('open', [UniformController::class, 'open'])->name('open');
+            
             Route::post('{uniform}/pickup', [UniformController::class, 'confirmPickup'])->name('pickup.confirm');
 
             // Master Product Routes
