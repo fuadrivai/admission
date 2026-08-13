@@ -118,6 +118,43 @@
                 </div>
             </div>
         </div>
+
+        <!-- Pickup Confirmation Modal -->
+        <div class="modal fade" id="pickupModal" tabindex="-1" aria-labelledby="pickupModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <form id="pickupForm">
+                        <div class="modal-header bg-primary text-white">
+                            <h5 class="modal-title text-white fw-bold" id="pickupModalLabel">
+                                <i class="fa fa-box me-2"></i> Confirm Pickup
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body p-4">
+                            <input type="hidden" id="pickup-order-id" name="order_id">
+                            <p class="mb-3 text-muted">Please provide the details of the person picking up the uniform for <strong id="pickup-student-name"></strong>.</p>
+                            
+                            <div class="mb-3">
+                                <label for="pic_name" class="form-label fw-semibold">PIC Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="pic_name" name="pic_name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="parent_name" class="form-label fw-semibold">Parent Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="parent_name" name="parent_name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="note" class="form-label fw-semibold">Note</label>
+                                <textarea class="form-control" id="note" name="note" rows="3"></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer bg-light">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary fw-bold" id="btn-submit-pickup">Confirm Pickup</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </section>
 @endsection
 
@@ -215,27 +252,47 @@
             $(document).on('click', '.confirm-uniform-pickup', function() {
                 const button = $(this);
                 const studentName = button.data('student');
+                const orderId = button.data('order');
 
-                if (!window.confirm(`Confirm that the uniform has been collected by ${studentName}?`)) {
-                    return;
-                }
+                $('#pickup-student-name').text(studentName);
+                $('#pickup-order-id').val(orderId);
+                
+                // Reset form
+                $('#pickupForm')[0].reset();
+                $('#pickupModal').modal('show');
+            });
 
-                button.prop('disabled', true);
+            $('#pickupForm').on('submit', function(e) {
+                e.preventDefault();
+                
+                const orderId = $('#pickup-order-id').val();
+                const btnSubmit = $('#btn-submit-pickup');
+                
+                btnSubmit.prop('disabled', true).html('<i class="fa fa-spinner fa-spin me-1"></i> Saving...');
+                
                 $.ajax({
-                    url: `/uniform/${button.data('order')}/pickup`,
+                    url: `/uniform/${orderId}/pickup`,
                     type: 'POST',
+                    data: JSON.stringify({
+                        pic_name: $('#pic_name').val(),
+                        parent_name: $('#parent_name').val(),
+                        note: $('#note').val()
+                    }),
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
-                        'Accept': 'application/json'
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
                     },
                     success: function(json) {
+                        $('#pickupModal').modal('hide');
                         toastify('Success', json.message, 'success');
                         loadOrders();
                     },
                     error: function(xhr) {
-                        button.prop('disabled', false);
-                        toastify('Error', xhr.responseJSON?.message ??
-                            'Unable to confirm pickup.', 'error');
+                        toastify('Error', xhr.responseJSON?.message ?? 'Unable to confirm pickup.', 'error');
+                    },
+                    complete: function() {
+                        btnSubmit.prop('disabled', false).html('Confirm Pickup');
                     }
                 });
             });

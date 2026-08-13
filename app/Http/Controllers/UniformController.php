@@ -95,7 +95,7 @@ class UniformController extends Controller
         ]);
     }
 
-    public function confirmPickup(UniformOrder $uniform)
+    public function confirmPickup(Request $request, UniformOrder $uniform)
     {
         if (!in_array(strtoupper($uniform->payment_status), ['PAID', 'SETTLED', 'COMPLETED'])) {
             return response()->json([
@@ -112,6 +112,9 @@ class UniformController extends Controller
         $uniform->update([
             'picked_up_at' => now(),
             'picked_up_by' => auth()->id() ?? 0,
+            'pic_name' => $request->pic_name,
+            'picked_up_name' => $request->parent_name,
+            'note' => $request->note,
         ]);
 
         $confirmedOrder = $uniform->fresh('pickupUser');

@@ -78,8 +78,9 @@ $(document).ready(function () {
                     // Set default qty to 1 if it's currently 0
                     const qtyInput = $(`#qty_${productId}`);
                     if (parseFloat(qtyInput.val()) === 0) {
-                        const step = parseFloat(qtyInput.attr("step")) || 1;
-                        qtyInput.val(step);
+                        // const step = parseFloat(qtyInput.attr("step")) || 1;
+                        // qtyInput.val(step);
+                        qtyInput.val(1);
                     }
                 }
             } else {
@@ -125,12 +126,27 @@ $(document).ready(function () {
         const step = parseFloat(input.attr("step")) || 1;
         let val = parseFloat(input.val()) || 0;
         val = val + step;
+        const type = $(this).data("type");
+        let max = type === "pcs" ? 3 : 4;
+        if (val > max) {
+            alert(`Maximum ${max} ${type} allowed`);
+            input.val(max).trigger("change");
+            return;
+        }
         input.val(val).trigger("change");
     });
 
     // Qty Input & Change Listener
     $(document).on("input change", ".item-qty", function () {
         const productId = $(this).data("product-id");
+        let val = parseFloat($(this).val()) || 0;
+        const type = $(this).data("type");
+        let max = type === "pcs" ? 3 : 4;
+        if (val > max) {
+            alert(`Maximum ${max} ${type} allowed`);
+            $(this).val(max).trigger("change");
+            return;
+        }
         updateProductSubtotal(productId);
         calculateGrandTotal();
     });

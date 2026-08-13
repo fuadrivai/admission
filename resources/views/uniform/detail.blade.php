@@ -211,23 +211,47 @@
                                 {{ $order->payment_date ? \Carbon\Carbon::parse($order->payment_date)->format('d M Y H:i') : 'Not paid yet' }}
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ordered Items Table Card -->
+        <div class="card summary-card">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <h6 class="fw-bold text-dark mb-0">
+                    <i class="fa fa-list-check me-2 text-primary"></i> Picked Up Information
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
                         <div class="mb-3">
                             <div class="info-label">Picked Up At</div>
                             <div class="info-value {{ $order->picked_up_at ? 'text-success' : 'text-muted' }}">
                                 {{ $order->picked_up_at ? $order->picked_up_at->format('d M Y H:i') : 'Not collected yet' }}
                             </div>
                         </div>
-                        <div class="mb-0">
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
                             <div class="info-label">Picked Up By</div>
                             <div class="info-value {{ $order->picked_up_at ? '' : 'text-muted' }}">
-                                {{ $order->picked_up_at ? optional($order->pickupUser)->name ?? 'User #' . $order->picked_up_by : '-' }}
+                                {{ $order->picked_up_name }}
                             </div>
                         </div>
                     </div>
-                </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <div class="info-label">Pic</div>
+                            <div class="info-value {{ $order->picked_up_at ? '' : 'text-muted' }}">
+                                {{ $order->pic_name }}
+                            </div>
+                        </div>
+                    </div>
+                </div>  
             </div>
         </div>
-
         <!-- Ordered Items Table Card -->
         <div class="card summary-card">
             <div class="card-header d-flex align-items-center justify-content-between">

@@ -17,4 +17,19 @@ class UniformProduct extends Model
     {
         return $this->hasMany(UniformPrice::class,'uniform_product_id');
     }
+
+    public function images()
+    {
+        return $this->hasMany(UniformProductImage::class, 'uniform_product_id');
+    }
+
+    public function primaryImage()
+    {
+        return $this->images()->where('is_primary', true)->first();
+    }
+
+    public function getPrice()
+    {
+        return $this->prices()->first();
+    }
 }

@@ -267,16 +267,16 @@
                                             <td data-label="Qty" class="text-md-center">
                                                 <div class="input-group input-group-sm qty-stepper">
                                                     <button class="btn btn-outline-secondary btn-qty-minus"
-                                                        type="button"
+                                                        type="button"  data-type={{ $product->unit_type }}
                                                         data-product-id="{{ $product->id }}">-</button>
                                                     <input type="number" class="form-control text-center item-qty"
                                                         name="items[{{ $index }}][qty]"
                                                         id="qty_{{ $product->id }}"
                                                         data-product-id="{{ $product->id }}" min="0"
-                                                        value="0"
-                                                        step="{{ $product->unit_type == 'pcs' ? '1' : '1' }}">
+                                                        value="0" data-type={{ $product->unit_type }}
+                                                        step="{{ $product->unit_type == 'pcs' ? '1' : '0.5' }}">
                                                     <button class="btn btn-outline-secondary btn-qty-plus"
-                                                        type="button"
+                                                        type="button" data-type={{ $product->unit_type }}
                                                         data-product-id="{{ $product->id }}">+</button>
                                                 </div>
                                             </td>

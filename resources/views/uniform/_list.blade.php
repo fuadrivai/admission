@@ -126,22 +126,24 @@
                                 @else
                                     <span class="text-muted italic">Payment Date: -</span>
                                 @endif
-                                <br>
-                                @if ($order->picked_up_at)
-                                    <span class="text-success fw-semibold">
-                                        <i class="fa fa-check-circle me-1"></i> Picked Up
-                                    </span><br>
-                                    Picked Up At: {{ $order->picked_up_at->format('d M Y H:i') }}<br>
-                                    Picked Up By:
-                                    {{ optional($order->pickupUser)->name ?? 'User #' . $order->picked_up_by }}
-                                @else
-                                    <span class="text-muted italic">Pickup: Not picked up by parent</span>
-                                @endif
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+            @if ($order->picked_up_at)
+            <hr class="my-2 text-muted">
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <div class="pickup-info text-success">
+                            <i class="fa fa-check-circle me-1"></i>
+                            Picked Up at: {{ $order->picked_up_at->format('d M Y H:i') }},
+                            by {{$order->picked_up_name }}, PIC: {{ $order->pic_name }}
+                        </div>
+                    </div>
+                </div>
+            @endif
+            
         </div>
     </div>
 @empty
