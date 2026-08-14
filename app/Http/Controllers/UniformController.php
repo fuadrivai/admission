@@ -709,15 +709,22 @@ class UniformController extends Controller
             $product = UniformProduct::findOrFail($itemData['product_id']);
             $size = $itemData['size'] ?? null;
 
-            $priceQuery = UniformPrice::where('uniform_product_id', $product->id)
-                ->where('branch_id', $branch->id)
+            $basePriceQuery = UniformPrice::where('uniform_product_id', $product->id)
                 ->where('is_active', 1);
 
-            if ($size) {
-                $priceQuery->where('size', $size);
+            if (!empty($product->has_size) && $size) {
+                $basePriceQuery->where('size', $size);
             }
 
-            $priceModel = $priceQuery->first();
+            $priceModel = (clone $basePriceQuery)->where('branch_id', $branch->id)->first();
+            if (!$priceModel) {
+                $priceModel = (clone $basePriceQuery)
+                    ->where(function ($q) {
+                        $q->whereNull('branch_id')->orWhere('branch_id', '');
+                    })
+                    ->first();
+            }
+
             $unitPrice = $priceModel ? (float) $priceModel->price : 0;
             $subtotal  = $unitPrice * $qty;
 

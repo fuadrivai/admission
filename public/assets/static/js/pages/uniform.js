@@ -22,13 +22,21 @@ $(document).ready(function () {
         width: "100%",
     });
 
-    // Initialize Multiple Item Selector
-    $("#item_selector").select2({
-        theme: "bootstrap-5",
-        width: "100%",
-        placeholder:
-            "Choose/search uniform items (e.g. Badge, Seragam SD, Kaus)...",
-        allowClear: true,
+    // Product modal opener
+    $("#openProductModalBtn").on("click", async function () {
+        const branchId = $("#branch").val();
+        const levelId = $("#level").val();
+        if (!branchId || !levelId) {
+            showToast("Please select Branch and Level first.", "error");
+            return;
+        }
+        const fetched = await getProduct(branchId, levelId);
+        productsData = fetched || [];
+        renderProductModal();
+        const modal = new bootstrap.Modal(
+            document.getElementById("productModal"),
+        );
+        modal.show();
     });
 
     // Step Navigation Line & View updates
@@ -54,75 +62,44 @@ $(document).ready(function () {
                 );
             });
         }
+        // Prefetch products for faster modal
+        const branchId = $("#branch").val();
+        if (branchId && id) {
+            getProduct(branchId, id).then((fetched) => {
+                productsData = fetched || [];
+            });
+        }
     });
 
-    // Multiple Choice Item Selector Change
-    $("#item_selector").on("change", function () {
-        const selectedIds = $(this).val() || [];
+    // product rows are added via modal - handled elsewhere
 
-        if (selectedIds.length === 0) {
+    // Remove Item Button Click (removes row)
+    $(document).on("click", ".btn-remove-item", function () {
+        const rowId = $(this).data("row-id");
+        $(`.product-row[data-row-id="${rowId}"]`).remove();
+        if ($(".product-row").length === 0) {
             $("#no_items_notice").show();
             $(".product-table").hide();
-        } else {
-            $("#no_items_notice").hide();
-            $(".product-table").show();
         }
-
-        $(".product-row").each(function () {
-            const productId = $(this).data("product-id").toString();
-            const isSelected = selectedIds.includes(productId);
-
-            if (isSelected) {
-                if ($(this).is(":hidden")) {
-                    $(this).fadeIn(200);
-                    // Set default qty to 1 if it's currently 0
-                    const qtyInput = $(`#qty_${productId}`);
-                    if (parseFloat(qtyInput.val()) === 0) {
-                        // const step = parseFloat(qtyInput.attr("step")) || 1;
-                        // qtyInput.val(step);
-                        qtyInput.val(1);
-                    }
-                }
-            } else {
-                $(this).hide();
-                $(`#qty_${productId}`).val(0);
-            }
-            updateProductPrice(productId);
-        });
-
-        syncUniformItems();
         calculateGrandTotal();
     });
 
-    // Remove Item Button Click
-    $(document).on("click", ".btn-remove-item", function () {
-        const productId = $(this).data("product-id").toString();
-        let currentSelected = $("#item_selector").val() || [];
-        currentSelected = currentSelected.filter((id) => id !== productId);
-        $("#item_selector").val(currentSelected).trigger("change");
-    });
+    // size no longer edited inline (shown as text)
 
-    // Size Change Listener
-    $(document).on("change", ".item-size", function () {
-        const productId = $(this).data("product-id");
-        updateProductPrice(productId);
-        calculateGrandTotal();
-    });
-
-    // Qty Stepper (-) Click
+    // Qty Stepper (-) Click (uses row-id)
     $(document).on("click", ".btn-qty-minus", function () {
-        const productId = $(this).data("product-id");
-        const input = $(`#qty_${productId}`);
+        const rowId = $(this).data("row-id");
+        const input = $(`#qty_${rowId}`);
         const step = parseFloat(input.attr("step")) || 1;
         let val = parseFloat(input.val()) || 0;
         val = Math.max(0, val - step);
         input.val(val).trigger("change");
     });
 
-    // Qty Stepper (+) Click
+    // Qty Stepper (+) Click (uses row-id)
     $(document).on("click", ".btn-qty-plus", function () {
-        const productId = $(this).data("product-id");
-        const input = $(`#qty_${productId}`);
+        const rowId = $(this).data("row-id");
+        const input = $(`#qty_${rowId}`);
         const step = parseFloat(input.attr("step")) || 1;
         let val = parseFloat(input.val()) || 0;
         val = val + step;
@@ -136,9 +113,9 @@ $(document).ready(function () {
         input.val(val).trigger("change");
     });
 
-    // Qty Input & Change Listener
+    // Qty Input & Change Listener (uses row-id)
     $(document).on("input change", ".item-qty", function () {
-        const productId = $(this).data("product-id");
+        const rowId = $(this).data("row-id");
         let val = parseFloat($(this).val()) || 0;
         const type = $(this).data("type");
         let max = type === "pcs" ? 3 : 4;
@@ -147,7 +124,7 @@ $(document).ready(function () {
             $(this).val(max).trigger("change");
             return;
         }
-        updateProductSubtotal(productId);
+        updateRowSubtotal(rowId);
         calculateGrandTotal();
     });
 
@@ -300,27 +277,24 @@ function updateAllProductPrices() {
 
 // Sync uniform.items[] from current DOM state
 function syncUniformItems() {
-    const selectedIds = $("#item_selector").val() || [];
     uniform.items = [];
-
-    selectedIds.forEach((productId) => {
-        const product = productsData.find((p) => p.id == productId);
-        if (!product) return;
-
-        const qty = parseFloat($(`#qty_${productId}`).val()) || 0;
-        const size = $(`#size_${productId}`).val() || "";
-        const unitPrice = getUnitPrice(productId, size);
-        const subtotal = unitPrice * qty;
+    $(".product-row").each(function () {
+        const rowId = $(this).data("row-id");
+        const productId = $(this).data("product-id");
+        const price = parseFloat($(this).data("price")) || 0;
+        const size = $(`#size_display_${rowId}`).text() || "";
+        const qty = parseFloat($(`#qty_${rowId}`).val()) || 0;
+        const subtotal = price * qty;
 
         if (qty > 0) {
             uniform.items.push({
-                product_id: product.id,
-                product_name: product.name,
-                product_code: product.code,
-                unit_type: product.unit_type ?? "",
+                product_id: productId,
+                product_name: $(this).data("product-name") || "",
+                product_code: $(this).data("product-code") || "",
+                unit_type: $(this).data("unit-type") || "",
                 size: size,
                 qty: qty,
-                price: unitPrice,
+                price: price,
                 subtotal: subtotal,
             });
         }
@@ -346,6 +320,155 @@ function calculateGrandTotal() {
 
     $("#summary_total_items").text(totalItems);
     $("#summary_grand_total").text(formatRupiah(grandTotal));
+}
+
+// Update subtotal for a dynamic row
+function updateRowSubtotal(rowId) {
+    const tr = $(`.product-row[data-row-id="${rowId}"]`);
+    if (!tr || tr.length === 0) return;
+    const unitPrice = parseFloat(tr.data("price")) || 0;
+    const qty = parseFloat($(`#qty_${rowId}`).val()) || 0;
+    const subtotal = unitPrice * qty;
+    $(`#subtotal_display_${rowId}`).text(formatRupiah(subtotal));
+}
+
+// Render products into the modal with price buttons
+function renderProductModal() {
+    const tbody = $("#product_modal_tbody").empty();
+    if (!productsData || productsData.length === 0) {
+        tbody.append(
+            `<tr><td colspan="3" class="text-center text-muted">No products available</td></tr>`,
+        );
+        return;
+    }
+
+    const branchId = $("#branch").val();
+    productsData.forEach((product) => {
+        const unitBadge = `<span class="badge ${product.unit_type == "pcs" ? "badge-unit-pcs" : "badge-unit-meter"}">${(product.unit_type || "").toUpperCase()}</span>`;
+        let pricesHtml = "";
+        if (product.prices && product.prices.length > 0) {
+            // Prefer branch-specific prices; if none exist, fallback to general (no branch_id)
+            let matchingPrices = product.prices.filter(
+                (p) => p.branch_id == branchId,
+            );
+            if (matchingPrices.length === 0) {
+                matchingPrices = product.prices.filter(
+                    (p) =>
+                        !p.branch_id ||
+                        p.branch_id === null ||
+                        p.branch_id === "",
+                );
+            }
+            // Final fallback: all prices
+            if (matchingPrices.length === 0) matchingPrices = product.prices;
+
+            matchingPrices.forEach((p) => {
+                const sizeText = p.size ? `${p.size} ` : "";
+                pricesHtml += ` <button type="button" class="btn btn-sm btn-outline-primary btn-choose-price" data-product-id="${product.id}" data-price-id="${p.id}" data-size="${p.size || ""}" data-price="${p.price}" data-unit-type="${product.unit_type}" data-product-name="${escapeHtml(product.name)}" data-product-code="${escapeHtml(product.code)}">${sizeText}${formatRupiah(p.price)}</button>`;
+            });
+        } else {
+            pricesHtml = '<span class="text-muted">No price rules</span>';
+        }
+
+        tbody.append(`
+            <tr>
+                <td>
+                    <div class="fw-semibold">${escapeHtml(product.name)}</div>
+                    <div class="small text-muted">${escapeHtml(product.code || "")}</div>
+                </td>
+                <td class="text-center">${unitBadge}</td>
+                <td class="text-center">${pricesHtml}</td>
+            </tr>
+        `);
+    });
+}
+
+// When a price button is clicked, add product row to order table
+$(document).on("click", ".btn-choose-price", function () {
+    const productId = $(this).data("product-id");
+    const priceId = $(this).data("price-id");
+    const size = $(this).data("size") || "";
+    const price = parseFloat($(this).data("price")) || 0;
+    const unitType = $(this).data("unit-type") || "pcs";
+    const productName = $(this).data("product-name") || "";
+    const productCode = $(this).data("product-code") || "";
+
+    addProductToTable(
+        productId,
+        priceId,
+        size,
+        price,
+        productName,
+        productCode,
+        unitType,
+    );
+    const modalEl = document.getElementById("productModal");
+    const modal = bootstrap.Modal.getInstance(modalEl);
+    if (modal) modal.hide();
+});
+
+function addProductToTable(
+    productId,
+    priceId,
+    size,
+    unitPrice,
+    productName,
+    productCode,
+    unitType,
+) {
+    const rowId = `${productId}_${priceId}`;
+    // If already exists, increment qty
+    const existing = $(`.product-row[data-row-id="${rowId}"]`);
+    if (existing && existing.length > 0) {
+        const input = $(`#qty_${rowId}`);
+        const step = parseFloat(input.attr("step")) || 1;
+        input
+            .val(Math.max(0, (parseFloat(input.val()) || 0) + step))
+            .trigger("change");
+        return;
+    }
+
+    const unitBadge = unitType == "pcs" ? "badge-unit-pcs" : "badge-unit-meter";
+    const step = unitType == "pcs" ? 1 : 0.5;
+    const qtyDefault = 1;
+    const tr = $(
+        `<tr class="product-row" data-row-id="${rowId}" data-product-id="${productId}" data-price-id="${priceId}" data-price="${unitPrice}" data-unit-type="${unitType}" data-product-name="${escapeHtml(productName)}" data-product-code="${escapeHtml(productCode)}">
+            <td data-label="Product Details">
+                <div class="fw-bold text-dark">${escapeHtml(productName)}</div>
+                <div class="small text-muted">${escapeHtml(productCode)}</div>
+                <div class="small mt-1">
+                    <span class="${unitBadge}">${(unitType || "").toUpperCase()}</span>
+                    <span id="size_display_${rowId}" class="ms-2">${escapeHtml(size) || "-"}</span>
+                </div>
+                <div class="small mt-1 text-primary">Price: <span class="fw-semibold">${formatRupiah(unitPrice)}</span></div>
+            </td>
+            <td data-label="Qty" class="text-center">
+                <div class="input-group input-group-sm qty-stepper">
+                    <button class="btn btn-outline-secondary btn-qty-minus" type="button" data-row-id="${rowId}" data-type="${unitType}">-</button>
+                    <input type="number" class="form-control text-center item-qty" name="items[][qty]" id="qty_${rowId}" data-row-id="${rowId}" data-type="${unitType}" min="0" value="${qtyDefault}" step="${step}">
+                    <button class="btn btn-outline-secondary btn-qty-plus" type="button" data-row-id="${rowId}" data-type="${unitType}">+</button>
+                </div>
+            </td>
+            <td data-label="Subtotal" class="text-end"><span id="subtotal_display_${rowId}" class="fw-bold text-primary">${formatRupiah(unitPrice * qtyDefault)}</span></td>
+            <td data-label="Action" class="text-center"><button type="button" class="btn btn-sm btn-outline-danger btn-remove-item" data-row-id="${rowId}"><i class="fas fa-trash-alt"></i></button></td>
+        </tr>`,
+    );
+
+    $("#product_table_tbody").append(tr);
+    $("#no_items_notice").hide();
+    $(".product-table").show();
+    calculateGrandTotal();
+}
+
+// small helper to escape html in product strings
+function escapeHtml(str) {
+    if (!str && str !== 0) return "";
+    return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
 }
 
 // Validate Step inputs
@@ -417,33 +540,27 @@ async function validateCurrentStep() {
             return false;
         }
         const fetched = await getProduct(branch, level);
-        productsData = fetched;
-        generateUniformSelector();
+        productsData = fetched || [];
+        // products will be chosen from the modal when user opens it
         if (!fetched) {
             return false;
         }
     } else if (currentStep === 3) {
-        const selectedItems = $("#item_selector").val() || [];
-        if (selectedItems.length === 0) {
+        // Ensure user has added at least one product row and qty > 0
+        const rows = $(".product-row");
+        if (!rows || rows.length === 0) {
             showToast(
-                "Please select at least 1 uniform item to order.",
+                "Please add at least 1 uniform item from the product list.",
                 "error",
             );
-            $("#item_selector")
-                .next(".select2-container")
-                .addClass("is-invalid");
             return false;
-        } else {
-            $("#item_selector")
-                .next(".select2-container")
-                .removeClass("is-invalid");
         }
 
         let hasValidQty = false;
-        selectedItems.forEach((productId) => {
-            if (parseFloat($(`#qty_${productId}`).val()) > 0) {
-                hasValidQty = true;
-            }
+        rows.each(function () {
+            const rowId = $(this).data("row-id");
+            const qty = parseFloat($(`#qty_${rowId}`).val()) || 0;
+            if (qty > 0) hasValidQty = true;
         });
 
         if (!hasValidQty) {
@@ -664,13 +781,4 @@ async function getProduct(branchId, levelId) {
         },
     );
     return response;
-}
-
-function generateUniformSelector() {
-    $("#item_selector").empty();
-    productsData.forEach((val) => {
-        $("#item_selector").append(`
-            <option value="${val.id}">${val.name} ${val.code}</option>
-        `);
-    });
 }

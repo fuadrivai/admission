@@ -161,16 +161,18 @@
 
                         <!-- Multiple Choice Item Selector -->
                         <div class="mb-4">
-                            <label for="item_selector" class="form-label fw-bold">
-                                <i class="fas fa-list-check me-1 text-primary"></i> Select Uniform Items to Order <span
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-list-check me-1 text-primary"></i> Choose Uniform Items to Order <span
                                     class="required-asterisk">*</span>
-                                <br><small class="text-muted fw-normal"><i>Pilih item seragam yang ingin dipesan (bisa
-                                        pilih lebih dari satu item)</i></small>
+                                <br><small class="text-muted fw-normal"><i>Tap the button to browse products and
+                                        prices</i></small>
                             </label>
-                            <select class="form-select required-select2" id="item_selector" multiple="multiple"
-                                data-placeholder="Choose/search uniform items (e.g. Badge, Seragam SD, Kaus)...">
-
-                            </select>
+                            <div>
+                                <button type="button" id="openProductModalBtn"
+                                    class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-box-open me-1"></i> Browse Products & Prices
+                                </button>
+                            </div>
                         </div>
 
                         <!-- Notice when no item is selected -->
@@ -187,117 +189,14 @@
                             <table class="table table-hover align-middle product-table" style="display: none;">
                                 <thead>
                                     <tr>
-                                        <th style="width: 40px;">#</th>
                                         <th>Product Details</th>
-                                        <th style="width: 90px;">Unit Type</th>
-                                        <th style="width: 130px;">Size</th>
-                                        <th style="width: 130px;" class="text-end">Price</th>
-                                        <th style="width: 130px;" class="text-center">Qty</th>
-                                        <th style="width: 140px;" class="text-end">Subtotal</th>
-                                        <th style="width: 50px;" class="text-center">Action</th>
+                                        <th>Qty</th>
+                                        <th>Subtotal</th>
+                                        <th>Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    @forelse($products as $index => $product)
-                                        <tr class="product-row" data-product-id="{{ $product->id }}"
-                                            style="display: none;">
-                                            <td data-label="#">{{ $index + 1 }}</td>
-                                            <td data-label="Product Details">
-                                                <div class="d-flex align-items-center justify-content-between">
-                                                    <div class="fw-bold text-dark fs-6">{{ $product->name }}</div>
-                                                    <span
-                                                        class="badge d-inline-block d-md-none {{ $product->unit_type == 'pcs' ? 'badge-unit-pcs' : 'badge-unit-meter' }}">
-                                                        {{ strtoupper($product->unit_type) }}
-                                                    </span>
-                                                </div>
-                                                <span
-                                                    class="product-code-badge mt-1 d-inline-block">{{ $product->code }}</span>
-                                                <input type="hidden" name="items[{{ $index }}][product_id]"
-                                                    value="{{ $product->id }}">
-                                            </td>
-                                            <td data-label="Unit Type" class="d-none d-md-table-cell">
-                                                <span
-                                                    class="badge {{ $product->unit_type == 'pcs' ? 'badge-unit-pcs' : 'badge-unit-meter' }}">
-                                                    {{ strtoupper($product->unit_type) }}
-                                                </span>
-                                            </td>
-                                            <td data-label="Size">
-                                                @if ($product->has_size)
-                                                    <select class="form-select form-select-sm item-size"
-                                                        name="items[{{ $index }}][size]"
-                                                        id="size_{{ $product->id }}"
-                                                        data-product-id="{{ $product->id }}"
-                                                        style="max-width: 140px;">
-                                                        @php
-                                                            $sizes =
-                                                                isset($product->prices) && count($product->prices) > 0
-                                                                    ? $product->prices
-                                                                        ->pluck('size')
-                                                                        ->unique()
-                                                                        ->filter()
-                                                                        ->values()
-                                                                    : collect([
-                                                                        'XS',
-                                                                        'S',
-                                                                        'M',
-                                                                        'L',
-                                                                        'XL',
-                                                                        'XXL',
-                                                                        'XXXL',
-                                                                        '4XL',
-                                                                        '5XL',
-                                                                        'OTHER',
-                                                                    ]);
-                                                        @endphp
-                                                        @foreach ($sizes as $sz)
-                                                            <option value="{{ $sz }}">{{ $sz }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-                                                @else
-                                                    <span class="text-muted small">-</span>
-                                                    <input type="hidden" name="items[{{ $index }}][size]"
-                                                        value="">
-                                                @endif
-                                            </td>
-                                            <td data-label="Price" class="text-md-end">
-                                                <span id="price_display_{{ $product->id }}"
-                                                    class="fw-semibold text-dark">Rp 0</span>
-                                            </td>
-                                            <td data-label="Qty" class="text-md-center">
-                                                <div class="input-group input-group-sm qty-stepper">
-                                                    <button class="btn btn-outline-secondary btn-qty-minus"
-                                                        type="button"  data-type={{ $product->unit_type }}
-                                                        data-product-id="{{ $product->id }}">-</button>
-                                                    <input type="number" class="form-control text-center item-qty"
-                                                        name="items[{{ $index }}][qty]"
-                                                        id="qty_{{ $product->id }}"
-                                                        data-product-id="{{ $product->id }}" min="0"
-                                                        value="0" data-type={{ $product->unit_type }}
-                                                        step="{{ $product->unit_type == 'pcs' ? '1' : '0.5' }}">
-                                                    <button class="btn btn-outline-secondary btn-qty-plus"
-                                                        type="button" data-type={{ $product->unit_type }}
-                                                        data-product-id="{{ $product->id }}">+</button>
-                                                </div>
-                                            </td>
-                                            <td data-label="Subtotal" class="text-md-end">
-                                                <span id="subtotal_display_{{ $product->id }}"
-                                                    class="fw-bold text-primary">Rp 0</span>
-                                            </td>
-                                            <td data-label="Action" class="text-center">
-                                                <button type="button"
-                                                    class="btn btn-sm btn-outline-danger btn-remove-item"
-                                                    data-product-id="{{ $product->id }}" title="Remove item">
-                                                    <i class="fas fa-trash-alt"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="8" class="text-center text-muted py-4">No uniform products
-                                                available.</td>
-                                        </tr>
-                                    @endforelse
+                                <tbody id="product_table_tbody">
+                                    <!-- Rows appended by JS when user chooses a price in modal -->
                                 </tbody>
                             </table>
                         </div>
@@ -402,6 +301,38 @@
                         </button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product / Price Modal -->
+    <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="productModalLabel">Choose Product & Price</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-sm mb-0" id="product_modal_table">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Product</th>
+                                    <th class="text-center">Unit</th>
+                                    <th class="text-center">Available Prices</th>
+                                </tr>
+                            </thead>
+                            <tbody id="product_modal_tbody">
+                                <!-- populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
             </div>
         </div>
     </div>
