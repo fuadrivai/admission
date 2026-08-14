@@ -5,21 +5,20 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class EventFormEmailTemplate extends Model
+class EventField extends Model
 {
+    use HasFactory;
+
     protected $guarded = ['id'];
 
     protected $casts = [
+        'is_required' => 'boolean',
         'is_active' => 'boolean',
+        'options_json' => 'array',
     ];
 
-    public function form()
+    public function event()
     {
-        return $this->belongsTo(EventForm::class);
-    }
-
-    public function emailLogs()
-    {
-        return $this->hasMany(EventFormEmailLog::class);
+        return $this->belongsTo(Event::class);
     }
 }

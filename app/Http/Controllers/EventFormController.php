@@ -2,84 +2,193 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\EventForm;
+use App\Models\Event;
+use App\Models\EventField;
 use Illuminate\Http\Request;
+use Yajra\DataTables\Utilities\Request as UtilitiesRequest;
 
 class EventFormController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
+    private function normalizeOptions($value)
     {
-        //
+        if (empty($value)) {
+            return null;
+        }
+
+        if (is_array($value)) {
+            $value = array_values($value);
+        } else {
+            $decoded = json_decode($value, true);
+            if (is_array($decoded)) {
+                $value = $decoded;
+            } else {
+                $value = preg_split('/\r\n|\r|\n/', (string) $value);
+            }
+        }
+
+        $cleaned = array_values(array_filter(array_map(function ($item) {
+            return trim((string) $item);
+        }, (array) $value), function ($item) {
+            return $item !== '';
+        }));
+
+        return $cleaned ?: null;
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
+    public function index(Event $event)
     {
-        //
+        return view('event.forms.index', [
+            'title' => 'Event Form Builder',
+            'event' => $event,
+            'forms' => $event->forms()->orderBy('order_index')->get(),
+        ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
+    public function create(Event $event)
     {
-        //
+        return view('event.forms.form', [
+            'title' => 'Create Form Field',
+            'event' => $event,
+            'formField' => null,
+        ]);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\EventForm  $eventForm
-     * @return \Illuminate\Http\Response
-     */
-    public function show(EventForm $eventForm)
+    public function store(Request $request, Event $event)
     {
-        //
+        $type = $request->input('type');
+        if (in_array($type, ['select', 'radio', 'checkbox'], true)) {
+            $request->merge([
+                'options_json' => $this->normalizeOptions($request->input('options_json')),
+            ]);
+        } else {
+            $request->merge([
+                'options_json' => null,
+            ]);
+        }
+
+        $validated = $request->validate([
+            'field_key' => ['required', 'string', 'max:100', 'unique:event_fields,field_key,NULL,id,event_id,' . $event->id],
+            'label' => ['required', 'string', 'max:150'],
+            'type' => ['required', 'in:text,textarea,select,radio,checkbox,email,phone,number,date'],
+            'is_required' => ['nullable', 'boolean'],
+            'options_json' => ['nullable', 'array'],
+            'order_index' => ['nullable', 'integer', 'min:0'],
+            'is_active' => ['nullable', 'boolean'],
+        ]);
+
+        $event->forms()->create([
+            'field_key' => $validated['field_key'],
+            'label' => $validated['label'],
+            'type' => $validated['type'],
+            'is_required' => (bool) ($validated['is_required'] ?? false),
+            'options_json' => $validated['options_json'] ?? null,
+            'order_index' => $validated['order_index'] ?? 0,
+            'is_active' => (bool) ($validated['is_active'] ?? true),
+        ]);
+
+        return redirect()->route('event.forms.index', $event)->with('success', 'Form field created successfully.');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\EventForm  $eventForm
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(EventForm $eventForm)
+    public function edit(Event $event, EventField $eventForm)
     {
-        //
+        return view('event.forms.form', [
+            'title' => 'Edit Form Field',
+            'event' => $event,
+            'formField' => $eventForm,
+        ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\EventForm  $eventForm
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, EventForm $eventForm)
+    public function update(Request $request, Event $event, EventField $eventForm)
     {
-        //
+        $type = $request->input('type');
+        if (in_array($type, ['select', 'radio', 'checkbox'], true)) {
+            $request->merge([
+                'options_json' => $this->normalizeOptions($request->input('options_json')),
+            ]);
+        } else {
+            $request->merge([
+                'options_json' => null,
+            ]);
+        }
+
+        $validated = $request->validate([
+            'field_key' => ['required', 'string', 'max:100', 'unique:event_fields,field_key,' . $eventForm->id . ',id,event_id,' . $event->id],
+            'label' => ['required', 'string', 'max:150'],
+            'type' => ['required', 'in:text,textarea,select,radio,checkbox,email,phone,number,date'],
+            'is_required' => ['nullable', 'boolean'],
+            'options_json' => ['nullable', 'array'],
+            'order_index' => ['nullable', 'integer', 'min:0'],
+            'is_active' => ['nullable', 'boolean'],
+        ]);
+
+        $eventForm->update([
+            'field_key' => $validated['field_key'],
+            'label' => $validated['label'],
+            'type' => $validated['type'],
+            'is_required' => (bool) ($validated['is_required'] ?? false),
+            'options_json' => $validated['options_json'] ?? null,
+            'order_index' => $validated['order_index'] ?? 0,
+            'is_active' => (bool) ($validated['is_active'] ?? true),
+        ]);
+
+        return redirect()->route('event.forms.index', $event)->with('success', 'Form field updated successfully.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\EventForm  $eventForm
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(EventForm $eventForm)
+    public function destroy(Event $event, EventField $eventForm)
     {
-        //
+        $eventForm->delete();
+
+        return redirect()->route('event.forms.index', $event)->with('success', 'Form field deleted successfully.');
+    }
+
+    public function reorder(Request $request, Event $event)
+    {
+        $order = $request->input('order', []);
+
+        foreach ($order as $index => $fieldId) {
+            $event->forms()->whereKey($fieldId)->update(['order_index' => $index]);
+        }
+
+        return response()->json(['success' => true]);
+    }
+
+    public function datatables(UtilitiesRequest $request, Event $event)
+    {
+        $query = $event->forms()->orderBy('order_index');
+
+        if ($request->ajax()) {
+            return datatables()->of($query)
+                ->addColumn('type', fn ($row) => ucfirst($row->type))
+                ->addColumn('required', fn ($row) => $row->is_required ? 'Yes' : 'No')
+                ->addColumn('action', function ($row) use ($event) {
+                    return '<a href="' . route('event.forms.edit', [$event, $row]) . '" class="btn btn-sm btn-primary">Edit</a>'
+                        . ' <form method="POST" action="' . route('event.forms.destroy', [$event, $row]) . '" style="display:inline;">'
+                        . csrf_field() . method_field('DELETE')
+                        . '<button type="submit" class="btn btn-sm btn-danger" onclick="return confirm(\'Delete this field?\');">Delete</button>'
+                        . '</form>';
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+
+        return response()->json([]);
+    }
+
+    public function share(Event $event, EventField $eventForm)
+    {
+        return response()->json([
+            'event_id' => $event->id,
+            'field_id' => $eventForm->id,
+            'share_url' => route('event.forms.public', [$event, $eventForm]),
+        ]);
+    }
+
+    public function public(Event $event, EventField $eventForm)
+    {
+        return view('event.forms.public', [
+            'title' => 'Public Form Preview',
+            'event' => $event,
+            'formField' => $eventForm,
+        ]);
     }
 }

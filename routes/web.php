@@ -10,6 +10,9 @@ use App\Http\Controllers\BranchController;
 use App\Http\Controllers\DivisionController;
 use App\Http\Controllers\EnrolmentController;
 use App\Http\Controllers\EnrolmentPriceController;
+use App\Http\Controllers\EventController;
+use App\Http\Controllers\EventEmailTemplateController;
+use App\Http\Controllers\EventFormController;
 use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LevelController;
@@ -191,6 +194,34 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
             Route::get('datatables', [DivisionController::class, 'datatables'])->name('datatables');
             Route::get('get', [DivisionController::class, 'get'])->name('get');
             Route::resource('', DivisionController::class)->parameters(['' => 'division']);
+        });
+        Route::prefix('event')->name('event.')->group(function () {
+            Route::get('datatables', [EventController::class, 'datatables'])->name('datatables');
+            Route::get('get', [EventController::class, 'get'])->name('get');
+
+            Route::prefix('{event}/forms')->name('forms.')->group(function () {
+                Route::get('/', [EventFormController::class, 'index'])->name('index');
+                Route::get('create', [EventFormController::class, 'create'])->name('create');
+                Route::post('/', [EventFormController::class, 'store'])->name('store');
+                Route::post('reorder', [EventFormController::class, 'reorder'])->name('reorder');
+                Route::get('{eventForm}/edit', [EventFormController::class, 'edit'])->name('edit');
+                Route::put('{eventForm}', [EventFormController::class, 'update'])->name('update');
+                Route::delete('{eventForm}', [EventFormController::class, 'destroy'])->name('destroy');
+                Route::get('datatables', [EventFormController::class, 'datatables'])->name('datatables');
+                Route::get('{eventForm}/share', [EventFormController::class, 'share'])->name('share');
+                Route::get('{eventForm}/public', [EventFormController::class, 'public'])->name('public');
+            });
+
+            Route::prefix('{event}/email-templates')->name('email-templates.')->group(function () {
+                Route::get('/', [EventEmailTemplateController::class, 'index'])->name('index');
+                Route::get('create', [EventEmailTemplateController::class, 'create'])->name('create');
+                Route::post('/', [EventEmailTemplateController::class, 'store'])->name('store');
+                Route::get('{eventFormEmailTemplate}/edit', [EventEmailTemplateController::class, 'edit'])->name('edit');
+                Route::put('{eventFormEmailTemplate}', [EventEmailTemplateController::class, 'update'])->name('update');
+                Route::delete('{eventFormEmailTemplate}', [EventEmailTemplateController::class, 'destroy'])->name('destroy');
+            });
+
+            Route::resource('', EventController::class)->parameters(['' => 'event']);
         });
         Route::prefix('setting')->name('setting.')->group(function () {
             Route::get('/password/change', [AuthController::class, 'edit']);

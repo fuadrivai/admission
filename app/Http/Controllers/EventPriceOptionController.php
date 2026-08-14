@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\EventFormEmailLogs;
-use Illuminate\Http\Request;
+use App\Models\EventPriceOption;
+use App\Http\Requests\StoreEventPriceOptionRequest;
+use App\Http\Requests\UpdateEventPriceOptionRequest;
 
-class EventFormEmailLogsController extends Controller
+class EventPriceOptionController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -30,10 +31,10 @@ class EventFormEmailLogsController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Http\Requests\StoreEventPriceOptionRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(StoreEventPriceOptionRequest $request)
     {
         //
     }
@@ -41,10 +42,10 @@ class EventFormEmailLogsController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\EventFormEmailLogs  $eventFormEmailLogs
+     * @param  \App\Models\EventPriceOption  $eventPriceOption
      * @return \Illuminate\Http\Response
      */
-    public function show(EventFormEmailLogs $eventFormEmailLogs)
+    public function show(EventPriceOption $eventPriceOption)
     {
         //
     }
@@ -52,10 +53,10 @@ class EventFormEmailLogsController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\EventFormEmailLogs  $eventFormEmailLogs
+     * @param  \App\Models\EventPriceOption  $eventPriceOption
      * @return \Illuminate\Http\Response
      */
-    public function edit(EventFormEmailLogs $eventFormEmailLogs)
+    public function edit(EventPriceOption $eventPriceOption)
     {
         //
     }
@@ -63,11 +64,11 @@ class EventFormEmailLogsController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\EventFormEmailLogs  $eventFormEmailLogs
+     * @param  \App\Http\Requests\UpdateEventPriceOptionRequest  $request
+     * @param  \App\Models\EventPriceOption  $eventPriceOption
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, EventFormEmailLogs $eventFormEmailLogs)
+    public function update(UpdateEventPriceOptionRequest $request, EventPriceOption $eventPriceOption)
     {
         //
     }
@@ -75,10 +76,10 @@ class EventFormEmailLogsController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\EventFormEmailLogs  $eventFormEmailLogs
+     * @param  \App\Models\EventPriceOption  $eventPriceOption
      * @return \Illuminate\Http\Response
      */
-    public function destroy(EventFormEmailLogs $eventFormEmailLogs)
+    public function destroy(EventPriceOption $eventPriceOption)
     {
         //
     }

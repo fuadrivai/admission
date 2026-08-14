@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\EventFormSubmissionValue;
+use App\Models\EventRegistrationAnswer;
 use Illuminate\Http\Request;
 
-class EventFormSubmissionValueController extends Controller
+class EventRegistrationAnswerController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -41,10 +41,10 @@ class EventFormSubmissionValueController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\EventFormSubmissionValue  $eventFormSubmissionValue
+     * @param  \App\Models\EventRegistrationAnswer  $eventRegistrationAnswer
      * @return \Illuminate\Http\Response
      */
-    public function show(EventFormSubmissionValue $eventFormSubmissionValue)
+    public function show(EventRegistrationAnswer $eventRegistrationAnswer)
     {
         //
     }
@@ -52,10 +52,10 @@ class EventFormSubmissionValueController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\EventFormSubmissionValue  $eventFormSubmissionValue
+     * @param  \App\Models\EventRegistrationAnswer  $eventRegistrationAnswer
      * @return \Illuminate\Http\Response
      */
-    public function edit(EventFormSubmissionValue $eventFormSubmissionValue)
+    public function edit(EventRegistrationAnswer $eventRegistrationAnswer)
     {
         //
     }
@@ -64,10 +64,10 @@ class EventFormSubmissionValueController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\EventFormSubmissionValue  $eventFormSubmissionValue
+     * @param  \App\Models\EventRegistrationAnswer  $eventRegistrationAnswer
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, EventFormSubmissionValue $eventFormSubmissionValue)
+    public function update(Request $request, EventRegistrationAnswer $eventRegistrationAnswer)
     {
         //
     }
@@ -75,10 +75,10 @@ class EventFormSubmissionValueController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\EventFormSubmissionValue  $eventFormSubmissionValue
+     * @param  \App\Models\EventRegistrationAnswer  $eventRegistrationAnswer
      * @return \Illuminate\Http\Response
      */
-    public function destroy(EventFormSubmissionValue $eventFormSubmissionValue)
+    public function destroy(EventRegistrationAnswer $eventRegistrationAnswer)
     {
         //
     }

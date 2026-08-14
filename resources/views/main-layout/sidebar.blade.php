@@ -103,15 +103,25 @@
                         <li class="submenu-item"><a href="/uniform/list"
                                 class="submenu-link {{ Request::is('uniform/list') ? 'text-red' : '' }}">List
                                 public</a></li>
-                        {{-- <li class="submenu-item"><a href="/uniform/leaderboard" class="submenu-link {{ Request::is('uniform/leaderboard') ? 'text-red' : '' }}">Leaderboard</a> --}}
                 </li>
                 <li class="submenu-item"><a href="/uniform/setting"
                         class="submenu-link {{ Request::is('uniform/setting') ? 'text-red' : '' }}">Settings</a></li>
                 <li class="submenu-item"><a href="/uniform/form"
                         class="submenu-link {{ Request::is('uniform/form') ? 'text-red' : '' }}">Form</a></li>
+
             </ul>
             </li>
 
+            <li class="sidebar-title">Form Builder</li>
+            <li class="sidebar-item has-sub {{ Request::is('event*') ? 'active' : '' }}">
+                <a href="#" class='sidebar-link'>
+                    <i class="fa fa-calendar"></i>
+                    <span>Event</span>
+                </a>
+                <ul class="submenu ">
+                    <li class="submenu-item"><a href="/event" class="submenu-link">List</a></li>
+                </ul>
+            </li>
             <li class="sidebar-title">Setting</li>
             <li class="sidebar-item has-sub {{ Request::is('setting*') ? 'active' : '' }}">
                 <a href="#" class='sidebar-link'>

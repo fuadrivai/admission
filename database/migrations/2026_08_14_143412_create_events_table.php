@@ -15,16 +15,14 @@ class CreateEventsTable extends Migration
     {
         Schema::create('events', function (Blueprint $table) {
             $table->id();
-            $table->uuid('uuid')->unique();
-            $table->string('name');
+            $table->foreignId('branch_id')->nullable()->constrained('branches')->nullOnDelete();
+            $table->string('title');
             $table->string('slug')->unique();
-            $table->text('description')->nullable();
-            $table->dateTime('start_at')->nullable();
-            $table->dateTime('end_at')->nullable();
-            $table->string('location')->nullable();
-            $table->boolean('is_active')->default(true);
+            $table->text('intro_html')->nullable();
+            $table->string('price_question_label', 150)->nullable();
+            $table->enum('status', ['DRAFT','PUBLISHED','CLOSED'])->default('DRAFT');
+            $table->timestamp('active_until')->nullable();
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
-            $table->foreignId('updated_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
         });
     }

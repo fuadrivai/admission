@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\EventFormEmailTemplate;
+use App\Models\EventRegistration;
 use Illuminate\Http\Request;
 
-class EventFormEmailTemplateController extends Controller
+class EventRegistrationController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -41,10 +41,10 @@ class EventFormEmailTemplateController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\EventFormEmailTemplate  $eventFormEmailTemplate
+     * @param  \App\Models\EventRegistration  $eventRegistration
      * @return \Illuminate\Http\Response
      */
-    public function show(EventFormEmailTemplate $eventFormEmailTemplate)
+    public function show(EventRegistration $eventRegistration)
     {
         //
     }
@@ -52,10 +52,10 @@ class EventFormEmailTemplateController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\EventFormEmailTemplate  $eventFormEmailTemplate
+     * @param  \App\Models\EventRegistration  $eventRegistration
      * @return \Illuminate\Http\Response
      */
-    public function edit(EventFormEmailTemplate $eventFormEmailTemplate)
+    public function edit(EventRegistration $eventRegistration)
     {
         //
     }
@@ -64,10 +64,10 @@ class EventFormEmailTemplateController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\EventFormEmailTemplate  $eventFormEmailTemplate
+     * @param  \App\Models\EventRegistration  $eventRegistration
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, EventFormEmailTemplate $eventFormEmailTemplate)
+    public function update(Request $request, EventRegistration $eventRegistration)
     {
         //
     }
@@ -75,10 +75,10 @@ class EventFormEmailTemplateController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\EventFormEmailTemplate  $eventFormEmailTemplate
+     * @param  \App\Models\EventRegistration  $eventRegistration
      * @return \Illuminate\Http\Response
      */
-    public function destroy(EventFormEmailTemplate $eventFormEmailTemplate)
+    public function destroy(EventRegistration $eventRegistration)
     {
         //
     }
