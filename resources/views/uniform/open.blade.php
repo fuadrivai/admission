@@ -525,119 +525,145 @@
                 padding: .72rem;
             }
         }
+
         .modal {
-    position: fixed;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(4px);
-    z-index: 1000;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease;
-}
-.modal.show {
-    opacity: 1;
-    visibility: visible;
-}
-.modal-content {
-    background: rgba(255, 255, 255, 0.9);
-    padding: 2rem;
-    border-radius: 12px;
-    max-width: 420px;
-    width: 90%;
-    box-shadow: 0 12px 30px rgba(0,0,0,0.15);
-    backdrop-filter: blur(6px);
-    animation: slideIn 0.3s ease-out;
-}
-@keyframes slideIn {
-    from { transform: translateY(-20px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
-.modal-content h2 {
-    margin-top: 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-}
-.modal-close {
-    background: transparent;
-    border: none;
-    font-size: 1.8rem;
-    line-height: 1;
-    cursor: pointer;
-    color: #555;
-}
-.modal-content .field {
-    margin-bottom: 1rem;
-    display: flex;
-    flex-direction: column;
-}
-.modal-content label {
-    margin-bottom: .4rem;
-    font-weight: 600;
-    color: #333;
-}
-.modal-content input,
-.modal-content textarea {
-    width: 100%;
-    padding: .6rem .8rem;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    background: #fff;
-    font-size: 1rem;
-    box-sizing: border-box;
-}
-.modal-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: .8rem;
-    margin-top: 1rem;
-}
-.btn {
-    padding: .5rem 1rem;
-    border: none;
-    border-radius: 6px;
-    font-weight: 600;
-    cursor: pointer;
-}
-.btn-primary {
-    background: #4a90e2;
-    color: #fff;
-}
-.btn-primary:hover {
-    background: #357ab8;
-}
-.btn-secondary {
-    background: #e0e0e0;
-    color: #333;
-}
-.btn-secondary:hover {
-    background: #c5c5c5;
-}
-    .modal-content h2 {
-        margin-top: 0;
-    }
-    .modal-content .field {
-        margin-bottom: 1rem;
-    }
-    .modal-content label {
-        display: block;
-        margin-bottom: .3rem;
-        font-weight: 600;
-    }
-    .modal-content input,
-    .modal-content textarea {
-        width: 100%;
-        padding: .4rem .6rem;
-        border: 1px solid #d9c7cd;
-        border-radius: 4px;
-    }
-</style>
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 420px;
+            width: 90%;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(6px);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-content h2 {
+            margin-top: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            font-size: 1.8rem;
+            line-height: 1;
+            cursor: pointer;
+            color: #555;
+        }
+
+        .modal-content .field {
+            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-content label {
+            margin-bottom: .4rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .modal-content input,
+        .modal-content textarea {
+            width: 100%;
+            padding: .6rem .8rem;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            background: #fff;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: .8rem;
+            margin-top: 1rem;
+        }
+
+        .btn {
+            padding: .5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: #4a90e2;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #357ab8;
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #c5c5c5;
+        }
+
+        .modal-content h2 {
+            margin-top: 0;
+        }
+
+        .modal-content .field {
+            margin-bottom: 1rem;
+        }
+
+        .modal-content label {
+            display: block;
+            margin-bottom: .3rem;
+            font-weight: 600;
+        }
+
+        .modal-content input,
+        .modal-content textarea {
+            width: 100%;
+            padding: .4rem .6rem;
+            border: 1px solid #d9c7cd;
+            border-radius: 4px;
+        }
+    </style>
 </head>
 
 <body>
@@ -776,11 +802,23 @@
                                             @endforelse
                                         </ul>
                                     </td>
-                                    <td data-label="Payment"><span
-                                            class="badge {{ $paymentClasses[$status] ?? 'neutral' }}">{{ $status }}</span><span
-                                            class="muted">Rp
+                                    <td data-label="Payment">
+                                        <span
+                                            class="badge {{ $paymentClasses[$status] ?? 'neutral' }}">{{ $status }}</span>
+                                        <span class="muted">Rp
                                             {{ number_format($order->total_amount, 0, ',', '.') }}<br>Payment date:
                                             {{ $order->payment_date ? $order->payment_date->format('d M Y') : '-' }}</span>
+                                        @if ($order->order_link && $status === 'PENDING')
+                                            <div
+                                                style="margin-top:.45rem; display:flex; gap:.5rem; align-items:center;">
+                                                <a href="{{ $order->order_link }}" target="_blank" rel="noopener"
+                                                    class="contact-email">Open payment link</a>
+                                                <button type="button" class="copy-link"
+                                                    data-link="{{ $order->order_link }}"
+                                                    style="background:#fff;color:var(--maroon);border:1px solid #d9c7cd;padding:.38rem .6rem;">Copy
+                                                    link</button>
+                                            </div>
+                                        @endif
                                     </td>
                                     <td class="pickup" data-label="Collection">
                                         @if ($order->picked_up_at)
@@ -809,7 +847,7 @@
     </main>
     <!-- Pickup Modal -->
     <div id="pickup-modal" class="modal" style="display:none;">
-        
+
         <div class="modal-content">
             <h2>Confirm Pickup <button class="modal-close" type="button" aria-label="Close">&times;</button></h2>
             <div class="field">
@@ -874,7 +912,7 @@
                 form.submit();
             }, 450);
         });
-		
+
         // Open modal for pickup confirmation
         document.querySelectorAll('.confirm-btn').forEach(function(button) {
             button.addEventListener('click', function() {
@@ -909,19 +947,20 @@
                     const parentName = modal.querySelector('#parent-name').value.trim();
                     const note = modal.querySelector('#pickup-note').value.trim();
 
-                    if(picName=="" || picName == null){
+                    if (picName == "" || picName == null) {
                         return alert('PIC name or Parent`s name cannot be empty!')
-                    }
+                }
 
-                    if(parentName=="" || parentName == null){
-                        return alert('PIC name or Parent`s name cannot be empty!')
+                if (parentName == "" || parentName == null) {
+                    return alert('PIC name or Parent`s name cannot be empty!')
                     }
 
                     buttonElement.disabled = true;
                     fetch('/uniform/' + orderId + '/pickup', {
                         method: 'POST',
                         headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'X-CSRF-TOKEN': document.querySelector(
+                                'meta[name="csrf-token"]').content,
                             'Accept': 'application/json',
                             'Content-Type': 'application/json'
                         },
@@ -938,7 +977,9 @@
                     }).then(function(data) {
                         buttonElement.parentElement.innerHTML =
                             '<span class="pickup-confirmed"><i class="fa fa-check-circle"></i> Collected</span>' +
-                            '<span class="muted">Picked up at: ' + escapeHtml(data.picked_up_at) + '<br>Picked up by: ' + escapeHtml(data.picked_up_name) + '</span>';
+                            '<span class="muted">Picked up at: ' + escapeHtml(data
+                                .picked_up_at) + '<br>Picked up by: ' + escapeHtml(data
+                                .picked_up_name) + '</span>';
                     }).catch(function(error) {
                         buttonElement.disabled = false;
                         window.alert(error.message || 'Unable to confirm collection.');
@@ -953,6 +994,47 @@
                     modal.style.display = 'none';
                 });
             });
+        });
+
+        // Copy order link buttons
+        document.addEventListener('click', function(e) {
+            const btn = e.target.closest('.copy-link');
+            if (!btn) return;
+            const link = btn.dataset.link;
+            if (!link) return;
+            const origText = btn.textContent;
+
+            function indicateCopied() {
+                btn.textContent = 'Copied';
+                setTimeout(function() {
+                    btn.textContent = origText;
+                }, 1800);
+            }
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(link).then(function() {
+                    indicateCopied();
+                }).catch(function() {
+                    fallbackCopy(link, indicateCopied);
+                });
+            } else {
+                fallbackCopy(link, indicateCopied);
+            }
+
+            function fallbackCopy(text, cb) {
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                ta.style.position = 'fixed';
+                ta.style.left = '-9999px';
+                document.body.appendChild(ta);
+                ta.select();
+                try {
+                    document.execCommand('copy');
+                    cb();
+                } catch (err) {
+                    alert('Copy failed. Please copy the link manually.');
+                }
+                document.body.removeChild(ta);
+            }
         });
     </script>
 </body>
