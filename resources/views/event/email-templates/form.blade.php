@@ -96,7 +96,7 @@
             border-radius: 6px;
             border: 1px solid rgba(128, 136, 145, 0.35);
             background: rgba(255, 255, 255, 0.4);
-            color: #d63d8f;
+            color: #212121;
             font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
             font-size: 0.9rem;
             cursor: pointer;
@@ -281,7 +281,7 @@
 
             <div class="info-row">
                 <span class="info-bullet">i</span>
-                <span>Klik variabel untuk menyalin (opsional, perlu JS tambahan) atau ketik manual di editor.</span>
+                <span>Copy variabel untuk menyalin (opsional) atau ketik manual di editor.</span>
             </div>
 
             <div class="footer-actions">
@@ -309,14 +309,11 @@
             $('.summernote').summernote({
                 height: 330,
                 toolbar: [
-                    ['style', ['style']],
                     ['font', ['bold', 'italic', 'underline', 'clear']],
                     ['fontname', ['fontname']],
-                    ['color', ['color']],
-                    ['para', ['ul', 'ol', 'paragraph']],
-                    ['table', ['table']],
+                    ['para', ['ul', 'ol']],
                     ['insert', ['link', 'picture', 'video']],
-                    ['view', ['fullscreen', 'codeview', 'help']]
+                    ['view', ['fullscreen', 'help']]
                 ]
             });
 

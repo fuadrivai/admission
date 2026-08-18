@@ -22,9 +22,24 @@ class Event extends Model
         return $this->belongsTo(Branch::class);
     }
 
-    public function forms()
+    public function fields()
     {
         return $this->hasMany(EventField::class);
+    }
+
+    public function forms()
+    {
+        return $this->fields();
+    }
+
+    public function registrations()
+    {
+        return $this->hasMany(EventRegistration::class);
+    }
+
+    public function priceOptions()
+    {
+        return $this->hasMany(EventPriceOption::class);
     }
 
     public function emailTemplates()

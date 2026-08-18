@@ -21,4 +21,9 @@ class EventField extends Model
     {
         return $this->belongsTo(Event::class);
     }
+
+    public function answers()
+    {
+        return $this->hasMany(EventFieldAnswer::class);
+    }
 }

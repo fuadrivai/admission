@@ -13,6 +13,7 @@ use App\Http\Controllers\EnrolmentPriceController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\EventEmailTemplateController;
 use App\Http\Controllers\EventFormController;
+use App\Http\Controllers\EventRegistrationController;
 use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LevelController;
@@ -41,6 +42,10 @@ use Illuminate\Support\Facades\Route;
 Route::group(['middleware' => 'prevent-back-history'], function () {
     Route::get('auth', [AuthController::class, 'index'])->middleware('guest')->name('login');
     Route::post('auth', [AuthController::class, 'authenticate']);
+
+    Route::get('/events/{event:slug}', [EventRegistrationController::class, 'show'])->name('events.show');
+    Route::post('/events/{event:slug}/register', [EventRegistrationController::class, 'store'])->name('events.register');
+    Route::get('/events/{event:slug}/success/{registration_code}', [EventRegistrationController::class, 'success'])->name('events.success');
 
     Route::get('schoolvisit-form', [SchoolVisitController::class, 'form'])->name('schoolvisit-form');
     Route::get('schoolvisit-success', [SchoolVisitController::class, 'success'])->name('success');
@@ -220,6 +225,16 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
                 Route::put('{eventFormEmailTemplate}', [EventEmailTemplateController::class, 'update'])->name('update');
                 Route::delete('{eventFormEmailTemplate}', [EventEmailTemplateController::class, 'destroy'])->name('destroy');
             });
+
+            Route::get('{event}/preview', [EventController::class, 'preview'])->name('preview');
+
+            Route::prefix('{event}/registrations')->name('registrations.')->group(function () {
+                Route::get('/', [EventController::class, 'registrations'])->name('index');
+                Route::get('datatables', [EventController::class, 'registrationsDatatables'])->name('datatables');
+            });
+
+            Route::get('{event}/registration/{registration}', [EventController::class, 'showRegistration'])->name('registration.show');
+            Route::delete('{event}/registration/{registration}', [EventController::class, 'deleteRegistration'])->name('registration.delete');
 
             Route::resource('', EventController::class)->parameters(['' => 'event']);
         });

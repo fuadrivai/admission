@@ -24,6 +24,7 @@ class CreateEventFieldsTable extends Migration
             $table->json('options_json')->nullable();   // select/radio/checkbox
             $table->unsignedInteger('order_index')->default(0)->index();
             $table->boolean('is_active')->default(true);
+            $table->boolean('is_primary_email')->default(false);
 
             $table->unique(['event_id', 'field_key']);  // anti bentrok
             $table->index(['event_id', 'order_index']);

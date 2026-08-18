@@ -2,6 +2,7 @@
 
 @section('content-style')
     <link href="/assets/extensions/summernote/summernote-bs5.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/extensions/flatpickr/flatpickr.min.css">
     <style>
         .note-editor.note-frame {
             border: 1px solid #dee2e6;
@@ -45,11 +46,23 @@
 @section('content-child')
     <section class="section">
         <div class="card">
-            <div class="card-header">
-                <h5 class="card-title">{{ isset($event) ? 'Edit Event' : 'Create New Event' }}</h5>
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">{{ isset($event) ? 'Edit Event' : 'Create New Event' }}</h5>
+
+                @if (isset($event))
+                    <div class="d-flex gap-2">
+                        <a href="{{ route('event.forms.index', $event) }}" class="btn btn-sm btn-outline-primary">
+                            <i class="fa fa-sliders-h"></i> Form Setting
+                        </a>
+                        <a href="{{ route('event.email-templates.index', $event) }}"
+                            class="btn btn-sm btn-outline-secondary">
+                            <i class="fa fa-envelope"></i> Email Setting
+                        </a>
+                    </div>
+                @endif
             </div>
             <div class="card-body">
-                <form id="eventForm" method="POST"
+                <form id="eventForm" method="POST" autocomplete="off"
                     action="{{ isset($event) ? route('event.update', $event) : route('event.store') }}">
                     @csrf
                     @if (isset($event))
@@ -110,11 +123,26 @@
                                 @enderror
                             </div>
                             <div class="col-lg-6">
+                                <label for="availability_type" class="form-label">Availability Type</label>
+                                <select class="form-select @error('availability_type') is-invalid @enderror"
+                                    id="availability_type" name="availability_type">
+                                    @foreach (['ALWAYS', 'LIMITED'] as $availabilityType)
+                                        <option value="{{ $availabilityType }}"
+                                            {{ old('availability_type', $event->availability_type ?? 'ALWAYS') == $availabilityType ? 'selected' : '' }}>
+                                            {{ ucfirst(strtolower($availabilityType)) }}</option>
+                                    @endforeach
+                                </select>
+                                @error('availability_type')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="col-lg-6" id="active_until_wrapper"
+                                style="display: {{ old('availability_type', $event->availability_type ?? 'ALWAYS') === 'LIMITED' ? 'block' : 'none' }};">
                                 <label for="active_until" class="form-label">Active Until</label>
-                                <input type="text"
-                                    class="form-control @error('active_until') is-invalid @enderror date-picker"
+                                <input type="text" class="form-control @error('active_until') is-invalid @enderror"
                                     id="active_until" name="active_until"
-                                    value="{{ old('active_until', isset($event) && $event->active_until ? $event->active_until->format('Y-m-d\TH:i') : '') }}">
+                                    value="{{ old('active_until', isset($event) && $event->active_until ? $event->active_until->format('Y-m-d H:i') : '') }}"
+                                    placeholder="YYYY-MM-DD HH:MM">
                                 @error('active_until')
                                     <div class="invalid-feedback d-block">{{ $message }}</div>
                                 @enderror
@@ -156,9 +184,37 @@
 
 @section('content-script')
     <script src="/assets/extensions/summernote/summernote-bs5.min.js"></script>
+    <script src="/assets/extensions/flatpickr/flatpickr.min.js"></script>
 
     <script>
         $(document).ready(function() {
+            function toggleAvailabilityFields() {
+                var availabilityType = $('#availability_type').val();
+                var $activeUntilWrapper = $('#active_until_wrapper');
+                var $activeUntilInput = $('#active_until');
+
+                if (availabilityType === 'LIMITED') {
+                    $activeUntilWrapper.show();
+                    if ($activeUntilInput.data('flatpickr')) {
+                        $activeUntilInput.data('flatpickr').open();
+                    }
+                } else {
+                    $activeUntilWrapper.hide();
+                    $activeUntilInput.val('');
+                }
+            }
+
+            $('#availability_type').on('change', toggleAvailabilityFields);
+            toggleAvailabilityFields();
+
+            if (typeof flatpickr !== 'undefined') {
+                flatpickr('#active_until', {
+                    enableTime: true,
+                    dateFormat: 'Y-m-d H:i',
+                    time_24hr: true,
+                    allowInput: true
+                });
+            }
             // Wait a bit to ensure Summernote is loaded
             setTimeout(function() {
                 // Initialize Summernote
@@ -170,14 +226,10 @@
                 $('.summernote').summernote({
                     height: 300,
                     toolbar: [
-                        ['style', ['style']],
-                        ['font', ['bold', 'underline', 'clear']],
-                        ['fontname', ['fontname']],
-                        ['color', ['color']],
-                        ['para', ['ul', 'ol', 'paragraph']],
-                        ['table', ['table']],
+                        ['font', ['bold', 'italic', 'underline', 'strikethrough', 'clear']],
+                        ['para', ['ul', 'ol']],
                         ['insert', ['link', 'picture', 'video']],
-                        ['view', ['fullscreen', 'codeview', 'help']]
+                        ['view', ['fullscreen', 'help']]
                     ]
                 });
             }, 100);

@@ -202,6 +202,18 @@ SD C">{{ old('options_json', isset($formField) && $formField->options_json ? jso
                             </div>
                         </div>
 
+                        <div class="mb-4" id="primary-email-wrapper" style="display: none;">
+                            <div class="check-card">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="is_primary_email"
+                                        name="is_primary_email" value="1"
+                                        {{ old('is_primary_email', $formField->is_primary_email ?? false) ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="is_primary_email">Send confirmation to this
+                                        email?</label>
+                                </div>
+                            </div>
+                        </div>
+
                         <input type="hidden" name="field_key" id="field_key"
                             value="{{ old('field_key', $formField->field_key ?? '') }}">
 
@@ -240,6 +252,18 @@ SD C">{{ old('options_json', isset($formField) && $formField->options_json ? jso
             optionsWrapper.toggle(shouldShow);
         }
 
+        function togglePrimaryEmailField() {
+            const type = $('#type').val();
+            const primaryEmailWrapper = $('#primary-email-wrapper');
+            const isEmailType = type === 'email';
+
+            primaryEmailWrapper.toggle(isEmailType);
+
+            if (!isEmailType) {
+                $('#is_primary_email').prop('checked', false);
+            }
+        }
+
         $(document).ready(function() {
             const labelInput = $('#label');
             const fieldKeyInput = $('#field_key');
@@ -250,10 +274,14 @@ SD C">{{ old('options_json', isset($formField) && $formField->options_json ? jso
             }
 
             labelInput.on('input', syncFieldKey);
-            $('#type').on('change', toggleOptions);
+            $('#type').on('change', function() {
+                toggleOptions();
+                togglePrimaryEmailField();
+            });
 
             syncFieldKey();
             toggleOptions();
+            togglePrimaryEmailField();
         });
     </script>
 @endsection

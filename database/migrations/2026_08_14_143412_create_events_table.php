@@ -21,6 +21,7 @@ class CreateEventsTable extends Migration
             $table->text('intro_html')->nullable();
             $table->string('price_question_label', 150)->nullable();
             $table->enum('status', ['DRAFT','PUBLISHED','CLOSED'])->default('DRAFT');
+            $table->enum('availability_type', ['ALWAYS','LIMITED'])->default('ALWAYS');
             $table->timestamp('active_until')->nullable();
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
