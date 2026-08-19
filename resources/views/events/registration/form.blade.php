@@ -98,7 +98,7 @@
 
         .event-title {
             margin: 0 0 18px;
-            color: var(--maroon-800);
+            color: var(--soft-white);
             font-size: clamp(1.6rem, 2.4vw, 2.3rem);
             line-height: 1.2;
             font-weight: 700;
