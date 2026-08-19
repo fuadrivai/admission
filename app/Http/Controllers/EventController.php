@@ -48,7 +48,9 @@ class EventController extends Controller
 
         $branches = Branch::orderBy('name')->get();
 
-        return view('event.index', compact('events', 'branches'));
+        return view('event.index', compact('events', 'branches'), [
+            'title' => 'Events List',
+        ]);
     }
 
     public function datatables(UtilitiesRequest $request)
