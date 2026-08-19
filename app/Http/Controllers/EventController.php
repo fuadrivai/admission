@@ -16,15 +16,54 @@ class EventController extends Controller
 {
     public function index()
     {
-        return view('event.index', ['title' => 'Event']);
+        $query = Event::with('branch')->withCount('registrations')->orderByDesc('id');
+
+        $status = request('status', 'PUBLISHED');
+
+        if (request()->filled('search')) {
+            $search = request('search');
+            $query->where(function ($builder) use ($search) {
+                $builder->where('title', 'like', '%' . $search . '%')
+                    ->orWhere('slug', 'like', '%' . $search . '%');
+            });
+        }
+
+        if ($status !== 'all') {
+            $query->where('status', $status);
+        }
+
+        if (request()->filled('availability_type') && request('availability_type') !== 'all') {
+            $query->where('availability_type', request('availability_type'));
+        }
+
+        if (request()->filled('branch_id') && request('branch_id') !== 'all') {
+            $query->where('branch_id', request('branch_id'));
+        }
+
+        $events = $query->paginate(10)->withQueryString();
+
+        if (request()->ajax()) {
+            return view('event._list', compact('events'));
+        }
+
+        $branches = Branch::orderBy('name')->get();
+
+        return view('event.index', compact('events', 'branches'));
     }
 
     public function datatables(UtilitiesRequest $request)
     {
-        $query = Event::with('branch');
+        $query = Event::with('branch')->withCount('registrations')->orderByDesc('id');
 
         if ($request->ajax()) {
             return datatables()->of($query)
+                ->editColumn('title', function ($row) {
+                    $publicUrl = route('events.show', $row);
+
+                    return '<div class="event-title-cell">' . e($row->title) . '</div>'
+                        . '<small class="event-public-url"><a href="' . e($publicUrl) . '" target="_blank">'
+                        . e($publicUrl) . '</a></small>';
+                })
                 ->addColumn('branch_name', function ($row) {
                     return $row->branch ? $row->branch->name : '--';
                 })
@@ -37,6 +76,15 @@ class EventController extends Controller
                     $color = $statusColors[$row->status] ?? 'secondary';
                     return '<span class="badge bg-' . $color . '">' . $row->status . '</span>';
                 })
+                ->addColumn('availability_type', function ($row) {
+                    return ucfirst(strtolower($row->availability_type ?? 'ALWAYS'));
+                })
+                ->addColumn('active_until', function ($row) {
+                    return $row->active_until ? $row->active_until->format('d M Y H:i') : '--';
+                })
+                ->addColumn('registration_count', function ($row) {
+                    return (int) $row->registrations_count;
+                })
                 ->addColumn('form_count', function ($row) {
                     return $row->forms()->count();
                 })
@@ -45,7 +93,7 @@ class EventController extends Controller
                         . ' <a href="' . route('events.show', $row) . '" class="btn btn-sm btn-warning text-dark"><i class="fa fa-eye"></i> Live Form</a>'
                         . ' <a href="' . route('event.registrations.index', $row) . '" class="btn btn-sm btn-info text-white"><i class="fa fa-users"></i> Registrations</a>';
                 })
-                ->rawColumns(['status', 'action'])
+                ->rawColumns(['title', 'status', 'action'])
                 ->make(true);
         }
 

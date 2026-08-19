@@ -136,6 +136,9 @@
                     <div class="registration-info">
                         <h3>{{ $event->title }}</h3>
                     </div>
+                    <a href="{{ route('event.index') }}" class="btn btn-outline-secondary btn-sm">
+                        <i class="fa fa-arrow-left"></i> Back
+                    </a>
                 </div>
 
                 <div class="card">

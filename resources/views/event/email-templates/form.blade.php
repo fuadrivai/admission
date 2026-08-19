@@ -237,6 +237,11 @@
 
 @section('content-child')
     <section class="section email-template-shell">
+        <div class="mb-3">
+            <a href="{{ route('event.email-templates.index', $event) }}" class="btn btn-outline-secondary btn-sm">
+                <i class="fa fa-arrow-left"></i> Back
+            </a>
+        </div>
         <form method="POST"
             action="{{ isset($template) ? route('event.email-templates.update', [$event, $template]) : route('event.email-templates.store', $event) }}">
             @csrf

@@ -132,6 +132,9 @@
                 style="background: #fff; border-bottom: 1px solid #e5e7eb; padding: 1rem 1.2rem;">
                 <h5 class="mb-0" style="font-weight: 600;">Form Builder - {{ $event->title }}</h5>
                 <div class="d-flex gap-2">
+                    <a href="{{ route('event.edit', $event) }}" class="btn btn-outline-secondary btn-sm">
+                        <i class="fa fa-arrow-left"></i> Back
+                    </a>
                     <a href="{{ route('event.preview', $event) }}" target="_blank"
                         class="btn btn-outline-primary btn-sm">Preview</a>
                     <a href="{{ route('event.forms.create', $event) }}" class="btn btn-success btn-sm">Add Field</a>
@@ -197,7 +200,7 @@
                                 </div>
                                 <div class="actions">
                                     <a href="{{ route('event.forms.edit', [$event, $field]) }}" class="action-btn"
-                                        title="Edit"><i class="fa fa-pencil-alt text-info"></i></a>
+                                        title="Edit"><i class="fa fa-pencil"></i></a>
                                     <form method="POST" action="{{ route('event.forms.destroy', [$event, $field]) }}"
                                         style="display:inline;">
                                         @csrf

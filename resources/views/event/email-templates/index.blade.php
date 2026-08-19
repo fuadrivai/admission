@@ -5,7 +5,13 @@
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">Email Templates - {{ $event->title }}</h5>
-                <a href="{{ route('event.email-templates.create', $event) }}" class="btn btn-success btn-sm">Add Template</a>
+                <div class="d-flex gap-2">
+                    <a href="{{ route('event.edit', $event) }}" class="btn btn-outline-secondary btn-sm">
+                        <i class="fa fa-arrow-left"></i> Back
+                    </a>
+                    <a href="{{ route('event.email-templates.create', $event) }}" class="btn btn-success btn-sm">Add
+                        Template</a>
+                </div>
             </div>
             <div class="card-body">
                 @if ($templates->isEmpty())

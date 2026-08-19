@@ -52,7 +52,7 @@
                 @if (isset($event))
                     <div class="d-flex gap-2">
                         <a href="{{ route('event.forms.index', $event) }}" class="btn btn-sm btn-outline-primary">
-                            <i class="fa fa-sliders-h"></i> Form Setting
+                            <i class="fa fa-sliders"></i> Form Setting
                         </a>
                         <a href="{{ route('event.email-templates.index', $event) }}"
                             class="btn btn-sm btn-outline-secondary">

@@ -533,11 +533,10 @@
                 <div class="event-card-header">
                     <img src="/assets/images/logo mh menyamping putih-01-01.png" alt="MHIS Logo"
                         onerror="this.style.display='none';">
-                    <h1>Admission Mutiara Harapan Islamic School</h1>
+                    <h2 class="event-title">{{ $event->title }}</h2>
                 </div>
 
                 <div class="event-card-body">
-                    <h2 class="event-title">{{ $event->title }}</h2>
                     @if (!empty($event->intro_html))
                         <div id="intro-area">
                             <div class="event-intro">
