@@ -18,13 +18,15 @@
             @endphp
             <div class="form-check">
                 <input class="form-check-input" type="radio" name="preview_{{ $field->field_key }}"
-                    value="{{ $optionValue }}" data-preview-other-field="{{ $field->field_key }}">
+                    data-preview-field-key="{{ $field->field_key }}" value="{{ $optionValue }}"
+                    data-preview-other-field="{{ $field->field_key }}">
                 <label class="form-check-label">{{ $optionLabel }}</label>
             </div>
         @endforeach
         @if ($field->allow_other)
             <div class="form-check">
                 <input class="form-check-input" type="radio" name="preview_{{ $field->field_key }}" value="__OTHER__"
+                    data-preview-field-key="{{ $field->field_key }}"
                     data-preview-other-toggle="{{ $field->field_key }}">
                 <label class="form-check-label">Other:</label>
                 <input type="text" class="form-control mt-2" data-preview-other-input="{{ $field->field_key }}"

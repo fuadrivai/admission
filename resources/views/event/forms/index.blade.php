@@ -167,7 +167,31 @@
                                 <div class="options-text">
                                     @php
                                         $options = is_array($field->options_json) ? $field->options_json : [];
-                                        $optionsText = count($options) ? implode(', ', $options) : '-';
+                                        $optionValue = function ($option) {
+                                            if (is_array($option)) {
+                                                return (string) ($option['label'] ?? ($option['value'] ?? ''));
+                                            }
+
+                                            return is_scalar($option) ? (string) $option : '';
+                                        };
+
+                                        if ($field->depends_on_field_id) {
+                                            $optionsText = collect($options)
+                                                ->map(function ($values, $parentValue) use ($optionValue) {
+                                                    $values = is_array($values) ? array_map($optionValue, $values) : [];
+                                                    $values = array_values(array_filter($values));
+
+                                                    return $parentValue . ': ' . implode(', ', $values);
+                                                })
+                                                ->implode(' | ');
+                                        } else {
+                                            $optionsText = implode(
+                                                ', ',
+                                                array_values(array_filter(array_map($optionValue, $options))),
+                                            );
+                                        }
+
+                                        $optionsText = $optionsText !== '' ? $optionsText : '-';
                                     @endphp
                                     {{ $optionsText }}
                                 </div>

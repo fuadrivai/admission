@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Event;
 use App\Models\EventField;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Yajra\DataTables\Utilities\Request as UtilitiesRequest;
 
 class EventFormController extends Controller
@@ -50,21 +51,14 @@ class EventFormController extends Controller
             'title' => 'Create Form Field',
             'event' => $event,
             'formField' => null,
+            'parentFields' => $this->parentFields($event),
         ]);
     }
 
     public function store(Request $request, Event $event)
     {
         $type = $request->input('type');
-        if (in_array($type, ['select', 'radio', 'checkbox'], true)) {
-            $request->merge([
-                'options_json' => $this->normalizeOptions($request->input('options_json')),
-            ]);
-        } else {
-            $request->merge([
-                'options_json' => null,
-            ]);
-        }
+        $this->prepareOptions($request, $type);
 
         $validated = $request->validate([
             'field_key' => ['required', 'string', 'max:100', 'unique:event_fields,field_key,NULL,id,event_id,' . $event->id],
@@ -73,10 +67,13 @@ class EventFormController extends Controller
             'is_required' => ['nullable', 'boolean'],
             'is_primary_email' => ['nullable', 'boolean'],
             'allow_other' => ['nullable', 'boolean'],
+            'depends_on_field_id' => ['nullable', 'integer'],
             'options_json' => ['nullable', 'array'],
             'order_index' => ['nullable', 'integer', 'min:0'],
             'is_active' => ['nullable', 'boolean'],
         ]);
+
+        $this->validateDependencyConfiguration($event, $validated);
 
         $event->forms()->create([
             'field_key' => $validated['field_key'],
@@ -86,6 +83,9 @@ class EventFormController extends Controller
             'is_primary_email' => (bool) ($validated['is_primary_email'] ?? false),
             'allow_other' => in_array($validated['type'], ['select', 'radio', 'checkbox'], true)
                 && (bool) ($validated['allow_other'] ?? false),
+            'depends_on_field_id' => $validated['type'] === 'select'
+                ? ($validated['depends_on_field_id'] ?? null)
+                : null,
             'options_json' => $validated['options_json'] ?? null,
             'order_index' => $validated['order_index'] ?? 0,
             'is_active' => (bool) ($validated['is_active'] ?? true),
@@ -100,21 +100,14 @@ class EventFormController extends Controller
             'title' => 'Edit Form Field',
             'event' => $event,
             'formField' => $eventForm,
+            'parentFields' => $this->parentFields($event, $eventForm->id),
         ]);
     }
 
     public function update(Request $request, Event $event, EventField $eventForm)
     {
         $type = $request->input('type');
-        if (in_array($type, ['select', 'radio', 'checkbox'], true)) {
-            $request->merge([
-                'options_json' => $this->normalizeOptions($request->input('options_json')),
-            ]);
-        } else {
-            $request->merge([
-                'options_json' => null,
-            ]);
-        }
+        $this->prepareOptions($request, $type);
 
         $validated = $request->validate([
             'field_key' => ['required', 'string', 'max:100', 'unique:event_fields,field_key,' . $eventForm->id . ',id,event_id,' . $event->id],
@@ -123,10 +116,13 @@ class EventFormController extends Controller
             'is_required' => ['nullable', 'boolean'],
             'is_primary_email' => ['nullable', 'boolean'],
             'allow_other' => ['nullable', 'boolean'],
+            'depends_on_field_id' => ['nullable', 'integer'],
             'options_json' => ['nullable', 'array'],
             'order_index' => ['nullable', 'integer', 'min:0'],
             'is_active' => ['nullable', 'boolean'],
         ]);
+
+        $this->validateDependencyConfiguration($event, $validated, $eventForm->id);
 
         $eventForm->update([
             'field_key' => $validated['field_key'],
@@ -136,10 +132,15 @@ class EventFormController extends Controller
             'is_primary_email' => (bool) ($validated['is_primary_email'] ?? false),
             'allow_other' => in_array($validated['type'], ['select', 'radio', 'checkbox'], true)
                 && (bool) ($validated['allow_other'] ?? false),
+            'depends_on_field_id' => $validated['type'] === 'select'
+                ? ($validated['depends_on_field_id'] ?? null)
+                : null,
             'options_json' => $validated['options_json'] ?? null,
             'order_index' => $validated['order_index'] ?? 0,
             'is_active' => (bool) ($validated['is_active'] ?? true),
         ]);
+
+        $this->syncDependentMappings($eventForm->fresh());
 
         return redirect()->route('event.forms.index', $event)->with('success', 'Form field updated successfully.');
     }
@@ -200,5 +201,134 @@ class EventFormController extends Controller
             'event' => $event,
             'formField' => $eventForm,
         ]);
+    }
+
+    private function parentFields(Event $event, $exceptId = null)
+    {
+        return $event->fields()
+            ->where('is_active', true)
+            ->whereIn('type', ['select', 'radio'])
+            ->when($exceptId, function ($query) use ($exceptId) {
+                $query->where('id', '!=', $exceptId);
+            })
+            ->orderBy('order_index')
+            ->get();
+    }
+
+    private function prepareOptions(Request $request, $type): void
+    {
+        if ($type === 'select' && $request->filled('depends_on_field_id')) {
+            $mapping = $request->input('dependent_options', []);
+            $mapping = is_array($mapping) ? $mapping : [];
+            $normalized = [];
+            foreach ($mapping as $parentValue => $options) {
+                $normalized[(string) $parentValue] = array_values(array_filter(array_map(function ($option) {
+                    return trim((string) $option);
+                }, is_array($options) ? $options : []), function ($option) {
+                    return $option !== '';
+                }));
+            }
+            $request->merge(['options_json' => $normalized]);
+        } elseif (in_array($type, ['select', 'radio', 'checkbox'], true)) {
+            $request->merge(['options_json' => $this->normalizeOptions($request->input('options_json'))]);
+        } else {
+            $request->merge(['options_json' => null]);
+        }
+    }
+
+    private function validateDependencyConfiguration(Event $event, array $validated, $currentId = null): void
+    {
+        $dependsOnId = $validated['depends_on_field_id'] ?? null;
+        if ($validated['type'] !== 'select' && $dependsOnId) {
+            throw ValidationException::withMessages([
+                'depends_on_field_id' => 'Only select fields can have a dependency.',
+            ]);
+        }
+
+        if (! $dependsOnId) {
+            return;
+        }
+
+        if ($currentId && (int) $currentId === (int) $dependsOnId) {
+            throw ValidationException::withMessages([
+                'depends_on_field_id' => 'A field cannot depend on itself.',
+            ]);
+        }
+
+        $parent = $event->fields()->whereKey($dependsOnId)->where('is_active', true)->first();
+        if (! $parent || ! in_array($parent->type, ['select', 'radio'], true)) {
+            throw ValidationException::withMessages([
+                'depends_on_field_id' => 'The selected parent field is invalid.',
+            ]);
+        }
+
+        $visited = $currentId ? [$currentId] : [];
+        while ($parent && $parent->depends_on_field_id) {
+            if (in_array($parent->depends_on_field_id, $visited, true) || $parent->depends_on_field_id == $currentId) {
+                throw ValidationException::withMessages([
+                    'depends_on_field_id' => 'Circular dependencies are not allowed.',
+                ]);
+            }
+            $visited[] = $parent->id;
+            $parent = $parent->dependsOnField;
+        }
+
+        $parentValues = $this->optionValues($parent ?? $event->fields()->find($dependsOnId));
+        $mapping = $validated['options_json'] ?? [];
+        if (! is_array($mapping)) {
+            throw ValidationException::withMessages(['options_json' => 'Dependent options must be a mapping.']);
+        }
+
+        foreach ($mapping as $key => $options) {
+            if (! in_array((string) $key, $parentValues, true) || ! is_array($options)) {
+                throw ValidationException::withMessages([
+                    'options_json' => 'Dependent option mappings must match parent options.',
+                ]);
+            }
+            foreach ($options as $option) {
+                if (! is_scalar($option) || trim((string) $option) === '') {
+                    throw ValidationException::withMessages([
+                        'options_json' => 'Dependent options must contain valid values.',
+                    ]);
+                }
+            }
+        }
+    }
+
+    private function optionValues($field): array
+    {
+        $options = is_array($field->options_json) ? $field->options_json : [];
+        if ($field->depends_on_field_id) {
+            $flattened = [];
+            foreach ($options as $dependentOptions) {
+                foreach ((array) $dependentOptions as $dependentOption) {
+                    $flattened[] = $dependentOption;
+                }
+            }
+            $options = $flattened;
+        }
+
+        return array_values(array_unique(array_filter(array_map(function ($option) {
+            return trim((string) (is_array($option) ? ($option['value'] ?? '') : $option));
+        }, $options))));
+    }
+
+    private function syncDependentMappings(EventField $parent): void
+    {
+        $parentValues = $this->optionValues($parent);
+
+        foreach ($parent->dependentFields as $dependent) {
+            $mapping = is_array($dependent->options_json) ? $dependent->options_json : [];
+            $synced = [];
+
+            foreach ($parentValues as $parentValue) {
+                $synced[$parentValue] = is_array($mapping[$parentValue] ?? null)
+                    ? array_values($mapping[$parentValue])
+                    : [];
+            }
+
+            $dependent->update(['options_json' => $synced]);
+            $this->syncDependentMappings($dependent->fresh());
+        }
     }
 }

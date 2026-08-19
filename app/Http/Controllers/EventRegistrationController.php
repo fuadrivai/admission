@@ -337,20 +337,33 @@ class EventRegistrationController extends Controller
 
     protected function allowedOptionValues($field)
     {
+        if ($field->depends_on_field_id && $field->type === 'select') {
+            $parent = $field->dependsOnField;
+            $parentValue = $parent ? request()->input($parent->field_key) : null;
+            $mapping = is_array($field->options_json) ? $field->options_json : [];
+
+            return $this->optionValues($mapping[$parentValue] ?? []);
+        }
+
         $options = is_array($field->options_json) ? $field->options_json : [];
+        return $this->optionValues($options);
+    }
+
+    protected function optionValues($options): array
+    {
         $values = [];
 
-        foreach ($options as $option) {
+        foreach ((array) $options as $option) {
             if (is_array($option)) {
-                $values[] = (string) ($option['value'] ?? '');
-            } else {
+                $option = $option['value'] ?? '';
+            }
+
+            if (is_scalar($option) && trim((string) $option) !== '') {
                 $values[] = (string) $option;
             }
         }
 
-        return array_values(array_filter($values, function ($value) {
-            return $value !== '';
-        }));
+        return array_values(array_unique($values));
     }
 
     protected function normalizeSubmittedValue($field, $value)

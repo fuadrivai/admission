@@ -57,6 +57,46 @@
                 syncPreviewOther($(this).data('preview-other-toggle') || $(this).data(
                     'preview-other-select'));
             });
+
+            function previewFieldValue(fieldKey) {
+                const $select = $('[data-preview-field-key="' + fieldKey + '"]').filter('select');
+                if ($select.length) {
+                    return $select.val() || '';
+                }
+
+                return $('input[type="radio"][name="preview_' + fieldKey + '"]:checked').val() || '';
+            }
+
+            function refreshPreviewDependents(parentKey) {
+                $('[data-preview-dependent-on="' + parentKey + '"]').each(function() {
+                    const $dependent = $(this);
+                    const mapping = $dependent.data('preview-dependent-options') || {};
+                    const parentValue = previewFieldValue(parentKey);
+                    const options = parentValue && Array.isArray(mapping[parentValue]) ? mapping[
+                        parentValue] : [];
+
+                    $dependent.empty().append($('<option>', {
+                        value: '',
+                        text: parentValue ? '-- Select --' :
+                            'Please select the parent field first'
+                    }));
+                    options.forEach(function(option) {
+                        $dependent.append($('<option>', {
+                            value: option,
+                            text: option
+                        }));
+                    });
+                    $dependent.prop('disabled', !parentValue || options.length === 0).val('');
+                    refreshPreviewDependents($dependent.data('preview-field-key'));
+                });
+            }
+
+            $(document).on('change', '[data-preview-field-key]', function() {
+                refreshPreviewDependents($(this).data('preview-field-key'));
+            });
+            $('[data-preview-dependent-on]').each(function() {
+                refreshPreviewDependents($(this).data('preview-dependent-on'));
+            });
         });
     </script>
 @endsection

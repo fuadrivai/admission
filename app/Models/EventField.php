@@ -23,6 +23,16 @@ class EventField extends Model
         return $this->belongsTo(Event::class);
     }
 
+    public function dependsOnField()
+    {
+        return $this->belongsTo(EventField::class, 'depends_on_field_id');
+    }
+
+    public function dependentFields()
+    {
+        return $this->hasMany(EventField::class, 'depends_on_field_id');
+    }
+
     public function answers()
     {
         return $this->hasMany(EventFieldAnswer::class);

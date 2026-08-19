@@ -6,14 +6,20 @@
 </label>
 <select id="event-field-{{ Str::slug($field->field_key) }}" name="{{ $field->field_key }}"
     class="form-select @error($field->field_key) is-invalid @enderror" {{ $field->is_required ? 'required' : '' }}
-    @if ($field->allow_other) data-other-select="{{ $field->field_key }}" @endif>
+    data-field-key="{{ $field->field_key }}"
+    @if ($field->allow_other) data-other-select="{{ $field->field_key }}" @endif
+    @if ($field->dependsOnField) data-dependent-on="{{ $field->dependsOnField->field_key }}"
+        data-dependent-options='@json($field->options_json ?? [])'
+        data-current-value="{{ old($field->field_key, '') }}" disabled @endif>
     <option value="">-- Select {{ $field->label }} --</option>
-    @foreach ($field->options_json ?? [] as $option)
-        <option value="{{ $option['value'] ?? $option }}"
-            {{ old($field->field_key) == ($option['value'] ?? $option) ? 'selected' : '' }}>
-            {{ $option['label'] ?? ($option['value'] ?? $option) }}
-        </option>
-    @endforeach
+    @unless ($field->dependsOnField)
+        @foreach ($field->options_json ?? [] as $option)
+            <option value="{{ $option['value'] ?? $option }}"
+                {{ old($field->field_key) == ($option['value'] ?? $option) ? 'selected' : '' }}>
+                {{ $option['label'] ?? ($option['value'] ?? $option) }}
+            </option>
+        @endforeach
+    @endunless
     @if ($field->allow_other)
         <option value="__OTHER__" data-other-required="{{ $field->is_required ? '1' : '0' }}"
             {{ old($field->field_key) === '__OTHER__' ? 'selected' : '' }}>Other</option>

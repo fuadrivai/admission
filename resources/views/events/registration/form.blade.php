@@ -723,6 +723,49 @@
                 syncOtherInput($(this).data('other-toggle') || $(this).data('other-select'));
             });
 
+            function selectedFieldValue(fieldKey) {
+                const $select = $('[data-field-key="' + fieldKey + '"]').filter('select');
+                if ($select.length) {
+                    return $select.val() || '';
+                }
+
+                return $('input[type="radio"][name="' + fieldKey + '"]:checked').val() || '';
+            }
+
+            function refreshDependentFields(parentKey) {
+                $('[data-dependent-on="' + parentKey + '"]').each(function() {
+                    const $dependent = $(this);
+                    const mapping = $dependent.data('dependent-options') || {};
+                    const parentValue = selectedFieldValue(parentKey);
+                    const options = parentValue && Array.isArray(mapping[parentValue]) ? mapping[
+                        parentValue] : [];
+                    const currentValue = $dependent.data('current-value');
+
+                    $dependent.empty().append($('<option>', {
+                        value: '',
+                        text: parentValue ? '-- Select --' :
+                            'Please select the parent field first'
+                    }));
+                    options.forEach(function(option) {
+                        $dependent.append($('<option>', {
+                            value: option,
+                            text: option
+                        }));
+                    });
+                    $dependent.prop('disabled', !parentValue || options.length === 0);
+                    $dependent.val(currentValue && options.includes(currentValue) ? currentValue : '');
+                    $dependent.removeData('current-value');
+                    refreshDependentFields($dependent.data('field-key'));
+                });
+            }
+
+            $(document).on('change', '[data-field-key]', function() {
+                refreshDependentFields($(this).data('field-key'));
+            });
+            $('[data-dependent-on]').each(function() {
+                refreshDependentFields($(this).data('dependent-on'));
+            });
+
             // Form Validation
             function validateForm() {
                 let isValid = true;
