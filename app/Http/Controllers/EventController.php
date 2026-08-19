@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Branch;
 use App\Models\Event;
 use App\Models\EventRegistration;
+use App\Exports\EventRegistrationExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Utilities\Request as UtilitiesRequest;
 
 class EventController extends Controller
@@ -182,6 +184,13 @@ class EventController extends Controller
         ]);
     }
 
+    public function exportRegistrations(Event $event)
+    {
+        $filename = 'event-registrations-' . Str::slug($event->title) . '-' . now()->format('Y-m-d') . '.xlsx';
+
+        return Excel::download(new EventRegistrationExport($event), $filename);
+    }
+
     /**
      * Get event registrations data for datatable
      */
@@ -191,8 +200,62 @@ class EventController extends Controller
             ->with('fieldAnswers.eventField')
             ->orderBy('created_at', 'desc');
 
+        $fieldAliases = [
+            'student_name' => ['student_name', 'studentName', 'student','students_full_name','students_fullname'],
+            'parent_name' => ['parent_name', 'parentName', 'parent','parents_name'],
+            'name' => ['name'],
+            'fullname' => ['fullname', 'full_name', 'full-name'],
+            'email' => ['email', 'email_address', 'emailAddress','parents_email','parents_email_address','parents_emailAddress'],
+            'phone' => ['phone', 'phone_number', 'phoneNumber', 'mobile'],
+            'level' => ['level', 'level_name', 'levelName'],
+            'grade' => ['grade', 'grade_name', 'gradeName'],
+        ];
+
+        $getFieldValue = function ($registration, $aliases) {
+            $normalizedAliases = collect($aliases)->map(function ($alias) {
+                return Str::lower(str_replace(['-', '_', ' '], '', $alias));
+            });
+
+            $answer = $registration->fieldAnswers->first(function ($answer) use ($normalizedAliases) {
+                if (! $answer->eventField) {
+                    return false;
+                }
+
+                $fieldKey = Str::lower(str_replace(['-', '_', ' '], '', $answer->eventField->field_key));
+                $label = Str::lower(str_replace(['-', '_', ' '], '', $answer->eventField->label));
+
+                return $normalizedAliases->contains($fieldKey) || $normalizedAliases->contains($label);
+            });
+
+            return $answer && $answer->value !== null ? $answer->value : '';
+        };
+
         if ($request->ajax()) {
             return datatables()->of($query)
+                ->addColumn('student_name', function ($row) use ($getFieldValue, $fieldAliases) {
+                    return $getFieldValue($row, $fieldAliases['student_name']);
+                })
+                ->addColumn('parent_name', function ($row) use ($getFieldValue, $fieldAliases) {
+                    return $getFieldValue($row, $fieldAliases['parent_name']);
+                })
+                ->addColumn('name', function ($row) use ($getFieldValue, $fieldAliases) {
+                    return $getFieldValue($row, $fieldAliases['name']);
+                })
+                ->addColumn('fullname', function ($row) use ($getFieldValue, $fieldAliases) {
+                    return $getFieldValue($row, $fieldAliases['fullname']);
+                })
+                ->addColumn('email', function ($row) use ($getFieldValue, $fieldAliases) {
+                    return $getFieldValue($row, $fieldAliases['email']);
+                })
+                ->addColumn('phone', function ($row) use ($getFieldValue, $fieldAliases) {
+                    return $getFieldValue($row, $fieldAliases['phone']);
+                })
+                ->addColumn('level', function ($row) use ($getFieldValue, $fieldAliases) {
+                    return $getFieldValue($row, $fieldAliases['level']);
+                })
+                ->addColumn('grade', function ($row) use ($getFieldValue, $fieldAliases) {
+                    return $getFieldValue($row, $fieldAliases['grade']);
+                })
                 ->addColumn('code', function ($row) {
                     return '<code>' . $row->code . '</code>';
                 })
@@ -205,22 +268,22 @@ class EventController extends Controller
                         'EXPIRED' => 'secondary',
                     ];
                     $color = $statusColors[$row->status] ?? 'secondary';
-                    return '<span class="badge bg-' . $color . '">' . $row->status . '</span>';
+                    return '<span class="badge badge-sm registration-status-badge bg-' . $color . '"><i>' . $row->status . '</i></span>';
                 })
                 ->addColumn('amount', function ($row) {
                     return 'Rp ' . number_format((float) $row->amount, 0, ',', '.');
                 })
                 ->addColumn('registered_at', function ($row) {
-                    return $row->registered_at ? $row->registered_at->format('d M Y H:i') : '--';
+                    return $row->registered_at ? $row->registered_at->format('d M Y H:i') : '';
                 })
                 ->addColumn('submission_date', function ($row) {
                     return $row->created_at->format('d M Y H:i');
                 })
                 ->addColumn('action', function ($row) use ($event) {
-                    return '<a href="' . route('event.registration.show', [$event, $row]) . '" class="btn btn-sm btn-primary text-white"><i class="fa fa-eye"></i> View</a>'
+                    return '<a href="' . route('event.registration.show', [$event, $row]) . '" class="btn btn-sm btn-primary text-white"><i class="fa fa-eye"></i></a>'
                         . ' <form method="POST" action="' . route('event.registration.delete', [$event, $row]) . '" style="display:inline;" onsubmit="return confirm(\'Are you sure?\');">'
                         . csrf_field() . method_field('DELETE')
-                        . '<button type="submit" class="btn btn-sm btn-danger text-white"><i class="fa fa-trash"></i> Delete</button>'
+                        . '<button type="submit" class="btn btn-sm btn-danger text-white"><i class="fa fa-trash"></i></button>'
                         . '</form>';
                 })
                 ->rawColumns(['code', 'status', 'action'])

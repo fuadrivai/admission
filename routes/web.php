@@ -231,6 +231,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
             Route::prefix('{event}/registrations')->name('registrations.')->group(function () {
                 Route::get('/', [EventController::class, 'registrations'])->name('index');
                 Route::get('datatables', [EventController::class, 'registrationsDatatables'])->name('datatables');
+                Route::get('export', [EventController::class, 'exportRegistrations'])->name('export');
             });
 
             Route::get('{event}/registration/{registration}', [EventController::class, 'showRegistration'])->name('registration.show');

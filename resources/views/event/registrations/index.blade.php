@@ -11,101 +11,120 @@
             gap: 1rem;
         }
 
-        .registration-info {
+        name: 'student_name',
+        orderable: false,
+        searchable: false .registration-info {
             flex: 1;
         }
 
-        .registration-info h2 {
+        name: 'parent_name',
+        orderable: false,
+        searchable: false .registration-info h2 {
             margin: 0 0 0.5rem;
             font-size: 1.75rem;
-            color: #333;
+            name: 'name',
+                orderable: false,
+                searchable: false
         }
 
         .registration-info p {
-            margin: 0;
-            color: #666;
+            name: 'fullname',
+                orderable: false,
+                searchable: false color: #666;
             font-size: 0.95rem;
         }
 
-        .registration-stats {
+        name: 'email',
+        orderable: false,
+        searchable: false .registration-stats {
             display: flex;
             gap: 1.5rem;
-        }
 
-        .stat-card {
-            background: #f8f9fa;
-            padding: 1.2rem;
-            border-radius: 8px;
-            border-left: 4px solid #2563eb;
-        }
-
-        .stat-label {
-            font-size: 0.85rem;
-            color: #666;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 0.5rem;
-        }
-
-        .stat-value {
-            font-size: 1.75rem;
-            font-weight: 700;
-            color: #2563eb;
-        }
-
-        @media (max-width: 768px) {
-            .registration-header {
-                flex-direction: column;
-                align-items: flex-start;
+            name: 'phone',
+            orderable: false,
+            searchable: false .stat-card {
+                background: #f8f9fa;
+                name: 'level',
+                    orderable: false,
+                    searchable: false border-radius: 8px;
+                border-left: 4px solid #2563eb;
             }
 
-            .registration-stats {
-                flex-direction: column;
-                gap: 0.75rem;
+            name: 'grade',
+            orderable: false,
+            searchable: false .stat-label {
+                font-size: 0.85rem;
+                color: #666;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                margin-bottom: 0.5rem;
             }
 
-            .stat-card {
-                flex: 1;
-                width: 100%;
+            .stat-value {
+                font-size: 1.75rem;
+                font-weight: 700;
+                color: #2563eb;
             }
-        }
 
-        .table thead th {
-            background-color: #f8f9fa;
-            border-bottom: 2px solid #dee2e6;
-            font-weight: 600;
-            color: #333;
-            padding: 1rem;
-        }
+            @media (max-width: 768px) {
+                .registration-header {
+                    flex-direction: column;
+                    align-items: flex-start;
+                }
 
-        .table tbody td {
-            padding: 1rem;
-            vertical-align: middle;
-        }
+                .registration-stats {
+                    flex-direction: column;
+                    gap: 0.75rem;
+                }
 
-        .table tbody tr:hover {
-            background-color: #f8f9fa;
-        }
+                .stat-card {
+                    flex: 1;
+                    width: 100%;
+                }
+            }
 
-        .btn-group-actions {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
+            .table thead th {
+                background-color: #f8f9fa;
+                border-bottom: 2px solid #dee2e6;
+                font-weight: 600;
+                color: #333;
+                padding: 1rem;
+            }
 
-        .btn-group-actions form {
-            margin: 0;
-        }
+            .table tbody td {
+                padding: 1rem;
+                vertical-align: middle;
+            }
 
-        code {
-            background-color: #f8f9fa;
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-            color: #e83e8c;
-            font-size: 0.9rem;
-            font-weight: 600;
-        }
+            .table tbody tr:hover {
+                background-color: #f8f9fa;
+            }
+
+            .btn-group-actions {
+                display: flex;
+                gap: 0.5rem;
+                flex-wrap: wrap;
+            }
+
+            .btn-group-actions form {
+                margin: 0;
+            }
+
+            code {
+                background-color: #f8f9fa;
+                padding: 0.25rem 0.5rem;
+                border-radius: 4px;
+                color: #e83e8c;
+                font-size: 0.9rem;
+                font-weight: 600;
+            }
+
+            .registration-status-badge {
+                padding: 0.2rem 0.4rem;
+                font-size: 0.7rem;
+                line-height: 1;
+            }
     </style>
 @endsection
 
@@ -115,24 +134,18 @@
             <div class="col-lg-12">
                 <div class="registration-header">
                     <div class="registration-info">
-                        <h2>{{ $event->title }}</h2>
-                        <p>Manage and view all event registrations</p>
-                    </div>
-                    <div class="registration-stats">
-                        <div class="stat-card">
-                            <div class="stat-label">Total Registrations</div>
-                            <div class="stat-value" id="total-registrations">0</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-label">Status: SUBMITTED</div>
-                            <div class="stat-value" id="status-submitted" style="color: #0dcaf0;">0</div>
-                        </div>
+                        <h3>{{ $event->title }}</h3>
                     </div>
                 </div>
 
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="mb-0">Registrations</h5>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Registrations</h5>
+                            <a href="{{ route('event.registrations.export', $event) }}" class="btn btn-success">
+                                <i class="fa fa-download"></i> Export Excel
+                            </a>
+                        </div>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -140,10 +153,12 @@
                                 <thead>
                                     <tr>
                                         <th>Code</th>
-                                        <th>Status</th>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Level</th>
                                         <th>Amount</th>
                                         <th>Registered</th>
-                                        <th>Submitted</th>
+                                        <th>Status</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -172,9 +187,33 @@
                         name: 'code'
                     },
                     {
-                        data: 'status',
-                        name: 'status'
+                        data: 'student_name',
+                        name: 'student_name',
+                        mRender: function(data, type, row) {
+                            const parent = row.parent_name ?
+                                `<br><small>${row.parent_name}</small>` : '';
+                            return `${data}${parent}`;
+                        }
                     },
+                    {
+                        data: 'email',
+                        name: 'email',
+                        mRender: function(data, type, row) {
+                            const phone = row.phone ?
+                                `<br><small>${row.phone}</small>` : '';
+                            return `${data}${phone}`;
+                        }
+                    },
+                    {
+                        data: 'level',
+                        name: 'level',
+                        mRender: function(data, type, row) {
+                            const grade = row.grade ?
+                                `<br><small>${row.grade}</small>` : '';
+                            return `${data}${grade}`;
+                        }
+                    },
+
                     {
                         data: 'amount',
                         name: 'amount'
@@ -183,9 +222,10 @@
                         data: 'registered_at',
                         name: 'registered_at'
                     },
+
                     {
-                        data: 'submission_date',
-                        name: 'created_at'
+                        data: 'status',
+                        name: 'status'
                     },
                     {
                         data: 'action',
@@ -193,9 +233,6 @@
                         orderable: false,
                         searchable: false
                     }
-                ],
-                order: [
-                    [4, 'desc']
                 ],
                 pageLength: 25,
                 lengthMenu: [10, 25, 50, 100],
@@ -231,7 +268,8 @@
                             success: function(fullResponse) {
                                 fullResponse.data.forEach(item => {
                                     if (item.status.includes(
-                                        'info')) { // SUBMITTED status has 'info' class
+                                            'info'
+                                        )) { // SUBMITTED status has 'info' class
                                         submitted++;
                                     }
                                 });
@@ -243,7 +281,7 @@
             });
 
             // Trigger initial draw to update stats
-            table.draw();
+            // table.draw();
         });
     </script>
 @endsection
