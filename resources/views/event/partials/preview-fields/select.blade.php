@@ -9,7 +9,7 @@
             <span class="text-danger">*</span>
         @endif
     </label>
-    <select class="form-select" disabled>
+    <select class="form-select" data-preview-other-select="{{ $field->field_key }}">
         <option value="">-- Select --</option>
         @foreach ($options as $option)
             @php
@@ -18,5 +18,12 @@
             <option value="{{ is_array($option) ? $option['value'] ?? $optionLabel : $optionLabel }}">
                 {{ $optionLabel }}</option>
         @endforeach
+        @if ($field->allow_other)
+            <option value="__OTHER__">Other</option>
+        @endif
     </select>
+    @if ($field->allow_other)
+        <input type="text" class="form-control mt-2" data-preview-other-input="{{ $field->field_key }}"
+            placeholder="Please specify" disabled>
+    @endif
 </div>

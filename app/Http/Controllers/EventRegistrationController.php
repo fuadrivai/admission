@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 use function App\Helpers\codeGenerator;
 use function App\Helpers\setupMail;
@@ -84,14 +85,45 @@ class EventRegistrationController extends Controller
 
         foreach ($fields as $field) {
             $rules[$field->field_key] = $this->fieldRule($field);
+
+            if ($field->type === 'checkbox') {
+                $allowed = $this->allowedOptionValues($field);
+                if ($field->allow_other) {
+                    $allowed[] = '__OTHER__';
+                }
+                $rules[$field->field_key . '.*'] = [Rule::in($allowed)];
+            }
         }
 
         $validator = Validator::make($request->all(), $rules);
+
+        $validator->after(function ($validator) use ($fields, $request) {
+            foreach ($fields as $field) {
+                if (! $field->allow_other || ! in_array($field->type, ['select', 'radio', 'checkbox'], true)) {
+                    continue;
+                }
+
+                $value = $request->input($field->field_key);
+                $hasOther = $field->type === 'checkbox'
+                    ? is_array($value) && in_array('__OTHER__', $value, true)
+                    : $value === '__OTHER__';
+
+                if ($hasOther && $this->otherValue($field) === '' && $field->is_required) {
+                    $validator->errors()->add($field->field_key, 'Please specify the Other value.');
+                }
+            }
+        });
 
         if ($validator->fails()) {
             return redirect()->back()
                 ->withErrors($validator)
                 ->withInput();
+        }
+
+        foreach ($fields as $field) {
+            $request->merge([
+                $field->field_key => $this->normalizeSubmittedValue($field, $request->input($field->field_key)),
+            ]);
         }
 
         // $registrationCode = EventRegistration::generateUniqueCode();
@@ -291,12 +323,11 @@ class EventRegistrationController extends Controller
             case 'select':
             case 'radio':
                 $allowed = $this->allowedOptionValues($field);
-                $rule = ['string'];
-                if (! empty($allowed)) {
-                    $rule[] = 'in:' . implode(',', $allowed);
+                if ($field->allow_other) {
+                    $allowed[] = '__OTHER__';
                 }
 
-                return array_merge($base, $rule);
+                return array_merge($base, ['string', Rule::in($allowed)]);
             case 'checkbox':
                 return $field->is_required ? ['required', 'array'] : ['nullable', 'array'];
             default:
@@ -320,6 +351,43 @@ class EventRegistrationController extends Controller
         return array_values(array_filter($values, function ($value) {
             return $value !== '';
         }));
+    }
+
+    protected function normalizeSubmittedValue($field, $value)
+    {
+        $otherValue = $this->otherValue($field);
+
+        if ($field->type === 'checkbox') {
+            $values = is_array($value) ? $value : [];
+            $values = array_values(array_filter($values, function ($item) {
+                return $item !== null && $item !== '';
+            }));
+
+            if (in_array('__OTHER__', $values, true)) {
+                $values = array_values(array_filter($values, function ($item) {
+                    return $item !== '__OTHER__';
+                }));
+
+                if ($otherValue !== '') {
+                    $values[] = $otherValue;
+                }
+            }
+
+            return $values;
+        }
+
+        if ($value === '__OTHER__') {
+            return $otherValue !== '' ? $otherValue : null;
+        }
+
+        return $value;
+    }
+
+    protected function otherValue($field): string
+    {
+        $value = request()->input($field->field_key . '__other', '');
+
+        return is_scalar($value) ? trim((string) $value) : '';
     }
 
     protected function resolveAvailablePriceOption(Event $event, $priceOptionId)

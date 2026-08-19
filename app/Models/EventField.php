@@ -14,6 +14,7 @@ class EventField extends Model
     protected $casts = [
         'is_required' => 'boolean',
         'is_active' => 'boolean',
+        'allow_other' => 'boolean',
         'options_json' => 'array',
     ];
 

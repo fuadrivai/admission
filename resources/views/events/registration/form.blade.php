@@ -692,6 +692,37 @@
                     $(this).closest('.event-option-card').addClass('is-selected');
                 });
 
+            function syncOtherInput(fieldKey) {
+                const $toggle = $('[data-other-toggle]').filter(function() {
+                    return $(this).data('other-toggle') === fieldKey && $(this).is(':checked');
+                });
+                const $select = $('[data-other-select]').filter(function() {
+                    return $(this).data('other-select') === fieldKey;
+                });
+                const isOtherSelected = $toggle.length > 0 || $select.val() === '__OTHER__';
+                const $input = $('[data-other-input]').filter(function() {
+                    return $(this).data('other-input') === fieldKey;
+                });
+
+                $input.prop('disabled', !isOtherSelected);
+                if (!isOtherSelected) {
+                    $input.val('');
+                }
+
+                $('[data-other-wrapper]').filter(function() {
+                    return $(this).data('other-wrapper') === fieldKey;
+                }).toggle(isOtherSelected);
+            }
+
+            $('[data-other-toggle], [data-other-select]').on('change', function() {
+                const fieldKey = $(this).data('other-toggle') || $(this).data('other-select');
+                syncOtherInput(fieldKey);
+            });
+
+            $('[data-other-toggle], [data-other-select]').each(function() {
+                syncOtherInput($(this).data('other-toggle') || $(this).data('other-select'));
+            });
+
             // Form Validation
             function validateForm() {
                 let isValid = true;
@@ -786,6 +817,28 @@
                                 );
                             }
                         }
+                    }
+                });
+
+                $form.find('[data-other-input]').filter(':enabled').each(function() {
+                    const $input = $(this);
+                    const fieldKey = $input.data('other-input');
+                    const $toggle = $('[data-other-toggle]').filter(function() {
+                        return $(this).data('other-toggle') === fieldKey && $(this).is(':checked');
+                    }).first();
+                    const $select = $('[data-other-select]').filter(function() {
+                        return $(this).data('other-select') === fieldKey;
+                    });
+                    const required = $toggle.data('other-required') ||
+                        $select.find('option:selected').data('other-required');
+
+                    if (String(required) === '1' && !$.trim($input.val())) {
+                        isValid = false;
+                        const $fieldBlock = $input.closest('.field-block');
+                        $fieldBlock.addClass('has-error');
+                        $input.after(
+                            '<div class="invalid-feedback field-error" style="display: block;">Please specify the Other value.</div>'
+                        );
                     }
                 });
 

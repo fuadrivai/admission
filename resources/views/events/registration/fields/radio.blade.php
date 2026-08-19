@@ -24,6 +24,18 @@
             <span class="event-option-label">{{ $label }}</span>
         </label>
     @endforeach
+    @if ($field->allow_other)
+        <label class="event-option-card">
+            <input type="radio" name="{{ $field->field_key }}" value="__OTHER__"
+                data-other-toggle="{{ $field->field_key }}"
+                data-other-required="{{ $field->is_required ? '1' : '0' }}"
+                {{ old($field->field_key) === '__OTHER__' ? 'checked' : '' }}>
+            <span class="event-option-label">Other:</span>
+            <input type="text" name="{{ $field->field_key }}__other" class="form-control event-other-input"
+                data-other-input="{{ $field->field_key }}" value="{{ old($field->field_key . '__other', '') }}"
+                disabled>
+        </label>
+    @endif
 </div>
 @error($field->field_key)
     <div class="invalid-feedback">{{ $message }}</div>

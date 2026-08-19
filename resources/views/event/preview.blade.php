@@ -94,6 +94,42 @@
     </style>
 @endsection
 
+@section('content-script')
+    <script>
+        $(function() {
+            function syncPreviewOther(fieldKey) {
+                const $otherToggle = $('[data-preview-other-toggle]').filter(function() {
+                    return $(this).data('preview-other-toggle') === fieldKey && $(this).is(':checked');
+                });
+                const $select = $('[data-preview-other-select]').filter(function() {
+                    return $(this).data('preview-other-select') === fieldKey;
+                });
+                const isOtherSelected = $otherToggle.length > 0 || $select.val() === '__OTHER__';
+                const $input = $('[data-preview-other-input]').filter(function() {
+                    return $(this).data('preview-other-input') === fieldKey;
+                });
+
+                $input.prop('disabled', !isOtherSelected);
+                if (!isOtherSelected) {
+                    $input.val('');
+                }
+            }
+
+            $(document).on('change', '[data-preview-other-toggle], [data-preview-other-select]', function() {
+                const fieldKey = $(this).data('preview-other-toggle') || $(this).data(
+                    'preview-other-select');
+                syncPreviewOther(fieldKey);
+            });
+
+            $('[data-preview-other-toggle], [data-preview-other-select]').each(function() {
+                const fieldKey = $(this).data('preview-other-toggle') || $(this).data(
+                    'preview-other-select');
+                syncPreviewOther(fieldKey);
+            });
+        });
+    </script>
+@endsection
+
 @section('content-child')
     <section class="section">
         <div class="container">

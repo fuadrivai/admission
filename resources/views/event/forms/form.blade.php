@@ -190,6 +190,17 @@ SD C">{{ old('options_json', isset($formField) && $formField->options_json ? jso
                             <small class="mini-note">Kosongkan jika tipe bukan select, radio, atau checkbox.</small>
                         </div>
 
+                        <div class="mb-4" id="allow-other-wrapper" style="display: none;">
+                            <div class="check-card">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="allow_other" name="allow_other"
+                                        value="1"
+                                        {{ old('allow_other', $formField->allow_other ?? false) ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="allow_other">Allow "Other" option</label>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="mb-4">
                             <div class="check-card">
                                 <div class="form-check">
@@ -248,8 +259,14 @@ SD C">{{ old('options_json', isset($formField) && $formField->options_json ? jso
         function toggleOptions() {
             const type = $('#type').val();
             const optionsWrapper = $('#options-wrapper');
+            const allowOtherWrapper = $('#allow-other-wrapper');
             const shouldShow = ['select', 'radio', 'checkbox'].includes(type);
             optionsWrapper.toggle(shouldShow);
+            allowOtherWrapper.toggle(shouldShow);
+
+            if (!shouldShow) {
+                $('#allow_other').prop('checked', false);
+            }
         }
 
         function togglePrimaryEmailField() {

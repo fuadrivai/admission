@@ -72,6 +72,7 @@ class EventFormController extends Controller
             'type' => ['required', 'in:text,textarea,select,radio,checkbox,email,phone,number,date'],
             'is_required' => ['nullable', 'boolean'],
             'is_primary_email' => ['nullable', 'boolean'],
+            'allow_other' => ['nullable', 'boolean'],
             'options_json' => ['nullable', 'array'],
             'order_index' => ['nullable', 'integer', 'min:0'],
             'is_active' => ['nullable', 'boolean'],
@@ -83,6 +84,8 @@ class EventFormController extends Controller
             'type' => $validated['type'],
             'is_required' => (bool) ($validated['is_required'] ?? false),
             'is_primary_email' => (bool) ($validated['is_primary_email'] ?? false),
+            'allow_other' => in_array($validated['type'], ['select', 'radio', 'checkbox'], true)
+                && (bool) ($validated['allow_other'] ?? false),
             'options_json' => $validated['options_json'] ?? null,
             'order_index' => $validated['order_index'] ?? 0,
             'is_active' => (bool) ($validated['is_active'] ?? true),
@@ -119,6 +122,7 @@ class EventFormController extends Controller
             'type' => ['required', 'in:text,textarea,select,radio,checkbox,email,phone,number,date'],
             'is_required' => ['nullable', 'boolean'],
             'is_primary_email' => ['nullable', 'boolean'],
+            'allow_other' => ['nullable', 'boolean'],
             'options_json' => ['nullable', 'array'],
             'order_index' => ['nullable', 'integer', 'min:0'],
             'is_active' => ['nullable', 'boolean'],
@@ -130,6 +134,8 @@ class EventFormController extends Controller
             'type' => $validated['type'],
             'is_required' => (bool) ($validated['is_required'] ?? false),
             'is_primary_email' => (bool) ($validated['is_primary_email'] ?? false),
+            'allow_other' => in_array($validated['type'], ['select', 'radio', 'checkbox'], true)
+                && (bool) ($validated['allow_other'] ?? false),
             'options_json' => $validated['options_json'] ?? null,
             'order_index' => $validated['order_index'] ?? 0,
             'is_active' => (bool) ($validated['is_active'] ?? true),

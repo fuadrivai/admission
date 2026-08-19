@@ -14,37 +14,10 @@
                     <div class="row g-3">
                         @foreach ($event->forms()->orderBy('order_index')->get() as $field)
                             <div class="col-md-12">
-                                <label class="form-label">
-                                    {{ $field->label }}
-                                    @if ($field->is_required)
-                                        <span class="text-danger">*</span>
-                                    @endif
-                                </label>
-                                @if ($field->type === 'textarea')
-                                    <textarea class="form-control" rows="4"></textarea>
-                                @elseif ($field->type === 'select')
-                                    <select class="form-select">
-                                        @foreach ($field->options_json ?? [] as $option)
-                                            <option value="{{ $option }}">{{ $option }}</option>
-                                        @endforeach
-                                    </select>
-                                @elseif ($field->type === 'checkbox')
-                                    <div class="form-check">
-                                        <input type="checkbox" class="form-check-input">
-                                        <label class="form-check-label">{{ $field->label }}</label>
-                                    </div>
-                                @elseif ($field->type === 'radio')
-                                    @foreach ($field->options_json ?? [] as $option)
-                                        <div class="form-check">
-                                            <input type="radio" class="form-check-input" name="{{ $field->field_key }}">
-                                            <label class="form-check-label">{{ $option }}</label>
-                                        </div>
-                                    @endforeach
-                                @else
-                                    <input
-                                        type="{{ $field->type === 'email' ? 'email' : ($field->type === 'number' ? 'number' : ($field->type === 'date' ? 'date' : 'text')) }}"
-                                        class="form-control">
-                                @endif
+                                @includeWhen(View::exists('event.partials.preview-fields.' . $field->type),
+                                    'event.partials.preview-fields.' . $field->type,
+                                    ['field' => $field]
+                                )
                             </div>
                         @endforeach
                     </div>
@@ -52,4 +25,38 @@
             </div>
         </div>
     </section>
+@endsection
+
+@section('content-script')
+    <script>
+        $(function() {
+            function syncPreviewOther(fieldKey) {
+                const $toggle = $('[data-preview-other-toggle]').filter(function() {
+                    return $(this).data('preview-other-toggle') === fieldKey && $(this).is(':checked');
+                });
+                const $select = $('[data-preview-other-select]').filter(function() {
+                    return $(this).data('preview-other-select') === fieldKey;
+                });
+                const $input = $('[data-preview-other-input]').filter(function() {
+                    return $(this).data('preview-other-input') === fieldKey;
+                });
+                const isOtherSelected = $toggle.length > 0 || $select.val() === '__OTHER__';
+
+                $input.prop('disabled', !isOtherSelected);
+                if (!isOtherSelected) {
+                    $input.val('');
+                }
+            }
+
+            $(document).on('change', '[data-preview-other-toggle], [data-preview-other-select]', function() {
+                syncPreviewOther($(this).data('preview-other-toggle') || $(this).data(
+                    'preview-other-select'));
+            });
+
+            $('[data-preview-other-toggle], [data-preview-other-select]').each(function() {
+                syncPreviewOther($(this).data('preview-other-toggle') || $(this).data(
+                    'preview-other-select'));
+            });
+        });
+    </script>
 @endsection
