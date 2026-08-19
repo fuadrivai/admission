@@ -213,6 +213,13 @@ SD C">{{ old('options_json', isset($formField) && $formField->options_json ? jso
                                     );
                                     $mapping = old('dependent_options', $formField->options_json ?? []);
                                     $mapping = is_array($mapping) ? $mapping : [];
+                                    $optionText = function ($option) {
+                                        if (is_array($option)) {
+                                            return (string) ($option['label'] ?? ($option['value'] ?? ''));
+                                        }
+
+                                        return is_scalar($option) ? (string) $option : '';
+                                    };
                                 @endphp
                                 @foreach ($parentFields as $parentField)
                                     @php
@@ -234,9 +241,7 @@ SD C">{{ old('options_json', isset($formField) && $formField->options_json ? jso
                                             $parentOptions = array_values(array_unique($parentOptions));
                                         } else {
                                             foreach ($configuredOptions as $configuredOption) {
-                                                $parentOptions[] = is_array($configuredOption)
-                                                    ? $configuredOption['value'] ?? ''
-                                                    : $configuredOption;
+                                                $parentOptions[] = $optionText($configuredOption);
                                             }
                                         }
                                     @endphp
@@ -244,9 +249,7 @@ SD C">{{ old('options_json', isset($formField) && $formField->options_json ? jso
                                         style="display: none;">
                                         @foreach ($parentOptions as $parentOption)
                                             @php
-                                                $parentValue = is_array($parentOption)
-                                                    ? $parentOption['value'] ?? ''
-                                                    : $parentOption;
+                                                $parentValue = $optionText($parentOption);
                                                 $childOptions = is_array($mapping[$parentValue] ?? null)
                                                     ? $mapping[$parentValue]
                                                     : [''];
@@ -257,7 +260,7 @@ SD C">{{ old('options_json', isset($formField) && $formField->options_json ? jso
                                                         style="min-width: 150px;">{{ $parentValue }}</span>
                                                     <input type="text" class="form-control dependent-option-input"
                                                         name="dependent_options[{{ $parentValue }}][]"
-                                                        value="{{ $childOptions[0] ?? '' }}"
+                                                        value="{{ $optionText($childOptions[0] ?? '') }}"
                                                         placeholder="Available option">
                                                     <button type="button"
                                                         class="btn btn-outline-danger remove-dependent-option">-</button>
@@ -267,7 +270,8 @@ SD C">{{ old('options_json', isset($formField) && $formField->options_json ? jso
                                                         <span class="input-group-text" style="min-width: 150px;"></span>
                                                         <input type="text" class="form-control dependent-option-input"
                                                             name="dependent_options[{{ $parentValue }}][]"
-                                                            value="{{ $childOption }}" placeholder="Available option">
+                                                            value="{{ $optionText($childOption) }}"
+                                                            placeholder="Available option">
                                                         <button type="button"
                                                             class="btn btn-outline-danger remove-dependent-option">-</button>
                                                     </div>
