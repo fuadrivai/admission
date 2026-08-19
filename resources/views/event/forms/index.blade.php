@@ -172,7 +172,18 @@
                                         $options = is_array($field->options_json) ? $field->options_json : [];
                                         $optionValue = function ($option) {
                                             if (is_array($option)) {
-                                                return (string) ($option['label'] ?? ($option['value'] ?? ''));
+                                                $option = $option['label'] ?? ($option['value'] ?? $option);
+
+                                                if (is_array($option)) {
+                                                    return implode(
+                                                        ', ',
+                                                        array_filter(
+                                                            array_map(function ($value) {
+                                                                return is_scalar($value) ? (string) $value : '';
+                                                            }, $option),
+                                                        ),
+                                                    );
+                                                }
                                             }
 
                                             return is_scalar($option) ? (string) $option : '';
@@ -184,7 +195,7 @@
                                                     $values = is_array($values) ? array_map($optionValue, $values) : [];
                                                     $values = array_values(array_filter($values));
 
-                                                    return $parentValue . ': ' . implode(', ', $values);
+                                                    return (string) $parentValue . ': ' . implode(', ', $values);
                                                 })
                                                 ->implode(' | ');
                                         } else {

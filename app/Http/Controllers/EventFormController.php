@@ -262,6 +262,7 @@ class EventFormController extends Controller
             ]);
         }
 
+        $selectedParent = $parent;
         $visited = $currentId ? [$currentId] : [];
         while ($parent && $parent->depends_on_field_id) {
             if (in_array($parent->depends_on_field_id, $visited, true) || $parent->depends_on_field_id == $currentId) {
@@ -273,7 +274,7 @@ class EventFormController extends Controller
             $parent = $parent->dependsOnField;
         }
 
-        $parentValues = $this->optionValues($parent ?? $event->fields()->find($dependsOnId));
+        $parentValues = $this->optionValues($selectedParent);
         $mapping = $validated['options_json'] ?? [];
         if (! is_array($mapping)) {
             throw ValidationException::withMessages(['options_json' => 'Dependent options must be a mapping.']);

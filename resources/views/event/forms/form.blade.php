@@ -401,7 +401,14 @@ SD C">{{ $oldOptionsText }}</textarea>
             const isDependent = $('#type').val() === 'select' && parentId !== '';
             $('#dependent-options-wrapper').toggle(isDependent);
             $('#options-wrapper').toggle(!isDependent && ['select', 'radio', 'checkbox'].includes($('#type').val()));
-            $('.dependent-parent-group').hide().filter('[data-parent-id="' + parentId + '"]').show();
+
+            $('.dependent-parent-group').each(function() {
+                const $group = $(this);
+                const isSelected = isDependent && String($group.data('parent-id')) === String(parentId);
+
+                $group.toggle(isSelected);
+                $group.find('.dependent-option-input').prop('disabled', !isSelected);
+            });
         }
 
         function togglePrimaryEmailField() {
