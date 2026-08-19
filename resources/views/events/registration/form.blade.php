@@ -32,37 +32,37 @@
         }
 
         body {
-            background: linear-gradient(180deg, #fffaf9 0%, #fff 100%);
+            background: #ffffff;
             color: var(--text-dark);
             font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
         }
 
         .event-registration-wrapper {
-            min-height: 100vh;
-            padding: 24px 12px 40px;
+            min-height: 100%;
+            padding: 40px 20px;
             display: flex;
-            align-items: flex-start;
+            align-items: center;
             justify-content: center;
         }
 
         .event-registration-container {
             width: 100%;
-            max-width: 860px;
-            margin: 0 auto;
+            max-width: 900px;
+            margin: 20px auto;
         }
 
         .registration-card {
             background: #ffffff;
-            border: 1px solid var(--line);
-            border-radius: 22px;
-            box-shadow: 0 20px 45px rgba(64, 0, 0, 0.12);
+            border: 0;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             overflow: hidden;
         }
 
         .event-card-header {
-            background: linear-gradient(135deg, var(--maroon-900) 0%, var(--maroon-700) 100%);
+            background: linear-gradient(135deg, #800000 0%, #a00000 100%);
             color: white;
-            padding: 28px 18px 24px;
+            padding: 20px 30px;
             text-align: center;
             position: relative;
         }
@@ -76,19 +76,20 @@
         }
 
         .event-card-header img {
-            width: min(58%, 220px);
-            max-width: 220px;
+            width: 40%;
+            max-width: none;
             height: auto;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.18));
         }
 
-        .event-card-header h1 {
+        .event-card-header h1,
+        .event-card-header .event-title {
             margin: 0;
-            font-size: clamp(1.8rem, 3vw, 2.6rem);
+            font-size: 2rem;
             line-height: 1.25;
-            font-weight: 800;
-            letter-spacing: -0.03em;
+            font-weight: 700;
+            letter-spacing: 0.5px;
             color: #ffffff;
         }
 
@@ -97,12 +98,7 @@
         }
 
         .event-title {
-            margin: 0 0 18px;
-            color: var(--soft-white);
-            font-size: clamp(1.6rem, 2.4vw, 2.3rem);
-            line-height: 1.2;
-            font-weight: 700;
-            letter-spacing: -0.02em;
+            margin: 0;
         }
 
         .event-intro {
