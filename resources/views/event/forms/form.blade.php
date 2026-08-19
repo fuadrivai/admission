@@ -156,6 +156,19 @@
                         @method('PUT')
                     @endif
 
+                    @php
+                        $oldLabel = old('label', $formField->label ?? '');
+                        $oldType = old('type', $formField->type ?? 'text');
+                        $oldDependsOnFieldId = old('depends_on_field_id', $formField->depends_on_field_id ?? '');
+                        $oldFieldKey = old('field_key', $formField->field_key ?? '');
+                        $oldOptions = old('options_json', $formField->options_json ?? '');
+                        $oldOptionsText = is_array($oldOptions)
+                            ? json_encode($oldOptions)
+                            : (is_scalar($oldOptions)
+                                ? (string) $oldOptions
+                                : '');
+                    @endphp
+
                     <div class="field-section">
                         <h5 style="margin: 0 0 1.2rem; font-weight: 500; color: #374151;">Field Details</h5>
 
@@ -163,7 +176,7 @@
                             <label class="field-label" for="label">Question Label <span
                                     class="required-mark">*</span></label>
                             <input id="label" type="text" name="label" class="modern-input"
-                                value="{{ old('label', $formField->label ?? '') }}"
+                                value="{{ is_scalar($oldLabel) ? $oldLabel : '' }}"
                                 placeholder="Contoh: Nama Anak, Asal Sekolah, dll" required>
                         </div>
 
@@ -171,8 +184,7 @@
                             <label class="field-label" for="type">Input Type</label>
                             <select id="type" name="type" class="modern-select" required>
                                 @foreach (['text', 'textarea', 'select', 'radio', 'checkbox', 'email', 'phone', 'number', 'date'] as $type)
-                                    <option value="{{ $type }}"
-                                        {{ old('type', $formField->type ?? 'text') == $type ? 'selected' : '' }}>
+                                    <option value="{{ $type }}" {{ $oldType == $type ? 'selected' : '' }}>
                                         {{ ucfirst($type) }}
                                     </option>
                                 @endforeach
@@ -186,7 +198,7 @@
 Contoh:
 TK A
 TK B
-SD C">{{ old('options_json', isset($formField) && $formField->options_json ? json_encode($formField->options_json) : '') }}</textarea>
+SD C">{{ $oldOptionsText }}</textarea>
                             <small class="mini-note">Kosongkan jika tipe bukan select, radio, atau checkbox.</small>
                         </div>
 
@@ -196,7 +208,7 @@ SD C">{{ old('options_json', isset($formField) && $formField->options_json ? jso
                                 <option value="">None</option>
                                 @foreach ($parentFields as $parentField)
                                     <option value="{{ $parentField->id }}"
-                                        {{ old('depends_on_field_id', $formField->depends_on_field_id ?? '') == $parentField->id ? 'selected' : '' }}>
+                                        {{ $oldDependsOnFieldId == $parentField->id ? 'selected' : '' }}>
                                         {{ $parentField->label }} ({{ ucfirst($parentField->type) }})
                                     </option>
                                 @endforeach
@@ -215,7 +227,18 @@ SD C">{{ old('options_json', isset($formField) && $formField->options_json ? jso
                                     $mapping = is_array($mapping) ? $mapping : [];
                                     $optionText = function ($option) {
                                         if (is_array($option)) {
-                                            return (string) ($option['label'] ?? ($option['value'] ?? ''));
+                                            $option = $option['label'] ?? ($option['value'] ?? '');
+
+                                            if (is_array($option)) {
+                                                return implode(
+                                                    ', ',
+                                                    array_filter(
+                                                        array_map(function ($value) {
+                                                            return is_scalar($value) ? (string) $value : '';
+                                                        }, $option),
+                                                    ),
+                                                );
+                                            }
                                         }
 
                                         return is_scalar($option) ? (string) $option : '';
@@ -324,7 +347,7 @@ SD C">{{ old('options_json', isset($formField) && $formField->options_json ? jso
                         </div>
 
                         <input type="hidden" name="field_key" id="field_key"
-                            value="{{ old('field_key', $formField->field_key ?? '') }}">
+                            value="{{ is_scalar($oldFieldKey) ? $oldFieldKey : '' }}">
 
                         <div class="system-note">
                             <span class="info-icon">i</span>
