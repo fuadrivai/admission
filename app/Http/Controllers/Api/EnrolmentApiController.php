@@ -16,6 +16,12 @@ class EnrolmentApiController extends Controller
         $this->enrolmentService = $enrolmentService;
     }
 
+    public function index(Request $request)
+    {
+       $enrolments= $this->enrolmentService->search($request);
+       return response()->json($enrolments->paginate(request('perpage')??10)->withQueryString());
+    }
+
     public function post(Request $request)
     {
         return $this->enrolmentService->postForm($request);

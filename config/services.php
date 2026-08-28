@@ -35,4 +35,8 @@ return [
         'api_key_semarang' => env('XENDIT_API_KEY_SEMARANG'),
     ],
 
+    'token' => [
+        'public' => env('PUBLIC_TOKEN'),
+    ],
+
 ];

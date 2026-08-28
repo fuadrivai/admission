@@ -20,3 +20,9 @@ Route::post('/enrolment/post', [EnrolmentApiController::class, 'post']);
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::middleware('token.public')->group(function () {
+    Route::prefix('enrolment')->name('enrolment.')->group(function () {
+        Route::get('/', [EnrolmentApiController::class,'index'])->name('api.enrolment.index');
+    });
+});
