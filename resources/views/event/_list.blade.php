@@ -25,8 +25,10 @@
                 </div>
                 <div class="col-lg-5 col-md-4">
                     <div class="event-card-actions">
-                        <a href="{{ route('event.edit', $event) }}" class="btn btn-sm btn-primary"><i
-                                class="fa fa-pencil"></i> Edit</a>
+                        @if (!auth()->check() || auth()->user()->role != 'user')
+                            <a href="{{ route('event.edit', $event) }}" class="btn btn-sm btn-primary"><i
+                                    class="fa fa-pencil"></i> Edit</a>
+                        @endif
                         <a href="{{ route('events.show', $event) }}" class="btn btn-sm btn-warning"><i
                                 class="fa fa-eye"></i> Live Form</a>
                         <a href="{{ route('event.registrations.index', $event) }}"

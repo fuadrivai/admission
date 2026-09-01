@@ -24,18 +24,20 @@
                     </a>
                 </li>
 
-                <li
-                    class="sidebar-item has-sub {{ Request::is('level*') || Request::is('division*') ? 'active' : '' }}">
-                    <a href="#" class='sidebar-link'>
-                        <i class="fa fa-graduation-cap"></i>
-                        <span>Level</span>
-                    </a>
-                    <ul class="submenu ">
-                        <li class="submenu-item"><a href="/level" class="submenu-link">Level</a></li>
-                        <li class="submenu-item"><a href="/division" class="submenu-link">Division</a>
-                        </li>
-                    </ul>
-                </li>
+                @if (!auth()->check() || auth()->user()->role != 'user')
+                    <li
+                        class="sidebar-item has-sub {{ Request::is('level*') || Request::is('division*') ? 'active' : '' }}">
+                        <a href="#" class='sidebar-link'>
+                            <i class="fa fa-graduation-cap"></i>
+                            <span>Level</span>
+                        </a>
+                        <ul class="submenu ">
+                            <li class="submenu-item"><a href="/level" class="submenu-link">Level</a></li>
+                            <li class="submenu-item"><a href="/division" class="submenu-link">Division</a>
+                            </li>
+                        </ul>
+                    </li>
+                @endif
                 <li class="sidebar-item has-sub {{ Request::is('schoolvisit*') ? 'active' : '' }}">
                     <a href="#" class='sidebar-link'>
                         <i class="bi bi-building"></i>
@@ -43,9 +45,11 @@
                     </a>
                     <ul class="submenu ">
                         <li class="submenu-item"><a href="/schoolvisit" class="submenu-link">List</a></li>
-                        <li class="submenu-item"><a href="/schoolvisit/setting"
-                                class="submenu-link {{ Request::is('schoolvisit/setting') ? 'text-red' : '' }}">Settings</a>
-                        </li>
+                        @if (!auth()->check() || auth()->user()->role != 'user')
+                            <li class="submenu-item"><a href="/schoolvisit/setting"
+                                    class="submenu-link {{ Request::is('schoolvisit/setting') ? 'text-red' : '' }}">Settings</a>
+                            </li>
+                        @endif
                         <li class="submenu-item"><a target="blank" href="/schoolvisit-form"
                                 class="submenu-link">Form</a>
                         </li>
@@ -59,23 +63,27 @@
                     </a>
                     <ul class="submenu ">
                         <li class="submenu-item"><a href="/enrolment" class="submenu-link">List</a></li>
-                        <li class="submenu-item"><a href="/enrolment/setting"
-                                class="submenu-link {{ Request::is('enrolment/setting') ? 'text-red' : '' }}">Settings</a>
-                        </li>
+                        @if (!auth()->check() || auth()->user()->role != 'user')
+                            <li class="submenu-item"><a href="/enrolment/setting"
+                                    class="submenu-link {{ Request::is('enrolment/setting') ? 'text-red' : '' }}">Settings</a>
+                            </li>
+                        @endif
                         <li class="submenu-item"><a target="blank" href="/enrolment/form/"
                                 class="submenu-link">Enrolment Form</a>
                         </li>
                     </ul>
                 </li>
-                <li class="sidebar-item has-sub {{ Request::is('applicant*') ? 'active' : '' }}">
-                    <a href="#" class='sidebar-link'>
-                        <i class="bi bi-file-person-fill"></i>
-                        <span>Document</span>
-                    </a>
-                    <ul class="submenu ">
-                        <li class="submenu-item"><a href="/applicant" class="submenu-link">List</a></li>
-                    </ul>
-                </li>
+                @if (!auth()->check() || auth()->user()->role != 'user')
+                    <li class="sidebar-item has-sub {{ Request::is('applicant*') ? 'active' : '' }}">
+                        <a href="#" class='sidebar-link'>
+                            <i class="bi bi-file-person-fill"></i>
+                            <span>Document</span>
+                        </a>
+                        <ul class="submenu ">
+                            <li class="submenu-item"><a href="/applicant" class="submenu-link">List</a></li>
+                        </ul>
+                    </li>
+                @endif
                 <li class="sidebar-item has-sub {{ Request::is('observation*') ? 'active' : '' }}">
                     <a href="#" class='sidebar-link'>
                         <i class="bi bi-stack"></i>
@@ -83,9 +91,11 @@
                     </a>
                     <ul class="submenu ">
                         <li class="submenu-item"><a href="/observation" class="submenu-link">user</a></li>
-                        <li class="submenu-item"><a href="/observation/setting"
-                                class="submenu-link {{ Request::is('observation/setting') ? 'text-red' : '' }}">Settings</a>
-                        </li>
+                        @if (!auth()->check() || auth()->user()->role != 'user')
+                            <li class="submenu-item"><a href="/observation/setting"
+                                    class="submenu-link {{ Request::is('observation/setting') ? 'text-red' : '' }}">Settings</a>
+                            </li>
+                        @endif
                         <li class="submenu-item"><a target="blank" href="/observation-form"
                                 class="submenu-link">Form</a>
                         </li>
@@ -104,8 +114,11 @@
                                 class="submenu-link {{ Request::is('uniform/list') ? 'text-red' : '' }}">List
                                 public</a></li>
                 </li>
-                <li class="submenu-item"><a href="/uniform/setting"
-                        class="submenu-link {{ Request::is('uniform/setting') ? 'text-red' : '' }}">Settings</a></li>
+                @if (!auth()->check() || auth()->user()->role != 'user')
+                    <li class="submenu-item"><a href="/uniform/setting"
+                            class="submenu-link {{ Request::is('uniform/setting') ? 'text-red' : '' }}">Settings</a>
+                    </li>
+                @endif
                 <li class="submenu-item"><a href="/uniform/form"
                         class="submenu-link {{ Request::is('uniform/form') ? 'text-red' : '' }}">Form</a></li>
 
@@ -129,12 +142,15 @@
                     <span>Setting</span>
                 </a>
                 <ul class="submenu ">
-                    <li class="submenu-item"><a href="/setting/form" class="submenu-link">General</a>
-                    <li class="submenu-item"><a href="/setting/year" class="submenu-link">Academic
-                            Year</a>
-                    </li>
-                    <li class="submenu-item"><a href="/setting/password/change" class="submenu-link">Users</a>
-                    </li>
+                    @if (!auth()->check() || auth()->user()->role != 'user')
+                        <li class="submenu-item"><a href="/setting/role" class="submenu-link">Role</a></li>
+                        <li class="submenu-item"><a href="/setting/form" class="submenu-link">General</a>
+                        <li class="submenu-item"><a href="/setting/year" class="submenu-link">Academic
+                                Year</a>
+                        </li>
+                        <li class="submenu-item"><a href="/setting/password/change" class="submenu-link">Users</a>
+                        </li>
+                    @endif
                     <li class="submenu-item"><a href="/setting/password/change" class="submenu-link">Change
                             Password</a></li>
                     <li class="submenu-item">

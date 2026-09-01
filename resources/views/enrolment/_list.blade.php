@@ -61,11 +61,13 @@
                             class="badge text-bg-{{ $enrolment->source_data === 'internal' ? 'secondary' : 'danger' }}">
                             {{ ucfirst($enrolment->source_data) }}
                         </span>
-                        <button type="button" class="btn btn-sm btn-light border ms-1 edit-source-data"
-                            data-id="{{ $enrolment->id }}" data-source="{{ $enrolment->source_data }}"
-                            title="Edit Source Data">
-                            <i class="fa fa-pencil"></i>
-                        </button>
+                        @if (!auth()->check() || auth()->user()->role != 'user')
+                            <button type="button" class="btn btn-sm btn-light border ms-1 edit-source-data"
+                                data-id="{{ $enrolment->id }}" data-source="{{ $enrolment->source_data }}"
+                                title="Edit Source Data">
+                                <i class="fa fa-pencil"></i>
+                            </button>
+                        @endif
                         <span class="badge text-bg-{{ $enrolment->data_from === 'custom_form' ? 'primary' : '' }}">
                             {{ $enrolment->data_from == 'custom_form' ? 'Custom Form' : 'Web Form' }}
                         </span>

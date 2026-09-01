@@ -135,6 +135,7 @@
     <script src="/assets/extensions/datatables.net-bs5/js/dataTables.bootstrap5.min.js"></script>
     <script src="/assets/extensions/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
     <script>
+        const isUserRole = @json(auth()->check() && auth()->user()->role === 'user');
         let observationDateId;
         $(document).ready(function() {
             tblUserObservation = $('#tbl-setting-date').DataTable({
@@ -254,6 +255,13 @@
                     {
                         data: 'id',
                         mRender: function(data, type, full) {
+                            if (isUserRole) {
+                                return `
+                                    <button class="btn btn-secondary" type="button" disabled>
+                                        Actions
+                                    </button>`;
+                            }
+
                             return `
                             <div class="dropdown dropdown-color-icon">
                                     <button class="btn btn-primary dropdown-toggle" type="button"

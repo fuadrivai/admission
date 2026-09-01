@@ -66,7 +66,10 @@
             <div class="row">
                 <div class="col-md-1">
                     <div class="d-flex">
-                        <input type="checkbox" class="form-check-input me-2 visit-checkbox" value="{{ $visit->id }}">
+                        @if (!auth()->check() || auth()->user()->role != 'user')
+                            <input type="checkbox" class="form-check-input me-2 visit-checkbox"
+                                value="{{ $visit->id }}">
+                        @endif
                         <div class="student-avatar">
                             {{ ucfirst(\App\Helpers\avatarName($visit->child_name)) }}</div>
                     </div>
@@ -101,27 +104,29 @@
                         class="btn btn-sm btn-success btn-history"><i class="fa fa-history"></i></a>
                     <a href="/schoolvisit/{{ $visit->id }}/edit" title="View Detail"
                         class="btn btn-sm btn-primary view-detail"><i class="fa fa-eye"></i></a>
-                    @if ($visit->status != 'present')
-                        <div class="btn-group">
-                            <button class="btn btn-sm btn-info dropdown-toggle" type="button"
-                                id="dropdownMenuButtonEmoji" data-bs-toggle="dropdown" aria-haspopup="true"
-                                aria-expanded="false"><i class="fa fa-cog"></i>
-                            </button>
-                            <div class="dropdown-menu bg-danger ob" aria-labelledby="dropdownMenuButtonEmoji">
-                                <button class="dropdown-item text-white btn-edit" data-id="{{ $visit->id }}">
-                                    <i class="fa fa-pencil"></i> Reschedule
+                    @if (!auth()->check() || auth()->user()->role != 'user')
+                        @if ($visit->status != 'present')
+                            <div class="btn-group">
+                                <button class="btn btn-sm btn-info dropdown-toggle" type="button"
+                                    id="dropdownMenuButtonEmoji" data-bs-toggle="dropdown" aria-haspopup="true"
+                                    aria-expanded="false"><i class="fa fa-cog"></i>
                                 </button>
-                                <button class="dropdown-item text-white btn-confirm" data-id="{{ $visit->id }}">
-                                    <i class="bi bi-star"></i> Confirm
-                                </button>
-                                <button class="dropdown-item text-white btn-cancel" data-id="{{ $visit->id }}">
-                                    <i class="fa fa-times"></i> Cancel
-                                </button>
-                                <button class="dropdown-item text-white btn-delete" data-id="{{ $visit->id }}">
-                                    <i class="fa fa-trash"></i> Delete (This action cannot be undone)
-                                </button>
+                                <div class="dropdown-menu bg-danger ob" aria-labelledby="dropdownMenuButtonEmoji">
+                                    <button class="dropdown-item text-white btn-edit" data-id="{{ $visit->id }}">
+                                        <i class="fa fa-pencil"></i> Reschedule
+                                    </button>
+                                    <button class="dropdown-item text-white btn-confirm" data-id="{{ $visit->id }}">
+                                        <i class="bi bi-star"></i> Confirm
+                                    </button>
+                                    <button class="dropdown-item text-white btn-cancel" data-id="{{ $visit->id }}">
+                                        <i class="fa fa-times"></i> Cancel
+                                    </button>
+                                    <button class="dropdown-item text-white btn-delete" data-id="{{ $visit->id }}">
+                                        <i class="fa fa-trash"></i> Delete (This action cannot be undone)
+                                    </button>
+                                </div>
                             </div>
-                        </div>
+                        @endif
                     @endif
                 </div>
                 <hr>
