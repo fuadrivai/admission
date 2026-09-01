@@ -89,7 +89,9 @@
                             <div class="form-group">
                                 <label for="filter-branch">Branch</label>
                                 <select id="filter-branch" name="filter-branch" class="form-select" style="width: 100%">
-                                    <option value="all">All Branches</option>
+                                    @if (!auth()->check() || auth()->user()->role != 'user')
+                                        <option value="all">All Branches</option>
+                                    @endif
                                 </select>
                             </div>
                         </div>
@@ -377,6 +379,7 @@
                             <option value="${val.id}">${val.name}</option>
                         `);
                     });
+                    $("#filter-branch").trigger("change");
                 },
                 function(err) {
                     toastify(

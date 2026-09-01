@@ -55,7 +55,9 @@
                             <div class="form-group mb-0">
                                 <label for="filter-branch" class="form-label fw-semibold small">Branch</label>
                                 <select id="filter-branch" name="filter-branch" class="form-select" style="width: 100%">
-                                    <option value="all">All Branches</option>
+                                    @if (!auth()->check() || auth()->user()->role != 'user')
+                                        <option value="all">All Branches</option>
+                                    @endif
                                 </select>
                             </div>
                         </div>
@@ -128,18 +130,23 @@
                             <h5 class="modal-title text-white fw-bold" id="pickupModalLabel">
                                 <i class="fa fa-box me-2"></i> Confirm Pickup
                             </h5>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
                         </div>
                         <div class="modal-body p-4">
                             <input type="hidden" id="pickup-order-id" name="order_id">
-                            <p class="mb-3 text-muted">Please provide the details of the person picking up the uniform for <strong id="pickup-student-name"></strong>.</p>
-                            
+                            <p class="mb-3 text-muted">Please provide the details of the person picking up the uniform for
+                                <strong id="pickup-student-name"></strong>.
+                            </p>
+
                             <div class="mb-3">
-                                <label for="pic_name" class="form-label fw-semibold">PIC Name <span class="text-danger">*</span></label>
+                                <label for="pic_name" class="form-label fw-semibold">PIC Name <span
+                                        class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="pic_name" name="pic_name" required>
                             </div>
                             <div class="mb-3">
-                                <label for="parent_name" class="form-label fw-semibold">Parent Name <span class="text-danger">*</span></label>
+                                <label for="parent_name" class="form-label fw-semibold">Parent Name <span
+                                        class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="parent_name" name="parent_name" required>
                             </div>
                             <div class="mb-3">
@@ -149,7 +156,8 @@
                         </div>
                         <div class="modal-footer bg-light">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-primary fw-bold" id="btn-submit-pickup">Confirm Pickup</button>
+                            <button type="submit" class="btn btn-primary fw-bold" id="btn-submit-pickup">Confirm
+                                Pickup</button>
                         </div>
                     </form>
                 </div>
@@ -256,7 +264,7 @@
 
                 $('#pickup-student-name').text(studentName);
                 $('#pickup-order-id').val(orderId);
-                
+
                 // Reset form
                 $('#pickupForm')[0].reset();
                 $('#pickupModal').modal('show');
@@ -264,12 +272,13 @@
 
             $('#pickupForm').on('submit', function(e) {
                 e.preventDefault();
-                
+
                 const orderId = $('#pickup-order-id').val();
                 const btnSubmit = $('#btn-submit-pickup');
-                
-                btnSubmit.prop('disabled', true).html('<i class="fa fa-spinner fa-spin me-1"></i> Saving...');
-                
+
+                btnSubmit.prop('disabled', true).html(
+                    '<i class="fa fa-spinner fa-spin me-1"></i> Saving...');
+
                 $.ajax({
                     url: `/uniform/${orderId}/pickup`,
                     type: 'POST',
@@ -289,7 +298,8 @@
                         loadOrders();
                     },
                     error: function(xhr) {
-                        toastify('Error', xhr.responseJSON?.message ?? 'Unable to confirm pickup.', 'error');
+                        toastify('Error', xhr.responseJSON?.message ??
+                            'Unable to confirm pickup.', 'error');
                     },
                     complete: function() {
                         btnSubmit.prop('disabled', false).html('Confirm Pickup');
@@ -363,6 +373,8 @@
                             <option value="${val.id}">${val.name}</option>
                         `);
                     });
+
+                    $("#filter-branch").trigger("change");
                 },
                 function(err) {
                     toastify(

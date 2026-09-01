@@ -9,6 +9,9 @@ class BranchImplement implements BranchService
 {
     public function get($with= [])
     {
+        if (auth()->check() && auth()->user()->role == 'user') {
+            return Branch::with($with)->where('id', auth()->user()->branch_id)->get();
+        }
         return Branch::with($with)->get();
     }
 

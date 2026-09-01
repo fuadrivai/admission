@@ -41,6 +41,10 @@ class SchoolVisitIMplement implements SchoolVisitService
     {
         $query = SchoolVisit::with(['prospect.enrolment.admission', 'prospect.enrolment.admission.documents', 'prospect.enrolment.admission.statement', 'prospect.activities']);
 
+        if (auth()->check() && auth()->user()->role == 'user') {
+            $query->where('branch_id', auth()->user()->branch_id);
+        }
+
         if ($request->search) {
             $query->where(function ($q) use ($request) {
                 $q->where('code', 'like', '%'.$request->search.'%')

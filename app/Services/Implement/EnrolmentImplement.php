@@ -499,6 +499,11 @@ class EnrolmentImplement implements EnrolmentService
     {
         $query = Enrolment::query();
 
+       
+
+        if (auth()->check() && auth()->user()->role == 'user') {
+            $query->where('branch_id', auth()->user()->branch_id);
+        }
         $query->orderBy('created_at', 'desc');
 
         if ($request->search) {

@@ -32,7 +32,7 @@ class UniformController extends Controller
     public function open(Request $request)
     {
         $query = UniformOrder::with(['branch', 'level', 'grade', 'details', 'pickupUser']);
-
+        
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($orderQuery) use ($search) {
@@ -129,7 +129,9 @@ class UniformController extends Controller
     public function index(Request $request)
     {
         $query = UniformOrder::with(['branch', 'level', 'grade', 'details', 'pickupUser']);
-
+         if (auth()->check() && auth()->user()->role == 'user') {
+            $query->where('branch_id', auth()->user()->branch_id);
+        }
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
