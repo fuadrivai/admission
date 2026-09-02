@@ -5,7 +5,7 @@ namespace App\Services;
 interface AdmissionService
 {
     public function show($id);
-    public function viewEnrolment($id);
+    public function viewEnrolment($id,$type='Enrolment');
     public function showByCode($code);
     public function checkStatus($code);
     public function getParent($child_id,$role);

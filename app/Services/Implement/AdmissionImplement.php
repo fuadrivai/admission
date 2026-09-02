@@ -394,7 +394,7 @@ class AdmissionImplement implements AdmissionService
         return Storage::disk('admission')->path($path);
     }
 
-    public function viewEnrolment($id,$type)
+    public function viewEnrolment($id,$type='Enrolment')
     {
         $admission = Admission::with('applicant')->findOrFail($id);
 
