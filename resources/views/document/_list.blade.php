@@ -286,7 +286,7 @@
                     </div>
                     @if ($admission->is_complete == 1)
                         <div class="tracker-icon">
-                            <a href="/applicant/enrolment/{{ $admission->id }}"
+                            <a href="/applicant/enrolment/{{ $admission->id }}/Enrolment"
                                 class="btn btn-info btn-sm tracker-download" title="Download enrolment" download>
                                 <i class="fa fa-download"></i>
                             </a>
@@ -306,7 +306,8 @@
                     </div>
                     @if ($admission->documentStatus() == 1)
                         <div class="tracker-icon">
-                            <a href="" class="btn btn-info btn-sm tracker-download" title="Download documents">
+                            <a href="/applicant/enrolment/{{ $admission->id }}/Documents"
+                                class="btn btn-info btn-sm tracker-download" title="Download documents">
                                 <i class="fa fa-download "></i>
                             </a>
                         </div>
@@ -324,7 +325,8 @@
                     </div>
                     @if ($statementStatus == 'completed')
                         <div class="tracker-icon">
-                            <a href="" class="btn btn-info btn-sm tracker-download" title="Download statement">
+                            <a href="/applicant/enrolment/{{ $admission->id }}/Statement"
+                                class="btn btn-info btn-sm tracker-download" title="Download statement">
                                 <i class="fa fa-download "></i>
                             </a>
                         </div>

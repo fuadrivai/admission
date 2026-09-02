@@ -394,12 +394,12 @@ class AdmissionImplement implements AdmissionService
         return Storage::disk('admission')->path($path);
     }
 
-    public function viewEnrolment($id)
+    public function viewEnrolment($id,$type)
     {
         $admission = Admission::with('applicant')->findOrFail($id);
 
         $path = $admission->code .
-            '/Enrolment-' .
+            '/'.$type.'-/' .
             $admission->applicant->fullname .
             '.pdf';
 

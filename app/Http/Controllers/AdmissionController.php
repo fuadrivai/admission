@@ -220,9 +220,9 @@ class AdmissionController extends Controller
         return view('enrolment.form.student-success',['data'=>$admission]);
     }
 
-    public function viewEnrolment($id)
+    public function viewEnrolment($id,$type='Enrolment')
     {
-        $path = $this->admissionService->viewEnrolment($id);
+        $path = $this->admissionService->viewEnrolment($id, $type);
         return $path;
     }
 }
