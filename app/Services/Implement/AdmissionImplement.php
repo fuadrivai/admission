@@ -399,7 +399,7 @@ class AdmissionImplement implements AdmissionService
         $admission = Admission::with('applicant')->findOrFail($id);
 
         $path = $admission->code .
-            '/'.$type.'-/' .
+            '/'.$type.'-' .
             $admission->applicant->fullname .
             '.pdf';
 
