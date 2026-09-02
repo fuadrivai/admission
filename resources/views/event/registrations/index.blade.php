@@ -11,120 +11,111 @@
             gap: 1rem;
         }
 
-        name: 'student_name',
-        orderable: false,
-        searchable: false .registration-info {
+        .registration-info {
             flex: 1;
         }
 
-        name: 'parent_name',
-        orderable: false,
-        searchable: false .registration-info h2 {
+        .registration-info h2,
+        .registration-info h3 {
             margin: 0 0 0.5rem;
             font-size: 1.75rem;
-            name: 'name',
-                orderable: false,
-                searchable: false
+            color: #1f2937;
         }
 
         .registration-info p {
-            name: 'fullname',
-                orderable: false,
-                searchable: false color: #666;
+            color: #666;
             font-size: 0.95rem;
+            margin: 0;
         }
 
-        name: 'email',
-        orderable: false,
-        searchable: false .registration-stats {
+        .registration-stats {
             display: flex;
             gap: 1.5rem;
+            flex-wrap: wrap;
+        }
 
-            name: 'phone',
-            orderable: false,
-            searchable: false .stat-card {
-                background: #f8f9fa;
-                name: 'level',
-                    orderable: false,
-                    searchable: false border-radius: 8px;
-                border-left: 4px solid #2563eb;
+        .stat-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #2563eb;
+            padding: 1rem 1.25rem;
+            min-width: 170px;
+            flex: 1;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #666;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #2563eb;
+        }
+
+        .table thead th {
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+            font-weight: 600;
+            color: #333;
+            padding: 1rem;
+        }
+
+        .table tbody td {
+            padding: 1rem;
+            vertical-align: middle;
+        }
+
+        .table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .btn-group-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-group-actions form {
+            margin: 0;
+        }
+
+        code {
+            background-color: #f8f9fa;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            color: #e83e8c;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .registration-status-badge {
+            padding: 0.2rem 0.4rem;
+            font-size: 0.7rem;
+            line-height: 1;
+        }
+
+        @media (max-width: 768px) {
+            .registration-header {
+                flex-direction: column;
+                align-items: flex-start;
             }
 
-            name: 'grade',
-            orderable: false,
-            searchable: false .stat-label {
-                font-size: 0.85rem;
-                color: #666;
-                font-weight: 600;
-                text-transform: uppercase;
-                letter-spacing: 0.05em;
-                margin-bottom: 0.5rem;
+            .registration-stats {
+                flex-direction: column;
+                gap: 0.75rem;
             }
 
-            .stat-value {
-                font-size: 1.75rem;
-                font-weight: 700;
-                color: #2563eb;
+            .stat-card {
+                flex: 1;
+                width: 100%;
             }
-
-            @media (max-width: 768px) {
-                .registration-header {
-                    flex-direction: column;
-                    align-items: flex-start;
-                }
-
-                .registration-stats {
-                    flex-direction: column;
-                    gap: 0.75rem;
-                }
-
-                .stat-card {
-                    flex: 1;
-                    width: 100%;
-                }
-            }
-
-            .table thead th {
-                background-color: #f8f9fa;
-                border-bottom: 2px solid #dee2e6;
-                font-weight: 600;
-                color: #333;
-                padding: 1rem;
-            }
-
-            .table tbody td {
-                padding: 1rem;
-                vertical-align: middle;
-            }
-
-            .table tbody tr:hover {
-                background-color: #f8f9fa;
-            }
-
-            .btn-group-actions {
-                display: flex;
-                gap: 0.5rem;
-                flex-wrap: wrap;
-            }
-
-            .btn-group-actions form {
-                margin: 0;
-            }
-
-            code {
-                background-color: #f8f9fa;
-                padding: 0.25rem 0.5rem;
-                border-radius: 4px;
-                color: #e83e8c;
-                font-size: 0.9rem;
-                font-weight: 600;
-            }
-
-            .registration-status-badge {
-                padding: 0.2rem 0.4rem;
-                font-size: 0.7rem;
-                line-height: 1;
-            }
+        }
     </style>
 @endsection
 
@@ -272,7 +263,7 @@
                                 fullResponse.data.forEach(item => {
                                     if (item.status.includes(
                                             'info'
-                                        )) { // SUBMITTED status has 'info' class
+                                        )) {
                                         submitted++;
                                     }
                                 });
@@ -283,8 +274,6 @@
                 });
             });
 
-            // Trigger initial draw to update stats
-            // table.draw();
         });
     </script>
 @endsection

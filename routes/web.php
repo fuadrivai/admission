@@ -237,6 +237,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
             Route::get('{event}/registration/{registration}', [EventController::class, 'showRegistration'])->name('registration.show');
             Route::get('{event}/registration/{registration}/attachment', [EventController::class, 'attachment'])->name('registration.attachment');
             Route::delete('{event}/registration/{registration}', [EventController::class, 'deleteRegistration'])->name('registration.delete');
+            Route::post('delete/many', [EventController::class, 'deleteMany'])->name('deleteMany');
 
             Route::resource('', EventController::class)->parameters(['' => 'event']);
         });

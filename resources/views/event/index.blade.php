@@ -151,6 +151,62 @@
             };
         }
 
+        function updateBulkDeleteState() {
+            const $boxes = $('.event-select-checkbox');
+            const checkedCount = $boxes.filter(':checked').length;
+            const $bulkButton = $('#bulk-delete-events-btn');
+            const $selectAll = $('#select-all-events');
+
+            $bulkButton.prop('disabled', checkedCount === 0);
+            $selectAll.prop('checked', checkedCount > 0 && checkedCount === $boxes.length);
+            $selectAll.prop('indeterminate', checkedCount > 0 && checkedCount < $boxes.length);
+        }
+
+        function confirmMassDelete() {
+            const checkedBoxes = $('.event-select-checkbox:checked');
+            const checkedCount = checkedBoxes.length;
+
+            if (checkedCount === 0) {
+                alert('Please select at least one event to delete.');
+                return false;
+            }
+
+            if (!confirm(
+                    'Are you sure you want to delete the selected events? This will permanently delete their form data, email data, registrations, and uploaded files. This action cannot be restored.'
+                )) {
+                return false;
+            }
+
+            const $form = $('#event-mass-delete-form');
+            $form.empty();
+            $form.append('<input type="hidden" name="_token" value="{{ csrf_token() }}">');
+
+            checkedBoxes.each(function() {
+                $('<input>', {
+                    type: 'hidden',
+                    name: 'ids[]',
+                    value: $(this).val()
+                }).appendTo($form);
+            });
+
+            $form.submit();
+            return false;
+        }
+
+        $(document).on('click', '#bulk-delete-events-btn', function() {
+            confirmMassDelete();
+        });
+
+        $(document).on('change', '#select-all-events', function() {
+            const checked = $(this).is(':checked');
+            $('.event-select-checkbox').prop('checked', checked);
+            updateBulkDeleteState();
+        });
+
+        $(document).on('change', '.event-select-checkbox', function() {
+            updateBulkDeleteState();
+        });
+
         function loadEvents(url = "{{ route('event.index') }}") {
             $.ajax({
                 url: url,
@@ -158,6 +214,7 @@
                 type: 'GET',
                 success: function(html) {
                     $('#event-list').html(html);
+                    updateBulkDeleteState();
                 }
             });
         }

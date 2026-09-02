@@ -343,4 +343,93 @@ class EventFormFeatureTest extends TestCase
         $response->assertOk();
         $response->assertHeader('Content-Type', 'image/png');
     }
+
+    public function test_event_delete_many_deletes_selected_events(): void
+    {
+        $this->actingAs(User::create([
+            'name' => 'Admin User',
+            'email' => 'admin-' . uniqid() . '@example.com',
+            'password' => bcrypt('secret123'),
+        ]));
+
+        $eventOne = \App\Models\Event::create([
+            'title' => 'Event One 2026',
+            'slug' => 'event-one-' . uniqid(),
+            'status' => 'PUBLISHED',
+            'intro_html' => '<p>Welcome</p>',
+        ]);
+
+        $eventTwo = \App\Models\Event::create([
+            'title' => 'Event Two 2026',
+            'slug' => 'event-two-' . uniqid(),
+            'status' => 'PUBLISHED',
+            'intro_html' => '<p>Welcome</p>',
+        ]);
+
+        $response = $this->post(route('event.deleteMany'), [
+            'ids' => [$eventOne->id, $eventTwo->id],
+            '_token' => csrf_token(),
+        ]);
+
+        $response->assertRedirect(route('event.index'));
+        $this->assertDatabaseMissing('events', ['id' => $eventOne->id]);
+        $this->assertDatabaseMissing('events', ['id' => $eventTwo->id]);
+    }
+
+    public function test_event_destroy_deletes_related_form_email_and_registration_data(): void
+    {
+        Storage::fake('event');
+
+        $event = \App\Models\Event::create([
+            'title' => 'Open House 2026',
+            'slug' => 'open-house-' . uniqid(),
+            'status' => 'PUBLISHED',
+            'intro_html' => '<p>Welcome</p>',
+        ]);
+
+        $form = $event->forms()->create([
+            'field_key' => 'full_name',
+            'label' => 'Full Name',
+            'type' => 'text',
+            'is_required' => true,
+            'order_index' => 1,
+            'is_active' => true,
+        ]);
+
+        $emailTemplate = $event->emailTemplates()->create([
+            'key' => 'registration_confirmation',
+            'subject' => 'Registration Confirmed',
+            'body' => 'Hello',
+        ]);
+
+        $registration = $event->registrations()->create([
+            'code' => 'ECODE-DELETE-' . uniqid(),
+            'status' => 'SUBMITTED',
+            'amount' => 0,
+            'registered_at' => now(),
+        ]);
+
+        $attachmentPath = $registration->code . '/attachment.pdf';
+        Storage::disk('event')->put($attachmentPath, 'pdf-contents');
+
+        $registration->fieldAnswers()->create([
+            'event_field_id' => $form->id,
+            'value' => $attachmentPath,
+        ]);
+
+        $this->actingAs(User::create([
+            'name' => 'Admin User',
+            'email' => 'admin-' . uniqid() . '@example.com',
+            'password' => bcrypt('secret123'),
+        ]));
+
+        $response = $this->delete(route('event.destroy', $event));
+
+        $response->assertRedirect(route('event.index'));
+        $this->assertDatabaseMissing('events', ['id' => $event->id]);
+        $this->assertDatabaseMissing('event_fields', ['id' => $form->id]);
+        $this->assertDatabaseMissing('event_email_templates', ['id' => $emailTemplate->id]);
+        $this->assertDatabaseMissing('event_registrations', ['id' => $registration->id]);
+        $this->assertFalse(Storage::disk('event')->exists($attachmentPath));
+    }
 }

@@ -8,6 +8,7 @@ use App\Models\EventRegistration;
 use App\Exports\EventRegistrationExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
@@ -217,11 +218,66 @@ class EventController extends Controller
         return redirect()->route('event.index')->with('success', 'Event updated successfully.');
     }
 
+    public function deleteMany(Request $request)
+    {
+        $ids = $request->input('ids', []);
+        $eventIds = collect($ids)
+            ->filter(fn ($id) => is_numeric($id))
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->values()
+            ->all();
+
+        if (empty($eventIds)) {
+            return redirect()->route('event.index')->with('error', 'Please select at least one event to delete.');
+        }
+
+        $events = Event::whereIn('id', $eventIds)->get();
+
+        foreach ($events as $event) {
+            $this->deleteEventRecord($event);
+        }
+
+        return redirect()->route('event.index')->with('success', 'Selected events deleted permanently. All related form data, email templates, registrations, and uploaded files were removed and cannot be restored.');
+    }
+
     public function destroy(Event $event)
     {
-        $event->delete();
+        $this->deleteEventRecord($event);
 
-        return redirect()->route('event.index')->with('success', 'Event deleted successfully.');
+        return redirect()->route('event.index')->with('success', 'Event deleted permanently. All related form data, email templates, registrations, and uploaded files were removed and cannot be restored.');
+    }
+
+    private function deleteEventRecord(Event $event): void
+    {
+        DB::transaction(function () use ($event) {
+            $event->load(['registrations.fieldAnswers', 'forms', 'emailTemplates', 'priceOptions']);
+
+            foreach ($event->registrations as $registration) {
+                foreach ($registration->fieldAnswers as $answer) {
+                    if (! empty($answer->value) && is_string($answer->value)) {
+                        $attachmentPath = trim($answer->value);
+
+                        if ($attachmentPath !== '' && Storage::disk('event')->exists($attachmentPath)) {
+                            Storage::disk('event')->delete($attachmentPath);
+                        }
+                    }
+                }
+
+                if (! empty($registration->code)) {
+                    Storage::disk('event')->deleteDirectory($registration->code);
+                }
+
+                $registration->fieldAnswers()->delete();
+                $registration->delete();
+            }
+
+            $event->forms()->delete();
+            $event->emailTemplates()->delete();
+            $event->priceOptions()->delete();
+
+            $event->delete();
+        });
     }
 
     /**
@@ -250,6 +306,21 @@ class EventController extends Controller
         $query = $event->registrations()
             ->with('fieldAnswers.eventField')
             ->orderBy('created_at', 'desc');
+
+        $filters = $request->input('filters', []);
+
+        foreach ($filters as $fieldKey => $filterValue) {
+            $filterValue = trim((string) $filterValue);
+            if ($filterValue === '') {
+                continue;
+            }
+
+            $query->whereHas('fieldAnswers', function ($answerQuery) use ($fieldKey, $filterValue) {
+                $answerQuery->whereHas('eventField', function ($fieldQuery) use ($fieldKey) {
+                    $fieldQuery->where('field_key', $fieldKey);
+                })->where('value', 'like', '%' . $filterValue . '%');
+            });
+        }
 
         $fieldAliases = [
             'student_name' => ['student_name', 'studentName', 'student','students_full_name','students_fullname'],
