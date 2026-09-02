@@ -60,6 +60,12 @@
 
 @section('content-child')
     <section class="section">
+        <div class="d-flex justify-content-end mb-3">
+            <a href="{{ route('event.create') }}" class="btn btn-primary">
+                <i class="fa fa-plus"></i> Create Event
+            </a>
+        </div>
+
         <div class="card event-filter-card">
             <div class="card-body">
                 <p class="d-inline-flex gap-1 mb-0">
