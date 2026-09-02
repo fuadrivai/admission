@@ -386,11 +386,32 @@ class AdmissionImplement implements AdmissionService
             ->setPaper('a4', 'portrait')
             ->setWarnings(false);
 
-        $path = $admission->code . '/Enrolment-' . $student_name . '.pdf';
+
+        $path = $admission['code']. '/Enrolment-'.$student_name .'.pdf';
 
         Storage::disk('admission')->put($path, $pdf->output());
 
         return Storage::disk('admission')->path($path);
+    }
+
+    public function viewEnrolment($id)
+    {
+        $admission = Admission::with('applicant')->findOrFail($id);
+
+        $path = $admission->code .
+            '/Enrolment-' .
+            $admission->applicant->fullname .
+            '.pdf';
+
+        $disk = Storage::disk('admission');
+
+        if (!$disk->exists($path)) {
+            abort(404, 'File enrolment tidak ditemukan.');
+        }
+
+        return response()->file($disk->path($path), [
+            'Content-Type' => 'application/pdf',
+        ]);
     }
 
 }

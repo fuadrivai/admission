@@ -219,4 +219,10 @@ class AdmissionController extends Controller
         $admission = $this->admissionService->showByCode($code);
         return view('enrolment.form.student-success',['data'=>$admission]);
     }
+
+    public function viewEnrolment($id)
+    {
+        $path = $this->admissionService->viewEnrolment($id);
+        return $path;
+    }
 }

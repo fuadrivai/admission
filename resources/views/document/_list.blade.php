@@ -286,7 +286,7 @@
                     </div>
                     @if ($admission->is_complete == 1)
                         <div class="tracker-icon">
-                            <a href="{{ url('/document/path/' . $admission->code . '/Enrolment-' . urlencode($admission->applicant->fullname) . '.pdf') }}"
+                            <a href="/applicant/enrolment/{{ $admission->id }}"
                                 class="btn btn-info btn-sm tracker-download" title="Download enrolment" download>
                                 <i class="fa fa-download"></i>
                             </a>
