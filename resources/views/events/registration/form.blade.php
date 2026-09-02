@@ -463,6 +463,27 @@
             font-size: 0.82rem;
         }
 
+        .file-remove-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 50%;
+            background: #f3d5d8;
+            color: var(--maroon-700);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .file-remove-btn:hover {
+            background: #f1c8ce;
+            transform: scale(1.03);
+        }
+
         .field-block.has-error .form-control,
         .field-block.has-error .form-select,
         .field-block.has-error .event-options-group {
@@ -826,6 +847,23 @@
 
             $(document).on('change', 'input[type="file"][data-file-field]', function() {
                 renderFilePreview(this);
+            });
+
+            $(document).on('click', '[data-file-remove]', function() {
+                const fieldKey = $(this).data('file-remove');
+                const $input = $('input[data-file-field="' + fieldKey + '"]');
+                const $previewBox = $('[data-file-preview-for="' + fieldKey + '"]');
+                const input = $input.get(0);
+
+                if (input) {
+                    input.value = '';
+                }
+
+                $previewBox.addClass('d-none');
+                $previewBox.find('.file-preview-image').addClass('d-none').removeAttr('src');
+                $previewBox.find('.file-preview-icon').addClass('d-none');
+                $previewBox.find('.file-preview-name').text('No file selected');
+                $previewBox.find('.file-preview-size').text('');
             });
 
             function selectedFieldValue(fieldKey) {

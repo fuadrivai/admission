@@ -18,6 +18,10 @@
             <div class="file-preview-name">No file selected</div>
             <small class="file-preview-size text-muted"></small>
         </div>
+        <button type="button" class="file-remove-btn" data-file-remove="{{ $field->field_key }}"
+            aria-label="Remove selected file" title="Remove file">
+            <i class="fas fa-times"></i>
+        </button>
     </div>
 </div>
 <small class="text-muted d-block mt-2">Allowed: PDF, JPG, JPEG, PNG • Max 10MB</small>
