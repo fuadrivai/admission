@@ -45,6 +45,14 @@
                                 @endif
                             </span>
                         </div>
+                        @if (isset($admission) && $admission->status == 1)
+                            <div style="margin-top: 10px;">
+                                <a href="/applicant/enrolment/{{ $admission->id }}/all" class="btn btn-sm btn-success w-100"
+                                    title="Download all documents">
+                                    <i class="fa fa-download"></i> Download All Document
+                                </a>
+                            </div>
+                        @endif
                     </div>
 
                     <!-- Student Info -->
@@ -127,8 +135,12 @@
                                 $formatYesNo = fn($v) => $v ? 'Yes' : 'No';
                             @endphp
                             <div class="wizard-panel active" data-panel="1">
-                                <div class="content-header">
+                                <div class="content-header d-flex justify-content-between align-items-center">
                                     <h3><i class="fa fa-id-card"></i> Student Information</h3>
+                                    <a href="/applicant/enrolment/{{ $admission->id }}/Enrolment"
+                                        class="btn btn-sm btn-primary" download>
+                                        <i class="fa fa-download"></i> Download
+                                    </a>
                                 </div>
                                 <div class="content-body content-body-stack">
                                     <div class="info-cards-vertical">
@@ -145,7 +157,8 @@
                                                 <li><span class="label">Date of Birth</span><span
                                                         class="value">{{ $a->dateBirth() ?? '-' }}</span></li>
                                                 <li><span class="label">Place of Birth</span><span
-                                                        class="value">{{ ucfirst($a->place_of_birth ?? '-') }}</span></li>
+                                                        class="value">{{ ucfirst($a->place_of_birth ?? '-') }}</span>
+                                                </li>
                                                 <li><span class="label">Age</span><span
                                                         class="value">{{ $a->age() ?? '-' }}</span></li>
                                                 <li><span class="label">Height (cm)</span><span
@@ -703,8 +716,12 @@
                 <!-- Documents Tab -->
                 <div id="document-tab" class="tab-content">
                     <div class="content-card">
-                        <div class="content-header">
+                        <div class="content-header d-flex justify-content-between align-items-center">
                             <h3><i class="fa fa-file-pdf"></i> Admission Documents</h3>
+                            <a href="/applicant/enrolment/{{ $admission->id }}/Documents" class="btn btn-sm btn-primary"
+                                download>
+                                <i class="fa fa-download"></i> Download
+                            </a>
                         </div>
                         <div class="content-body">
                             @if ($admission->documents && $admission->documents->count() > 0)
@@ -766,8 +783,12 @@
                 <!-- Statement Tab -->
                 <div id="statement-tab" class="tab-content">
                     <div class="content-card">
-                        <div class="content-header">
+                        <div class="content-header d-flex justify-content-between align-items-center">
                             <h3><i class="fa fa-list-check"></i> Parent's Statement Form</h3>
+                            <a href="/applicant/enrolment/{{ $admission->id }}/Statement" class="btn btn-sm btn-primary"
+                                download>
+                                <i class="fa fa-download"></i> Download
+                            </a>
                         </div>
                         <div class="content-body" style="font-size: 13px; line-height: 1.6;">
                             @if ($admission->statement)
