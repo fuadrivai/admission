@@ -403,6 +403,66 @@
             color: var(--maroon-800);
         }
 
+        .file-upload-preview-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .file-preview-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #ecd9dc;
+            border-radius: 12px;
+            background: #fffafc;
+            min-height: 72px;
+        }
+
+        .file-preview-image {
+            width: 64px;
+            height: 64px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 1px solid #e8d6d9;
+            background: #fff;
+            display: block;
+        }
+
+        .file-preview-icon {
+            width: 64px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            background: #f8e8ea;
+            color: var(--maroon-700);
+            font-size: 1.6rem;
+            border: 1px solid #e8d6d9;
+        }
+
+        .file-preview-meta {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .file-preview-name {
+            color: var(--text-dark);
+            font-weight: 600;
+            line-height: 1.4;
+            word-break: break-word;
+        }
+
+        .file-preview-size {
+            display: block;
+            margin-top: 2px;
+            color: var(--text-muted);
+            font-size: 0.82rem;
+        }
+
         .field-block.has-error .form-control,
         .field-block.has-error .form-select,
         .field-block.has-error .event-options-group {
@@ -549,7 +609,8 @@
 
 
                     <div id="event-form-wrapper" class="{{ !empty($event->intro_html) ? 'd-none' : '' }}">
-                        <form method="POST" action="{{ route('events.register', $event) }}" novalidate>
+                        <form method="POST" action="{{ route('events.register', $event) }}"
+                            enctype="multipart/form-data" novalidate>
                             @csrf
 
                             @foreach ($fields as $field)
@@ -716,6 +777,55 @@
 
             $('[data-other-toggle], [data-other-select]').each(function() {
                 syncOtherInput($(this).data('other-toggle') || $(this).data('other-select'));
+            });
+
+            function formatBytes(bytes) {
+                if (!bytes) return '0 Bytes';
+                const units = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+                const value = bytes / Math.pow(1024, i);
+                return value.toFixed(value >= 10 || i === 0 ? 0 : 1) + ' ' + units[i];
+            }
+
+            function renderFilePreview(input) {
+                const $input = $(input);
+                const fieldKey = $input.data('file-field');
+                const $previewBox = $('[data-file-preview-for="' + fieldKey + '"]');
+                const $image = $previewBox.find('.file-preview-image');
+                const $icon = $previewBox.find('.file-preview-icon');
+                const $name = $previewBox.find('.file-preview-name');
+                const $size = $previewBox.find('.file-preview-size');
+                const file = input.files && input.files[0];
+
+                if (!file) {
+                    $previewBox.addClass('d-none');
+                    $image.addClass('d-none').removeAttr('src');
+                    $icon.addClass('d-none');
+                    $name.text('No file selected');
+                    $size.text('');
+                    return;
+                }
+
+                $name.text(file.name);
+                $size.text(formatBytes(file.size));
+                $previewBox.removeClass('d-none');
+
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        $image.attr('src', e.target.result).removeClass('d-none');
+                        $icon.addClass('d-none');
+                    };
+                    reader.readAsDataURL(file);
+                    return;
+                }
+
+                $image.addClass('d-none').removeAttr('src');
+                $icon.removeClass('d-none');
+            }
+
+            $(document).on('change', 'input[type="file"][data-file-field]', function() {
+                renderFilePreview(this);
             });
 
             function selectedFieldValue(fieldKey) {

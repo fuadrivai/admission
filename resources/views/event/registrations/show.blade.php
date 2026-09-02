@@ -145,6 +145,51 @@
             font-size: 0.9rem;
         }
 
+        .attachment-preview {
+            margin-top: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        .attachment-preview img {
+            max-width: 220px;
+            max-height: 180px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            background: #fff;
+            object-fit: cover;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+        }
+
+        .attachment-preview iframe {
+            width: 100%;
+            max-width: 420px;
+            height: 260px;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            background: #fff;
+        }
+
+        .attachment-download {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.65rem 1rem;
+            border: 1px solid #dfe3e8;
+            background: #fff;
+            border-radius: 8px;
+            color: #0d6efd;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 0.75rem;
+        }
+
+        .attachment-download:hover {
+            text-decoration: none;
+            background: #f8f9fa;
+        }
+
         .back-link {
             display: inline-flex;
             align-items: center;
@@ -255,6 +300,24 @@
                                     </div>
                                     <div class="answer-value">
                                         @php
+                                            $fieldType = $answer->eventField->type ?? null;
+                                            $attachmentValue = $fieldType === 'attachment' ? $answer->value : null;
+                                            $attachmentExists = $attachmentValue
+                                                ? Storage::disk('event')->exists($attachmentValue)
+                                                : false;
+                                            $attachmentUrl = $attachmentExists
+                                                ? Storage::disk('event')->url($attachmentValue)
+                                                : null;
+                                            $attachmentExtension = $attachmentValue
+                                                ? strtolower(pathinfo($attachmentValue, PATHINFO_EXTENSION))
+                                                : '';
+                                            $attachmentIsImage = in_array(
+                                                $attachmentExtension,
+                                                ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'],
+                                                true,
+                                            );
+                                            $attachmentIsPdf = $attachmentExtension === 'pdf';
+
                                             try {
                                                 $decoded = json_decode($answer->value, true);
                                                 $isJson = is_array($decoded);
@@ -263,7 +326,31 @@
                                             }
                                         @endphp
 
-                                        @if ($isJson)
+                                        @if ($fieldType === 'attachment')
+                                            @if ($attachmentExists && $attachmentUrl)
+                                                @if ($attachmentIsImage)
+                                                    <div class="attachment-preview">
+                                                        <img src="{{ $attachmentUrl }}" alt="Attachment preview" />
+                                                    </div>
+                                                @elseif ($attachmentIsPdf)
+                                                    <div class="attachment-preview">
+                                                        <iframe src="{{ $attachmentUrl }}"
+                                                            title="Attachment preview"></iframe>
+                                                    </div>
+                                                    <a href="{{ $attachmentUrl }}" target="_blank"
+                                                        rel="noopener noreferrer" class="attachment-download">
+                                                        <i class="fa fa-file-pdf"></i> Open PDF
+                                                    </a>
+                                                @else
+                                                    <a href="{{ $attachmentUrl }}" target="_blank"
+                                                        rel="noopener noreferrer" class="attachment-download">
+                                                        <i class="fa fa-download"></i> Download File
+                                                    </a>
+                                                @endif
+                                            @else
+                                                {{ $attachmentValue ?: '(empty)' }}
+                                            @endif
+                                        @elseif ($isJson)
                                             <code>{{ implode(', ', $decoded) }}</code>
                                         @else
                                             {{ $answer->value ?: '(empty)' }}

@@ -19,7 +19,7 @@ class CreateEventFieldsTable extends Migration
 
             $table->string('field_key');
             $table->string('label');
-            $table->enum('type', ['text','textarea','select','radio','checkbox','email','phone','number','date']);
+            $table->string('type');
             $table->boolean('is_required')->default(false);
             $table->json('options_json')->nullable();   // select/radio/checkbox
             $table->unsignedInteger('order_index')->default(0)->index();

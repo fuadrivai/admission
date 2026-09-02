@@ -58,6 +58,12 @@ return [
             'throw' => false,
         ],
 
+        'event' => [
+            'driver' => 'local',
+            'root' => env('EVENT_PATH', storage_path('app/event')),
+            'throw' => false,
+        ],
+
     ],
 
     /*

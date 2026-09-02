@@ -2,6 +2,7 @@
 
 namespace App\Exports;
 
+use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
@@ -50,6 +51,10 @@ class EventRegistrationExport implements FromCollection, WithHeadings, WithMappi
                 $value = implode(', ', json_decode($value, true));
             }
 
+            if ($field->type === 'attachment' && is_string($value) && $value !== '') {
+                $value = $this->resolveAttachmentExportValue($value);
+            }
+
             $row[] = $value !== null && $value !== '' ? $value : '';
         }
 
@@ -83,5 +88,21 @@ class EventRegistrationExport implements FromCollection, WithHeadings, WithMappi
         $decoded = json_decode($value, true);
 
         return json_last_error() === JSON_ERROR_NONE && is_array($decoded);
+    }
+
+    private function resolveAttachmentExportValue(string $value): string
+    {
+        $disk = Storage::disk('event');
+
+        if ($disk->exists($value)) {
+            $url = $disk->url($value);
+            if (is_string($url) && $url !== '') {
+                return str_starts_with($url, 'http') ? $url : url($url);
+            }
+
+            return url('/storage/' . ltrim(str_replace('\\', '/', $value), '/'));
+        }
+
+        return $value;
     }
 }

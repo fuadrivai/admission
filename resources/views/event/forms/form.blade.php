@@ -183,7 +183,7 @@
                         <div class="mb-4">
                             <label class="field-label" for="type">Input Type</label>
                             <select id="type" name="type" class="modern-select" required>
-                                @foreach (['text', 'textarea', 'select', 'radio', 'checkbox', 'email', 'phone', 'number', 'date'] as $type)
+                                @foreach (['text', 'textarea', 'select', 'radio', 'checkbox', 'email', 'phone', 'number', 'date', 'attachment'] as $type)
                                     <option value="{{ $type }}" {{ $oldType == $type ? 'selected' : '' }}>
                                         {{ ucfirst($type) }}
                                     </option>

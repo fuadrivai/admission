@@ -10,9 +10,12 @@ use App\Models\EventPriceOption;
 use App\Models\EventRegistration;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 use function App\Helpers\codeGenerator;
@@ -145,6 +148,21 @@ class EventRegistrationController extends Controller
                 $value = is_array($value) ? $value : [$value];
             }
 
+            if ($field->type === 'attachment') {
+                $file = $request->file($fieldKey);
+                if (! $file instanceof UploadedFile) {
+                    continue;
+                }
+
+                $storedValue = $this->storeAttachment($registration, $field, $file);
+                $registration->fieldAnswers()->create([
+                    'event_field_id' => $field->id,
+                    'value' => $storedValue,
+                ]);
+
+                continue;
+            }
+
             if ($value === null || $value === '') {
                 continue;
             }
@@ -182,6 +200,10 @@ class EventRegistrationController extends Controller
         $fieldValues = [];
         foreach ($fields as $field) {
             $fieldKey = $field->field_key;
+            if ($field->type === 'attachment') {
+                continue;
+            }
+
             $rawValue = $request->input($fieldKey);
 
             if ($field->type === 'checkbox') {
@@ -320,6 +342,8 @@ class EventRegistrationController extends Controller
                 return array_merge($base, ['numeric']);
             case 'date':
                 return array_merge($base, ['date']);
+            case 'attachment':
+                return array_merge($base, ['file', 'mimes:pdf,jpg,jpeg,png', 'max:10240']);
             case 'select':
             case 'radio':
                 $allowed = $this->allowedOptionValues($field);
@@ -368,6 +392,10 @@ class EventRegistrationController extends Controller
 
     protected function normalizeSubmittedValue($field, $value)
     {
+        if ($field->type === 'attachment') {
+            return null;
+        }
+
         $otherValue = $this->otherValue($field);
 
         if ($field->type === 'checkbox') {
@@ -442,6 +470,17 @@ class EventRegistrationController extends Controller
         }
 
         return null;
+    }
+
+    protected function storeAttachment(EventRegistration $registration, $field, UploadedFile $file): string
+    {
+        $extension = strtolower($file->getClientOriginalExtension() ?: $file->guessExtension() ?: 'bin');
+        $safeFieldKey = preg_replace('/[^A-Za-z0-9_\-]/', '_', $field->field_key ?? 'attachment');
+        $filename = sprintf('%s_%s.%s', $safeFieldKey, time(), $extension);
+
+        Storage::disk('event')->putFileAs($registration->code, $file, $filename);
+
+        return $registration->code . '/' . $filename;
     }
 
     protected function generateRegistrationCode()

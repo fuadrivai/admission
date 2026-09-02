@@ -63,7 +63,7 @@ class EventFormController extends Controller
         $validated = $request->validate([
             'field_key' => ['required', 'string', 'max:100', 'unique:event_fields,field_key,NULL,id,event_id,' . $event->id],
             'label' => ['required', 'string', 'max:150'],
-            'type' => ['required', 'in:text,textarea,select,radio,checkbox,email,phone,number,date'],
+            'type' => ['required', 'in:text,textarea,select,radio,checkbox,email,phone,number,date,attachment'],
             'is_required' => ['nullable', 'boolean'],
             'is_primary_email' => ['nullable', 'boolean'],
             'allow_other' => ['nullable', 'boolean'],
@@ -74,6 +74,10 @@ class EventFormController extends Controller
         ]);
 
         $this->validateDependencyConfiguration($event, $validated);
+
+        $nextOrderIndex = array_key_exists('order_index', $validated) && $validated['order_index'] !== null
+            ? (int) $validated['order_index']
+            : ((int) $event->forms()->max('order_index') + 1);
 
         $event->forms()->create([
             'field_key' => $validated['field_key'],
@@ -87,7 +91,7 @@ class EventFormController extends Controller
                 ? ($validated['depends_on_field_id'] ?? null)
                 : null,
             'options_json' => $validated['options_json'] ?? null,
-            'order_index' => $validated['order_index'] ?? 0,
+            'order_index' => $nextOrderIndex,
             'is_active' => (bool) ($validated['is_active'] ?? true),
         ]);
 
@@ -112,7 +116,7 @@ class EventFormController extends Controller
         $validated = $request->validate([
             'field_key' => ['required', 'string', 'max:100', 'unique:event_fields,field_key,' . $eventForm->id . ',id,event_id,' . $event->id],
             'label' => ['required', 'string', 'max:150'],
-            'type' => ['required', 'in:text,textarea,select,radio,checkbox,email,phone,number,date'],
+            'type' => ['required', 'in:text,textarea,select,radio,checkbox,email,phone,number,date,attachment'],
             'is_required' => ['nullable', 'boolean'],
             'is_primary_email' => ['nullable', 'boolean'],
             'allow_other' => ['nullable', 'boolean'],
@@ -124,7 +128,7 @@ class EventFormController extends Controller
 
         $this->validateDependencyConfiguration($event, $validated, $eventForm->id);
 
-        $eventForm->update([
+        $updateData = [
             'field_key' => $validated['field_key'],
             'label' => $validated['label'],
             'type' => $validated['type'],
@@ -136,9 +140,14 @@ class EventFormController extends Controller
                 ? ($validated['depends_on_field_id'] ?? null)
                 : null,
             'options_json' => $validated['options_json'] ?? null,
-            'order_index' => $validated['order_index'] ?? 0,
             'is_active' => (bool) ($validated['is_active'] ?? true),
-        ]);
+        ];
+
+        if (array_key_exists('order_index', $validated) && $validated['order_index'] !== null) {
+            $updateData['order_index'] = (int) $validated['order_index'];
+        }
+
+        $eventForm->update($updateData);
 
         $this->syncDependentMappings($eventForm->fresh());
 
