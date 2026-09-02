@@ -129,6 +129,18 @@
     .tracker-status.pending {
         color: #6c757d;
     }
+
+    .tracker-download {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
+        padding: 0;
+        border-radius: 50%;
+        margin-left: auto;
+        flex-shrink: 0;
+    }
 </style>
 
 @forelse ($admissions as $admission)
@@ -272,6 +284,14 @@
                         <span
                             class="tracker-status {{ $admission->is_complete == 1 ? 'completed' : 'in-progress' }}">{{ $admission->is_complete == 1 ? 'Completed' : 'In Progress' }}</span>
                     </div>
+                    @if ($admission->is_complete == 1)
+                        <div class="tracker-icon">
+                            <a href="{{ url('/document/path/' . $admission->code . '/Enrolment-' . urlencode($admission->applicant->fullname) . '.pdf') }}"
+                                class="btn btn-info btn-sm tracker-download" title="Download enrolment" download>
+                                <i class="fa fa-download"></i>
+                            </a>
+                        </div>
+                    @endif
                 </div>
 
                 <!-- Documents Status -->
@@ -284,6 +304,13 @@
                         <span
                             class="tracker-status {{ $admission->documentStatus() == 1 ? 'completed' : 'pending' }}">{{ $admission->documentStatus() == 1 ? 'Completed' : 'Pending' }}</span>
                     </div>
+                    @if ($admission->documentStatus() == 1)
+                        <div class="tracker-icon">
+                            <a href="" class="btn btn-info btn-sm tracker-download" title="Download documents">
+                                <i class="fa fa-download "></i>
+                            </a>
+                        </div>
+                    @endif
                 </div>
 
                 <!-- Statement Status -->
@@ -295,6 +322,13 @@
                         <span class="tracker-title">Statement</span>
                         <span class="tracker-status {{ $statementStatus }}">{{ ucfirst($statementStatus) }}</span>
                     </div>
+                    @if ($statementStatus == 'completed')
+                        <div class="tracker-icon">
+                            <a href="" class="btn btn-info btn-sm tracker-download" title="Download statement">
+                                <i class="fa fa-download "></i>
+                            </a>
+                        </div>
+                    @endif
                 </div>
 
                 <!-- Overall Status Badge -->
@@ -302,6 +336,9 @@
                     @if ($admission->status == 1)
                         <i class="fa fa-check-circle"></i>
                         <span>All Complete</span>
+                        <a href="" class="btn btn-info btn-sm tracker-download" title="Download all">
+                            <i class="fa fa-download "></i>
+                        </a>
                     @else
                         <i class="fa fa-hourglass-half"></i>
                         <span>In Progress</span>
