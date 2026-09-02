@@ -262,8 +262,8 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
         Route::resource('holiday', HolidayController::class)->parameters(['' => 'holiday']);
 
         Route::prefix('applicant')->name('applicant.')->group(function () {
-            Route::get('enrolment/{id}/{type?}', [AdmissionController::class, 'viewEnrolment'])->name('viewEnrolment');
             Route::get('enrolment/{id}/all', [AdmissionController::class, 'downloadAllDocuments'])->name('downloadAllDocuments');
+            Route::get('enrolment/{id}/{type?}', [AdmissionController::class, 'viewEnrolment'])->name('viewEnrolment');
             Route::resource('', AdmissionController::class)->parameters(['' => 'applicant']);
         });
     });

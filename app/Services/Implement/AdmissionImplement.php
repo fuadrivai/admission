@@ -418,6 +418,7 @@ class AdmissionImplement implements AdmissionService
         $admission = Admission::with('applicant')->findOrFail($id);
 
         $studentName = $admission->applicant->fullname;
+        $disk = Storage::disk('admission');
 
         $files = [
             'Enrolment-' . $studentName . '.pdf',
@@ -425,30 +426,34 @@ class AdmissionImplement implements AdmissionService
             'Statement-' . $studentName . '.pdf',
         ];
 
-        $disk = Storage::disk('admission');
+        $availableFiles = [];
+        foreach ($files as $fileName) {
+            $filePath = $admission->code . '/' . $fileName;
+            if ($disk->exists($filePath)) {
+                $availableFiles[] = [
+                    'name' => $fileName,
+                    'path' => $filePath,
+                ];
+            }
+        }
+
+        if (empty($availableFiles)) {
+            abort(404, 'Tidak ada file PDF yang tersedia untuk diunduh.');
+        }
 
         $zipFileName = 'Admission-' . $admission->code . '-' . $studentName . '.zip';
         $zipPath = storage_path('app/' . $zipFileName);
 
-        $zip = new ZipArchive();
+        $zip = new \ZipArchive();
 
-        if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
+        if ($zip->open($zipPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) !== true) {
             abort(500, 'Tidak dapat membuat file ZIP.');
         }
 
-        foreach ($files as $fileName) {
-
-            $filePath = $admission->code . '/' . $fileName;
-
-            if (!$disk->exists($filePath)) {
-                $zip->close();
-
-                abort(404, 'File ' . $fileName . ' tidak ditemukan.');
-            }
-
+        foreach ($availableFiles as $file) {
             $zip->addFile(
-                $disk->path($filePath),
-                $fileName
+                $disk->path($file['path']),
+                $file['name']
             );
         }
 
