@@ -309,4 +309,38 @@ class EventFormFeatureTest extends TestCase
         $this->assertStringContainsString('http', (string) $row[2]);
         $this->assertStringContainsString('attachment_file_123.pdf', (string) $row[2]);
     }
+
+    public function test_event_registration_attachment_route_serves_file(): void
+    {
+        Storage::fake('event');
+
+        $event = \App\Models\Event::create([
+            'title' => 'Open House 2026',
+            'slug' => 'open-house-' . uniqid(),
+            'status' => 'PUBLISHED',
+            'intro_html' => '<p>Welcome</p>',
+        ]);
+
+        $this->actingAs(User::create([
+            'name' => 'Admin User',
+            'email' => 'admin-' . uniqid() . '@example.com',
+            'password' => bcrypt('secret123'),
+        ]));
+
+        $registration = $event->registrations()->create([
+            'code' => 'ECODE-IMG-' . uniqid(),
+            'status' => 'SUBMITTED',
+            'amount' => 0,
+            'registered_at' => now(),
+        ]);
+
+        $storedValue = $registration->code . '/preview.png';
+        $file = UploadedFile::fake()->image('preview.png', 100, 100);
+        Storage::disk('event')->put($storedValue, $file->getContent());
+
+        $response = $this->get(route('event.registration.attachment', [$event, $registration]) . '?file=' . urlencode($storedValue));
+
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'image/png');
+    }
 }

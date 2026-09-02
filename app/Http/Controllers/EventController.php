@@ -8,6 +8,7 @@ use App\Models\EventRegistration;
 use App\Exports\EventRegistrationExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Utilities\Request as UtilitiesRequest;
@@ -358,6 +359,27 @@ class EventController extends Controller
             'title' => 'Registration Details',
             'event' => $event,
             'registration' => $registration,
+        ]);
+    }
+
+    public function attachment(Event $event, EventRegistration $registration)
+    {
+        if ($registration->event_id !== $event->id) {
+            abort(404);
+        }
+
+        $filePath = request('file');
+
+        if (! is_string($filePath) || $filePath === '' || ! Storage::disk('event')->exists($filePath)) {
+            abort(404);
+        }
+
+        $absolutePath = Storage::disk('event')->path($filePath);
+        $mimeType = Storage::disk('event')->mimeType($filePath) ?: 'application/octet-stream';
+
+        return response()->file($absolutePath, [
+            'Content-Type' => $mimeType,
+            'Content-Disposition' => 'inline; filename="' . basename($filePath) . '"',
         ]);
     }
 

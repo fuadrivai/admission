@@ -306,7 +306,9 @@
                                                 ? Storage::disk('event')->exists($attachmentValue)
                                                 : false;
                                             $attachmentUrl = $attachmentExists
-                                                ? Storage::disk('event')->url($attachmentValue)
+                                                ? route('event.registration.attachment', [$event, $registration]) .
+                                                    '?file=' .
+                                                    urlencode($attachmentValue)
                                                 : null;
                                             $attachmentExtension = $attachmentValue
                                                 ? strtolower(pathinfo($attachmentValue, PATHINFO_EXTENSION))
