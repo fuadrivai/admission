@@ -263,6 +263,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
 
         Route::prefix('applicant')->name('applicant.')->group(function () {
             Route::get('enrolment/{id}/{type?}', [AdmissionController::class, 'viewEnrolment'])->name('viewEnrolment');
+            Route::get('enrolment/{id}/all', [AdmissionController::class, 'downloadAllDocuments'])->name('downloadAllDocuments');
             Route::resource('', AdmissionController::class)->parameters(['' => 'applicant']);
         });
     });

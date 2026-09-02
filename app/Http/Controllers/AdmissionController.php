@@ -222,7 +222,11 @@ class AdmissionController extends Controller
 
     public function viewEnrolment($id,$type='Enrolment')
     {
-        $path = $this->admissionService->viewEnrolment($id, $type);
-        return $path;
+        return $this->admissionService->viewEnrolment($id, $type);
+    }
+
+    public function downloadAllDocuments($id)
+    {
+        return $this->admissionService->downloadAllDocument($id);
     }
 }

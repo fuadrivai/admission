@@ -15,12 +15,12 @@ use App\Models\MedicalHistory;
 use App\Models\ParentDeclaration;
 use App\Models\PregnancyHistory;
 use App\Services\AdmissionService;
-use Dompdf\Dompdf;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
+use ZipArchive;
 
 use function App\Helpers\imageToBase64;
 use function App\Helpers\normalizePhoneNumber;
@@ -412,6 +412,55 @@ class AdmissionImplement implements AdmissionService
         return response()->file($disk->path($path), [
             'Content-Type' => 'application/pdf',
         ]);
+    }
+    public function downloadAllDocument($id)
+    {
+        $admission = Admission::with('applicant')->findOrFail($id);
+
+        $studentName = $admission->applicant->fullname;
+
+        $files = [
+            'Enrolment-' . $studentName . '.pdf',
+            'Documents-' . $studentName . '.pdf',
+            'Statement-' . $studentName . '.pdf',
+        ];
+
+        $disk = Storage::disk('admission');
+
+        $zipFileName = 'Admission-' . $admission->code . '-' . $studentName . '.zip';
+        $zipPath = storage_path('app/' . $zipFileName);
+
+        $zip = new ZipArchive();
+
+        if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
+            abort(500, 'Tidak dapat membuat file ZIP.');
+        }
+
+        foreach ($files as $fileName) {
+
+            $filePath = $admission->code . '/' . $fileName;
+
+            if (!$disk->exists($filePath)) {
+                $zip->close();
+
+                abort(404, 'File ' . $fileName . ' tidak ditemukan.');
+            }
+
+            $zip->addFile(
+                $disk->path($filePath),
+                $fileName
+            );
+        }
+
+        $zip->close();
+
+        return response()->download(
+            $zipPath,
+            $zipFileName,
+            [
+                'Content-Type' => 'application/zip',
+            ]
+        )->deleteFileAfterSend(true);
     }
 
 }

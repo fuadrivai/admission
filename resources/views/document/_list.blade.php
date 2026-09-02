@@ -338,8 +338,9 @@
                     @if ($admission->status == 1)
                         <i class="fa fa-check-circle"></i>
                         <span>All Complete</span>
-                        <a href="" class="btn btn-info btn-sm tracker-download" title="Download all">
-                            <i class="fa fa-download "></i>
+                        <a href="/applicant/enrolment/{{ $admission->id }}/all"
+                            class="btn btn-info btn-sm tracker-download" title="Download all">
+                            <i class="fa fa-download"></i>
                         </a>
                     @else
                         <i class="fa fa-hourglass-half"></i>
