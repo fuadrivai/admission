@@ -9,6 +9,8 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 
 class EventRegistrationExport implements FromCollection, WithHeadings, WithMapping
 {
+    private $event;
+
     private $registrations;
 
     private $fields;
@@ -17,6 +19,8 @@ class EventRegistrationExport implements FromCollection, WithHeadings, WithMappi
 
     public function __construct($event)
     {
+        $this->event = $event;
+
         $this->fields = $event->fields()
             ->where('is_active', true)
             ->orderBy('order_index')
@@ -52,7 +56,7 @@ class EventRegistrationExport implements FromCollection, WithHeadings, WithMappi
             }
 
             if ($field->type === 'attachment' && is_string($value) && $value !== '') {
-                $value = $this->resolveAttachmentExportValue($value);
+                $value = $this->resolveAttachmentExportValue($registration, $value);
             }
 
             $row[] = $value !== null && $value !== '' ? $value : '';
@@ -90,19 +94,16 @@ class EventRegistrationExport implements FromCollection, WithHeadings, WithMappi
         return json_last_error() === JSON_ERROR_NONE && is_array($decoded);
     }
 
-    private function resolveAttachmentExportValue(string $value): string
+    private function resolveAttachmentExportValue($registration, string $value): string
     {
         $disk = Storage::disk('event');
 
-        if ($disk->exists($value)) {
-            $url = $disk->url($value);
-            if (is_string($url) && $url !== '') {
-                return str_starts_with($url, 'http') ? $url : url($url);
-            }
-
-            return url('/storage/' . ltrim(str_replace('\\', '/', $value), '/'));
+        if (! $disk->exists($value)) {
+            return $value;
         }
 
-        return $value;
+        $route = route('event.registration.attachment', [$this->event, $registration]);
+
+        return $route . '?file=' . urlencode($value);
     }
 }

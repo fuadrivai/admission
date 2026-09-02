@@ -160,6 +160,13 @@
             background: #fff;
             object-fit: cover;
             box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            cursor: pointer;
+        }
+
+        .attachment-preview img:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
         }
 
         .attachment-preview iframe {
@@ -332,7 +339,10 @@
                                             @if ($attachmentExists && $attachmentUrl)
                                                 @if ($attachmentIsImage)
                                                     <div class="attachment-preview">
-                                                        <img src="{{ $attachmentUrl }}" alt="Attachment preview" />
+                                                        <a href="{{ $attachmentUrl }}" target="_blank"
+                                                            rel="noopener noreferrer" title="Open in new tab">
+                                                            <img src="{{ $attachmentUrl }}" alt="Attachment preview" />
+                                                        </a>
                                                     </div>
                                                 @elseif ($attachmentIsPdf)
                                                     <div class="attachment-preview">
@@ -341,12 +351,12 @@
                                                     </div>
                                                     <a href="{{ $attachmentUrl }}" target="_blank"
                                                         rel="noopener noreferrer" class="attachment-download">
-                                                        <i class="fa fa-file-pdf"></i> Open PDF
+                                                        <i class="fa fa-file-pdf"></i> Open PDF in new tab
                                                     </a>
                                                 @else
                                                     <a href="{{ $attachmentUrl }}" target="_blank"
                                                         rel="noopener noreferrer" class="attachment-download">
-                                                        <i class="fa fa-download"></i> Download File
+                                                        <i class="fa fa-download"></i> Open File
                                                     </a>
                                                 @endif
                                             @else
