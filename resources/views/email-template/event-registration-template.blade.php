@@ -194,8 +194,8 @@
                   display: block;
                   margin: 15px 0 5px;
                   letter-spacing: 0.5px;
-                ">Admission
-                            Mutiara Harapan Islamic School</strong>
+                ">Mutiara
+                            Harapan Islamic School</strong>
                         <em style="color: #d4af37; font-size: 14px">Home of The Champions</em>
                     </p>
                 </td>

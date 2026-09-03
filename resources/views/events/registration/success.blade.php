@@ -232,18 +232,6 @@
                             Thank you for registering for this event. Your registration has been successfully submitted.
                         </p>
 
-                        <div>
-                            <p class="success-code-label">Registration Code</p>
-                            <div class="success-code">
-                                {{ $registration_code }}
-                            </div>
-                        </div>
-
-                        <p class="success-note">
-                            Please save this code for your records. You may need it for event check-in or future
-                            reference.
-                        </p>
-
                         <a href="/events/{{ $event->slug }}" class="cta-button">
                             <i class="fa fa-home" style="margin-right: 8px;"></i> Back to Event
                         </a>
