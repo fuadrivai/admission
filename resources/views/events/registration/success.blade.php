@@ -228,9 +228,6 @@
 
                         <h2 class="event-title">{{ $event->title }}</h2>
                         <br><br>
-                        <p class="success-message">
-
-                        </p>
 
                         <a href="/events/{{ $event->slug }}" class="cta-button">
                             <i class="fa fa-home" style="margin-right: 8px;"></i> Back to Event
