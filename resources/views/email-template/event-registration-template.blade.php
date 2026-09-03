@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="x-apple-disable-message-reformatting" />
-    <title>Event Confirmation - Mutiara Harapan Islamic School</title>
+    <title>Mutiara Harapan Islamic School</title>
 </head>
 
 <body
@@ -70,7 +70,7 @@
                 font-weight: bold;
                 letter-spacing: 0.5px;
               ">
-                        {{ $data['title'] }} - Registration Confirmation
+                        {{ $data['title'] }}
                     </h3>
 
                     <!-- Arabic Greeting -->

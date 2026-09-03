@@ -217,7 +217,7 @@
                 <div class="event-card-header">
                     <img src="/assets/images/logo mh menyamping putih-01-01.png" alt="MHIS Logo"
                         onerror="this.style.display='none';">
-                    <h1>Registration Successful</h1>
+                    <h1>{{ $event->title_success ?? '' }}</h1>
                 </div>
 
                 <div class="event-card-body">
@@ -227,11 +227,6 @@
                         </div>
 
                         <h2 class="event-title">{{ $event->title }}</h2>
-
-                        <p class="success-message">
-                            Thank you for registering for this event. Your registration has been successfully submitted.
-                        </p>
-
                         <a href="/events/{{ $event->slug }}" class="cta-button">
                             <i class="fa fa-home" style="margin-right: 8px;"></i> Back to Event
                         </a>
