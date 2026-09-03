@@ -290,7 +290,9 @@ class EventController extends Controller
         $levelField = $fields->first(function ($field) {
             $value = Str::lower(($field->field_key ?? '') . ' ' . ($field->label ?? ''));
 
-            return Str::contains($value, 'level');
+            return Str::contains($value, 'level')
+                || Str::contains($value, 'division')
+                || Str::contains($value, 'divisi');
         });
 
         $levelOptions = $levelField
@@ -329,6 +331,22 @@ class EventController extends Controller
         $query = $event->registrations()
             ->with('fieldAnswers.eventField')
             ->latest('created_at');
+
+        foreach ((array) $request->input('filters', []) as $fieldKey => $filterValue) {
+            $filterValue = trim((string) $filterValue);
+
+            if ($filterValue === '') {
+                continue;
+            }
+
+            $query->whereHas('fieldAnswers', function ($answerQuery) use ($event, $fieldKey, $filterValue) {
+                $answerQuery->where('value', 'like', '%' . $filterValue . '%')
+                    ->whereHas('eventField', function ($fieldQuery) use ($event, $fieldKey) {
+                        $fieldQuery->where('event_id', $event->id)
+                            ->where('field_key', $fieldKey);
+                    });
+            });
+        }
 
         if (! $request->ajax()) {
             return response()->json([]);
