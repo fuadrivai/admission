@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Branch;
 use App\Models\Event;
+use App\Models\EventFieldAnswer;
 use App\Models\EventRegistration;
 use App\Exports\EventRegistrationExport;
 use Illuminate\Http\Request;
@@ -288,6 +289,7 @@ class EventController extends Controller
         return view('event.registrations.index', [
             'title' => 'Event Registrations',
             'event' => $event,
+            'fields' => $this->answeredEventFields($event),
         ]);
     }
 
@@ -303,116 +305,65 @@ class EventController extends Controller
      */
     public function registrationsDatatables(UtilitiesRequest $request, Event $event)
     {
+        $fields = $this->answeredEventFields($event);
         $query = $event->registrations()
             ->with('fieldAnswers.eventField')
-            ->orderBy('created_at', 'desc');
+            ->latest('created_at');
 
-        $filters = $request->input('filters', []);
-
-        foreach ($filters as $fieldKey => $filterValue) {
-            $filterValue = trim((string) $filterValue);
-            if ($filterValue === '') {
-                continue;
-            }
-
-            $query->whereHas('fieldAnswers', function ($answerQuery) use ($fieldKey, $filterValue) {
-                $answerQuery->whereHas('eventField', function ($fieldQuery) use ($fieldKey) {
-                    $fieldQuery->where('field_key', $fieldKey);
-                })->where('value', 'like', '%' . $filterValue . '%');
-            });
+        if (! $request->ajax()) {
+            return response()->json([]);
         }
 
-        $fieldAliases = [
-            'student_name' => ['student_name', 'studentName', 'student','students_full_name','students_fullname'],
-            'parent_name' => ['parent_name', 'parentName', 'parent','parents_name'],
-            'name' => ['name'],
-            'fullname' => ['fullname', 'full_name', 'full-name'],
-            'email' => ['email', 'email_address', 'emailAddress','parents_email','parents_email_address','parents_emailAddress'],
-            'phone' => ['phone', 'phone_number', 'phoneNumber', 'mobile'],
-            'level' => ['level', 'level_name', 'levelName'],
-            'grade' => ['grade', 'grade_name', 'gradeName'],
-        ];
+        $dataTable = datatables()->of($query)
+            ->addColumn('code', fn ($row) => '<code>' . e($row->code) . '</code>')
+            ->addColumn('amount', fn ($row) => 'Rp ' . number_format((float) $row->amount, 0, ',', '.'))
+            ->addColumn('registered_at', fn ($row) => $row->registered_at?->format('d M Y H:i') ?? '')
+            ->addColumn('status', function ($row) {
+                $colors = [
+                    'SUBMITTED' => 'info', 'PENDING' => 'warning', 'PAID' => 'success',
+                    'CANCELLED' => 'danger', 'EXPIRED' => 'secondary',
+                ];
+                $color = $colors[$row->status] ?? 'secondary';
 
-        $getFieldValue = function ($registration, $aliases) {
-            $normalizedAliases = collect($aliases)->map(function ($alias) {
-                return Str::lower(str_replace(['-', '_', ' '], '', $alias));
+                return '<span class="badge registration-status-badge bg-' . $color . '">' . e($row->status) . '</span>';
+            })
+            ->addColumn('action', function ($row) use ($event) {
+                return '<a href="' . route('event.registration.show', [$event, $row]) . '" class="btn btn-sm btn-primary text-white"><i class="fa fa-eye"></i></a>'
+                    . ' <form method="POST" action="' . route('event.registration.delete', [$event, $row]) . '" style="display:inline" onsubmit="return confirm(\'Are you sure?\');">'
+                    . csrf_field() . method_field('DELETE')
+                    . '<button type="submit" class="btn btn-sm btn-danger text-white"><i class="fa fa-trash"></i></button></form>';
             });
 
-            $answer = $registration->fieldAnswers->first(function ($answer) use ($normalizedAliases) {
-                if (! $answer->eventField) {
-                    return false;
+        foreach ($fields as $field) {
+            $dataTable->addColumn('field_' . $field->id, function ($row) use ($field) {
+                $answer = $row->fieldAnswers->firstWhere('event_field_id', $field->id);
+                $value = $answer?->value ?? '';
+
+                if ($field->type === 'checkbox' && is_string($value)) {
+                    $decoded = json_decode($value, true);
+                    $value = json_last_error() === JSON_ERROR_NONE && is_array($decoded)
+                        ? implode(', ', $decoded)
+                        : $value;
                 }
 
-                $fieldKey = Str::lower(str_replace(['-', '_', ' '], '', $answer->eventField->field_key));
-                $label = Str::lower(str_replace(['-', '_', ' '], '', $answer->eventField->label));
-
-                return $normalizedAliases->contains($fieldKey) || $normalizedAliases->contains($label);
+                return $value;
             });
-
-            return $answer && $answer->value !== null ? $answer->value : '';
-        };
-
-        if ($request->ajax()) {
-            return datatables()->of($query)
-                ->addColumn('student_name', function ($row) use ($getFieldValue, $fieldAliases) {
-                    return $getFieldValue($row, $fieldAliases['student_name']);
-                })
-                ->addColumn('parent_name', function ($row) use ($getFieldValue, $fieldAliases) {
-                    return $getFieldValue($row, $fieldAliases['parent_name']);
-                })
-                ->addColumn('name', function ($row) use ($getFieldValue, $fieldAliases) {
-                    return $getFieldValue($row, $fieldAliases['name']);
-                })
-                ->addColumn('fullname', function ($row) use ($getFieldValue, $fieldAliases) {
-                    return $getFieldValue($row, $fieldAliases['fullname']);
-                })
-                ->addColumn('email', function ($row) use ($getFieldValue, $fieldAliases) {
-                    return $getFieldValue($row, $fieldAliases['email']);
-                })
-                ->addColumn('phone', function ($row) use ($getFieldValue, $fieldAliases) {
-                    return $getFieldValue($row, $fieldAliases['phone']);
-                })
-                ->addColumn('level', function ($row) use ($getFieldValue, $fieldAliases) {
-                    return $getFieldValue($row, $fieldAliases['level']);
-                })
-                ->addColumn('grade', function ($row) use ($getFieldValue, $fieldAliases) {
-                    return $getFieldValue($row, $fieldAliases['grade']);
-                })
-                ->addColumn('code', function ($row) {
-                    return '<code>' . $row->code . '</code>';
-                })
-                ->addColumn('status', function ($row) {
-                    $statusColors = [
-                        'SUBMITTED' => 'info',
-                        'PENDING' => 'warning',
-                        'PAID' => 'success',
-                        'CANCELLED' => 'danger',
-                        'EXPIRED' => 'secondary',
-                    ];
-                    $color = $statusColors[$row->status] ?? 'secondary';
-                    return '<span class="badge badge-sm registration-status-badge bg-' . $color . '"><i>' . $row->status . '</i></span>';
-                })
-                ->addColumn('amount', function ($row) {
-                    return 'Rp ' . number_format((float) $row->amount, 0, ',', '.');
-                })
-                ->addColumn('registered_at', function ($row) {
-                    return $row->registered_at ? $row->registered_at->format('d M Y H:i') : '';
-                })
-                ->addColumn('submission_date', function ($row) {
-                    return $row->created_at->format('d M Y H:i');
-                })
-                ->addColumn('action', function ($row) use ($event) {
-                    return '<a href="' . route('event.registration.show', [$event, $row]) . '" class="btn btn-sm btn-primary text-white"><i class="fa fa-eye"></i></a>'
-                        . ' <form method="POST" action="' . route('event.registration.delete', [$event, $row]) . '" style="display:inline;" onsubmit="return confirm(\'Are you sure?\');">'
-                        . csrf_field() . method_field('DELETE')
-                        . '<button type="submit" class="btn btn-sm btn-danger text-white"><i class="fa fa-trash"></i></button>'
-                        . '</form>';
-                })
-                ->rawColumns(['code', 'status', 'action'])
-                ->make(true);
         }
 
-        return response()->json([]);
+        return $dataTable->rawColumns(['code', 'status', 'action'])->make(true);
+    }
+
+    private function answeredEventFields(Event $event)
+    {
+        return EventFieldAnswer::query()
+            ->whereHas('eventRegistration', fn ($query) => $query->where('event_id', $event->id))
+            ->with('eventField')
+            ->get()
+            ->pluck('eventField')
+            ->filter(fn ($field) => $field && $field->event_id === $event->id)
+            ->unique('id')
+            ->sortBy(fn ($field) => [$field->order_index, $field->id])
+            ->values();
     }
 
     /**
