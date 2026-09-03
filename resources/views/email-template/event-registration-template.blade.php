@@ -138,15 +138,6 @@
                           ">
                                                 Thank you for trusting us in your child's journey.
                                             </p>
-                                            <p
-                                                style="
-                            margin: 0;
-                            font-size: 18px;
-                            color: #800000;
-                            font-weight: bold;
-                          ">
-                                                Welcome to MHIS—Home of The Champions!
-                                            </p>
                                         </td>
                                     </tr>
                                 </table>
