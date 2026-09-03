@@ -286,10 +286,30 @@ class EventController extends Controller
      */
     public function registrations(Event $event)
     {
+        $fields = $this->answeredEventFields($event);
+        $levelField = $fields->first(function ($field) {
+            $value = Str::lower(($field->field_key ?? '') . ' ' . ($field->label ?? ''));
+
+            return Str::contains($value, 'level');
+        });
+
+        $levelOptions = $levelField
+            ? EventFieldAnswer::query()
+                ->where('event_field_id', $levelField->id)
+                ->whereHas('eventRegistration', fn ($query) => $query->where('event_id', $event->id))
+                ->whereNotNull('value')
+                ->where('value', '<>', '')
+                ->distinct()
+                ->orderBy('value')
+                ->pluck('value')
+            : collect();
+
         return view('event.registrations.index', [
             'title' => 'Event Registrations',
             'event' => $event,
-            'fields' => $this->answeredEventFields($event),
+            'fields' => $fields,
+            'levelField' => $levelField,
+            'levelOptions' => $levelOptions,
         ]);
     }
 
