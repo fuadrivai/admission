@@ -317,7 +317,7 @@ class EventController extends Controller
         $dataTable = datatables()->of($query)
             ->addColumn('code', fn ($row) => '<code>' . e($row->code) . '</code>')
             ->addColumn('amount', fn ($row) => 'Rp ' . number_format((float) $row->amount, 0, ',', '.'))
-            ->addColumn('registered_at', fn ($row) => $row->registered_at?->format('d M Y H:i') ?? '')
+            ->addColumn('registered_at', fn ($row) => $row->registered_at ? $row->registered_at->format('d M Y H:i') : '')
             ->addColumn('status', function ($row) {
                 $colors = [
                     'SUBMITTED' => 'info', 'PENDING' => 'warning', 'PAID' => 'success',
@@ -337,7 +337,7 @@ class EventController extends Controller
         foreach ($fields as $field) {
             $dataTable->addColumn('field_' . $field->id, function ($row) use ($field) {
                 $answer = $row->fieldAnswers->firstWhere('event_field_id', $field->id);
-                $value = $answer?->value ?? '';
+                $value = $answer ? $answer->value : '';
 
                 if ($field->type === 'checkbox' && is_string($value)) {
                     $decoded = json_decode($value, true);
