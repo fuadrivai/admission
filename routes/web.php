@@ -6,6 +6,7 @@ use App\Http\Controllers\AdmissionStatementController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AcademicYearController;
 use App\Http\Controllers\BankChargerController;
+use App\Http\Controllers\BlastMessageController;
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\DivisionController;
 use App\Http\Controllers\EnrolmentController;
@@ -240,6 +241,11 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
             Route::post('delete/many', [EventController::class, 'deleteMany'])->name('deleteMany');
 
             Route::resource('', EventController::class)->parameters(['' => 'event']);
+        });
+        Route::prefix('blast')->name('blast.')->group(function () {
+            Route::get('email', [BlastMessageController::class, 'email'])->name('email');
+            Route::get('email/form', [BlastMessageController::class, 'emailForm'])->name('email.form');
+            Route::get('whatsapp', [BlastMessageController::class, 'whatsapp'])->name('whatsapp');
         });
         Route::prefix('setting')->name('setting.')->group(function () {
             Route::get('/password/change', [AuthController::class, 'edit']);
