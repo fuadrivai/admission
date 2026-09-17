@@ -242,6 +242,24 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
 
             Route::resource('', EventController::class)->parameters(['' => 'event']);
         });
+        Route::prefix('email-campaigns')->name('email-campaigns.')->group(function () {
+            Route::get('/', [BlastMessageController::class, 'index'])->name('index');
+            Route::get('/datatables', [BlastMessageController::class, 'datatables'])->name('datatables');
+            Route::get('/create', [BlastMessageController::class, 'create'])->name('create');
+            Route::get('/{campaign}/recipients', [BlastMessageController::class, 'recipients'])->name('recipients');
+            Route::get('/{campaign}/recipients/datatables', [BlastMessageController::class, 'recipientDatatables'])->name('recipients.datatables');
+            Route::get('/{campaign}/recipients/{recipient}/message', [BlastMessageController::class, 'recipientMessage'])->name('recipients.message');
+            Route::post('/{campaign}/recipients/{recipient}/resend', [BlastMessageController::class, 'resendRecipient'])->name('recipients.resend');
+            Route::put('/{campaign}/message', [BlastMessageController::class, 'updateMessage'])->name('message.update');
+            Route::get('/{campaign}/attachments/{attachment}', [BlastMessageController::class, 'attachment'])->name('attachments.show');
+            Route::get('/{campaign}', [BlastMessageController::class, 'show'])->name('show');
+            Route::get('/{campaign}/edit', [BlastMessageController::class, 'edit'])->name('edit');
+            Route::post('/', [BlastMessageController::class, 'store'])->name('store');
+            Route::put('/{campaign}', [BlastMessageController::class, 'update'])->name('update');
+            Route::post('/{campaign}/send', [BlastMessageController::class, 'send'])->name('send');
+            Route::delete('/{campaign}', [BlastMessageController::class, 'destroy'])->name('destroy');
+        });
+
         Route::prefix('blast')->name('blast.')->group(function () {
             Route::get('email', [BlastMessageController::class, 'email'])->name('email');
             Route::get('email/form', [BlastMessageController::class, 'emailForm'])->name('email.form');

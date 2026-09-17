@@ -123,7 +123,8 @@
                     </ul>
                 </li>
                 @if (!auth()->check() || auth()->user()->role != 'user')
-                    <li class="sidebar-item has-sub {{ Request::is('blast*') ? 'active' : '' }}">
+                    <li
+                        class="sidebar-item has-sub {{ Request::is('blast*') || Request::is('email-campaigns*') ? 'active' : '' }}">
                         <a href="#" class='sidebar-link'>
                             <i class="bi bi-envelope"></i>
                             <span>Blast Message</span>

@@ -1,3 +1,8 @@
+@php
+    $pageTitle = $campaign->subject ?? ($title ?? ($data['title'] ?? 'Mutiara Harapan Islamic School'));
+    $campaignBody = $email_body ?? ($data['content'] ?? '');
+@endphp
+
 <!doctype html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml"
     xmlns:o="urn:schemas-microsoft-com:office:office">
@@ -7,7 +12,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="x-apple-disable-message-reformatting" />
-    <title>Mutiara Harapan Islamic School</title>
+    <title>{{ $pageTitle }}</title>
 </head>
 
 <body
@@ -21,7 +26,6 @@
       -ms-text-size-adjust: 100%;
     ">
     <center style="width: 100%; background-color: #f9f7f4">
-        <!-- Decorative Top Border -->
         <table role="presentation" align="center" border="0" cellpadding="0" cellspacing="0" width="100%"
             style="max-width: 600px">
             <tr>
@@ -38,10 +42,8 @@
             </tr>
         </table>
 
-        <!-- Main Container -->
         <table role="presentation" align="center" border="0" cellpadding="0" cellspacing="0" width="100%"
             style="max-width: 600px; margin: 0 auto">
-            <!-- Header with Logo & Title -->
             <tr>
                 <td align="center"
                     style="
@@ -50,7 +52,6 @@
               border-left: 1px solid #f0f0f0;
               border-right: 1px solid #f0f0f0;
             ">
-                    <!-- School Logo -->
                     <img src="https://bangka.mutiaraharapan.sch.id/wp-content/uploads/2020/03/LOGO-5-1536x864-1-1024x576.png"
                         alt="Mutiara Harapan Islamic School" width="200" height="61" border="0"
                         style="
@@ -61,7 +62,6 @@
                 margin: 0 auto 20px;
               " />
 
-                    <!-- Page Title -->
                     <h3
                         style="
                 margin: 0 0 15px;
@@ -70,10 +70,9 @@
                 font-weight: bold;
                 letter-spacing: 0.5px;
               ">
-                        {{ $data['title'] }}
+                        {{ $pageTitle }}
                     </h3>
 
-                    <!-- Arabic Greeting -->
                     <p
                         style="
                 margin: 0 0 10px;
@@ -87,7 +86,6 @@
                 </td>
             </tr>
 
-            <!-- Main Content Card -->
             <tr>
                 <td align="center"
                     style="
@@ -107,13 +105,10 @@
                     font-size: 15px;
                     line-height: 1.7;
                   ">
-                                {!! $data['content'] !!}
+                                {!! $campaignBody !!}
                             </td>
                         </tr>
 
-                        <!-- Important Instructions -->
-
-                        <!-- Welcome Message -->
                         <tr>
                             <td style="padding: 25px 0 10px; text-align: left">
                                 <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%"
@@ -147,7 +142,6 @@
                 </td>
             </tr>
 
-            <!-- Closing Section -->
             <tr>
                 <td align="center"
                     style="
@@ -157,7 +151,6 @@
               border-right: 1px solid #f0f0f0;
               border-bottom: 1px solid #f0f0f0;
             ">
-                    <!-- Arabic Closing -->
                     <p
                         style="
                 margin: 0 0 20px;
@@ -169,7 +162,6 @@
                         وَالسَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللَّهِ وَبَرَكَاتُهُ
                     </p>
 
-                    <!-- School Signature -->
                     <p
                         style="
                 margin: 0;
@@ -192,7 +184,6 @@
                 </td>
             </tr>
 
-            <!-- Footer -->
             <tr>
                 <td align="center"
                     style="

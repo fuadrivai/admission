@@ -8,4 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class EmailCampaignAttachment extends Model
 {
     use HasFactory;
+
+    protected $guarded = ['id'];
+
+    public function campaign()
+    {
+        return $this->belongsTo(EmailCampaign::class, 'campaign_id');
+    }
 }

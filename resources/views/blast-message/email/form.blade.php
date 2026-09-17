@@ -1,5 +1,9 @@
 @extends('main-layout.index')
 
+@php
+    $formCampaign = $cloneCampaign ?? ($campaign ?? null);
+@endphp
+
 @section('content-style')
     <link rel="stylesheet" href="/assets/extensions/datatables.net-bs5/css/dataTables.bootstrap5.min.css">
     <link rel="stylesheet" href="/assets/compiled/css/table-datatable-jquery.css">
@@ -78,18 +82,16 @@
             font-weight: 700;
         }
 
-        .campaign-page .variable-button {
+        .campaign-page .variable-text {
             background: #f2f5ff;
             border: 1px solid #dce3ff;
             border-radius: .4rem;
             color: #354a9f;
+            display: inline-block;
             font-family: monospace;
             font-size: .8rem;
             padding: .35rem .55rem;
-        }
-
-        .campaign-page .variable-button:hover {
-            background: #e5ebff;
+            user-select: text;
         }
 
         .campaign-page .attachment-row {
@@ -140,6 +142,20 @@
         .campaign-page .note-editor.note-frame {
             border-color: var(--campaign-line);
         }
+
+        .campaign-loading {
+            align-items: center;
+            background: rgba(255, 255, 255, .8);
+            display: none;
+            inset: 0;
+            justify-content: center;
+            position: fixed;
+            z-index: 2000;
+        }
+
+        .campaign-loading.is-visible {
+            display: flex;
+        }
     </style>
 @endsection
 
@@ -155,9 +171,11 @@
                         <div class="row g-3">
                             <div class="col-md-6"><label for="campaignName" class="form-label">Campaign Name <span
                                         class="text-danger">*</span></label><input id="campaignName" class="form-control"
+                                    value="{{ old('name', $formCampaign->name ?? '') }}"
                                     placeholder="September Billing Notification"></div>
                             <div class="col-md-6"><label for="emailSubject" class="form-label">Email Subject <span
                                         class="text-danger">*</span></label><input id="emailSubject" class="form-control"
+                                    value="{{ old('subject', $formCampaign->subject ?? '') }}"
                                     placeholder="September Billing Information"></div>
                         </div>
                     </div>
@@ -276,18 +294,31 @@
                     </div>
                     <div class="card-body">
                         <p class="text-muted small">Review the rendered message using a recipient from the imported list.
-                        </p><button type="button" id="previewButton" class="btn btn-primary w-100"
-                            data-bs-toggle="modal" data-bs-target="#previewModal"><i class="bi bi-eye me-1"></i> Preview
-                            Email</button>
+                        </p><button type="button" id="previewButton" class="btn btn-primary w-100"><i
+                                class="bi bi-eye me-1"></i> Preview Email</button>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="sticky-actions">
-            <div class="d-flex justify-content-between align-items-center"><button type="button"
-                    class="btn btn-outline-secondary">Cancel</button><button type="button" id="saveDraft"
-                    class="btn btn-primary"><i class="bi bi-save me-1"></i> Save as Draft</button></div>
+            <div class="d-flex justify-content-between align-items-center">
+                <button type="button" class="btn btn-outline-secondary">Cancel</button>
+                <div class="d-flex gap-2">
+                    <button type="button" id="saveCampaign" class="btn btn-primary"><i class="bi bi-save me-1"></i>
+                        Save Campaign</button>
+                    <button type="button" id="sendCampaign" class="btn btn-success"><i class="bi bi-send me-1"></i>
+                        Save &amp; Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="campaignLoading" class="campaign-loading" aria-live="polite" aria-busy="true">
+        <div class="text-center bg-white border rounded shadow-sm p-4">
+            <div class="spinner-border text-primary mb-3" role="status" aria-hidden="true"></div>
+            <div id="campaignLoadingText" class="fw-semibold">Saving campaign...</div>
+            <div class="text-muted small mt-1">Please keep this page open.</div>
         </div>
     </div>
 
@@ -297,7 +328,7 @@
                 <div class="modal-header">
                     <h5 class="modal-title" id="previewModalLabel"><i
                             class="bi bi-envelope-open me-2 text-primary"></i>Email Preview</h5><button type="button"
-                        class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        class="btn-close preview-modal-close" aria-label="Close"></button>
                 </div>
                 <div class="modal-body"><label for="previewRecipient" class="form-label">Preview Recipient</label><select
                         id="previewRecipient" class="form-select mb-3"></select>
@@ -314,9 +345,10 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer"><button type="button" class="btn btn-outline-secondary"
-                        data-bs-dismiss="modal">Close</button><button type="button" id="refreshPreview"
-                        class="btn btn-primary"><i class="bi bi-arrow-clockwise me-1"></i> Refresh Preview</button></div>
+                <div class="modal-footer"><button type="button"
+                        class="btn btn-outline-secondary preview-modal-close">Close</button><button type="button"
+                        id="refreshPreview" class="btn btn-primary"><i class="bi bi-arrow-clockwise me-1"></i> Refresh
+                        Preview</button></div>
             </div>
         </div>
     </div>
@@ -330,56 +362,80 @@
     <script>
         $(function() {
             const variable = (name) => '{' + '{' + name + '}' + '}';
+            const existingCampaign = @json(isset($campaign) ? $campaign : null);
+            const templateCampaign = @json(isset($formCampaign) ? $formCampaign : null);
             const systemVariables = ['current_date', 'current_year'];
             let availableVariables = [];
             let recipientColumns = [];
             let recipients = [];
+            let baselineRecipients = [];
+            let pendingRecipients = [];
             let recipientTable = null;
             let attachments = [],
                 lastRange = null;
 
-            $('#message').summernote({
-                height: 320,
-                placeholder: 'Write your email message here...',
-                toolbar: [
-                    ['style', ['style']],
-                    ['font', ['bold', 'italic', 'underline', 'clear']],
-                    ['fontname', ['fontname']],
-                    ['fontsize', ['fontsize']],
-                    ['color', ['color']],
-                    ['para', ['ul', 'ol', 'paragraph']],
-                    ['insert', ['link']],
-                    ['view', ['fullscreen', 'codeview']]
-                ],
-                callbacks: {
-                    onBlur: function() {
-                        lastRange = $(this).summernote('createRange');
-                    }
+            setTimeout(function() {
+                if (typeof $.fn.summernote === 'undefined') {
+                    console.error('Summernote not loaded');
+                    return;
                 }
-            });
-            $('#message').summernote('code', '<p>Dear parent,</p><p>Write your message here.</p><p>Thank you.</p>');
 
-            const renderButtons = (selector, names) => {
+                $('#message').summernote({
+                    height: 320,
+                    placeholder: 'Write your email message here...',
+                    tooltip: false,
+                    toolbar: [
+                        ['style', ['style']],
+                        ['font', ['bold', 'italic', 'underline', 'clear']],
+                        ['fontname', ['fontname']],
+                        ['fontsize', ['fontsize']],
+                        ['color', ['color']],
+                        ['para', ['ul', 'ol', 'paragraph']],
+                        ['insert', ['link']],
+                        ['view', ['fullscreen', 'codeview']]
+                    ],
+                    callbacks: {
+                        onBlur: function() {
+                            lastRange = $(this).summernote('getLastRange');
+                        }
+                    }
+                });
+                $('#message').next('.note-editor').find('[data-toggle="dropdown"]').attr('data-bs-toggle',
+                    'dropdown');
+                $('#message').summernote('code', templateCampaign?.message ||
+                    '<p>Dear parent,</p><p>Write your message here.</p><p>Thank you.</p>');
+
+                if (templateCampaign) {
+                    recipients = (templateCampaign.recipients || []).map((recipient) => Object.assign({},
+                        recipient.data || {}, {
+                            email: recipient.email,
+                            name: recipient.name || ''
+                        }));
+                    baselineRecipients = recipients.slice();
+                    recipientColumns = [...new Set(recipients.flatMap((recipient) => Object.keys(
+                        recipient)))];
+                    availableVariables = recipientColumns;
+                    $('#totalRows').text(recipients.length);
+                    $('#validEmails').text(recipients.length);
+                    $('#invalidEmails').text(0);
+                    $('#validRecipientBadge').text(recipients.length + ' valid recipients');
+                    $('#importResult, #recipientSection').removeClass('d-none');
+                    $('#clearRecipients').removeClass('d-none');
+                    renderVariables('#importedVariables', availableVariables);
+                    renderRecipients();
+                    validateVariables();
+                }
+            }, 100);
+
+            const renderVariables = (selector, names) => {
                 $(selector).empty();
-                names.forEach((name) => $('<button>', {
-                    type: 'button',
-                    class: 'variable-button',
-                    text: variable(name),
-                    title: 'Insert ' + variable(name)
-                }).data('variable', variable(name)).appendTo(selector));
+                names.forEach((name) => $('<span>', {
+                    class: 'variable-text',
+                    text: variable(name)
+                }).appendTo(selector));
             };
-            renderButtons('#importedVariables', availableVariables);
-            renderButtons('#systemVariables', systemVariables);
-            $(document).on('mousedown', '.variable-button', function(event) {
-                event.preventDefault();
-            }).on('click', '.variable-button', function() {
-                const editor = $('#message');
-                editor.summernote('focus');
-                if (lastRange) editor.summernote('restoreRange', lastRange);
-                editor.summernote('insertText', $(this).data('variable'));
-                lastRange = editor.summernote('createRange');
-                validateVariables();
-            });
+            renderVariables('#importedVariables', availableVariables);
+            renderVariables('#systemVariables', systemVariables);
 
             $('#message').on('summernote.change', validateVariables);
 
@@ -494,12 +550,16 @@
                     return;
                 }
                 const headers = rows.shift().map((header, index) => normalizeHeader(header, index));
-                recipientColumns = [...new Set(headers)];
-                recipients = rows.filter((row) => row.some((value) => String(value).trim() !== '')).map((row) =>
-                    recipientColumns.reduce((record, column, index) => {
-                        record[column] = String(row[index] ?? '').trim();
-                        return record;
-                    }, {}));
+                const importedColumns = [...new Set(headers)];
+                const importedRecipients = rows.filter((row) => row.some((value) => String(value).trim() !== ''))
+                    .map((row) =>
+                        importedColumns.reduce((record, column, index) => {
+                            record[column] = String(row[index] ?? '').trim();
+                            return record;
+                        }, {}));
+                recipientColumns = [...new Set(recipientColumns.concat(importedColumns))];
+                recipients = recipients.concat(importedRecipients);
+                pendingRecipients = pendingRecipients.concat(importedRecipients);
                 availableVariables = recipientColumns;
                 const emailColumn = findColumn(['email', 'e_mail', 'email_address']);
                 const validEmails = emailColumn ? recipients.filter((recipient) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -514,9 +574,11 @@
                 $('#emailColumnWarning').toggleClass('d-none', Boolean(emailColumn));
                 $('#importResult, #recipientSection').removeClass('d-none');
                 $('#clearRecipients').removeClass('d-none');
-                renderButtons('#importedVariables', availableVariables);
+                renderVariables('#importedVariables', availableVariables);
                 renderRecipients();
-                setDefaultMessage();
+                if (!templateCampaign) {
+                    setDefaultMessage();
+                }
                 validateVariables();
             }
 
@@ -565,21 +627,28 @@
                     recipientTable.destroy();
                     recipientTable = null;
                 }
-                recipients = [];
-                recipientColumns = [];
-                availableVariables = [];
+                pendingRecipients = [];
+                recipients = existingCampaign ? baselineRecipients.slice() : [];
+                recipientColumns = existingCampaign ? [...new Set(recipients.flatMap((recipient) => Object.keys(
+                    recipient)))] : [];
+                availableVariables = recipientColumns;
                 $('#recipientFile').val('');
                 $('#recipientTable thead, #recipientTable tbody').empty();
                 $('#previewRecipient').empty();
-                $('#importResult, #recipientSection, #emailColumnWarning').addClass('d-none');
-                $('#clearRecipients').addClass('d-none');
-                $('#totalRows, #validEmails, #invalidEmails').text('0');
-                $('#validRecipientBadge').text('0 valid recipients');
+                $('#importResult, #emailColumnWarning').addClass('d-none');
+                $('#clearRecipients').toggleClass('d-none', !existingCampaign);
+                $('#totalRows, #validEmails').text(existingCampaign ? recipients.length : '0');
+                $('#invalidEmails').text('0');
+                $('#validRecipientBadge').text(existingCampaign ? recipients.length + ' valid recipients' :
+                    '0 valid recipients');
                 $('#detectedColumns').empty();
-                $('#recipientSummary').text('No recipients imported.');
-                renderButtons('#importedVariables', []);
-                $('#message').summernote('code',
-                    '<p>Dear parent,</p><p>Write your message here.</p><p>Thank you.</p>');
+                $('#recipientSummary').text(existingCampaign ? 'Existing campaign recipients.' :
+                    'No recipients imported.');
+                renderVariables('#importedVariables', existingCampaign ? availableVariables : []);
+                $('#recipientSection').toggleClass('d-none', !existingCampaign);
+                if (existingCampaign) {
+                    renderRecipients();
+                }
                 validateVariables();
                 $('#recipientFile').trigger('click');
             }
@@ -638,9 +707,174 @@
                         .name +
                         ' — ' + formatSize(file.size) + '</div>').join('') : '');
             }
-            $('#previewButton, #refreshPreview, #previewRecipient').on('click change', updatePreview);
+
+            function normalizeRecipients(sourceRecipients = recipients) {
+                const emailColumn = findColumn(['email', 'e_mail', 'email_address']);
+                const nameColumn = findColumn(['nama', 'name']);
+
+                if (!emailColumn) {
+                    return [];
+                }
+
+                return sourceRecipients
+                    .map((recipient) => {
+                        const email = String(recipient[emailColumn] ?? '').trim();
+                        const name = nameColumn ? String(recipient[nameColumn] ?? '').trim() : '';
+
+                        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                            return null;
+                        }
+
+                        const data = {
+                            ...recipient
+                        };
+
+                        return {
+                            email,
+                            name,
+                            data
+                        };
+                    })
+                    .filter(Boolean);
+            }
+
+            function buildCampaignPayload(sendImmediately = false) {
+                const name = $('#campaignName').val().trim();
+                const subject = $('#emailSubject').val().trim();
+                const message = $('#message').summernote('code');
+                const normalizedRecipients = normalizeRecipients(existingCampaign ? pendingRecipients : recipients);
+
+                if (!name || !subject || !message || (!existingCampaign && !normalizedRecipients.length)) {
+                    alert(
+                        'Please fill in campaign name, subject, message, and import valid recipients before saving.'
+                    );
+                    return null;
+                }
+
+                return {
+                    name,
+                    subject,
+                    message,
+                    recipients: normalizedRecipients,
+                    sendImmediately,
+                };
+            }
+
+            function submitCampaign(sendImmediately = false) {
+                const payload = buildCampaignPayload(sendImmediately);
+                if (!payload) {
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
+                formData.append('name', payload.name);
+                formData.append('subject', payload.subject);
+                formData.append('message', payload.message);
+
+                payload.recipients.forEach((recipient, index) => {
+                    formData.append(`recipients[${index}][email]`, recipient.email);
+                    if (recipient.name) {
+                        formData.append(`recipients[${index}][name]`, recipient.name);
+                    }
+
+                    Object.entries(recipient.data || {}).forEach(([key, value]) => {
+                        if (value === null || value === undefined) {
+                            return;
+                        }
+                        formData.append(`recipients[${index}][data][${key}]`, String(value));
+                    });
+                });
+
+                attachments.forEach((file) => {
+                    formData.append('attachments[]', file);
+                });
+
+                const campaignUrl = existingCampaign ? `/email-campaigns/${existingCampaign.id}` :
+                    '/email-campaigns';
+                if (existingCampaign) {
+                    formData.append('_method', 'PUT');
+                }
+
+                setCampaignLoading(sendImmediately);
+
+                fetch(campaignUrl, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'same-origin'
+                }).then(async (response) => {
+                    const result = await response.json().catch(() => ({}));
+                    if (!response.ok) {
+                        throw new Error(result?.message || 'Unable to save campaign.');
+                    }
+
+                    const campaign = result?.campaign;
+                    if (!campaign || !sendImmediately) {
+                        return result;
+                    }
+
+                    const sendResponse = await fetch(`/email-campaigns/${campaign.id}/send`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        credentials: 'same-origin'
+                    });
+
+                    const sendResult = await sendResponse.json().catch(() => ({}));
+                    if (!sendResponse.ok) {
+                        throw new Error(sendResult?.message || 'Unable to send campaign.');
+                    }
+
+                    return sendResult;
+                }).then((result) => {
+                    const msg = result?.message || 'Campaign saved successfully.';
+                    alert(msg);
+                    window.location.href = '/email-campaigns';
+                }).catch((error) => {
+                    console.error(error);
+                    setCampaignLoading(false);
+                    alert(error.message || 'Something went wrong while saving the campaign.');
+                });
+            }
+
+            function setCampaignLoading(isLoading) {
+                $('#campaignLoading').toggleClass('is-visible', Boolean(isLoading));
+                $('#campaignLoadingText').text(isLoading === true ? 'Sending email campaign...' :
+                    'Saving campaign...');
+                $('#saveCampaign, #sendCampaign, #chooseRecipients, #clearRecipients, #chooseAttachments')
+                    .prop('disabled', Boolean(isLoading));
+                $('#campaignLoading').attr('aria-hidden', isLoading ? 'false' : 'true');
+            }
+
+            $('#previewButton').on('click', function() {
+                updatePreview();
+                const previewModal = document.getElementById('previewModal');
+                if (previewModal) {
+                    previewModal.classList.add('show');
+                    previewModal.style.display = 'block';
+                    previewModal.setAttribute('aria-hidden', 'false');
+                    document.body.classList.add('modal-open');
+                }
+            });
+            $('.preview-modal-close').on('click', function() {
+                const previewModal = document.getElementById('previewModal');
+                if (previewModal) {
+                    previewModal.classList.remove('show');
+                    previewModal.style.display = 'none';
+                    previewModal.setAttribute('aria-hidden', 'true');
+                    document.body.classList.remove('modal-open');
+                }
+            });
+            $('#refreshPreview, #previewRecipient').on('click change', updatePreview);
             $('#emailSubject').on('input', updatePreview);
-            $('#saveDraft').on('click', () => alert('Campaign UI is ready to be connected to backend.'));
+            $('#saveCampaign').on('click', () => submitCampaign(false));
+            $('#sendCampaign').on('click', () => submitCampaign(true));
         });
     </script>
 @endsection
