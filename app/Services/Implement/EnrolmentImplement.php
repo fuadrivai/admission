@@ -446,14 +446,16 @@ class EnrolmentImplement implements EnrolmentService
             ];
         }
 
-        if ($place === 'Exhibition' && str_contains($level, 'Development Class')) {
-            $discount = 0.5;
-        } elseif ($place === 'Exhibition') {
-            if ($academicYear === '2026/2027') {
-                $discount = 0.5;
-            } elseif ($academicYear === '2027/2028') {
-                $discount = 0;
-            }
+        if ($place === 'Openday') {
+            $discount = 1;
+        }
+
+        if ($discount >= 1) {
+            return [
+                'original' => $registration,
+                'discount' => $registration,
+                'final' => 0,
+            ];
         }
 
         if ($level === "Upper Secondary") {
