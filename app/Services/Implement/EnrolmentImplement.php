@@ -159,12 +159,15 @@ class EnrolmentImplement implements EnrolmentService
             }
         }
 
+        $targetDate = Carbon::parse('2025-09-22 23:59:59');
+        $diffSeconds = max(0, (int) $targetDate->diffInSeconds(Carbon::now(), false));
+
         $payload = [
             "external_id"=> $data['invoice_id'],
             "amount"=> $data['amount_paid'],
             "payer_email"=> $data['email'],
             "description"=> "Enrolment payment -". $data['child_name'] . " for " . $data['academic_year'] . " - " . $level_name . " " . $grade_name,
-            "invoice_duration"=> (60*60*24*7)
+            "invoice_duration"=> $diffSeconds
         ];
         $xendit = createXenditInvoice($payload);
         $data['payment_status'] = $xendit['status'];
@@ -432,7 +435,7 @@ class EnrolmentImplement implements EnrolmentService
         ];
     }
 
-    private function applyRegistrationDiscount($registration, $place, $academicYear,$level)
+    private function applyRegistrationDiscount($registration, $place,$level)
     {
         $discount = 0;
         $streamingTest = 850000;
@@ -474,7 +477,6 @@ class EnrolmentImplement implements EnrolmentService
         $registrationDiscount = $this->applyRegistrationDiscount(
             $parsed['registration_form'],
             $request['place'],
-            $request['academicYear'],
             $request['level'],
         );
 
@@ -492,9 +494,6 @@ class EnrolmentImplement implements EnrolmentService
     public function search($request)
     {
         $query = Enrolment::query();
-
-       
-
         if (auth()->check() && auth()->user()->role == 'user') {
             $query->where('branch_id', auth()->user()->branch_id);
         }
