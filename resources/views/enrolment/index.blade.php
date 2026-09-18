@@ -66,6 +66,7 @@
                                 <select id="filter-regis-place" disabled name="filter-regis-place" class="form-select"
                                     style="width: 100%">
                                     <option value="all">All</option>
+                                    <option value="Openday">Openday</option>
                                     <option value="Exhibition">Exhibition</option>
                                     <option value="School">School</option>
                                 </select>

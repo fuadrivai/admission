@@ -71,6 +71,11 @@
                         <span class="badge text-bg-{{ $enrolment->data_from === 'custom_form' ? 'primary' : '' }}">
                             {{ $enrolment->data_from == 'custom_form' ? 'Custom Form' : 'Web Form' }}
                         </span>
+                        @isset($enrolment->regis_place)
+                            <span class="badge text-bg-success">
+                                {{ $enrolment->regis_place ?? '' }}
+                            </span>
+                        @endisset
                     </label><br>
                     <div class="student-name">{{ $enrolment->child_name }} - <i>
                             {{ isset($enrolment->child_nick_name) ? '(' . $enrolment->child_nick_name . ')' : '' }}</i>
