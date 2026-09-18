@@ -452,7 +452,7 @@ class EnrolmentImplement implements EnrolmentService
             if ($academicYear === '2026/2027') {
                 $discount = 0.5;
             } elseif ($academicYear === '2027/2028') {
-                $discount = 1;
+                $discount = 0;
             }
         }
 
