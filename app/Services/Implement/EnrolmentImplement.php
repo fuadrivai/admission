@@ -450,14 +450,6 @@ class EnrolmentImplement implements EnrolmentService
             $discount = 1;
         }
 
-        if ($discount >= 1) {
-            return [
-                'original' => $registration,
-                'discount' => $registration,
-                'final' => 0,
-            ];
-        }
-
         if ($level === "Upper Secondary") {
             $registration = $registration -  $streamingTest;
             $discountAmount = $registration * $discount;
