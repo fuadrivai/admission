@@ -133,9 +133,9 @@
                             <li class="submenu-item"><a href="/blast/email"
                                     class="submenu-link {{ Request::is('blast/email') ? 'text-red' : '' }}">Email</a>
                             </li>
-                            <li class="submenu-item"><a href="/blast/whatsapp"
+                            {{-- <li class="submenu-item"><a href="/blast/whatsapp"
                                     class="submenu-link {{ Request::is('blast/whatsapp') ? 'text-red' : '' }}">Whatsapp</a>
-                            </li>
+                            </li> --}}
                         </ul>
                     </li>
                 @endif
