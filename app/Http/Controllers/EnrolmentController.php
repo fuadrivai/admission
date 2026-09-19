@@ -149,7 +149,7 @@ class EnrolmentController extends Controller
 
     public function form()
     {
-        $branches = $this->branchService->get();
+        $branches = $this->branchService->getShowInForm();
         return view('enrolment.form.external', compact('branches'));
     }
 

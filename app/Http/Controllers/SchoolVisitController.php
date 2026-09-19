@@ -62,7 +62,7 @@ class SchoolVisitController extends Controller
 
     public function form()
     {
-        $branches = $this->branchService->get();
+        $branches = $this->branchService->getShowInForm();
         return view('schoolvisit-form', ["title" => "School Visit Form","branches"=>$branches]);
     }
     public function success()

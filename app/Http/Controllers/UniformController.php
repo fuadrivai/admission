@@ -355,7 +355,7 @@ class UniformController extends Controller
             ->orderBy('total_revenue', 'desc')
             ->get();
 
-        $branches = Branch::all();
+        $branches = Branch::where("show_in_form", 1)->orderBy('name')->get();
 
         return view('uniform.leaderboard', [
             'title'             => 'Uniform Sales Leaderboard',
@@ -672,7 +672,7 @@ class UniformController extends Controller
 
     public function form()
     {
-        $branches = Branch::with(['levels.grades'])->get();
+        $branches = Branch::where('show_in_form', true)->with(['levels.grades'])->get();
         $products = UniformProduct::with(['prices'])->get();
 
         return view('uniform.form', compact('branches', 'products'));

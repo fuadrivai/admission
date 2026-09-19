@@ -14,6 +14,10 @@ class BranchImplement implements BranchService
         }
         return Branch::with($with)->get();
     }
+    public function getShowInForm()
+    {
+        return Branch::where('show_in_form', true)->get();
+    }
 
     public function getByName($name)
     {
