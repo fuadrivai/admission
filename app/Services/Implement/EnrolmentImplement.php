@@ -448,7 +448,7 @@ class EnrolmentImplement implements EnrolmentService
         }
 
         if ($place === 'Openday') {
-            $discount = 1;
+            $discount = 0;
         }
 
         if ($level === "Upper Secondary") {
