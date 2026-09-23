@@ -424,6 +424,8 @@ class EnrolmentImplement implements EnrolmentService
 
             // $registration = $registration_form ?? 0;
             // $fullPayment = $amount - $registration;
+            $registration = 0;
+            $seat = $amount;
             $fullPayment = $amount;
         }
 
