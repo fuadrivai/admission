@@ -159,15 +159,13 @@ class EnrolmentImplement implements EnrolmentService
             }
         }
 
-        $targetDate = Carbon::parse('2025-09-22 23:59:59');
-        $diffSeconds = max(0, (int) $targetDate->diffInSeconds(Carbon::now(), false));
 
         $payload = [
             "external_id"=> $data['invoice_id'],
             "amount"=> $data['amount_paid'],
             "payer_email"=> $data['email'],
             "description"=> "Enrolment payment -". $data['child_name'] . " for " . $data['academic_year'] . " - " . $level_name . " " . $grade_name,
-            "invoice_duration"=> $diffSeconds
+            "invoice_duration"=> (86400*7) // 7 days in seconds
         ];
         $xendit = createXenditInvoice($payload);
         $data['payment_status'] = $xendit['status'];
