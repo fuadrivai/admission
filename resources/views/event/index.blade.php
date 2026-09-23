@@ -134,7 +134,9 @@
                 eventTypingTimer = setTimeout(loadEvents, 350);
             });
 
-            $('#event-filter-status, #event-filter-availability, #event-filter-branch').on('change', loadEvents);
+            $('#event-filter-status, #event-filter-availability, #event-filter-branch').on('change', function() {
+                loadEvents();
+            });
 
             $(document).on('click', '#event-list .pagination a', function(e) {
                 e.preventDefault();
