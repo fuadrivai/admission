@@ -422,7 +422,8 @@ class EnrolmentImplement implements EnrolmentService
             // Case: angka full
             $amount = (int) $option;
 
-            $registration = $registration_form ?? 0;
+            // $registration = $registration_form ?? 0;
+            // $fullPayment = $amount - $registration;
             $fullPayment = $amount - $registration;
         }
 
