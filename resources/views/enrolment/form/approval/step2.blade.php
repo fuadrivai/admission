@@ -19,8 +19,7 @@
                 class="form-label required">{{ config('student_approval.step2.labels.text2.english') }}</label>
             <div class="money-input-group">
                 <span class="input-group-text">Rp</span>
-                <input type="text" class="form-control number2" id="developmentFee" placeholder="12,500,000"
-                    required>
+                <input type="text" class="form-control number2" id="developmentFee" placeholder="0" required>
             </div>
             <div class="error-message" id="developmentFee-error">Please enter development fee</div>
             <div class="terbilang-display" id="developmentFeeTerbilang">-</div>
@@ -31,7 +30,7 @@
                 class="form-label required">{{ config('student_approval.step2.labels.text3.english') }}</label>
             <div class="money-input-group">
                 <span class="input-group-text">Rp</span>
-                <input type="text" class="form-control number2" id="annualFee" placeholder="4,000,000" required>
+                <input type="text" class="form-control number2" id="annualFee" placeholder="0" required>
             </div>
             <div class="error-message" id="annualFee-error">Please enter annual fee</div>
             <div class="terbilang-display" id="annualFeeTerbilang">-</div>
@@ -42,7 +41,7 @@
                 class="form-label required">{{ config('student_approval.step2.labels.text4.english') }}</label>
             <div class="money-input-group">
                 <span class="input-group-text">Rp</span>
-                <input type="text" class="form-control number2" id="schoolFee" placeholder="1,750,000" required>
+                <input type="text" class="form-control number2" id="schoolFee" placeholder="0" required>
             </div>
             <div class="error-message" id="schoolFee-error">Please enter school fee</div>
             <div class="terbilang-display" id="schoolFeeTerbilang">-</div>
@@ -52,7 +51,7 @@
                 class="form-label required">{{ config('student_approval.step2.labels.text22.english') }}</label>
             <div class="money-input-group">
                 <span class="input-group-text">Rp</span>
-                <input type="text" class="form-control number2" id="uniform" placeholder="1,750,000" required>
+                <input type="text" class="form-control number2" id="uniform" placeholder="0" required>
             </div>
             <div class="error-message" id="uniform-error">Please enter school fee</div>
             <div class="terbilang-display" id="uniformTerbilang">-</div>
@@ -62,7 +61,7 @@
                 class="form-label required">{{ config('student_approval.step2.labels.text23.english') }}</label>
             <div class="money-input-group">
                 <span class="input-group-text">Rp</span>
-                <input type="text" class="form-control number2" id="ittihada" placeholder="1,750,000" required>
+                <input type="text" class="form-control number2" id="ittihada" placeholder="0" required>
             </div>
             <div class="error-message" id="ittihada-error">Please enter school fee</div>
             <div class="terbilang-display" id="ittihadaTerbilang">-</div>
@@ -72,7 +71,7 @@
                 class="form-label required">{{ config('student_approval.step2.labels.text24.english') }}</label>
             <div class="money-input-group">
                 <span class="input-group-text">Rp</span>
-                <input type="text" class="form-control number2" id="mhsu" placeholder="1,750,000" required>
+                <input type="text" class="form-control number2" id="mhsu" placeholder="0" required>
             </div>
             <div class="error-message" id="mhsu-error">Please enter school fee</div>
             <div class="terbilang-display" id="mhsuTerbilang">-</div>
