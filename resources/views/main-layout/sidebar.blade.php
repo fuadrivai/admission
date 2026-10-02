@@ -164,6 +164,14 @@
                             <li class="submenu-item"><a href="/setting/year" class="submenu-link">Academic
                                     Year</a>
                             </li>
+                            <li class="submenu-item"><a href="/setting/statement"
+                                    class="submenu-link {{ Request::is('setting/statement*') ? 'text-red' : '' }}">Parent
+                                    Statement</a>
+                            </li>
+                            <li class="submenu-item"><a href="/setting/financial-document"
+                                    class="submenu-link {{ Request::is('setting/financial-document*') ? 'text-red' : '' }}">Financial
+                                    Agreement</a>
+                            </li>
                             <li class="submenu-item"><a href="/setting/password/change"
                                     class="submenu-link">Users</a>
                             </li>

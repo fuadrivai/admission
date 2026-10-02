@@ -27,6 +27,11 @@ class AdmissionStatement extends Model
 
     public function agreements()
     {
-        return $this->hasMany(StatementAgreement::class);
+        return $this->hasMany(StatementAgreement::class, 'admission_statement_id');
+    }
+
+    public function statementAgreements()
+    {
+        return $this->hasMany(StatementAgreement::class, 'admission_statement_id');
     }
 }

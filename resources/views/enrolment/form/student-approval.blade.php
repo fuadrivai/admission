@@ -45,11 +45,11 @@
             </div>
             <div class="step" data-step="2">
                 <div class="step-number">2</div>
-                <div class="step-title">Payment</div>
+                <div class="step-title">Parent Statement</div>
             </div>
             <div class="step" data-step="3">
                 <div class="step-number">3</div>
-                <div class="step-title">Statement</div>
+                <div class="step-title">Payment</div>
             </div>
             {{-- <div class="step" data-step="4">
                 <div class="step-number">4</div>
@@ -70,12 +70,12 @@
             @include('enrolment.form.approval.step1')
         </div>
 
-        <!-- Step 2: Form Persetujuan Pembayaran -->
+        <!-- Step 2: Parent Statement -->
         <div class="step-content" id="step-2">
             @include('enrolment.form.approval.step2')
         </div>
 
-        <!-- Step 3: Form Pernyataan Orang Tua -->
+        <!-- Step 3: Form Persetujuan Pembayaran -->
         <div class="step-content" id="step-3">
             @include('enrolment.form.approval.step3')
         </div>

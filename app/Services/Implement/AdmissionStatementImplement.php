@@ -4,6 +4,7 @@ namespace App\Services\Implement;
 
 use App\Mail\AdmissionEmail;
 use App\Models\Admission;
+use App\Models\AdmissionFinancialDocument;
 use App\Models\AdmissionStatement;
 use App\Models\FinancialAgreement;
 use App\Models\StatementAgreement;
@@ -78,6 +79,22 @@ class AdmissionStatementImplement implements AdmissionStatementService{
         return $statement;
     }
     public function postFinancial($data){
+        $financialDocumentId = AdmissionFinancialDocument::where('type', 'financial')
+            ->where('status', 'PUBLISHED')
+            ->value('id');
+
+        if (!$financialDocumentId) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'financial_document' => ['No published Financial Agreement document is available.'],
+            ]);
+        }
+
+        if ((int) $data['financial_document_id'] !== (int) $financialDocumentId) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'financial_document_id' => ['The published Financial Agreement changed. Reload the form before agreeing.'],
+            ]);
+        }
+
         $financial = 
         FinancialAgreement::updateOrCreate(
             [
@@ -85,6 +102,7 @@ class AdmissionStatementImplement implements AdmissionStatementService{
             ],
             [
                 'admission_statement_id' => $data['admission_statement_id'], 
+                'financial_document_id' => $financialDocumentId,
                 'agree_full_payment_terms' => $data['agree_full_payment_terms']==true?1:0,
                 'development_fee' => $data['development_fee'],
                 'annual_fee' => $data['annual_fee'],

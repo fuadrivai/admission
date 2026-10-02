@@ -1,225 +1,43 @@
 <div>
-    <h2 class="section-title">{{ config('student_approval.step2.title') }}</h2>
+    <h2 class="section-title">{{ config('student_approval.step3.title') }}</h2>
 
-    <div class="statement-item">
-        <p>{{ config('student_approval.step2.labels.text1.english') }}
-            <br> <i><small>{{ config('student_approval.step2.labels.text1.indonesian') }}</small></i>
-        </p>
-
-        <div class="form-check mb-3">
-            <input class="form-check-input" type="checkbox" id="agreePayment1" required>
-            <label class="form-check-label required" for="agreePayment1">Yes, i agree</label>
-            <div class="error-message" id="agreePayment1-error">Please agree to this statement.</div>
-        </div>
+    <div class="info-box">
+        <div><i class="bi bi-info-circle"></i> {{ config('student_approval.step3.labels.text0.english') }}</div>
+        <div><i><small>{{ config('student_approval.step3.labels.text0.indonesian') }}</small></i></div>
     </div>
 
-    <div class="row mb-4">
-        <div class="col-md-6 mb-3">
-            <label for="developmentFee"
-                class="form-label required">{{ config('student_approval.step2.labels.text2.english') }}</label>
-            <div class="money-input-group">
-                <span class="input-group-text">Rp</span>
-                <input type="text" class="form-control number2" id="developmentFee" placeholder="0" required>
-            </div>
-            <div class="error-message" id="developmentFee-error">Please enter development fee</div>
-            <div class="terbilang-display" id="developmentFeeTerbilang">-</div>
-        </div>
+    @if ($parentStatementDocument)
+        @foreach ($parentStatementDocument->sections as $section)
+            <div class="checkbox-declaration mb-4 statement-section-block">
+                <h5 class="fw-bold mb-2">{{ $section->title_en }}</h5>
+                <div class="text-muted mb-3"><i>{{ $section->title_id }}</i></div>
+                <ol class="ps-3">
+                    @foreach ($section->items as $item)
+                        <li class="mb-3">
+                            <div class="fw-semibold text-muted" style="text-align: justify;">{{ $item->text_en }}</div>
+                            <div class="text-muted small" style="text-align: justify;"><i>{{ $item->text_id }}</i></div>
+                        </li>
+                    @endforeach
+                </ol>
 
-        <div class="col-md-6 mb-3">
-            <label for="annualFee"
-                class="form-label required">{{ config('student_approval.step2.labels.text3.english') }}</label>
-            <div class="money-input-group">
-                <span class="input-group-text">Rp</span>
-                <input type="text" class="form-control number2" id="annualFee" placeholder="0" required>
+                @if ($section->is_required)
+                    <div class="form-check mt-3">
+                        <input class="form-check-input parent-statement-item" type="checkbox"
+                            id="section-agree-{{ $section->id }}" name="statement_item_id[]"
+                            value="{{ $section->items->first()->id ?? $section->id }}"
+                            data-item-id="{{ $section->id }}" required>
+                        <label class="form-check-label" for="section-agree-{{ $section->id }}">
+                            I agree
+                        </label>
+                    </div>
+                @endif
             </div>
-            <div class="error-message" id="annualFee-error">Please enter annual fee</div>
-            <div class="terbilang-display" id="annualFeeTerbilang">-</div>
-        </div>
+        @endforeach
 
-        <div class="col-md-6 mb-3 secondary">
-            <label for="schoolFee"
-                class="form-label required">{{ config('student_approval.step2.labels.text4.english') }}</label>
-            <div class="money-input-group">
-                <span class="input-group-text">Rp</span>
-                <input type="text" class="form-control number2" id="schoolFee" placeholder="0" required>
-            </div>
-            <div class="error-message" id="schoolFee-error">Please enter school fee</div>
-            <div class="terbilang-display" id="schoolFeeTerbilang">-</div>
+        <div id="parent-statement-required-error" class="alert alert-danger mt-3 d-none">
+            Please check all required parent statement items before continuing.
         </div>
-        <div class="col-md-6 mb-3 secondary">
-            <label for="uniform"
-                class="form-label required">{{ config('student_approval.step2.labels.text22.english') }}</label>
-            <div class="money-input-group">
-                <span class="input-group-text">Rp</span>
-                <input type="text" class="form-control number2" id="uniform" placeholder="0" required>
-            </div>
-            <div class="error-message" id="uniform-error">Please enter school fee</div>
-            <div class="terbilang-display" id="uniformTerbilang">-</div>
-        </div>
-        <div class="col-md-6 mb-3 secondary">
-            <label for="ittihada"
-                class="form-label required">{{ config('student_approval.step2.labels.text23.english') }}</label>
-            <div class="money-input-group">
-                <span class="input-group-text">Rp</span>
-                <input type="text" class="form-control number2" id="ittihada" placeholder="0" required>
-            </div>
-            <div class="error-message" id="ittihada-error">Please enter school fee</div>
-            <div class="terbilang-display" id="ittihadaTerbilang">-</div>
-        </div>
-        <div class="col-md-6 mb-3 div-mhsu">
-            <label for="mhsu"
-                class="form-label required">{{ config('student_approval.step2.labels.text24.english') }}</label>
-            <div class="money-input-group">
-                <span class="input-group-text">Rp</span>
-                <input type="text" class="form-control number2" id="mhsu" placeholder="0" required>
-            </div>
-            <div class="error-message" id="mhsu-error">Please enter school fee</div>
-            <div class="terbilang-display" id="mhsuTerbilang">-</div>
-        </div>
-    </div>
-
-    <h6>{{ config('student_approval.step2.labels.text5.english') }}</h6>
-
-    <div class="checkbox-declaration">
-        <div class="statement-item">
-            <p>{{ config('student_approval.step2.labels.text6.english') }}
-                <br><i><small>{{ config('student_approval.step2.labels.text6.indonesian') }}</small></i>
-            </p>
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="agreePayment2" required>
-                <label class="form-check-label required" for="agreePayment2">Yes, i agree</label>
-                <div class="error-message" id="agreePayment2-error">Please agree to this statement.</div>
-            </div>
-        </div>
-
-        <div class="statement-item">
-            <p>{{ config('student_approval.step2.labels.text7.english') }}<br>
-                <i><small>{{ config('student_approval.step2.labels.text7.indonesian') }}</small></i>
-            </p>
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="agreePayment3" required>
-                <label class="form-check-label required" for="agreePayment3">Yes, i agree</label>
-                <div class="error-message" id="agreePayment3-error">Please agree to this statement.</div>
-            </div>
-        </div>
-
-        <div class="statement-item">
-            <p>{{ config('student_approval.step2.labels.text8.english') }}<br><i><small>{{ config('student_approval.step2.labels.text8.indonesian') }}</small></i>
-            </p>
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="agreePayment4" required>
-                <label class="form-check-label required" for="agreePayment4">Yes, i agree</label>
-                <div class="error-message" id="agreePayment4-error">Please agree to this statement.</div>
-            </div>
-        </div>
-
-        <div class="statement-item">
-            <p>{{ config('student_approval.step2.labels.text9.english') }} <br>
-                <i><small>{{ config('student_approval.step2.labels.text9.indonesian') }}</small></i>
-            </p>
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="agreePayment5" required>
-                <label class="form-check-label required" for="agreePayment5">Yes, i agree</label>
-                <div class="error-message" id="agreePayment5-error">Please agree to this statement.</div>
-            </div>
-        </div>
-
-        <div class="statement-item">
-            <p>{{ config('student_approval.step2.labels.text10.english') }} <br>
-                <i><small>{{ config('student_approval.step2.labels.text10.indonesian') }}</small></i>
-            </p>
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="agreePayment6" required>
-                <label class="form-check-label required" for="agreePayment6">Yes, i agree</label>
-                <div class="error-message" id="agreePayment6-error">Please agree to this statement.</div>
-            </div>
-        </div>
-
-        <div class="statement-item">
-            <p>{{ config('student_approval.step2.labels.text11.english') }}
-                <br>
-                <i><small>{{ config('student_approval.step2.labels.text11.indonesian') }}</small></i>
-            </p>
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="agreePayment7" required>
-                <label class="form-check-label required" for="agreePayment7">Yes, i agree</label>
-                <div class="error-message" id="agreePayment7-error">Please agree to this statement.</div>
-            </div>
-        </div>
-
-        <div class="statement-item">
-            <p>{{ config('student_approval.step2.labels.text12.english') }} <br>
-                <i><small>{{ config('student_approval.step2.labels.text12.indonesian') }}</small></i>
-            </p>
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="agreePayment8" required>
-                <label class="form-check-label required" for="agreePayment8">Yes, i agree</label>
-                <div class="error-message" id="agreePayment8-error">Please agree to this statement.</div>
-            </div>
-        </div>
-
-        <div class="statement-item">
-            <p>{{ config('student_approval.step2.labels.text13.english') }}<br>
-                <i><small>{{ config('student_approval.step2.labels.text13.indonesian') }}</small></i>
-            </p>
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="agreePayment9" required>
-                <label class="form-check-label required" for="agreePayment9">Yes, i agree</label>
-                <div class="error-message" id="agreePayment9-error">Please agree to this statement.</div>
-            </div>
-        </div>
-
-        <div class="statement-item">
-            <p>{{ config('student_approval.step2.labels.text14.english') }}<br>
-                <i><small>{{ config('student_approval.step2.labels.text14.indonesian') }}</small></i>
-            </p>
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="agreePayment10" required>
-                <label class="form-check-label required" for="agreePayment10">Yes, i agree</label>
-                <div class="error-message" id="agreePayment10-error">Please agree to this statement.</div>
-            </div>
-        </div>
-
-        <div class="statement-item">
-            <p>{{ config('student_approval.step2.labels.text15.english') }} <br>
-                <i><small>{{ config('student_approval.step2.labels.text15.indonesian') }}</small></i>
-            </p>
-            <ol type="A" class="mb-3">
-                <li>{{ config('student_approval.step2.labels.text16.english') }}
-                    <br><i><small>{{ config('student_approval.step2.labels.text16.indonesian') }}</small></i>
-                </li>
-                <li>{{ config('student_approval.step2.labels.text17.english') }}
-                    <br><i><small>{{ config('student_approval.step2.labels.text17.indonesian') }}</small></i>
-                </li>
-                <li>{{ config('student_approval.step2.labels.text18.english') }}
-                    <br><i><small>{{ config('student_approval.step2.labels.text18.indonesian') }}</small></i>
-                </li>
-                <li>{{ config('student_approval.step2.labels.text19.english') }}
-                    <br><i><small>{{ config('student_approval.step2.labels.text19.indonesian') }}</small></i>
-                </li>
-                <li>{{ config('student_approval.step2.labels.text20.english') }}
-                    <br><i><small>{{ config('student_approval.step2.labels.text20.indonesian') }}</small></i>
-                </li>
-            </ol>
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="agreePayment11" required>
-                <label class="form-check-label required" for="agreePayment11">Yes, i agree</label>
-                <div class="error-message" id="agreePayment11-error">Please agree to this statement.</div>
-            </div>
-        </div>
-
-        <div class="statement-item">
-            <p>{{ config('student_approval.step2.labels.text21.english') }}
-                <br><i><small>{{ config('student_approval.step2.labels.text21.indonesian') }}</small></i>
-            </p>
-
-            <div class="current-date-display" id="currentDate1"></div>
-
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="agreePayment12" required>
-                <label class="form-check-label required" for="agreePayment12">Yes, i agree</label>
-                <div class="error-message" id="agreePayment12-error">Please agree to this statement.</div>
-            </div>
-        </div>
-    </div>
+    @else
+        <div class="alert alert-warning">No published parent statement is available.</div>
+    @endif
 </div>

@@ -30,6 +30,11 @@ class FinancialAgreement extends Model
         return $this->belongsTo(AdmissionStatement::class);
     }
 
+    public function financialDocument()
+    {
+        return $this->belongsTo(AdmissionFinancialDocument::class, 'financial_document_id');
+    }
+
     public function getDevelopmentFeeTerbilangAttribute()
     {
         return trim(

@@ -60,7 +60,6 @@ function formatMoneyInput(input) {
         const numberValue = parseInt(value);
         input.val(formatCurrency(numberValue));
 
-        // Update terbilang
         const inputId = input.attr("id");
         const terbilangId = inputId + "Terbilang";
         $("#" + terbilangId).text(convertToTerbilang(numberValue));
@@ -74,42 +73,63 @@ function validateCurrentStep() {
     const currentStepElement = $(`#step-${currentStep}`);
     let isValid = true;
 
-    // Reset error states
     currentStepElement
         .find(".validation-error")
         .removeClass("validation-error");
     currentStepElement.find(".error-message").hide();
+    $("#parent-statement-required-error").addClass("d-none").hide();
 
-    // Check all required fields in current step
     currentStepElement
         .find("input[required], select[required], textarea[required]")
         .each(function () {
             const field = $(this);
             const errorElement = $(`#${field.attr("id")}-error`);
 
-            // Validate based on field type
             if (field.is('input[type="checkbox"]')) {
                 if (!field.is(":checked")) {
                     isValid = false;
                     field.addClass("validation-error");
-                    errorElement.show();
+                    if (errorElement.length) {
+                        errorElement.show();
+                    }
                 }
             } else if (field.is("select")) {
                 if (!field.val()) {
                     isValid = false;
                     field.addClass("validation-error");
-                    errorElement.show();
+                    if (errorElement.length) {
+                        errorElement.show();
+                    }
                 }
             } else if (field.is('input[type="text"]')) {
                 if (!field.val().trim()) {
                     isValid = false;
                     field.addClass("validation-error");
-                    errorElement.show();
+                    if (errorElement.length) {
+                        errorElement.show();
+                    }
                 }
             }
         });
 
-    // Update Next button state
+    if (currentStep === 2) {
+        const requiredParentItems = currentStepElement.find(
+            ".parent-statement-item[required]",
+        );
+        if (requiredParentItems.length) {
+            const missing = requiredParentItems.filter(function () {
+                return !$(this).is(":checked");
+            });
+            if (missing.length) {
+                isValid = false;
+                missing.addClass("validation-error");
+                $("#parent-statement-required-error")
+                    .removeClass("d-none")
+                    .show();
+            }
+        }
+    }
+
     if (currentStep === totalSteps) {
         $("#next-btn").hide();
         $("#prev-btn").show();
@@ -126,98 +146,70 @@ async function nextStep() {
         return;
     }
 
-    if (currentStep == 1) {
-        await postStatement(false);
-        if (admission.statement.financial) {
-            await getFinancialStatement();
+    try {
+        if (currentStep == 1) {
+            await postStatement(false);
+            if (admission.statement.financial) {
+                await getFinancialStatement();
+            }
         }
+
+        if (currentStep == 2) {
+            await saveParentAgreement();
+        }
+        if (currentStep == 3) {
+            await postFinancial();
+            await getAgreement("narcotica");
+        }
+        if (currentStep == 4) {
+            await postAgreement("narcotica");
+            await getAgreement("student");
+        }
+        if (currentStep == 5) {
+            await postAgreement("student");
+        }
+    } catch (err) {
+        toastify(
+            "Error",
+            err?.responseJSON?.message ??
+                err?.message ??
+                "Please try again later",
+            "bottom",
+        );
+        return;
     }
 
-    if (currentStep == 2) {
-        await postFinancial();
-        await getAgreement("parent");
-    }
-    if (currentStep == 3) {
-        await postAgreement("parent");
-        await getAgreement("narcotica");
-    }
-    // if (currentStep == 4) {
-    //     await postAgreement("guardian");
-    //     await getAgreement("narcotica");
-    // }
-    if (currentStep == 4) {
-        await postAgreement("narcotica");
-        await getAgreement("student");
-    }
-    if (currentStep == 5) {
-        await postAgreement("student");
-    }
-
-    // Mark current step as completed
     $(`.step[data-step="${currentStep}"]`)
         .removeClass("active")
         .addClass("completed");
 
-    // Hide current step content
     $(`#step-${currentStep}`).removeClass("active");
-
-    // Increment step
     currentStep++;
-
-    // Update step indicator
     $(`.step[data-step="${currentStep}"]`).addClass("active");
-
-    // Show next step content
     $(`#step-${currentStep}`).addClass("active");
 
-    // Update navigation buttons
     $("#prev-btn").prop("disabled", false);
-
-    // Scroll to top of step
-    $("html, body").animate(
-        {
-            scrollTop: 0,
-        },
-        300,
-    );
-
-    // Validate new step
+    $("html, body").animate({ scrollTop: 0 }, 300);
     validateCurrentStep();
 }
 
 function prevStep() {
-    // Mark current step as not completed
     $(`.step[data-step="${currentStep}"]`)
         .removeClass("active")
         .removeClass("completed");
 
-    // Hide current step content
     $(`#step-${currentStep}`).removeClass("active");
-
-    // Decrement step
     currentStep--;
 
-    // Update step indicator
     $(`.step[data-step="${currentStep}"]`)
         .addClass("active")
         .removeClass("completed");
 
-    // Show previous step content
     $(`#step-${currentStep}`).addClass("active");
-
-    // Update navigation buttons
     $("#prev-btn").prop("disabled", currentStep === 1);
     $("#next-btn").show().prop("disabled", false);
 
-    // Scroll to top of step
-    $("html, body").animate(
-        {
-            scrollTop: 0,
-        },
-        300,
-    );
-
-    // Validate step
+    $("html, body").animate({ scrollTop: 0 }, 300);
     validateCurrentStep();
 }
 
@@ -246,7 +238,7 @@ async function checkAdmissionByCode() {
     try {
         blockUI();
         const code = $("#admission-code").val().trim();
-        path = await ajaxPromise(null, `/document/check/${code}`, "GET");
+        const path = await ajaxPromise(null, `/document/check/${code}`, "GET");
         switch (path) {
             case "student":
                 window.location.href = `/document/${path}?code=${code}`;
@@ -259,7 +251,6 @@ async function checkAdmissionByCode() {
                     getAdmissionByCode();
                     return true;
                 }
-                break;
         }
     } catch (err) {
         toastify(
@@ -286,6 +277,7 @@ async function getAdmissionByCode() {
         $("#parentSelector")
             .val(admission?.statement?.actor ?? "")
             .trigger("change");
+        loadParentAgreementState();
     }
 
     if (admission.level.division.name.toLowerCase() !== "secondary") {
@@ -300,15 +292,15 @@ async function getAdmissionByCode() {
             .addClass("step-content");
         totalSteps = 5;
         $("#btn-under-upper-secondary").addClass("d-none");
-        validateCurrentStep();
     } else {
         $("#step-4, #step-5").addClass("conditional-section");
         totalSteps = 3;
         $('.step[data-step="5"], .step[data-step="4"]').hide();
         $(".step").css("flex", "0 0 25%");
         $("#btn-under-upper-secondary").removeClass("d-none");
-        validateCurrentStep();
     }
+
+    validateCurrentStep();
 }
 
 async function getParentByRole(role) {
@@ -320,6 +312,53 @@ async function getParentByRole(role) {
     );
 
     return parent;
+}
+
+async function loadParentAgreementState() {
+    if (!admission?.statement?.id) {
+        return;
+    }
+
+    const agreementIds = await ajaxPromise(
+        null,
+        `/document/statement/parent-agreement/${admission.statement.id}`,
+        "GET",
+    );
+
+    $(".parent-statement-item").each(function () {
+        const itemId = Number($(this).val());
+        $(this).prop("checked", agreementIds.includes(itemId));
+    });
+
+    validateCurrentStep();
+}
+
+async function saveParentAgreement() {
+    const selected = $(".parent-statement-item:checked")
+        .map(function () {
+            return $(this).val();
+        })
+        .get();
+
+    const requiredParentItems = $(".parent-statement-item[required]");
+    if (
+        requiredParentItems.length &&
+        selected.length !== requiredParentItems.length
+    ) {
+        throw new Error(
+            "Please check all required parent statement items before continuing.",
+        );
+    }
+
+    blockUI();
+    await ajaxPromise(
+        {
+            admission_statement_id: admission.statement.id,
+            statement_item_id: selected,
+        },
+        "/document/statement/parent-agreement",
+        "POST",
+    );
 }
 
 async function postStatement(isComplete) {
@@ -338,10 +377,17 @@ async function postStatement(isComplete) {
 
 async function postFinancial() {
     let financial = admission?.statement?.financial;
+    const financialAgreementAccepted = $("#agreeFinancialDocument").is(
+        ":checked",
+    );
     const data = {
         id: financial?.id ?? null,
         admission_statement_id: admission.statement.id,
-        agree_full_payment_terms: $("#agreePayment1").is(":checked"),
+        financial_document_id: Number(
+            $("#agreeFinancialDocument").data("document-id"),
+        ),
+        agree_financial_document: financialAgreementAccepted,
+        agree_full_payment_terms: financialAgreementAccepted,
         development_fee: parseFloat(
             $("#developmentFee")
                 .val()
@@ -367,18 +413,17 @@ async function postFinancial() {
                 .val()
                 .replace(/[^0-9]/g, ""),
         ),
-        agree_development_fee_policy: $("#agreePayment2").is(":checked"),
-        agree_annual_and_school_fee_policy: $("#agreePayment3").is(":checked"),
-        agree_exam_fee: $("#agreePayment4").is(":checked"),
-        agree_learning_material_fee: $("#agreePayment5").is(":checked"),
-        agree_exschool_fee: $("#agreePayment6").is(":checked"),
-        agree_additional_activity_fee: $("#agreePayment7").is(":checked"),
-        agree_monthly_school_fee_payment: $("#agreePayment8").is(":checked"),
-        agree_ittihada_fee: $("#agreePayment9").is(":checked"),
-        agree_full_financial_obligation: $("#agreePayment10").is(":checked"),
-        agree_financial_terms_and_consequences:
-            $("#agreePayment11").is(":checked"),
-        agree_truth_and_consent: $("#agreePayment12").is(":checked"),
+        agree_development_fee_policy: financialAgreementAccepted,
+        agree_annual_and_school_fee_policy: financialAgreementAccepted,
+        agree_exam_fee: financialAgreementAccepted,
+        agree_learning_material_fee: financialAgreementAccepted,
+        agree_exschool_fee: financialAgreementAccepted,
+        agree_additional_activity_fee: financialAgreementAccepted,
+        agree_monthly_school_fee_payment: financialAgreementAccepted,
+        agree_ittihada_fee: financialAgreementAccepted,
+        agree_full_financial_obligation: financialAgreementAccepted,
+        agree_financial_terms_and_consequences: financialAgreementAccepted,
+        agree_truth_and_consent: financialAgreementAccepted,
     };
 
     if (admission.level.division.name.toLowerCase() == "secondary") {
@@ -388,6 +433,7 @@ async function postFinancial() {
                 .replace(/[^0-9]/g, ""),
         );
     }
+
     blockUI();
     try {
         financial = await ajaxPromise(
@@ -413,7 +459,28 @@ async function getFinancialStatement() {
         "GET",
     );
 
-    $("#agreePayment1").prop("checked", financial.agree_full_payment_terms);
+    const legacyAgreementFlags = [
+        financial.agree_full_payment_terms,
+        financial.agree_development_fee_policy,
+        financial.agree_annual_and_school_fee_policy,
+        financial.agree_exam_fee,
+        financial.agree_learning_material_fee,
+        financial.agree_exschool_fee,
+        financial.agree_additional_activity_fee,
+        financial.agree_monthly_school_fee_payment,
+        financial.agree_ittihada_fee,
+        financial.agree_full_financial_obligation,
+        financial.agree_financial_terms_and_consequences,
+        financial.agree_truth_and_consent,
+    ];
+    $("#agreeFinancialDocument").prop(
+        "checked",
+        Number(financial.financial_document_id) ===
+            Number($("#agreeFinancialDocument").data("document-id")) &&
+            legacyAgreementFlags.every(
+                (value) => value === true || value === 1,
+            ),
+    );
     $("#developmentFee").val(formatCurrency(financial.development_fee));
     formatMoneyInput($("#developmentFee"));
     $("#annualFee").val(formatCurrency(financial.annual_fee));
@@ -427,33 +494,6 @@ async function getFinancialStatement() {
     formatMoneyInput($("#mhsu"));
     $("#uniform").val(formatCurrency(financial.uniform_fee));
     formatMoneyInput($("#uniform"));
-
-    $("#agreePayment2").prop("checked", financial.agree_development_fee_policy);
-    $("#agreePayment3").prop(
-        "checked",
-        financial.agree_annual_and_school_fee_policy,
-    );
-    $("#agreePayment4").prop("checked", financial.agree_exam_fee);
-    $("#agreePayment5").prop("checked", financial.agree_learning_material_fee);
-    $("#agreePayment6").prop("checked", financial.agree_exschool_fee);
-    $("#agreePayment7").prop(
-        "checked",
-        financial.agree_additional_activity_fee,
-    );
-    $("#agreePayment8").prop(
-        "checked",
-        financial.agree_monthly_school_fee_payment,
-    );
-    $("#agreePayment9").prop("checked", financial.agree_ittihada_fee);
-    $("#agreePayment10").prop(
-        "checked",
-        financial.agree_full_financial_obligation,
-    );
-    $("#agreePayment11").prop(
-        "checked",
-        financial.agree_financial_terms_and_consequences,
-    );
-    $("#agreePayment12").prop("checked", financial.agree_truth_and_consent);
 }
 
 async function postAgreement(type) {
@@ -473,6 +513,7 @@ async function postAgreement(type) {
     );
     $(`#${type}AgreeStatementId`).val(agreement.id);
 }
+
 async function getAgreement(type) {
     blockUI();
     let agreement = await ajaxPromise(

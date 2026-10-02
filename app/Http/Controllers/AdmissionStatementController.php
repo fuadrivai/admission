@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Admission;
 use App\Models\AdmissionStatement;
+use App\Models\StatementAgreement;
 use App\Services\AdmissionStatementService;
+use App\Services\FinancialDocumentService;
+use App\Services\ParentStatementService;
 use Illuminate\Http\Request;
 
 class AdmissionStatementController extends Controller
@@ -15,15 +19,36 @@ class AdmissionStatementController extends Controller
      */
 
     private AdmissionStatementService $admissionStatementService;
+    private ParentStatementService $parentStatementService;
+    private FinancialDocumentService $financialDocumentService;
 
-    public function __construct(AdmissionStatementService $admissionStatementService)
+    public function __construct(AdmissionStatementService $admissionStatementService, ParentStatementService $parentStatementService, FinancialDocumentService $financialDocumentService)
     {
         $this->admissionStatementService = $admissionStatementService;
+        $this->parentStatementService = $parentStatementService;
+        $this->financialDocumentService = $financialDocumentService;
     }
     
     public function index($code)
     {
-        return view('enrolment.form.student-approval',["code"=>$code]);
+        $admission = Admission::where('code', $code)->first();
+        $parentAgreementItemIds = [];
+
+        if ($admission && $admission->statement) {
+            $parentAgreementItemIds = StatementAgreement::where('admission_statement_id', $admission->statement->id)
+                ->where('type', 'Parent')
+                ->whereNotNull('statement_item_id')
+                ->pluck('statement_item_id')
+                ->map(fn ($value) => (int) $value)
+                ->all();
+        }
+
+        return view('enrolment.form.student-approval', [
+            'code' => $code,
+            'parentStatementDocument' => $this->parentStatementService->getPublishedParentDocument(),
+            'parentAgreementItemIds' => $parentAgreementItemIds,
+            'financialDocument' => $this->financialDocumentService->getPublishedDocument(),
+        ]);
     }
 
     /**
@@ -50,7 +75,14 @@ class AdmissionStatementController extends Controller
     }
     public function storeFinancial(Request $request)
     {
+        $request->validate([
+            'agree_financial_document' => 'accepted',
+            'financial_document_id' => 'required|integer|exists:admission_financial_documents,id',
+        ]);
+
         $data = $request->all();
+        $data['ip_address'] = $request->ip();
+        $data['user_agent'] = $request->userAgent();
         $statement = $this->admissionStatementService->postFinancial($data);
         return response()->json($statement);
     }
@@ -70,6 +102,34 @@ class AdmissionStatementController extends Controller
     {
         $agreement = $this->admissionStatementService->getAgreement($id,$role);
         return response()->json($agreement);
+    }
+
+    public function saveParentAgreement(Request $request)
+    {
+        $request->validate([
+            'admission_statement_id' => 'required|exists:admission_statements,id',
+            'statement_item_id' => 'nullable|array',
+        ]);
+
+        $items = $request->input('statement_item_id', []);
+        $this->parentStatementService->saveParentAgreement($request->admission_statement_id, $items, $request);
+
+        return response()->json([
+            'success' => true,
+            'count' => count($items),
+        ]);
+    }
+
+    public function getParentAgreementIds($id)
+    {
+        $ids = StatementAgreement::where('admission_statement_id', $id)
+            ->where('type', 'Parent')
+            ->whereNotNull('statement_item_id')
+            ->pluck('statement_item_id')
+            ->map(fn ($value) => (int) $value)
+            ->all();
+
+        return response()->json($ids);
     }
 
     /**

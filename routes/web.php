@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdmissionController;
 use App\Http\Controllers\AdmissionDocumentController;
 use App\Http\Controllers\AdmissionStatementController;
+use App\Http\Controllers\AdmissionStatementDocumentController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AcademicYearController;
 use App\Http\Controllers\BankChargerController;
@@ -15,6 +16,7 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\EventEmailTemplateController;
 use App\Http\Controllers\EventFormController;
 use App\Http\Controllers\EventRegistrationController;
+use App\Http\Controllers\FinancialDocumentController;
 use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LevelController;
@@ -90,6 +92,8 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
     Route::post('document/statement/financial', [AdmissionStatementController::class, 'storeFinancial'])->name('admission.storeFinancial');
     Route::get('document/statement/financial/{id}', [AdmissionStatementController::class, 'getFinancial'])->name('admission.getFinancial');
     Route::post('document/statement/agreement', [AdmissionStatementController::class, 'postAgreement'])->name('admission.postAgreement');
+    Route::post('document/statement/parent-agreement', [AdmissionStatementController::class, 'saveParentAgreement'])->name('admission.saveParentAgreement');
+    Route::get('document/statement/parent-agreement/{id}', [AdmissionStatementController::class, 'getParentAgreementIds'])->name('admission.getParentAgreementIds');
     Route::get('document/statement/{id}/agreement/{role}', [AdmissionStatementController::class, 'getAgreement'])->name('admission.getAgreement');
     
     Route::get('document/success/{code}', [AdmissionController::class, 'success'])->name('admission.success');
@@ -282,6 +286,31 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
                 Route::get('datatables', [AcademicYearController::class, 'datatables'])->name('datatables');
                 Route::get('get', [AcademicYearController::class, 'get'])->name('get');
                 Route::resource('', AcademicYearController::class)->parameters(['' => 'year']);
+            });
+
+            Route::prefix('statement')->name('statement.')->group(function () {
+                Route::get('/', [AdmissionStatementDocumentController::class, 'index'])->name('index');
+                Route::get('/create', [AdmissionStatementDocumentController::class, 'create'])->name('create');
+                Route::post('/', [AdmissionStatementDocumentController::class, 'store'])->name('store');
+                Route::get('/{document}/edit', [AdmissionStatementDocumentController::class, 'edit'])->name('edit');
+                Route::put('/{document}', [AdmissionStatementDocumentController::class, 'update'])->name('update');
+                Route::get('/{document}/preview', [AdmissionStatementDocumentController::class, 'preview'])->name('preview');
+                Route::post('/{document}/duplicate', [AdmissionStatementDocumentController::class, 'duplicate'])->name('duplicate');
+                Route::post('/{document}/publish', [AdmissionStatementDocumentController::class, 'publish'])->name('publish');
+                Route::post('/{document}/archive', [AdmissionStatementDocumentController::class, 'archive'])->name('archive');
+                Route::delete('/{document}', [AdmissionStatementDocumentController::class, 'destroy'])->name('destroy');
+            });
+            Route::prefix('financial-document')->name('financial-document.')->group(function () {
+                Route::get('/', [FinancialDocumentController::class, 'index'])->name('index');
+                Route::get('/create', [FinancialDocumentController::class, 'create'])->name('create');
+                Route::post('/', [FinancialDocumentController::class, 'store'])->name('store');
+                Route::get('/{document}/edit', [FinancialDocumentController::class, 'edit'])->name('edit');
+                Route::put('/{document}', [FinancialDocumentController::class, 'update'])->name('update');
+                Route::get('/{document}/preview', [FinancialDocumentController::class, 'preview'])->name('preview');
+                Route::post('/{document}/duplicate', [FinancialDocumentController::class, 'duplicate'])->name('duplicate');
+                Route::post('/{document}/publish', [FinancialDocumentController::class, 'publish'])->name('publish');
+                Route::post('/{document}/archive', [FinancialDocumentController::class, 'archive'])->name('archive');
+                Route::delete('/{document}', [FinancialDocumentController::class, 'destroy'])->name('destroy');
             });
             // Route::resource('', DivisionController::class)->parameters(['' => 'division']);
         });
