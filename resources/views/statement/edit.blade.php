@@ -108,6 +108,15 @@
                 sectionEl.find('.items-list').append(createItemMarkup(sectionIndex, null, itemCount));
             });
 
+            $(document).on('click', '.toggle-section-items', function() {
+                const $button = $(this);
+                const isExpanded = $button.attr('aria-expanded') === 'true';
+
+                $button.closest('.statement-section').find('.section-items-content').toggle(!isExpanded);
+                $button.attr('aria-expanded', String(!isExpanded));
+                $button.text(isExpanded ? 'Show Items' : 'Hide Items');
+            });
+
             $(document).on('click', '.remove-item', function() {
                 $(this).closest('.item-block').remove();
             });

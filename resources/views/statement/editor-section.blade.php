@@ -21,11 +21,20 @@
         </div>
     </div>
 
-    <div class="mt-4 mb-2">
+    <div class="d-flex justify-content-between align-items-center mt-4 mb-2">
         <h6 class="mb-0">Items</h6>
+        <button type="button" class="btn btn-sm btn-outline-secondary toggle-section-items" aria-expanded="true">
+            Hide Items
+        </button>
     </div>
 
-    <div class="items-list"></div>
+    <div class="section-items-content">
+        <div class="items-list"></div>
+
+        <div class="d-flex justify-content-end mt-3">
+            <button type="button" class="btn btn-sm btn-outline-primary add-item">Add Item</button>
+        </div>
+    </div>
 
     <div class="mt-3">
         <div class="form-check">
@@ -33,9 +42,5 @@
                 class="form-check-input">
             <label class="form-check-label">Required section</label>
         </div>
-    </div>
-
-    <div class="d-flex justify-content-end mt-3">
-        <button type="button" class="btn btn-sm btn-outline-primary add-item">Add Item</button>
     </div>
 </div>

@@ -34,6 +34,17 @@
             </div>
         @endforeach
 
+        @if ($parentStatementDocument->description_en || $parentStatementDocument->description_id || $parentStatementDocument->description)
+            <div class="mt-4">
+                @if ($parentStatementDocument->description_en || $parentStatementDocument->description)
+                    <div class="fw-bold" style="text-align: justify; white-space: pre-line;">{{ $parentStatementDocument->description_en ?? $parentStatementDocument->description }}</div>
+                @endif
+                @if ($parentStatementDocument->description_id)
+                    <div class="mt-3" style="text-align: justify; white-space: pre-line;">{{ $parentStatementDocument->description_id }}</div>
+                @endif
+            </div>
+        @endif
+
         <div id="parent-statement-required-error" class="alert alert-danger mt-3 d-none">
             Please check all required parent statement items before continuing.
         </div>

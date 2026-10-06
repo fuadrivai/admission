@@ -55,8 +55,10 @@ class ParentStatementImplement implements ParentStatementService
             $document->name = $payload['name'] ?? 'Parent Statement';
             $document->version = $payload['version'] ?? '1.0';
             $document->effective_at = $payload['effective_at'] ?? null;
-            $document->description = $payload['description'] ?? null;
-            $document->status = $document->exists ? $document->status : 'DRAFT';
+            $document->description_en = $payload['description_en'] ?? null;
+            $document->description_id = $payload['description_id'] ?? null;
+            $document->description = null;
+            $document->status = $payload['status'] ?? ($document->exists ? $document->status : 'DRAFT');
             $document->save();
 
             $incomingSectionIds = [];
@@ -125,7 +127,8 @@ class ParentStatementImplement implements ParentStatementService
                 'version' => $nextVersion,
                 'status' => 'DRAFT',
                 'effective_at' => $source->effective_at,
-                'description' => $source->description,
+                'description_en' => $source->description_en ?? $source->description,
+                'description_id' => $source->description_id,
             ]);
 
             foreach ($source->sections as $section) {

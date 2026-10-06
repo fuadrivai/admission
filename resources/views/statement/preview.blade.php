@@ -16,10 +16,6 @@
                     @endif
                 </div>
 
-                @if ($document->description)
-                    <div class="alert alert-light border mb-3">{{ $document->description }}</div>
-                @endif
-
                 @foreach ($document->sections as $section)
                     <div class="mb-4 border rounded p-3">
                         <h5 class="fw-bold mb-3">{{ $section->title_en }}</h5>
@@ -34,6 +30,17 @@
                         </ol>
                     </div>
                 @endforeach
+
+                @if ($document->description_en || $document->description_id || $document->description)
+                    <div class="mt-4">
+                        @if ($document->description_en || $document->description)
+                            <div class="fw-bold" style="white-space: pre-line;">{{ $document->description_en ?? $document->description }}</div>
+                        @endif
+                        @if ($document->description_id)
+                            <div class="mt-3" style="white-space: pre-line;">{{ $document->description_id }}</div>
+                        @endif
+                    </div>
+                @endif
             </div>
         </div>
     </section>

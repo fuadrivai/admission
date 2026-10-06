@@ -11,9 +11,9 @@
             <div><i><small>{{ config('student_approval.step3.labels.text0.indonesian') }}</small></i></div>
         </div>
         @foreach ($openingSection->items->where('number', 0) as $openingText)
-            <div class="checkbox-declaration mb-4">
-                <p class="text-muted" style="text-align: justify;">{{ $openingText->text_en }}</p>
-                <p class="text-muted" style="text-align: justify;"><i>{{ $openingText->text_id }}</i></p>
+            <div class="checkbox-declaration mb-4 statement-section-block">
+                <div class="fw-semibold text-muted" style="text-align: justify; white-space: pre-line;">{{ $openingText->text_en }}</div>
+                <div class="text-muted small mt-2" style="text-align: justify; white-space: pre-line;"><i>{{ $openingText->text_id }}</i></div>
             </div>
         @endforeach
     @else
@@ -87,14 +87,14 @@
 
     @if ($financialDocument)
         @foreach ($financialDocument->sections->where('sort_order', '>', 0) as $section)
-            <section class="checkbox-declaration mb-4">
-                <h5 class="fw-bold">{{ $section->title_en }}</h5>
+            <section class="checkbox-declaration mb-4 statement-section-block">
+                <h5 class="fw-bold mb-2">{{ $section->title_en }}</h5>
                 <div class="text-muted mb-3"><i>{{ $section->title_id }}</i></div>
 
                 @foreach ($section->items->where('number', 0) as $preamble)
                     <div class="mb-3">
-                        <p class="text-muted mb-1" style="text-align: justify;">{{ $preamble->text_en }}</p>
-                        <p class="text-muted mb-0" style="text-align: justify;"><i>{{ $preamble->text_id }}</i></p>
+                        <div class="fw-semibold text-muted mb-1" style="text-align: justify; white-space: pre-line;">{{ $preamble->text_en }}</div>
+                        <div class="text-muted small" style="text-align: justify; white-space: pre-line;"><i>{{ $preamble->text_id }}</i></div>
                     </div>
                 @endforeach
 
@@ -103,8 +103,9 @@
                     <ol class="ps-3">
                         @foreach ($numberedItems as $item)
                             <li value="{{ $item->number }}" class="mb-3">
-                                <div class="text-muted" style="text-align: justify;">{{ $item->text_en }}</div>
-                                <div class="text-muted" style="text-align: justify;"><i>{{ $item->text_id }}</i>
+                                <div class="fw-semibold text-muted" style="text-align: justify; white-space: pre-line;">
+                                    {{ $item->text_en }}</div>
+                                <div class="text-muted small" style="text-align: justify; white-space: pre-line;"><i>{{ $item->text_id }}</i>
                                 </div>
                             </li>
                         @endforeach
@@ -113,15 +114,18 @@
             </section>
         @endforeach
 
-        <h5 class="fw-bold">Final Agreement | <i>Persetujuan Akhir</i></h5>
-        <div class="form-check mb-3">
-            <input class="form-check-input" type="checkbox" id="agreeFinancialDocument"
-                data-document-id="{{ $financialDocument->id }}" required>
-            <label class="form-check-label required" for="agreeFinancialDocument">
-                I have read, understood, and agree to all provisions of this Financial Agreement.
-            </label>
-            <div class="error-message" id="agreeFinancialDocument-error">Please agree to the complete Financial
-                Agreement.</div>
+        <div class="checkbox-declaration mb-4 statement-section-block">
+            <h5 class="fw-bold mb-2">Final Agreement</h5>
+            <div class="text-muted mb-3"><i>Persetujuan Akhir</i></div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="agreeFinancialDocument"
+                    data-document-id="{{ $financialDocument->id }}" required>
+                <label class="form-check-label required" for="agreeFinancialDocument">
+                    I have read, understood, and agree to all provisions of this Financial Agreement.
+                </label>
+                <div class="error-message" id="agreeFinancialDocument-error">Please agree to the complete Financial
+                    Agreement.</div>
+            </div>
         </div>
     @endif
 </div>
