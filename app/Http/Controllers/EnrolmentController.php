@@ -64,7 +64,9 @@ class EnrolmentController extends Controller
     }
     public function setting()
     {
-        return view('enrolment.setting');
+        $branches = $this->branchService->getShowInForm();
+
+        return view('enrolment.setting', compact('branches'));
     }
 
     /**
@@ -119,7 +121,7 @@ class EnrolmentController extends Controller
      */
     public function edit(Enrolment $enrolment)
     {
-        $enrolment = $this->enrolmentService->show($enrolment->id);
+        $enrolment = $this->enrolmentService->show($enrolment->id)->load('transactions.details');
         return view('enrolment.detail', ["title" => "Enrolment Detail", "enrolment" => $enrolment]);
     }
 

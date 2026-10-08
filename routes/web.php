@@ -6,10 +6,13 @@ use App\Http\Controllers\AdmissionStatementController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AcademicYearController;
 use App\Http\Controllers\BankChargerController;
+use App\Http\Controllers\RegistrationPlaceController;
+use App\Http\Controllers\EnrolmentDiscountRuleController;
 use App\Http\Controllers\BlastMessageController;
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\DivisionController;
 use App\Http\Controllers\EnrolmentController;
+use App\Http\Controllers\EnrolmentDpController;
 use App\Http\Controllers\EnrolmentPriceController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\EventEmailTemplateController;
@@ -142,6 +145,10 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
         });
 
         Route::prefix('enrolment')->name('enrolment.')->group(function () {
+            Route::get('dp/discount', [EnrolmentDpController::class, 'discount'])->name('dp.discount');
+            Route::get('dp/search', [EnrolmentDpController::class, 'search'])->name('dp.search');
+            Route::get('dp', [EnrolmentDpController::class, 'index'])->name('dp.index');
+            Route::post('dp', [EnrolmentDpController::class, 'store'])->name('dp.store');
             Route::get('datatables', [EnrolmentController::class, 'datatables'])->name('list-enrolment');
             Route::get('setting', [EnrolmentController::class, 'setting'])->name('enrolment-setting');
             Route::post('max-capacity', [EnrolmentController::class, 'postMax'])->name('post-max');
@@ -283,6 +290,10 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
                 Route::get('get', [AcademicYearController::class, 'get'])->name('get');
                 Route::resource('', AcademicYearController::class)->parameters(['' => 'year']);
             });
+            Route::get('discount-rule/datatables', [EnrolmentDiscountRuleController::class, 'datatables'])->name('discount-rule.datatables');
+            Route::resource('discount-rule', EnrolmentDiscountRuleController::class)->only(['index', 'store', 'update', 'destroy']);
+            Route::get('registration-place/datatables', [RegistrationPlaceController::class, 'datatables'])->name('registration-place.datatables');
+            Route::resource('registration-place', RegistrationPlaceController::class)->only(['index', 'store', 'update', 'destroy']);
             // Route::resource('', DivisionController::class)->parameters(['' => 'division']);
         });
         Route::resource('holiday', HolidayController::class)->parameters(['' => 'holiday']);

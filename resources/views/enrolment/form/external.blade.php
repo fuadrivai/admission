@@ -231,11 +231,8 @@
                             </div>
                         </div>
                         <div class="row-price pt-5 d-none">
-                            <h6> Detail </h6>
-                            <div class="row">
-                                <div class="col-md-6">Enrolment Form</div>
-                                <div class="col-md-6 text-end">Rp. <span id="enrolment-form">0</span></div>
-                            </div>
+                            <h6>Required Payment Items</h6>
+                            <div id="enrolment-price-items"></div>
                             <div class="row">
                                 <div class="col-md-6">Bank Charger</div>
                                 <div class="col-md-6 text-end">Rp. <span id="bank-form">0</span></div>

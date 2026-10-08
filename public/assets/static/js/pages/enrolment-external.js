@@ -2,6 +2,7 @@ let currentStep = 1;
 const totalSteps = 5;
 let levels = [];
 let bankCharger = 0;
+let enrolmentRequiredTotal = 0;
 let schoolVisit = null;
 let paymentUrl = null;
 
@@ -45,9 +46,10 @@ $(document).ready(function () {
         }
 
         const branchId = $("#branch").val();
-        if (id !== null || id !== "") {
-            getPriceByBranchLevel(branchId, id);
-        }
+        getPriceByBranchLevel(branchId, id);
+    });
+    $("#grade, #academic-year").on("change", function () {
+        getPriceByBranchLevel($("#branch").val(), $("#level").val());
     });
 
     $("#hearAbout").on("change", function () {
@@ -737,19 +739,62 @@ function getParentMHPortal(branch, username, password, resolve, reject) {
 }
 
 function getPriceByBranchLevel(branchId, levelId) {
+    const academicYearId = $("#academic-year").val();
+    const gradeId = $("#grade").val();
+    if (!branchId || !levelId || !academicYearId || !gradeId) {
+        enrolmentRequiredTotal = 0;
+        $(".row-price").addClass("d-none");
+        return;
+    }
+
     blockUI();
+    const query = $.param({
+        academic_year_id: academicYearId,
+        grade_id: gradeId,
+    });
     ajax(
         null,
-        `/price/branch/level/${branchId}/${levelId}`,
+        `/price/branch/level/${branchId}/${levelId}?${query}`,
         "GET",
         function (json) {
-            let price = parseFloat(json.price);
+            const items = json?.items || [];
+            if (
+                !items.some(function (item) {
+                    return item.type === "enrolment";
+                })
+            ) {
+                $(".row-price").addClass("d-none");
+                enrolmentRequiredTotal = 0;
+                toastify(
+                    "Error",
+                    "No active required enrolment price items are configured for this selection.",
+                    "bottom",
+                );
+                return;
+            }
+
+            enrolmentRequiredTotal = items.reduce(function (total, item) {
+                return total + (Number(item.amount) || 0);
+            }, 0);
             $(".row-price").removeClass("d-none");
-            $("#enrolment-form").text(formatNumber(price));
-            let total = price + bankCharger;
-            $("#total-form").text(formatNumber(total));
+            $("#enrolment-price-items").empty();
+            items.forEach(function (item) {
+                const $row = $('<div class="row"></div>');
+                $('<div class="col-md-6"></div>')
+                    .text(item.name)
+                    .appendTo($row);
+                $('<div class="col-md-6 text-end"></div>')
+                    .text("Rp. " + formatNumber(item.amount))
+                    .appendTo($row);
+                $("#enrolment-price-items").append($row);
+            });
+            $("#total-form").text(
+                formatNumber(enrolmentRequiredTotal + bankCharger),
+            );
         },
         function (err) {
+            enrolmentRequiredTotal = 0;
+            $(".row-price").addClass("d-none");
             toastify(
                 "Error",
                 err?.responseJSON?.message ?? "Please try again later",
@@ -767,6 +812,11 @@ function getBankCharger() {
         function (json) {
             bankCharger = parseFloat(json.price ?? 0);
             $("#bank-form").text(formatNumber(bankCharger));
+            if (!$(".row-price").hasClass("d-none")) {
+                $("#total-form").text(
+                    formatNumber(enrolmentRequiredTotal + bankCharger),
+                );
+            }
         },
         function (err) {
             toastify(

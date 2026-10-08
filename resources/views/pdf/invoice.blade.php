@@ -250,10 +250,18 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>Registration Fee</td>
-                        <td class="amount">Rp {{ $registration_fee }}</td>
-                    </tr>
+                    @foreach ($payment_items as $item)
+                        <tr>
+                            <td>{{ $item['description'] }}</td>
+                            <td class="amount">Rp {{ number_format($item['amount'], 0, ',', '.') }}</td>
+                        </tr>
+                    @endforeach
+                    @if ($discount > 0)
+                        <tr>
+                            <td>Discount</td>
+                            <td class="amount">- Rp {{ number_format($discount, 0, ',', '.') }}</td>
+                        </tr>
+                    @endif
                     <tr>
                         <td>Bank Charges</td>
                         <td class="amount">Rp {{ $bank_charger }}</td>

@@ -20,4 +20,19 @@ class EnrolmentPrice extends Model
     {
         return $this->belongsTo(Level::class);
     }
+
+    public function academicYear()
+    {
+        return $this->belongsTo(AcademicYear::class, 'academic_year_id');
+    }
+
+    public function grade()
+    {
+        return $this->belongsTo(Grade::class);
+    }
+
+    public function items()
+    {
+        return $this->hasMany(EnrolmentPriceItem::class);
+    }
 }

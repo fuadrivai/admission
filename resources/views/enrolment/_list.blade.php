@@ -84,6 +84,10 @@
                 <div class="col-md-6 text-end" style="vertical-align: middle">
                     <a data-id="{{ $enrolment->prospects_id }}" class="btn btn-sm btn-success view-history"><i
                             class="fa fa-history"></i></a>
+                    @if (auth()->user()->role !== 'user' && $enrolment->canCreateDp())
+                        <a href="{{ route('enrolment.dp.index', ['code' => $enrolment->code]) }}"
+                            class="btn btn-sm btn-warning" title="Create DP form"><i class="fa fa-money"></i> DP</a>
+                    @endif
                     <a href="/enrolment/{{ $enrolment->id }}/edit" data-id="{{ $enrolment->id }}"
                         class="btn btn-sm btn-primary view-detail"><i class="fa fa-eye"></i></a>
                 </div>
@@ -135,6 +139,7 @@
                     </div>
                 </div>
             </div>
+            @include('enrolment._transactions')
             <div class="row">
                 <div class="col-md-12">
                     <div id="visit-history">

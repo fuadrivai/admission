@@ -269,56 +269,40 @@
                                         </th>
                                     </tr>
                                     <!-- Table Rows -->
+                                    @foreach ($data['payment_details'] as $index => $detail)
+                                        <tr>
+                                            <td style="border-bottom: 1px solid #f0f0f0; padding: 16px 15px; text-align: left;">
+                                                {{ $index + 1 }}
+                                            </td>
+                                            <td style="border-bottom: 1px solid #f0f0f0; padding: 16px 15px; text-align: left;">
+                                                {{ $detail['description'] }}
+                                            </td>
+                                            <td style="border-bottom: 1px solid #f0f0f0; padding: 16px 15px; text-align: right;">
+                                                Rp. {{ number_format($detail['amount'], 0, ',', '.') }}
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                    @if (($data['payment_discount'] ?? 0) > 0)
+                                        <tr>
+                                            <td style="border-bottom: 1px solid #f0f0f0; padding: 16px 15px; text-align: left;">
+                                                {{ count($data['payment_details']) + 1 }}
+                                            </td>
+                                            <td style="border-bottom: 1px solid #f0f0f0; padding: 16px 15px; text-align: left;">
+                                                Discount
+                                            </td>
+                                            <td style="border-bottom: 1px solid #f0f0f0; padding: 16px 15px; text-align: right;">
+                                                - Rp. {{ number_format($data['payment_discount'], 0, ',', '.') }}
+                                            </td>
+                                        </tr>
+                                    @endif
                                     <tr>
-                                        <td
-                                            style="
-                          border-bottom: 1px solid #f0f0f0;
-                          padding: 16px 15px;
-                          text-align: left;
-                        ">
-                                            1
+                                        <td style="border-bottom: 1px solid #f0f0f0; padding: 16px 15px; text-align: left;">
+                                            {{ count($data['payment_details']) + (($data['payment_discount'] ?? 0) > 0 ? 2 : 1) }}
                                         </td>
-                                        <td
-                                            style="
-                          border-bottom: 1px solid #f0f0f0;
-                          padding: 16px 15px;
-                          text-align: left;
-                        ">
-                                            Registration Fee
-                                        </td>
-                                        <td
-                                            style="
-                          border-bottom: 1px solid #f0f0f0;
-                          padding: 16px 15px;
-                          text-align: right;
-                        ">
-                                            Rp.
-                                            {{ number_format($data['registration_fee'], 0, ',', '.') }}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td
-                                            style="
-                          border-bottom: 1px solid #f0f0f0;
-                          padding: 16px 15px;
-                          text-align: left;
-                        ">
-                                            2
-                                        </td>
-                                        <td
-                                            style="
-                          border-bottom: 1px solid #f0f0f0;
-                          padding: 16px 15px;
-                          text-align: left;
-                        ">
+                                        <td style="border-bottom: 1px solid #f0f0f0; padding: 16px 15px; text-align: left;">
                                             Bank Charges
                                         </td>
-                                        <td
-                                            style="
-                          border-bottom: 1px solid #f0f0f0;
-                          padding: 16px 15px;
-                          text-align: right;
-                        ">
+                                        <td style="border-bottom: 1px solid #f0f0f0; padding: 16px 15px; text-align: right;">
                                             Rp. {{ number_format($data['bank_charger'], 0, ',', '.') }}
                                         </td>
                                     </tr>
