@@ -8,9 +8,11 @@ class RemoveDetailBankChargeAndAllowPartialProspects extends Migration
 {
     public function up()
     {
-        Schema::table('enrolment_details', function (Blueprint $table) {
-            $table->dropColumn('bank_charge');
-        });
+        if (Schema::hasColumn('enrolment_details', 'bank_charge')) {
+            Schema::table('enrolment_details', function (Blueprint $table) {
+                $table->dropColumn('bank_charge');
+            });
+        }
 
         Schema::table('prospects', function (Blueprint $table) {
             $table->date('date_of_birth')->nullable()->change();
@@ -24,9 +26,11 @@ class RemoveDetailBankChargeAndAllowPartialProspects extends Migration
 
     public function down()
     {
-        Schema::table('enrolment_details', function (Blueprint $table) {
-            $table->decimal('bank_charge', 12, 2)->default(0);
-        });
+        if (!Schema::hasColumn('enrolment_details', 'bank_charge')) {
+            Schema::table('enrolment_details', function (Blueprint $table) {
+                $table->decimal('bank_charge', 12, 2)->default(0);
+            });
+        }
 
         Schema::table('prospects', function (Blueprint $table) {
             $table->date('date_of_birth')->nullable(false)->change();
