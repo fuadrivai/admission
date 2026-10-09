@@ -32,23 +32,26 @@ class XenditCallBackImplement implements XenditCallBackService
         }
 
         $transactionMap = [
-            'INV-ENROL'   => 'enrolment_transactions',
-            'EX_INV-ENROL'   => 'enrolment_transactions',
-            'UORD' => 'uniform_orders',
+            'INV-ENROL'    => ['enrolment_transactions', 'enrolment'],
+            'EX_INV-ENROL' => ['enrolment_transactions'],
+            'UORD'         => ['uniform_orders'],
         ];
 
-        $table = $this->resolveTable($externalId, $transactionMap);
+        $tables = $this->resolveTables($externalId, $transactionMap);
 
-        if (!$table) {
+        if (!$tables) {
             Log::warning('Unknown transaction type', $data);
             return response()->json(['message' => 'Unknown transaction'], 404);
         }
 
-        if ($table == "enrolment_transactions") {
+        if (
+            in_array('enrolment_transactions', $tables, true)
+            || in_array('enrolment', $tables, true)
+        ) {
             $this->enrolment($externalId, $data);
         }
-        if ($table == "uniform_orders") {
-            $this->uniform($table, $externalId, $data);
+        if (in_array('uniform_orders', $tables, true)) {
+            $this->uniform('uniform_orders', $externalId, $data);
         }
 
         return response()->json(['message' => 'Callback processed'], 200);
@@ -71,38 +74,38 @@ class XenditCallBackImplement implements XenditCallBackService
                     'invoice_id' => $externalId,
                     'transaction_id' => $transaction->id,
                 ]);
+            }
+
+            if ($enrolment) {
+                $transaction->update([
+                    'code' => $enrolment->code,
+                    'payment_status' => $mappedStatus,
+                    'payment_date' => $paidDate,
+                ]);
+
+                $hasRequiredEnrolmentCharge = $transaction->details->contains(function ($detail) {
+                    return in_array($detail->type, ['enrolment', 'streaming_test'], true);
+                });
+                if (!$hasRequiredEnrolmentCharge) {
+                    return;
+                }
+
+                $enrolment->update([
+                    'payment_status' => $mappedStatus,
+                    'payment_date' => $paidDate,
+                ]);
+                $enrolment->activities()->create([
+                    'prospects_id' => $enrolment->prospects_id,
+                    'note' => "Initial required payment status updated to {$mappedStatus} via Xendit.",
+                ]);
+
+                if ($mappedStatus === 'PAID') {
+                    $this->sendEnrolmentConfirmation($enrolment->fresh(), $transaction, $data['description'] ?? null);
+                    $transaction->update(['confirmation_email_sent_at' => now()]);
+                }
 
                 return;
             }
-
-            $transaction->update([
-                'code' => $enrolment->code,
-                'payment_status' => $mappedStatus,
-                'payment_date' => $paidDate,
-            ]);
-
-            $hasRequiredEnrolmentCharge = $transaction->details->contains(function ($detail) {
-                return in_array($detail->type, ['enrolment', 'streaming_test'], true);
-            });
-            if (!$hasRequiredEnrolmentCharge) {
-                return;
-            }
-
-            $enrolment->update([
-                'payment_status' => $mappedStatus,
-                'payment_date' => $paidDate,
-            ]);
-            $enrolment->activities()->create([
-                'prospects_id' => $enrolment->prospects_id,
-                'note' => "Initial required payment status updated to {$mappedStatus} via Xendit.",
-            ]);
-
-            if ($mappedStatus === 'PAID' ) {
-                $this->sendEnrolmentConfirmation($enrolment->fresh(), $transaction, $data['description'] ?? null);
-                $transaction->update(['confirmation_email_sent_at' => now()]);
-            }
-
-            return;
         }
 
         $enrolment = Enrolment::where('invoice_id', $externalId)->first();
@@ -301,11 +304,11 @@ class XenditCallBackImplement implements XenditCallBackService
         return Storage::disk('admission')->path($path);
     }
 
-    private function resolveTable(string $externalId, array $map): ?string
+    private function resolveTables(string $externalId, array $map): ?array
     {
-        foreach ($map as $prefix => $table) {
+        foreach ($map as $prefix => $tables) {
             if (str_starts_with($externalId, $prefix)) {
-                return $table;
+                return $tables;
             }
         }
         return null;
@@ -313,6 +316,8 @@ class XenditCallBackImplement implements XenditCallBackService
 
     private function mapStatus(string $xenditStatus): string
     {
+        $xenditStatus = strtoupper($xenditStatus);
+
         $map = [
             'PAID'    => 'PAID',
             'SETTLED' => 'PAID',

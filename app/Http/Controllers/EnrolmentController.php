@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exports\EnrolmentExport;
 use App\Models\Enrolment;
+use App\Models\EnrolmentTransaction;
 use App\Services\BranchService;
 use App\Services\EnrolmentService;
 use App\Services\ProspectService;
@@ -12,6 +13,7 @@ use Illuminate\Http\Request;
 use Yajra\DataTables\Utilities\Request as UtilitiesRequest;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Maatwebsite\Excel\Facades\Excel;
+use function App\Helpers\expireXenditInvoice;
 
 class EnrolmentController extends Controller
 {
@@ -145,7 +147,17 @@ class EnrolmentController extends Controller
      */
     public function destroy(Enrolment $enrolment)
     {
-        //
+        $expireResponse = $this->expirePendingInvoice($enrolment);
+        if ($expireResponse !== null) {
+            return $expireResponse;
+        }
+
+        $enrolment->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Enrolment deleted successfully.',
+        ]);
     }
     
 
@@ -224,6 +236,68 @@ class EnrolmentController extends Controller
     {
         $prospect = $this->prospectService->show($id);
         return view('schoolvisit._history', compact('prospect'))->render();
+    }
+
+    public function cancel(Request $request, Enrolment $enrolment)
+    {
+        $validated = $request->validate([
+            'reason' => 'required|string|max:1000',
+        ]);
+
+        if (strtoupper((string) $enrolment->payment_status) === 'CANCELLED') {
+            return response()->json(['status' => 'error', 'message' => 'Enrolment is already cancelled.'], 422);
+        }
+
+        $expireResponse = $this->expirePendingInvoice($enrolment);
+        if ($expireResponse !== null) {
+            return $expireResponse;
+        }
+
+        EnrolmentTransaction::where('code', $enrolment->code)
+            ->whereRaw('UPPER(payment_status) = ?', ['PENDING'])
+            ->update(['payment_status' => 'EXPIRED']);
+
+        $enrolment->payment_status = 'CANCELLED';
+        $enrolment->cancel_reason = $validated['reason'];
+        $enrolment->cancelled_at = now();
+        $enrolment->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Enrolment cancelled successfully.',
+        ]);
+    }
+
+    private function expirePendingInvoice(Enrolment $enrolment): ?\Illuminate\Http\JsonResponse
+    {
+        $branchName = $enrolment->branch->name ?? 'bintaro';
+
+        $transactions = EnrolmentTransaction::where('code', $enrolment->code)
+            ->whereRaw('UPPER(payment_status) = ?', ['PENDING'])
+            ->get();
+
+        if ($transactions->isNotEmpty()) {
+            $paymentUrls = $transactions->pluck('payment_url')->filter()->unique();
+        } elseif (strtoupper((string) $enrolment->payment_status) === 'PENDING') {
+            // Legacy data: invoice is stored on the enrolment itself.
+            $paymentUrls = collect([(string) $enrolment->payment_url]);
+        } else {
+            return null;
+        }
+
+        foreach ($paymentUrls as $paymentUrl) {
+            $result = expireXenditInvoice((string) $paymentUrl, $branchName);
+
+            if (!($result['success'] ?? false)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Xendit invoice could not be expired. The enrolment was not changed.',
+                    'details' => $result['message'] ?? 'Unknown Xendit error.',
+                ], 502);
+            }
+        }
+
+        return null;
     }
 
     public function updateSourceData(Request $request, Enrolment $enrolment)

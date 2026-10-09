@@ -164,6 +164,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
             Route::get('export', [EnrolmentController::class, 'export'])->name('export');
             Route::get('{enrolment}/history', [EnrolmentController::class, 'history'])->name('history');
             Route::patch('{enrolment}/source-data', [EnrolmentController::class, 'updateSourceData'])->name('source-data.update');
+            Route::patch('{enrolment}/cancel', [EnrolmentController::class, 'cancel'])->name('cancel');
             Route::resource('/', EnrolmentController::class)->parameters(['' => 'enrolment']);
         });
         Route::prefix('uniform')->name('uniform.')->group(function () {

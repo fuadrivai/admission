@@ -186,6 +186,40 @@ function createXenditInvoice(array $payload,$branchName="bintaro")
     return $response->json();
 }
 
+function expireXenditInvoice(string $paymentUrl, string $branchName = "bintaro"): array
+{
+    $path = parse_url($paymentUrl, PHP_URL_PATH);
+    $parts = array_values(array_filter(explode('/', trim((string) $path, '/'))));
+    $transId = end($parts);
+    $apiKey = config('services.xendit.api_key_' . strtolower($branchName));
+
+    if (!$transId || !$apiKey) {
+        return [
+            'success' => false,
+            'message' => 'Invalid Xendit payment URL or API key configuration.',
+        ];
+    }
+
+    $response = Http::withBasicAuth($apiKey, '')
+        ->withHeaders([
+            'Content-Type' => 'application/json',
+        ])
+        ->post("https://api.xendit.co/invoices/{$transId}/expire!");
+
+    if ($response->failed()) {
+        return [
+            'success' => false,
+            'status' => $response->status(),
+            'message' => $response->json()['message'] ?? 'Failed expiring Xendit invoice.',
+        ];
+    }
+
+    return [
+        'success' => true,
+        'data' => $response->json(),
+    ];
+}
+
 function imageToBase64($path)
 {
     if (!file_exists($path)) {

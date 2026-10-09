@@ -82,14 +82,46 @@
                     </div>
                 </div>
                 <div class="col-md-6 text-end" style="vertical-align: middle">
-                    <a data-id="{{ $enrolment->prospects_id }}" class="btn btn-sm btn-success view-history"><i
-                            class="fa fa-history"></i></a>
                     @if (auth()->user()->role !== 'user' && $enrolment->canCreateDp())
                         <a href="{{ route('enrolment.dp.index', ['code' => $enrolment->code]) }}"
-                            class="btn btn-sm btn-warning" title="Create DP form"><i class="fa fa-money"></i> DP</a>
+                            class="btn btn-sm btn-warning me-1 dp-ready-button" title="Enrolment siap membayar DP">
+                            <i class="fa fa-money me-1"></i>Send DP
+                        </a>
                     @endif
-                    <a href="/enrolment/{{ $enrolment->id }}/edit" data-id="{{ $enrolment->id }}"
-                        class="btn btn-sm btn-primary view-detail"><i class="fa fa-eye"></i></a>
+                    <div class="dropdown d-inline-block enrolment-actions">
+                        <button class="btn btn-sm btn-secondary dropdown-toggle" type="button"
+                            data-bs-toggle="dropdown" aria-expanded="false" title="Enrolment actions">
+                            <i class="fa fa-sliders me-1"></i>Actions
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <a class="dropdown-item view-history" href="#"
+                                    data-id="{{ $enrolment->prospects_id }}"><i
+                                        class="fa fa-history"></i><span>History</span></a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item view-detail" href="/enrolment/{{ $enrolment->id }}/edit"
+                                    data-id="{{ $enrolment->id }}"><i class="fa fa-eye"></i><span>Detail</span></a>
+                            </li>
+                            @if (auth()->user()->role !== 'user' && strtoupper((string) $enrolment->payment_status) !== 'CANCELLED')
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li>
+                                    <a class="dropdown-item text-danger cancel-enrolment" href="#"
+                                        data-id="{{ $enrolment->id }}"><i class="fa fa-times"></i><span>Cancel
+                                            Enrolment</span></a>
+                                </li>
+                            @endif
+                            @if (auth()->user()->role !== 'user')
+                                <li>
+                                    <a class="dropdown-item text-danger delete-enrolment" href="#"
+                                        data-id="{{ $enrolment->id }}" data-name="{{ $enrolment->child_name }}"><i
+                                            class="fa fa-trash"></i><span>Delete Enrolment</span></a>
+                                </li>
+                            @endif
+                        </ul>
+                    </div>
                 </div>
                 <hr>
             </div>
