@@ -133,7 +133,6 @@
                                     {{ $enrolment->payment_status }}
                                 </span><br>
                                 {{ $enrolment->payment_date ? 'Tanggal Bayar: ' . \Carbon\Carbon::parse($enrolment->payment_date)->format('d M Y') : 'Belum melakukan pembayaran' }}
-
                             </div>
                         </div>
                     </div>

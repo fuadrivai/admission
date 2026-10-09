@@ -79,6 +79,9 @@
                                     class="submenu-link {{ Request::is('enrolment/dp*') ? 'text-red' : '' }}">Development Fee</a>
                             </li>
                         @endif
+                                                            <li class="submenu-item"><a target="blank" href="{{ route('enrolment.dp-public.index') }}"
+                                                                    class="submenu-link">Development Fee Public</a>
+                                                            </li>
                     </ul>
                 </li>
                 @if (!auth()->check() || auth()->user()->role != 'user')

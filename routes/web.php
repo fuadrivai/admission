@@ -13,6 +13,7 @@ use App\Http\Controllers\BranchController;
 use App\Http\Controllers\DivisionController;
 use App\Http\Controllers\EnrolmentController;
 use App\Http\Controllers\EnrolmentDpController;
+use App\Http\Controllers\EnrolmentDpPublicController;
 use App\Http\Controllers\EnrolmentPriceController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\EventEmailTemplateController;
@@ -68,6 +69,14 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
     Route::get('enrolment/form', [EnrolmentController::class, 'form'])->name('enrolment.form');
     Route::get('enrolment/student/{code}', [EnrolmentController::class, 'showByCode'])->name('enrolment.studentShowByCode');
     Route::post('enrolment/post', [EnrolmentController::class, 'post'])->name('enrolment.postForm');
+
+    Route::prefix('enrolment/dp-form')->name('enrolment.dp-public.')->middleware('throttle:60,1')->group(function () {
+        Route::get('/', [EnrolmentDpPublicController::class, 'index'])->name('index');
+        Route::post('/', [EnrolmentDpPublicController::class, 'store'])->name('store');
+        Route::get('search', [EnrolmentDpPublicController::class, 'search'])->name('search');
+        Route::get('discount', [EnrolmentDpPublicController::class, 'discount'])->name('discount');
+        Route::get('grades/{levelId}', [EnrolmentDpPublicController::class, 'grades'])->name('grades');
+    });
     
     Route::get('uniform/list', [UniformController::class, 'open'])->name('uniform.open');
     Route::get('uniform/form', [UniformController::class, 'form'])->name('uniform.form');
