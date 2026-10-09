@@ -4,7 +4,10 @@
     <link rel="stylesheet" href="/assets/extensions/datatables.net-bs5/css/dataTables.bootstrap5.min.css">
     <link rel="stylesheet" href="/assets/compiled/css/table-datatable-jquery.css">
     <style>
-        .dt-button { margin-left: 0.5rem; margin-bottom: 0.5rem }
+        .dt-button {
+            margin-left: 0.5rem;
+            margin-bottom: 0.5rem
+        }
     </style>
 @endsection
 
@@ -22,7 +25,9 @@
                                 <th>Applies To</th>
                                 <th>Discount</th>
                                 <th>Requires DP</th>
-                                <th>Date</th>
+                                <th>Valid From</th>
+                                <th>Valid Until</th>
+                                <th>VA Valid Until</th>
                                 <th>Quota (used)</th>
                                 <th>Status</th>
                                 <th>Action</th>
@@ -36,7 +41,7 @@
     </section>
 
     <div class="modal fade text-left" id="rule-modal" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
             <div class="modal-content">
                 <form id="form-rule" autocomplete="off">
                     <div class="modal-header bg-primary">
@@ -53,46 +58,77 @@
                             <div class="text-danger small" data-error="name"></div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label required-label" for="rule-place">Registration Place</label>
-                            <select id="rule-place" class="form-select" required>
-                                @foreach ($places as $place)
-                                    <option value="{{ $place->code }}">{{ $place->name }}</option>
-                                @endforeach
-                            </select>
-                            <div class="text-danger small" data-error="registration_place_code"></div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label" for="rule-branch">Branch</label>
-                            <select id="rule-branch" class="form-select">
-                                <option value="">All branches</option>
-                                @foreach ($branches as $branch)
-                                    <option value="{{ $branch->id }}">{{ $branch->name }}</option>
-                                @endforeach
-                            </select>
-                            <div class="text-danger small" data-error="branch_id"></div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label class="form-label required-label" for="rule-place">Registration Place</label>
+                                    <select id="rule-place" class="form-select" required>
+                                        @foreach ($places as $place)
+                                            <option value="{{ $place->code }}">{{ $place->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    <div class="text-danger small" data-error="registration_place_code"></div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="rule-branch">Branch</label>
+                                    <select id="rule-branch" class="form-select">
+                                        <option value="">All branches</option>
+                                        @foreach ($branches as $branch)
+                                            <option value="{{ $branch->id }}">{{ $branch->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    <div class="text-danger small" data-error="branch_id"></div>
+                                </div>
+                            </div>
                         </div>
                         <div class="row">
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-4 mb-3">
                                 <label class="form-label required-label" for="rule-type">Applies to item type</label>
                                 <input type="text" id="rule-type" class="form-control" value="enrolment" required>
                                 <div class="form-text">"enrolment" = Registration Fee.</div>
                                 <div class="text-danger small" data-error="applies_to_type"></div>
                             </div>
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-4 mb-3">
                                 <label class="form-label required-label" for="rule-percentage">Discount (%)</label>
-                                <input type="number" id="rule-percentage" class="form-control" min="0.01" max="100" step="0.01" value="100" required>
+                                <input type="number" id="rule-percentage" class="form-control" min="0.01"
+                                    max="100" step="0.01" value="100" required>
                                 <div class="text-danger small" data-error="percentage"></div>
                             </div>
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-4 mb-3">
                                 <label class="form-label" for="rule-quota">Quota (first N payers)</label>
-                                <input type="number" id="rule-quota" class="form-control" min="1" placeholder="Unlimited">
+                                <input type="number" id="rule-quota" class="form-control" min="1"
+                                    placeholder="Unlimited">
                                 <div class="text-danger small" data-error="quota"></div>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label" for="rule-date">Valid only on date</label>
-                                <input type="date" id="rule-date" class="form-control">
-                                <div class="form-text">Empty = always valid.</div>
+                                <label class="form-label" for="rule-valid-from">Valid from</label>
+                                <input type="datetime-local" id="rule-valid-from" class="form-control" step="60">
+                                <div class="form-text">Set the start of the discount period (24-hour time).</div>
+                                <div class="text-danger small" data-error="valid_from"></div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" for="rule-date">Valid until</label>
+                                <input type="datetime-local" id="rule-date" class="form-control" step="60">
+                                <div class="form-text">Set the end of the discount period (24-hour time).</div>
                                 <div class="text-danger small" data-error="valid_date"></div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" for="rule-va-validity-type">VA validity</label>
+                                <select id="rule-va-validity-type" class="form-select">
+                                    <option value="days">Number of days</option>
+                                    <option value="date">Specific date and time</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3" id="rule-va-days-wrap">
+                                <label class="form-label" for="rule-va-days">VA active for (days)</label>
+                                <input type="number" id="rule-va-days" class="form-control" min="1" max="365" value="7">
+                                <div class="form-text">Counted from when the payment is created.</div>
+                                <div class="text-danger small" data-error="va_valid_days"></div>
+                            </div>
+                            <div class="col-md-6 mb-3 d-none" id="rule-va-date-wrap">
+                                <label class="form-label" for="rule-va-date">VA valid until</label>
+                                <input type="datetime-local" id="rule-va-date" class="form-control" step="60">
+                                <div class="form-text">The payment VA expires at this time (24-hour format).</div>
+                                <div class="text-danger small" data-error="va_valid_date"></div>
                             </div>
                         </div>
                         <div class="form-check mb-2">
@@ -125,6 +161,8 @@
             const modal = new bootstrap.Modal(document.getElementById('rule-modal'));
             const placeNames = @json($places->pluck('name', 'code'));
             const branchNames = @json($branches->pluck('name', 'id'));
+            const formatDateTime = value => value ? value.substring(0, 16).replace('T', ' ') : '-';
+            const dateTimeInputValue = value => value ? value.substring(0, 16).replace(' ', 'T') : '';
 
             const table = $('#tbl-rule').DataTable({
                 responsive: true,
@@ -138,32 +176,85 @@
                         modal.show();
                     }
                 }],
-                language: { info: "Page _PAGE_ of _PAGES_", lengthMenu: "_MENU_ ", search: "", searchPlaceholder: "Search.." },
+                language: {
+                    info: "Page _PAGE_ of _PAGES_",
+                    lengthMenu: "_MENU_ ",
+                    search: "",
+                    searchPlaceholder: "Search.."
+                },
                 processing: true,
                 serverSide: true,
-                ajax: { url: "{{ route('setting.discount-rule.datatables') }}", type: "GET" },
-                columns: [
-                    { data: 'name' },
-                    { data: 'registration_place_code', render: d => placeNames[d] ?? d },
-                    { data: 'branch_id', defaultContent: 'All', render: d => d ? (branchNames[d] ?? d) : 'All branches' },
-                    { data: 'applies_to_type' },
-                    { data: 'percentage', className: 'text-center', render: d => d + '%' },
-                    { data: 'requires_dp', className: 'text-center', render: d => d ? 'Yes' : 'No' },
-                    { data: 'valid_date', className: 'text-center', defaultContent: '-', render: d => d ? d.substring(0, 10) : 'Always' },
-                    { data: 'quota', className: 'text-center', render: (d, t, r) => d ? `${r.used} / ${d}` : `${r.used} / unlimited` },
+                ajax: {
+                    url: "{{ route('setting.discount-rule.datatables') }}",
+                    type: "GET"
+                },
+                columns: [{
+                        data: 'name'
+                    },
+                    {
+                        data: 'registration_place_code',
+                        render: d => placeNames[d] ?? d
+                    },
+                    {
+                        data: 'branch_id',
+                        defaultContent: 'All',
+                        render: d => d ? (branchNames[d] ?? d) : 'All branches'
+                    },
+                    {
+                        data: 'applies_to_type'
+                    },
+                    {
+                        data: 'percentage',
+                        className: 'text-center',
+                        render: d => d + '%'
+                    },
+                    {
+                        data: 'requires_dp',
+                        className: 'text-center',
+                        render: d => d ? 'Yes' : 'No'
+                    },
+                    {
+                        data: 'valid_from',
+                        className: 'text-center',
+                        defaultContent: '-',
+                        render: d => d ? formatDateTime(d) : 'Always'
+                    },
+                    {
+                        data: 'valid_date',
+                        className: 'text-center',
+                        defaultContent: '-',
+                        render: d => d ? formatDateTime(d) : 'Always'
+                    },
+                    {
+                        data: null,
+                        className: 'text-center',
+                        defaultContent: '-',
+                        render: (d, t, r) => r.va_validity_type === 'date'
+                            ? (r.va_valid_date ? formatDateTime(r.va_valid_date) : 'Not configured')
+                            : `${r.va_valid_days || 7} day(s)`
+                    },
+                    {
+                        data: 'quota',
+                        className: 'text-center',
+                        render: (d, t, r) => d ? `${r.used} / ${d}` : `${r.used} / unlimited`
+                    },
                     {
                         data: 'is_active',
                         className: 'text-center',
-                        render: d => d ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-secondary">Inactive</span>'
+                        render: d => d ? '<span class="badge bg-success">Active</span>' :
+                            '<span class="badge bg-secondary">Inactive</span>'
                     },
                     {
                         data: 'id',
                         orderable: false,
-                        render: () => `<a class="btn btn-sm btn-primary text-white btn-edit"><i class="fa fa-pencil"></i> Edit</a>
+                        render: () =>
+                            `<a class="btn btn-sm btn-primary text-white btn-edit"><i class="fa fa-pencil"></i> Edit</a>
                             <a class="btn btn-sm btn-danger text-white btn-delete"><i class="fa fa-trash"></i> Delete</a>`
                     }
                 ],
-                order: [[0, 'asc']]
+                order: [
+                    [0, 'asc']
+                ]
             });
 
             function resetForm() {
@@ -171,13 +262,31 @@
                 $('#rule-id').val('');
                 $('#rule-type').val('enrolment');
                 $('#rule-percentage').val(100);
+                $('#rule-va-validity-type').val('days');
+                $('#rule-va-days').val(7);
                 $('#rule-dp').prop('checked', true);
                 $('#rule-active').prop('checked', true);
+                toggleVaValidityFields();
                 $('[data-error]').text('');
             }
 
+            function toggleVaValidityFields() {
+                const isDays = $('#rule-va-validity-type').val() === 'days';
+                $('#rule-va-days-wrap').toggleClass('d-none', !isDays);
+                $('#rule-va-date-wrap').toggleClass('d-none', isDays);
+                $('#rule-va-days').prop('required', isDays);
+                $('#rule-va-date').prop('required', !isDays);
+            }
+
+            $('#rule-va-validity-type').on('change', toggleVaValidityFields);
+
             $('#tbl-rule').on('click', '.btn-edit', function() {
-                const d = table.row($(this).parents('tr')).data();
+                const row = $(this).closest('tr');
+                const d = table.row(row).data() || table.row(row.prev()).data();
+                if (!d) {
+                    alert('Unable to load the selected discount rule.');
+                    return;
+                }
                 resetForm();
                 $('#rule-id').val(d.id);
                 $('#rule-name').val(d.name);
@@ -186,7 +295,12 @@
                 $('#rule-type').val(d.applies_to_type);
                 $('#rule-percentage').val(d.percentage);
                 $('#rule-quota').val(d.quota);
-                $('#rule-date').val(d.valid_date ? d.valid_date.substring(0, 10) : '');
+                $('#rule-valid-from').val(dateTimeInputValue(d.valid_from));
+                $('#rule-date').val(dateTimeInputValue(d.valid_date));
+                $('#rule-va-validity-type').val(d.va_validity_type || (d.va_valid_date ? 'date' : 'days'));
+                $('#rule-va-days').val(d.va_valid_days || 7);
+                $('#rule-va-date').val(dateTimeInputValue(d.va_valid_date));
+                toggleVaValidityFields();
                 $('#rule-dp').prop('checked', !!d.requires_dp);
                 $('#rule-active').prop('checked', !!d.is_active);
                 modal.show();
@@ -198,7 +312,10 @@
                 $.ajax({
                     url: `${baseUrl}/${d.id}`,
                     type: 'POST',
-                    data: { _method: 'DELETE', _token: csrf },
+                    data: {
+                        _method: 'DELETE',
+                        _token: csrf
+                    },
                     success: () => table.ajax.reload(null, false),
                     error: () => alert('Failed to delete discount rule.')
                 });
@@ -220,15 +337,26 @@
                         applies_to_type: $('#rule-type').val(),
                         percentage: $('#rule-percentage').val(),
                         quota: $('#rule-quota').val(),
+                        valid_from: $('#rule-valid-from').val(),
                         valid_date: $('#rule-date').val(),
+                        va_validity_type: $('#rule-va-validity-type').val(),
+                        va_valid_days: $('#rule-va-days').val(),
+                        va_valid_date: $('#rule-va-date').val(),
                         requires_dp: $('#rule-dp').is(':checked') ? 1 : 0,
                         is_active: $('#rule-active').is(':checked') ? 1 : 0
                     },
-                    success: () => { modal.hide(); table.ajax.reload(null, false); },
+                    success: () => {
+                        modal.hide();
+                        table.ajax.reload(null, false);
+                    },
                     error: function(xhr) {
-                        const errors = xhr.responseJSON?.errors ?? {};
-                        Object.keys(errors).forEach(k => $(`[data-error="${k}"]`).text(errors[k][0]));
-                        if (!xhr.responseJSON?.errors) alert('Failed to save discount rule.');
+                        const response = xhr.responseJSON || {};
+                        const errors = response.errors || {};
+                        Object.keys(errors).forEach(k => $(`[data-error="${k}"]`).text(errors[k]
+                            [0]));
+                        if (!response.errors) {
+                            alert(response.message || 'Failed to save discount rule.');
+                        }
                     }
                 });
             });

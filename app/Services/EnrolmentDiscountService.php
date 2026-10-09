@@ -19,7 +19,12 @@ class EnrolmentDiscountService
         $query = EnrolmentDiscountRule::where('is_active', true)
             ->where('registration_place_code', $placeCode)
             ->where(function ($q) {
-                $q->whereNull('valid_date')->orWhereDate('valid_date', today());
+                $q->where(function ($q) {
+                    $q->whereNull('valid_from')->whereNull('valid_date');
+                })->orWhere(function ($q) {
+                    $q->where('valid_from', '<=', now())
+                        ->where('valid_date', '>=', now());
+                });
             })
             ->where(function ($q) use ($branchId) {
                 $q->whereNull('branch_id');

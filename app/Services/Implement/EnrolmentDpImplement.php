@@ -353,13 +353,28 @@ class EnrolmentDpImplement implements EnrolmentDpService
 
                 $branch = Branch::findOrFail($enrolment->branch_id);
                 $invoiceId = $this->generateInvoiceId();
+                $invoiceDuration = 60 * 60 * 24 * 7;
+                if ($resolvedDiscount) {
+                    $rule = $resolvedDiscount['rule'];
+                    if ($rule->va_validity_type === 'days' && $rule->va_valid_days) {
+                        $invoiceDuration = (int) $rule->va_valid_days * 60 * 60 * 24;
+                    } elseif ($rule->va_validity_type === 'date' && $rule->va_valid_date) {
+                        $invoiceDuration = now()->diffInSeconds(Carbon::parse($rule->va_valid_date), false);
+                    }
+
+                    if ($invoiceDuration <= 0) {
+                        throw ValidationException::withMessages([
+                            'payment' => 'The configured VA valid date has already passed.',
+                        ]);
+                    }
+                }
                 $payload = [
                     'external_id' => $invoiceId,
                     'amount' => $total,
                     'payer_email' => $enrolment->email,
                     'description' => 'Enrolment payment - ' . $enrolment->child_name
                         . ' (' . $enrolment->code . ')',
-                    'invoice_duration' => 60 * 60 * 24 * 7,
+                    'invoice_duration' => $invoiceDuration,
                 ];
                 $xendit = createXenditInvoice($payload, $branch->name ?? 'bintaro');
                 if (!empty($xendit['success']) && $xendit['success'] === false) {

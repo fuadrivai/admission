@@ -65,13 +65,20 @@ class EnrolmentDiscountRuleController extends Controller
             'applies_to_type' => ['required', 'string', 'max:50', 'regex:/^[a-z][a-z0-9_-]*$/'],
             'percentage' => 'required|numeric|min:0.01|max:100',
             'quota' => 'nullable|integer|min:1',
-            'valid_date' => 'nullable|date',
+            'valid_from' => 'nullable|date|required_with:valid_date|before_or_equal:valid_date',
+            'valid_date' => 'nullable|date|required_with:valid_from|after:now',
+            'va_validity_type' => 'required|in:days,date',
+            'va_valid_days' => 'nullable|integer|required_if:va_validity_type,days|min:1|max:365',
+            'va_valid_date' => 'nullable|date|required_if:va_validity_type,date|after:now|after_or_equal:valid_date',
         ]);
         $data['requires_dp'] = $request->boolean('requires_dp');
         $data['is_active'] = $request->boolean('is_active');
         $data['branch_id'] = $data['branch_id'] ?? null;
         $data['quota'] = $data['quota'] ?? null;
+        $data['valid_from'] = $data['valid_from'] ?? null;
         $data['valid_date'] = $data['valid_date'] ?? null;
+        $data['va_valid_days'] = $data['va_validity_type'] === 'days' ? $data['va_valid_days'] : null;
+        $data['va_valid_date'] = $data['va_validity_type'] === 'date' ? $data['va_valid_date'] : null;
 
         $rule->fill($data)->save();
 
