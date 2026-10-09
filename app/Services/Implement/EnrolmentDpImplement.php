@@ -2,6 +2,8 @@
 
 namespace App\Services\Implement;
 
+use App\Mail\AdmissionEmail;
+use App\Models\EmailSetting;
 use App\Models\RegistrationPlace;
 use App\Models\AcademicYear;
 use App\Models\Branch;
@@ -14,7 +16,10 @@ use App\Services\BankChargerService;
 use App\Services\EnrolmentDpService;
 use App\Services\EnrolmentPriceService;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 use Carbon\Carbon;
 
@@ -175,9 +180,10 @@ class EnrolmentDpImplement implements EnrolmentDpService
     public function createTransaction(array $data): EnrolmentTransaction
     {
         $requestKey = $data['request_key'];
+        $created = false;
 
         try {
-            return DB::transaction(function () use ($data, $requestKey) {
+            $transaction = DB::transaction(function () use ($data, $requestKey, &$created) {
                 $existingTransaction = EnrolmentTransaction::with(['enrolment', 'details'])
                     ->where('request_key', $requestKey)
                     ->first();
@@ -423,8 +429,16 @@ class EnrolmentDpImplement implements EnrolmentDpService
                     ]);
                 }
 
+                $created = true;
+
                 return $transaction->load(['enrolment', 'details']);
             });
+
+            if ($created) {
+                $this->sendInvoiceEmail($transaction);
+            }
+
+            return $transaction;
         } catch (QueryException $exception) {
             $existingTransaction = EnrolmentTransaction::with(['enrolment', 'details'])
                 ->where('request_key', $requestKey)
@@ -435,6 +449,60 @@ class EnrolmentDpImplement implements EnrolmentDpService
             }
 
             throw $exception;
+        }
+    }
+
+    private function sendInvoiceEmail(EnrolmentTransaction $transaction): void
+    {
+        try {
+            $enrolment = $transaction->enrolment;
+            $setting = EmailSetting::where('branch_id', $enrolment->branch_id)->first();
+            if (!$setting || !$enrolment->email) {
+                Log::warning('DP invoice email skipped: missing email setting or recipient.', [
+                    'transaction_id' => $transaction->id,
+                ]);
+
+                return;
+            }
+
+            $enrolment->loadMissing(['level', 'grade', 'year']);
+            $payload = [
+                'subject' => 'Enrolment Payment of ' . $enrolment->child_name . ' - Mutiara Harapan Islamic School',
+                'template' => 'email-template.enrolment',
+                'code' => $enrolment->code,
+                'child_name' => $enrolment->child_name,
+                'academic_year' => $enrolment->academic_year ?: optional($enrolment->year)->name,
+                'level_name' => optional($enrolment->level)->name,
+                'grade_name' => optional($enrolment->grade)->name ?? '',
+                'payment_details' => $transaction->details->map(function ($detail) {
+                    return ['description' => $detail->description, 'amount' => (float) $detail->amount];
+                })->all(),
+                'payment_discount' => (float) $transaction->discount,
+                'bank_charger' => (float) $transaction->bank_charge,
+                'amount_paid' => (float) $transaction->total_amount,
+                'payment_url' => $transaction->payment_url,
+            ];
+
+            Config::set('mail.default', 'smtp');
+            Config::set('mail.mailers.smtp', [
+                'transport' => $setting->mailer,
+                'host' => $setting->host,
+                'port' => $setting->port,
+                'encryption' => $setting->encryption,
+                'username' => $setting->username,
+                'password' => $setting->app_password,
+                'timeout' => null,
+            ]);
+            Config::set('mail.from', [
+                'address' => $setting->from_address,
+                'name' => $setting->from_name,
+            ]);
+
+            Mail::to($enrolment->email)->send(new AdmissionEmail($payload));
+        } catch (\Throwable $e) {
+            Log::error('Failed to send DP invoice email: ' . $e->getMessage(), [
+                'transaction_id' => $transaction->id,
+            ]);
         }
     }
 
