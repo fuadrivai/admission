@@ -6,6 +6,7 @@ use App\Mail\AdmissionEmail;
 use App\Models\Branch;
 use App\Models\EmailSetting;
 use App\Models\Enrolment;
+use App\Models\EnrolmentTransaction;
 use App\Models\Grade;
 use App\Models\Level;
 use App\Services\AcademicYearService;
@@ -18,9 +19,10 @@ use App\Services\LevelService;
 use App\Services\ProspectService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Validation\ValidationException;
 
-use function App\Helpers\codeGenerator;
 use function App\Helpers\createXenditInvoice;
 use function App\Helpers\generate;
 use function App\Helpers\normalizePhoneNumber;
@@ -123,62 +125,73 @@ class EnrolmentImplement implements EnrolmentService
         $ay = $this->academicYearService->byName($request->academicYear);
         $data['academic_year_id'] = $ay->id;
 
+        $requiredItems = $this->enrolmentPriceService->getRequiredPriceItems(
+            $data['academic_year_id'],
+            $data['branch_id'],
+            $data['level_id'],
+            $data['grade_id']
+        );
+        $this->ensureRequiredEnrolmentPriceItems($requiredItems);
+        $enrolmentFee = $this->sumPriceItemsByType($requiredItems, 'enrolment');
+        $parseValue = $this->calculateSeatAndForm($request, $enrolmentFee);
         $bank = $this->bankChargerService->get();
-
-        $enrolForm = $this->enrolmentPriceService->getRegistrationPrice($data['branch_id'],$data['level_id']);
-        $data['bank_charger'] = $bank->price;
-        
-        // $data['registration_fee'] = $enrolForm->price;
-        $parseValue= $this->calculateSeatAndForm($request, $enrolForm->price);
-        $data['registration_fee'] = $parseValue['registration_form'];
-
-        
-        $data['custom_payment'] = $parseValue['seat_rsvp'] > 0 ? $parseValue['seat_rsvp']:$parseValue['full_payment'];
+        $data['bank_charger'] = (float) optional($bank)->price;
+        $data['registration_fee'] = $enrolmentFee - $parseValue['registration_discount'];
+        $data['custom_payment'] = $parseValue['seat_rsvp'] > 0 ? $parseValue['seat_rsvp'] : $parseValue['full_payment'];
         $data['discount'] = $parseValue['registration_discount'];
-        $data['amount_paid'] = $data['bank_charger'] + $data['registration_fee'] + $data['custom_payment'];
-        $data['invoice_id'] =  codeGenerator('enrolments','invoice_id','INV-ENROL');
-        $data['noted'] = "Enrolment created with custom form input: " . $request->option . " resulting in custom form value: " . $data['custom_payment']. " academic year: " . $request->academicYear . " with discount applied: " . $parseValue['registration_discount'];
+        $data['amount_paid'] = $this->requiredPriceTotal($requiredItems)
+            + $data['custom_payment'] - $data['discount'] + $data['bank_charger'];
+        $data['noted'] = "Enrolment created with custom form input: " . $request->option
+            . " resulting in custom form value: " . $data['custom_payment']
+            . " academic year: " . $request->academicYear
+            . " with discount applied: " . $parseValue['registration_discount'];
 
-        $level_name = "";
-        $grade_name = Grade::find($data['grade_id'])->name;
-
-
-        if ($data['already_visit'] == 0) {
-            $level = Level::find($data['level_id']);
-            $level_name = $level->name;
-            $data['code'] = generate($level->branch_code);
-            $prospects = $this->saveProspects($data);
-            $data['prospects_id'] = $prospects->id;
-        }else{
-            $data['code'] = $request->code;
-            if(!isset($request->prospectsId) || is_null($request->prospectsId) || empty($request->prospectsId) || $request->prospectsId == ''){
-                $prospects = $this->saveProspects($data);   
+        $level = Level::findOrFail($data['level_id']);
+        $grade = Grade::findOrFail($data['grade_id']);
+        $level_name = $level->name;
+        $grade_name = $grade->name;
+        $enrolment = DB::transaction(function () use ($data, $request, $requiredItems, $parseValue, $level) {
+            if ($data['already_visit'] == 0) {
+                $data['code'] = generate($level->branch_code, ['prospects', 'enrolments']);
+                $prospects = $this->saveProspects($data);
                 $data['prospects_id'] = $prospects->id;
-            }else{
-                $data['prospects_id'] = $request->prospectsId;
+            } else {
+                $data['code'] = $request->code;
+                if (empty($request->prospectsId)) {
+                    $prospects = $this->saveProspects($data);
+                    $data['prospects_id'] = $prospects->id;
+                } else {
+                    $data['prospects_id'] = $request->prospectsId;
+                }
             }
-        }
 
+            $enrolment = Enrolment::create($data);
+            $extraItems = [];
+            if ($data['custom_payment'] > 0) {
+                $extraItems[] = [
+                    'type' => $parseValue['full_payment'] > 0 ? 'fullpayment' : 'other',
+                    'description' => $parseValue['full_payment'] > 0 ? 'Full Payment' : 'Seat Reservation',
+                    'amount' => (float) $data['custom_payment'],
+                ];
+            }
+            $this->createInitialPaymentTransaction(
+                $enrolment,
+                $requiredItems,
+                $extraItems,
+                (float) $data['discount'],
+                (float) $data['bank_charger'],
+                $level->name
+            );
+            $enrolment->activities()->create([
+                'prospects_id' => $enrolment->prospects_id,
+                'note' => "Enrolment created with invoice ID " . $enrolment->invoice_id
+                    . " and payment status: " . $enrolment->payment_status,
+            ]);
 
-        $payload = [
-            "external_id"=> $data['invoice_id'],
-            "amount"=> $data['amount_paid'],
-            "payer_email"=> $data['email'],
-            "description"=> "Enrolment payment -". $data['child_name'] . " for " . $data['academic_year'] . " - " . $level_name . " " . $grade_name,
-            "invoice_duration"=> (86400*7) // 7 days in seconds
-        ];
-        $xendit = createXenditInvoice($payload);
-        $data['payment_status'] = $xendit['status'];
-        $data['payment_url'] = $xendit['invoice_url'];
-        $data['create_va_date'] =  Carbon::parse($xendit['created']);
-        $data['expiry_va_date'] = Carbon::parse($xendit['expiry_date']);
-        $enrolment = Enrolment::create($data);
+            return $enrolment;
+        });
 
-        $enrolment->activities()->create([
-            'prospects_id' => $enrolment->prospects_id,
-            'note'=>"Enrolment created with invoice ID " . $enrolment->invoice_id . " and payment status: " . $enrolment->payment_status,
-        ]);
-
+        $this->attachPaymentSummary($enrolment);
         $enrolment['subject'] = "Enrolment Payment of $enrolment->child_name - Mutiara Harapan Islamic School";
         $enrolment['template'] = 'email-template.enrolment-event';
         $enrolment['level_name'] = $level_name;
@@ -251,52 +264,57 @@ class EnrolmentImplement implements EnrolmentService
             'data_from'                => "web_form",
         ];
 
+        $requiredItems = $this->enrolmentPriceService->getRequiredPriceItems(
+            $data['academic_year_id'],
+            $data['branch_id'],
+            $data['level_id'],
+            $data['grade_id']
+        );
+        $this->ensureRequiredEnrolmentPriceItems($requiredItems);
         $bank = $this->bankChargerService->get();
+        $data['bank_charger'] = (float) optional($bank)->price;
+        $data['registration_fee'] = $this->sumPriceItemsByType($requiredItems, 'enrolment');
+        $data['discount'] = 0;
+        $data['amount_paid'] = $this->requiredPriceTotal($requiredItems) + $data['bank_charger'];
+        $level = Level::findOrFail($data['level_id']);
+        $grade = Grade::findOrFail($data['grade_id']);
+        $level_name = $level->name;
+        $grade_name = $grade->name;
 
-        $enrolForm = $this->enrolmentPriceService->getRegistrationPrice($data['branch_id'],$data['level_id']);
-        $data['bank_charger'] = $bank->price;
-        $data['registration_fee'] = $enrolForm->price;
-        $data['amount_paid'] = $data['bank_charger'] + $data['registration_fee'];
-        $data['invoice_id'] =  codeGenerator('enrolments','invoice_id',env('PREFIX_XENDIT')??'INV-ENROL');
-        $level_name = "";
-        $grade_name = Grade::find($data['grade_id'])->name;
-
-        if ($data['already_visit'] == 0) {
-            $level = Level::find($data['level_id']);
-            $level_name = $level->name;
-            $data['code'] = generate($level->branch_code);
-            $prospects = $this->saveProspects($data);
-            $data['prospects_id'] = $prospects->id;
-        }else{
-            $data['code'] = $request->code;
-            if(!isset($request->prospectsId) || is_null($request->prospectsId) || empty($request->prospectsId) || $request->prospectsId == ''){
-                $prospects = $this->saveProspects($data);   
+        $enrolment = DB::transaction(function () use ($data, $request, $requiredItems, $level) {
+            if ($data['already_visit'] == 0) {
+                $data['code'] = generate($level->branch_code, ['prospects', 'enrolments']);
+                $prospects = $this->saveProspects($data);
                 $data['prospects_id'] = $prospects->id;
-            }else{
-                $data['prospects_id'] = $request->prospectsId;
+            } else {
+                $data['code'] = $request->code;
+                if (empty($request->prospectsId)) {
+                    $prospects = $this->saveProspects($data);
+                    $data['prospects_id'] = $prospects->id;
+                } else {
+                    $data['prospects_id'] = $request->prospectsId;
+                }
             }
-        }
 
-        $payload = [
-            "external_id"=> $data['invoice_id'],
-            "amount"=> $data['amount_paid'],
-            "payer_email"=> $data['email'],
-            "description"=> "Enrolment payment -". $data['child_name'] . " for " . $data['academic_year'] . " - " . $level_name . " " . $grade_name,
-            "invoice_duration"=> (60*60*24*7)
-        ];
-        $branch = Branch::find($data['branch_id']);
-        $xendit = createXenditInvoice($payload, $branch->name ?? "bintaro");
-        $data['payment_status'] = $xendit['status'];
-        $data['payment_url'] = $xendit['invoice_url'];
-        $data['create_va_date'] =  Carbon::parse($xendit['created']);
-        $data['expiry_va_date'] = Carbon::parse($xendit['expiry_date']);
-        $enrolment = Enrolment::create($data);
+            $enrolment = Enrolment::create($data);
+            $this->createInitialPaymentTransaction(
+                $enrolment,
+                $requiredItems,
+                [],
+                (float) $data['discount'],
+                (float) $data['bank_charger'],
+                $level->name
+            );
+            $enrolment->activities()->create([
+                'prospects_id' => $enrolment->prospects_id,
+                'note' => "Enrolment created with invoice ID " . $enrolment->invoice_id
+                    . " and payment status: " . $enrolment->payment_status,
+            ]);
 
-        $enrolment->activities()->create([
-            'prospects_id' => $enrolment->prospects_id,
-            'note'=>"Enrolment created with invoice ID " . $enrolment->invoice_id . " and payment status: " . $enrolment->payment_status,
-        ]);
+            return $enrolment;
+        });
 
+        $this->attachPaymentSummary($enrolment);
         $enrolment['subject'] = "Enrolment Payment of $enrolment->child_name - Mutiara Harapan Islamic School";
         $enrolment['template'] = 'email-template.enrolment';
         $enrolment['level_name'] = $level_name;
@@ -353,6 +371,184 @@ class EnrolmentImplement implements EnrolmentService
             'source_module' => 'enrolment',
         ];
         return $this->prospectService->post($dataProspect);
+    }
+
+    private function ensureRequiredEnrolmentPriceItems($items): void
+    {
+        if ($items->isEmpty() || !$items->contains(function ($item) {
+            return $item->type === 'enrolment';
+        })) {
+            throw ValidationException::withMessages([
+                'payment' => 'No active required Enrolment Fee price item is configured for the selected academic year, branch, level, and grade.',
+            ]);
+        }
+    }
+
+    private function sumPriceItemsByType($items, string $type): float
+    {
+        return (float) $items->where('type', $type)->sum(function ($item) {
+            return (float) $item->amount;
+        });
+    }
+
+    private function requiredPriceTotal($items): float
+    {
+        return (float) $items->sum(function ($item) {
+            return (float) $item->amount;
+        });
+    }
+
+    private function attachPaymentSummary(Enrolment $enrolment): void
+    {
+        $transaction = $enrolment->transactions()
+            ->with('details')
+            ->where('invoice_id', $enrolment->invoice_id)
+            ->firstOrFail();
+
+        $enrolment['payment_details'] = $transaction->details
+            ->map(function ($detail) {
+                return [
+                    'description' => $detail->description,
+                    'amount' => (float) $detail->amount,
+                ];
+            })
+            ->all();
+        $enrolment['payment_discount'] = (float) $transaction->discount;
+        $enrolment['bank_charger'] = (float) $transaction->bank_charge;
+        $enrolment['amount_paid'] = (float) $transaction->total_amount;
+    }
+
+    private function createInitialPaymentTransaction(
+        Enrolment $enrolment,
+        $requiredItems,
+        array $additionalItems,
+        float $discount,
+        float $bankCharge,
+        string $levelName
+    ): EnrolmentTransaction {
+        $enrolmentFee = $this->sumPriceItemsByType($requiredItems, 'enrolment');
+        if ($discount < 0 || $discount > $enrolmentFee) {
+            throw ValidationException::withMessages([
+                'discount' => 'Discount cannot exceed the Enrolment Fee component.',
+            ]);
+        }
+
+        $details = $requiredItems->map(function ($item) {
+            return [
+                'type' => $item->type,
+                'description' => $item->name,
+                'amount' => (float) $item->amount,
+                'is_required_charge' => true,
+            ];
+        })->all();
+        foreach ($additionalItems as $item) {
+            $item['is_required_charge'] = false;
+            $details[] = $item;
+        }
+
+        $subtotal = round(array_sum(array_column($details, 'amount')) - $discount, 2);
+        $total = round($subtotal + $bankCharge, 2);
+        if ($total <= 0) {
+            throw ValidationException::withMessages([
+                'payment' => 'The initial enrolment payment total must be greater than zero.',
+            ]);
+        }
+
+        $invoiceId = $this->generateInvoiceId();
+        $branch = Branch::findOrFail($enrolment->branch_id);
+        $gradeName = optional($enrolment->grade)->name;
+        $xendit = createXenditInvoice([
+            'external_id' => $invoiceId,
+            'amount' => $total,
+            'payer_email' => $enrolment->email,
+            'description' => 'Enrolment payment - ' . $enrolment->child_name
+                . ' for ' . $enrolment->academic_year . ' - ' . $levelName . ' ' . $gradeName,
+            'invoice_duration' => 60 * 60 * 24 * 7,
+        ], $branch->name ?? 'bintaro');
+
+        if (isset($xendit['success']) && $xendit['success'] === false) {
+            throw ValidationException::withMessages([
+                'payment' => 'Could not create Xendit invoice: ' . ($xendit['message'] ?? 'Unknown Xendit error.'),
+            ]);
+        }
+        if (empty($xendit['status']) || empty($xendit['invoice_url'])
+            || empty($xendit['created']) || empty($xendit['expiry_date'])) {
+            throw ValidationException::withMessages([
+                'payment' => 'Xendit returned an incomplete invoice response. The enrolment payment was not saved.',
+            ]);
+        }
+
+        $paymentFields = [
+            'invoice_id' => $invoiceId,
+            'payment_status' => strtoupper($xendit['status']),
+            'payment_url' => $xendit['invoice_url'],
+            'create_va_date' => Carbon::parse($xendit['created']),
+            'expiry_va_date' => Carbon::parse($xendit['expiry_date']),
+            'registration_fee' => $enrolmentFee - $discount,
+            'bank_charger' => $bankCharge,
+            'discount' => $discount,
+            'amount_paid' => $total,
+        ];
+        $enrolment->update($paymentFields);
+
+        $transaction = $enrolment->transactions()->create([
+            'code' => $enrolment->code,
+            'invoice_id' => $invoiceId,
+            'subtotal' => $subtotal + $discount,
+            'discount' => $discount,
+            'bank_charge' => $bankCharge,
+            'total_amount' => $total,
+            'payment_status' => strtoupper($xendit['status']),
+            'create_va_date' => Carbon::parse($xendit['created']),
+            'expiry_va_date' => Carbon::parse($xendit['expiry_date']),
+            'payment_url' => $xendit['invoice_url'],
+            'payment_place' => $enrolment->regis_place,
+            'source' => $enrolment->source_data,
+            'noted' => $enrolment->noted,
+            'created_by' => auth()->id(),
+        ]);
+
+        $discountRemaining = $discount;
+        foreach ($details as $detail) {
+            $lineDiscount = $detail['type'] === 'enrolment'
+                ? min($discountRemaining, (float) $detail['amount'])
+                : 0;
+            $discountRemaining -= $lineDiscount;
+            $transaction->details()->create([
+                'type' => $detail['type'],
+                'description' => $detail['description'],
+                'amount' => $detail['amount'],
+                'discount' => $lineDiscount,
+                'subtotal' => round((float) $detail['amount'] - $lineDiscount, 2),
+                'is_required_charge' => $detail['is_required_charge'],
+            ]);
+        }
+
+        return $transaction;
+    }
+
+    private function generateInvoiceId(): string
+    {
+        $prefix = env('PREFIX_XENDIT') ?: 'INV-ENROL';
+        $date = now()->format('ymd');
+        $pattern = $prefix . $date . '%';
+        $invoiceIds = DB::table('enrolments')
+            ->where('invoice_id', 'like', $pattern)
+            ->lockForUpdate()
+            ->pluck('invoice_id')
+            ->merge(
+                DB::table('enrolment_transactions')
+                    ->where('invoice_id', 'like', $pattern)
+                    ->lockForUpdate()
+                    ->pluck('invoice_id')
+            );
+        $lastSequence = $invoiceIds->map(function ($invoiceId) use ($prefix, $date) {
+            $sequence = substr($invoiceId, strlen($prefix) + strlen($date));
+
+            return ctype_digit($sequence) ? (int) $sequence : 0;
+        })->max() ?: 0;
+
+        return $prefix . $date . str_pad((string) ($lastSequence + 1), 4, '0', STR_PAD_LEFT);
     }
 
     private function resolveLevel($grade)
@@ -439,7 +635,6 @@ class EnrolmentImplement implements EnrolmentService
     private function applyRegistrationDiscount($registration, $place,$level)
     {
         $discount = 0;
-        $streamingTest = 850000;
         $discountAmount = 0;
 
         if ($registration <= 0) {
@@ -454,13 +649,7 @@ class EnrolmentImplement implements EnrolmentService
             $discount = 0;
         }
 
-        if ($level === "Upper Secondary") {
-            $registration = $registration -  $streamingTest;
-            $discountAmount = $registration * $discount;
-            $registration = $registration + $streamingTest;
-        }else{
-            $discountAmount = $registration * $discount;
-        }
+        $discountAmount = $registration * $discount;
 
         return [
             'original' => $registration,
@@ -494,7 +683,7 @@ class EnrolmentImplement implements EnrolmentService
 
     public function search($request)
     {
-        $query = Enrolment::query();
+        $query = Enrolment::query()->with('transactions.details');
         if (auth()->check() && auth()->user()->role == 'user') {
             $query->where('branch_id', auth()->user()->branch_id);
         }

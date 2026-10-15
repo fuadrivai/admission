@@ -7,10 +7,14 @@ use App\Http\Controllers\AdmissionStatementDocumentController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AcademicYearController;
 use App\Http\Controllers\BankChargerController;
+use App\Http\Controllers\RegistrationPlaceController;
+use App\Http\Controllers\EnrolmentDiscountRuleController;
 use App\Http\Controllers\BlastMessageController;
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\DivisionController;
 use App\Http\Controllers\EnrolmentController;
+use App\Http\Controllers\EnrolmentDpController;
+use App\Http\Controllers\EnrolmentDpPublicController;
 use App\Http\Controllers\EnrolmentPriceController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\EventEmailTemplateController;
@@ -67,6 +71,14 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
     Route::get('enrolment/form', [EnrolmentController::class, 'form'])->name('enrolment.form');
     Route::get('enrolment/student/{code}', [EnrolmentController::class, 'showByCode'])->name('enrolment.studentShowByCode');
     Route::post('enrolment/post', [EnrolmentController::class, 'post'])->name('enrolment.postForm');
+
+    Route::prefix('enrolment/dp-form')->name('enrolment.dp-public.')->middleware('throttle:60,1')->group(function () {
+        Route::get('/', [EnrolmentDpPublicController::class, 'index'])->name('index');
+        Route::post('/', [EnrolmentDpPublicController::class, 'store'])->name('store');
+        Route::get('search', [EnrolmentDpPublicController::class, 'search'])->name('search');
+        Route::get('discount', [EnrolmentDpPublicController::class, 'discount'])->name('discount');
+        Route::get('grades/{levelId}', [EnrolmentDpPublicController::class, 'grades'])->name('grades');
+    });
     
     Route::get('uniform/list', [UniformController::class, 'open'])->name('uniform.open');
     Route::get('uniform/form', [UniformController::class, 'form'])->name('uniform.form');
@@ -146,12 +158,17 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
         });
 
         Route::prefix('enrolment')->name('enrolment.')->group(function () {
+            Route::get('dp/discount', [EnrolmentDpController::class, 'discount'])->name('dp.discount');
+            Route::get('dp/search', [EnrolmentDpController::class, 'search'])->name('dp.search');
+            Route::get('dp', [EnrolmentDpController::class, 'index'])->name('dp.index');
+            Route::post('dp', [EnrolmentDpController::class, 'store'])->name('dp.store');
             Route::get('datatables', [EnrolmentController::class, 'datatables'])->name('list-enrolment');
             Route::get('setting', [EnrolmentController::class, 'setting'])->name('enrolment-setting');
             Route::post('max-capacity', [EnrolmentController::class, 'postMax'])->name('post-max');
             Route::get('export', [EnrolmentController::class, 'export'])->name('export');
             Route::get('{enrolment}/history', [EnrolmentController::class, 'history'])->name('history');
             Route::patch('{enrolment}/source-data', [EnrolmentController::class, 'updateSourceData'])->name('source-data.update');
+            Route::patch('{enrolment}/cancel', [EnrolmentController::class, 'cancel'])->name('cancel');
             Route::resource('/', EnrolmentController::class)->parameters(['' => 'enrolment']);
         });
         Route::prefix('uniform')->name('uniform.')->group(function () {
@@ -312,6 +329,10 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
                 Route::post('/{document}/archive', [FinancialDocumentController::class, 'archive'])->name('archive');
                 Route::delete('/{document}', [FinancialDocumentController::class, 'destroy'])->name('destroy');
             });
+            Route::get('discount-rule/datatables', [EnrolmentDiscountRuleController::class, 'datatables'])->name('discount-rule.datatables');
+            Route::resource('discount-rule', EnrolmentDiscountRuleController::class)->only(['index', 'store', 'update', 'destroy']);
+            Route::get('registration-place/datatables', [RegistrationPlaceController::class, 'datatables'])->name('registration-place.datatables');
+            Route::resource('registration-place', RegistrationPlaceController::class)->only(['index', 'store', 'update', 'destroy']);
             // Route::resource('', DivisionController::class)->parameters(['' => 'division']);
         });
         Route::resource('holiday', HolidayController::class)->parameters(['' => 'holiday']);

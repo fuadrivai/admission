@@ -62,6 +62,40 @@ class Enrolment extends Model
         return $this->hasOne(Admission::class);
     }
 
+    public function transactions()
+    {
+        return $this->hasMany(EnrolmentTransaction::class);
+    }
+
+    public function hasPaidRegistrationPayment(): bool
+    {
+        if (in_array(strtoupper((string) $this->payment_status), ['PAID', 'SETTLED', 'COMPLETED'], true)) {
+            return true;
+        }
+
+        return $this->transactions()
+            ->whereRaw('UPPER(payment_status) IN (?, ?, ?)', ['PAID', 'SETTLED', 'COMPLETED'])
+            ->whereHas('details', function ($query) {
+                $query->where('type', 'enrolment');
+            })
+            ->exists();
+    }
+
+    public function hasActiveDpPayment(): bool
+    {
+        return $this->transactions()
+            ->whereRaw('UPPER(payment_status) IN (?, ?, ?, ?)', ['PAID', 'SETTLED', 'COMPLETED', 'PENDING'])
+            ->whereHas('details', function ($query) {
+                $query->where('type', 'dp');
+            })
+            ->exists();
+    }
+
+    public function canCreateDp(): bool
+    {
+        return $this->hasPaidRegistrationPayment() && !$this->hasActiveDpPayment();
+    }
+
     public function amountPaid()
     {
         return number_format($this->amount_paid, 2);

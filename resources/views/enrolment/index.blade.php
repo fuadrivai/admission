@@ -2,6 +2,86 @@
 
 @section('content-style')
     <link rel="stylesheet" href="/assets/static/css/enrolment.css?v=1.0.0">
+    <style>
+        .enrolment-actions .dropdown-toggle {
+            min-width: 104px;
+            border: 0;
+            border-radius: 8px;
+            box-shadow: 0 3px 8px rgba(31, 45, 61, .16);
+            font-weight: 600;
+        }
+
+        .dp-ready-button {
+            border: 0;
+            border-radius: 8px;
+            box-shadow: 0 3px 8px rgba(245, 159, 0, .22);
+            font-weight: 600;
+        }
+
+        .enrolment-actions .dropdown-toggle::after {
+            margin-left: .55rem;
+            vertical-align: .12em;
+        }
+
+        .enrolment-actions .dropdown-menu {
+            min-width: 190px;
+            padding: .45rem;
+            border: 0;
+            border-radius: 10px;
+            box-shadow: 0 10px 28px rgba(31, 45, 61, .18);
+        }
+
+        .enrolment-actions .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: .55rem;
+            padding: .6rem .75rem;
+            border-radius: 7px;
+            color: #344054;
+            font-size: .9rem;
+            transition: background-color .15s ease, color .15s ease;
+        }
+
+        .enrolment-actions .dropdown-item i {
+            width: 1rem;
+            color: #667085;
+            text-align: center;
+        }
+
+        .enrolment-actions .dropdown-item:hover,
+        .enrolment-actions .dropdown-item:focus {
+            background-color: #eef4ff;
+            color: #2457c5;
+        }
+
+        .enrolment-actions .dropdown-item:hover i,
+        .enrolment-actions .dropdown-item:focus i {
+            color: #2457c5;
+        }
+
+        .enrolment-actions .dropdown-item.cancel-enrolment {
+            color: #d92d20;
+        }
+
+        .enrolment-actions .dropdown-item.cancel-enrolment i {
+            color: #d92d20;
+        }
+
+        .enrolment-actions .dropdown-item.delete-enrolment,
+        .enrolment-actions .dropdown-item.delete-enrolment i {
+            color: #b42318;
+        }
+
+        .enrolment-actions .dropdown-item.cancel-enrolment:hover,
+        .enrolment-actions .dropdown-item.cancel-enrolment:focus {
+            background-color: #fff1f0;
+            color: #b42318;
+        }
+
+        .enrolment-actions .dropdown-divider {
+            margin: .35rem .4rem;
+        }
+    </style>
 @endsection
 
 @section('content-child')
@@ -80,7 +160,7 @@
                                     <option value="PENDING">Pending</option>
                                     <option value="PAID">Paid</option>
                                     <option value="EXPIRED">Expired</option>
-                                    <option value="CANCEL">Cancel</option>
+                                    <option value="CANCELLED">Cancel</option>
                                 </select>
                             </div>
                         </div>
@@ -186,6 +266,56 @@
                         <button type="button" class="btn btn-light-secondary" data-bs-dismiss="modal">Cancel</button>
                         <button type="button" class="btn btn-primary" id="save-source-data-btn">
                             <i class="fa fa-save"></i> Save
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="cancelEnrolmentModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header bg-light">
+                        <h5 class="modal-title">Cancel Enrolment</h5>
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                            <i data-feather="x"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="cancel-enrolment-id">
+                        <div class="form-group mb-0">
+                            <label for="cancel-reason" class="form-label">Alasan pembatalan</label>
+                            <textarea id="cancel-reason" class="form-control" rows="4" maxlength="1000"
+                                placeholder="Ketik alasan pembatalan..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-danger" id="confirm-cancel-enrolment-btn">
+                            Cancel Enrolment
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="deleteEnrolmentModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header bg-light">
+                        <h5 class="modal-title">Delete Enrolment</h5>
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                            <i data-feather="x"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="delete-enrolment-id">
+                        <p class="mb-0">Apakah Anda yakin ingin menghapus enrolment <strong
+                                id="delete-enrolment-name"></strong>? Data yang dihapus tidak dapat dikembalikan.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="button" class="btn btn-danger" id="confirm-delete-enrolment-btn">
+                            <i class="fa fa-trash me-1"></i>Hapus Enrolment
                         </button>
                     </div>
                 </div>
@@ -330,6 +460,77 @@
                 $('#source-data-enrolment-id').val(enrolmentId);
                 $('#source-data-value').val(sourceData === 'internal' ? 'internal' : 'external');
                 $('#sourceDataModal').modal('show');
+            });
+
+            $('#enrolment-list').on('click', '.cancel-enrolment', function(e) {
+                e.preventDefault();
+                $('#cancel-enrolment-id').val($(this).data('id'));
+                $('#cancel-reason').val('');
+                $('#cancelEnrolmentModal').modal('show');
+            });
+
+            $('#enrolment-list').on('click', '.delete-enrolment', function(e) {
+                e.preventDefault();
+                $('#delete-enrolment-id').val($(this).data('id'));
+                $('#delete-enrolment-name').text($(this).data('name'));
+                $('#deleteEnrolmentModal').modal('show');
+            });
+
+            $('#confirm-delete-enrolment-btn').on('click', function() {
+                const id = $('#delete-enrolment-id').val();
+
+                $.ajax({
+                    url: `/enrolment/${id}`,
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function() {
+                        $('#deleteEnrolmentModal').modal('hide');
+                        loadEnrolments();
+                        toastify('success', 'Enrolment deleted successfully', 'success');
+                    },
+                    error: function(err) {
+                        toastify(
+                            'Error',
+                            err?.responseJSON?.message ?? 'Failed to delete enrolment',
+                            'error'
+                        );
+                    }
+                });
+            });
+
+            $('#confirm-cancel-enrolment-btn').on('click', function() {
+                const id = $('#cancel-enrolment-id').val();
+                const reason = $('#cancel-reason').val().trim();
+
+                if (!reason) {
+                    toastify('Error', 'Alasan pembatalan wajib diisi', 'error');
+                    return;
+                }
+
+                $.ajax({
+                    url: `/enrolment/${id}/cancel`,
+                    method: 'PATCH',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    data: {
+                        reason: reason
+                    },
+                    success: function() {
+                        $('#cancelEnrolmentModal').modal('hide');
+                        loadEnrolments();
+                        toastify('success', 'Enrolment cancelled successfully', 'success');
+                    },
+                    error: function(err) {
+                        toastify(
+                            'Error',
+                            err?.responseJSON?.message ?? 'Failed to cancel enrolment',
+                            'error'
+                        );
+                    }
+                });
             });
 
             $('#save-source-data-btn').on('click', function() {

@@ -32,6 +32,28 @@ function codeGenerator($table,$column,$prefix)
 
 function generate($prefix, $table = 'prospects', $column = 'code')
 {
+    if (is_array($table)) {
+        $lastCodes = [];
+        foreach ($table as $tableName) {
+            $lastCode = DB::table($tableName)
+                ->where($column, 'like', $prefix . '%')
+                ->orderByRaw("CAST(REPLACE($column, '$prefix', '') AS UNSIGNED) DESC")
+                ->value($column);
+            if ($lastCode) {
+                $lastCodes[] = $lastCode;
+            }
+        }
+
+        $number = 19;
+        foreach ($lastCodes as $lastCode) {
+            if (preg_match('/^' . preg_quote($prefix, '/') . '(\d+)$/', $lastCode, $matches)) {
+                $number = max($number, (int) $matches[1]);
+            }
+        }
+
+        return $prefix . ($number + 1);
+    }
+
     $lastCode = DB::table($table)
         ->where($column, 'like', $prefix . '%')
         ->orderByRaw("CAST(REPLACE($column, '$prefix', '') AS UNSIGNED) DESC")
@@ -162,6 +184,40 @@ function createXenditInvoice(array $payload,$branchName="bintaro")
         ];
     }
     return $response->json();
+}
+
+function expireXenditInvoice(string $paymentUrl, string $branchName = "bintaro"): array
+{
+    $path = parse_url($paymentUrl, PHP_URL_PATH);
+    $parts = array_values(array_filter(explode('/', trim((string) $path, '/'))));
+    $transId = end($parts);
+    $apiKey = config('services.xendit.api_key_' . strtolower($branchName));
+
+    if (!$transId || !$apiKey) {
+        return [
+            'success' => false,
+            'message' => 'Invalid Xendit payment URL or API key configuration.',
+        ];
+    }
+
+    $response = Http::withBasicAuth($apiKey, '')
+        ->withHeaders([
+            'Content-Type' => 'application/json',
+        ])
+        ->post("https://api.xendit.co/invoices/{$transId}/expire!");
+
+    if ($response->failed()) {
+        return [
+            'success' => false,
+            'status' => $response->status(),
+            'message' => $response->json()['message'] ?? 'Failed expiring Xendit invoice.',
+        ];
+    }
+
+    return [
+        'success' => true,
+        'data' => $response->json(),
+    ];
 }
 
 function imageToBase64($path)

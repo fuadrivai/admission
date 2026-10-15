@@ -20,16 +20,26 @@
                 </h5>
             </div>
             <div class="card-body">
+                <ul class="nav nav-tabs mb-3" id="branch-price-tabs" role="tablist">
+                    @foreach ($branches as $index => $branch)
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link {{ $index === 0 ? 'active' : '' }}"
+                                id="branch-price-tab-{{ $branch->id }}" type="button" role="tab"
+                                aria-selected="{{ $index === 0 ? 'true' : 'false' }}" data-branch-id="{{ $branch->id }}">
+                                {{ $branch->name }}
+                            </button>
+                        </li>
+                    @endforeach
+                </ul>
                 <div class="row">
                     <div class="table-responsive datatable-minimal table-striped">
                         <table class="table" id="tbl-setting-price">
                             <thead>
                                 <tr class="text-center">
+                                    <th>Name</th>
                                     <th>Branch</th>
                                     <th>Level</th>
-                                    <th>Name</th>
                                     <th>Price</th>
-                                    <th>Type</th>
                                     <th>Status</th>
                                     <th>Action</th>
                                 </tr>
@@ -50,8 +60,10 @@
     <script src="/assets/extensions/datatables.net-bs5/js/dataTables.bootstrap5.min.js"></script>
     <script src="/assets/extensions/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
     <script>
+        let tblPrice;
+        let selectedBranchId = $('#branch-price-tabs .nav-link.active').data('branch-id');
+
         $(document).ready(function() {
-            getPrices()
             tblPrice = $('#tbl-setting-price').DataTable({
                 responsive: true,
                 pagingType: 'simple',
@@ -73,6 +85,10 @@
                     searchPlaceholder: "Search.."
                 },
                 columns: [{
+                        data: 'name',
+                        defaultContent: "-",
+                    },
+                    {
                         data: "branch",
                         defaultContent: "--",
                         mRender: function(data, type, full) {
@@ -82,14 +98,9 @@
                     {
                         data: 'level',
                         defaultContent: "-",
-                        className: "text-center",
                         mRender: function(data, type, full) {
                             return data.name;
                         }
-                    },
-                    {
-                        data: 'name',
-                        defaultContent: "-",
                     },
                     {
                         data: "price",
@@ -97,15 +108,6 @@
                         className: "text-end",
                         mRender: function(data, type, full) {
                             return formatNumber(data);
-                        }
-                    },
-                    {
-                        data: "type",
-                        defaultContent: "--",
-                        className: "text-center",
-                        mRender: function(data, type, full) {
-                            return data == "form" ? `<span class="badge bg-info">Form</span>` :
-                                `<span class="badge bg-primary">Enrolment</span>`;
                         }
                     },
                     {
@@ -119,20 +121,38 @@
                     },
                     {
                         data: 'id',
+                        className: "text-center",
                         mRender: function(data, type, full) {
                             return `<a title="Edit" href="/price/${data}/edit" class="btn btn-sm btn-primary text-white"><i class="fa fa-pencil"></i> Edit</a>`
                         }
                     }
                 ],
                 order: [
-                    [0, "asc"]
+                    [1, "desc"]
                 ]
             });
+
+            $('#branch-price-tabs').on('click', '.nav-link', function() {
+                $('#branch-price-tabs .nav-link')
+                    .removeClass('active')
+                    .attr('aria-selected', 'false');
+                $(this).addClass('active').attr('aria-selected', 'true');
+                selectedBranchId = $(this).data('branch-id');
+                getPrices(selectedBranchId);
+            });
+
+            if (selectedBranchId) {
+                getPrices(selectedBranchId);
+            }
         });
 
-        function getPrices() {
+        function getPrices(branchId) {
+            if (!branchId) {
+                tblPrice.clear().draw();
+                return;
+            }
             blockUI();
-            ajax(null, "/price", "GET", function(json) {
+            ajax(null, `/price?branch_id=${encodeURIComponent(branchId)}`, "GET", function(json) {
                 reloadJsonDataTable(tblPrice, json)
             }, function(err) {
                 toastify("Error", err?.responseJSON?.message ?? "Please try again later",

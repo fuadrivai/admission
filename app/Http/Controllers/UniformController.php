@@ -824,13 +824,14 @@ class UniformController extends Controller
 
     public function getProductsByBranchAndLevel(Request $request) {
         $branchId = $request->branch;
+        $activeBranchPrices = function ($query) use ($branchId) {
+            $query->where('branch_id', $branchId)
+                ->where('is_active', 1);
+        };
 
-        $products = UniformProduct::with("prices")
-            ->whereHas("prices",function($query) use ($branchId){
-                $query->where("branch_id", $branchId)
-                    ->where("is_active", 1);
-            })
-            ->get();    
+        $products = UniformProduct::with(['prices' => $activeBranchPrices])
+            ->whereHas('prices', $activeBranchPrices)
+            ->get();
 
         return response()->json($products);
     }

@@ -231,6 +231,13 @@
         $prospect = $enrolment->prospect;
         $activities = optional($prospect)->activities ? $prospect->activities->sortByDesc('created_at') : collect();
         $admission = $enrolment->admission;
+        $dash = fn ($value) => filled($value) ? $value : '-';
+        $yesNo = fn ($value) => is_null($value) || $value === '' ? '-' : (in_array($value, [true, 1, '1', 'yes', 'Yes'], true) ? 'Yes' : 'No');
+        $placeLabel = $enrolment->regis_place
+            ? (\App\Models\RegistrationPlace::where('code', $enrolment->regis_place)->value('name') ?? $enrolment->regis_place)
+            : null;
+        $money = fn ($value) => 'Rp ' . number_format((float) $value, 0, ',', '.');
+        $hasTransactions = $enrolment->transactions->isNotEmpty();
 
         $paymentStatus = strtoupper($enrolment->payment_status ?? '-');
         $paymentBadge = 'text-bg-secondary';
@@ -261,6 +268,9 @@
                         </div>
                     </div>
                     <div class="d-flex flex-wrap gap-2 justify-content-md-end">
+                        @if (auth()->user()->role !== 'user' && $enrolment->canCreateDp())
+                            <a href="{{ route('enrolment.dp.index', ['code' => $enrolment->code]) }}" class="btn btn-sm btn-warning"><i class="fa fa-money me-1"></i> Create DP Form</a>
+                        @endif
                         <span class="badge {{ $paymentBadge }}">{{ $paymentStatus }}</span>
                         <span class="badge text-bg-light border">{{ ucfirst($enrolment->source_data ?? '-') }}</span>
                         <span
@@ -339,6 +349,58 @@
                                 <div class="detail-key">Zipcode</div>
                                 <div class="detail-val">{{ $enrolment->zipcode ?? '-' }}</div>
                             </div>
+                            <div class="detail-row">
+                                <div class="detail-key">Nickname</div>
+                                <div class="detail-val">{{ $dash($enrolment->child_nick_name) }}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-key">Social Media</div>
+                                <div class="detail-val">{{ $dash($enrolment->child_sosmed) }}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-key">Current Student</div>
+                                <div class="detail-val">{{ $yesNo($enrolment->is_current_student) }}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-key">Student Branch</div>
+                                <div class="detail-val">{{ $dash($enrolment->student_branch) }}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-key">MHIS Portal Username</div>
+                                <div class="detail-val">{{ $dash($enrolment->mhis_portal_username) }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-card card">
+                    <div class="card-header"><i class="fa fa-flag me-1"></i> Registration Information</div>
+                    <div class="card-body">
+                        <div class="detail-list">
+                            <div class="detail-row">
+                                <div class="detail-key">Registration Type</div>
+                                <div class="detail-val">{{ $enrolment->source_data ? ucfirst($enrolment->source_data) : '-' }}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-key">Registration Place</div>
+                                <div class="detail-val">{{ $dash($placeLabel) }}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-key">Data Source</div>
+                                <div class="detail-val">{{ $enrolment->data_from ? ucfirst(str_replace('_', ' ', $enrolment->data_from)) : 'Legacy / Unknown' }}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-key">Prospect Code</div>
+                                <div class="detail-val">{{ $dash(optional($prospect)->code) }}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-key">Created At</div>
+                                <div class="detail-val">{{ $enrolment->created_at ? $enrolment->created_at->format('d M Y H:i') : '-' }}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-key">Notes</div>
+                                <div class="detail-val">{{ $dash($enrolment->noted) }}</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -367,6 +429,38 @@
                                 <div class="detail-key">Expected Impact</div>
                                 <div class="detail-val">{{ $enrolment->expectation_mhis_impact ?? '-' }}</div>
                             </div>
+                            <div class="detail-row">
+                                <div class="detail-key">Already Visited School</div>
+                                <div class="detail-val">{{ $yesNo($enrolment->already_visit) }}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-key">Open Day Visited</div>
+                                <div class="detail-val">{{ $yesNo($enrolment->open_day_visited) }}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-key">Knowledge About Program</div>
+                                <div class="detail-val">{{ $dash($enrolment->knowledge_about_program) }}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-key">Trust Reason</div>
+                                <div class="detail-val">{{ $dash($enrolment->trust_reason) }}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-key">Recommender Name</div>
+                                <div class="detail-val">{{ $dash($enrolment->recommender_name) }}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-key">Recommender Phone</div>
+                                <div class="detail-val">{{ $dash($enrolment->recommender_phone) }}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-key">Recommender Child</div>
+                                <div class="detail-val">{{ $dash($enrolment->recommender_child_name) }}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-key">Recommender Child Class</div>
+                                <div class="detail-val">{{ $dash($enrolment->recommender_child_class) }}</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -379,28 +473,44 @@
                         <div class="detail-list">
                             <div class="detail-row">
                                 <div class="detail-key">Registration Fee</div>
-                                <div class="detail-val">Rp {{ $enrolment->registrationFee() }}</div>
+                                <div class="detail-val">{{ $money($enrolment->registration_fee) }}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-key">DP / Other Payment</div>
+                                <div class="detail-val">{{ $money($enrolment->custom_payment) }}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-key">Discount</div>
+                                <div class="detail-val">{{ $money($enrolment->discount) }}</div>
                             </div>
                             <div class="detail-row">
                                 <div class="detail-key">Bank Charge</div>
-                                <div class="detail-val">Rp {{ $enrolment->bankCharger() }}</div>
+                                <div class="detail-val">{{ $money($enrolment->bank_charger) }}</div>
                             </div>
                             <div class="detail-row">
                                 <div class="detail-key">Total Amount</div>
-                                <div class="detail-val">Rp {{ $enrolment->amountPaid() }}</div>
+                                <div class="detail-val">{{ $money($enrolment->amount_paid) }}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-key">Invoice ID</div>
+                                <div class="detail-val">{{ $dash($enrolment->invoice_id) }}</div>
                             </div>
                             <div class="detail-row">
                                 <div class="detail-key">Payment Date</div>
-                                <div class="detail-val">
-                                    {{ $enrolment->payment_date ? $enrolment->paymentDateFormatted() : '-' }}</div>
+                                <div class="detail-val">{{ $enrolment->payment_date ? $enrolment->paymentDateFormatted() : '-' }}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-key">Virtual Account Created</div>
+                                <div class="detail-val">{{ $enrolment->create_va_date ? \Carbon\Carbon::parse($enrolment->create_va_date)->format('d M Y H:i') : '-' }}</div>
                             </div>
                             <div class="detail-row">
                                 <div class="detail-key">Virtual Account Expiry</div>
-                                <div class="detail-val">
-                                    {{ $enrolment->expiry_va_date ? \Carbon\Carbon::parse($enrolment->expiry_va_date)->format('d M Y H:i') : '-' }}
-                                </div>
+                                <div class="detail-val">{{ $enrolment->expiry_va_date ? \Carbon\Carbon::parse($enrolment->expiry_va_date)->format('d M Y H:i') : '-' }}</div>
                             </div>
                         </div>
+                        @if (!$hasTransactions)
+                            <div class="small text-muted mt-3">Legacy enrolment: no itemised payment transactions are recorded; amounts come from the enrolment record.</div>
+                        @endif
                         @if (!empty($enrolment->payment_url))
                             <a href="{{ $enrolment->payment_url }}" target="_blank" class="btn btn-success btn-sm mt-3">
                                 <i class="fa fa-external-link"></i> Open Payment Link
@@ -408,6 +518,61 @@
                         @endif
                     </div>
                 </div>
+
+                @if ($enrolment->transactions->isNotEmpty())
+                    <div class="detail-card card">
+                        <div class="card-header"><i class="fa fa-list me-1"></i> Payment Transactions</div>
+                        <div class="card-body">
+                            @foreach ($enrolment->transactions->sortByDesc('created_at') as $transaction)
+                                <div class="border-bottom pb-3 mb-3">
+                                    <div class="d-flex justify-content-between gap-2">
+                                        <strong>{{ $transaction->invoice_id ?? $transaction->code }}</strong>
+                                        <span class="badge {{ strtoupper($transaction->payment_status) === 'PAID' ? 'text-bg-success' : 'text-bg-warning' }}">
+                                            {{ strtoupper($transaction->payment_status) }}
+                                        </span>
+                                    </div>
+                                    <div class="small text-muted">
+                                        {{ $transaction->payment_place ?? '-' }} · {{ ucfirst($transaction->source ?? '-') }}
+                                        · {{ $transaction->created_at ? $transaction->created_at->format('d M Y H:i') : '-' }}
+                                    </div>
+                                    @foreach ($transaction->details as $detail)
+                                        <div class="d-flex justify-content-between mt-2">
+                                            <span>{{ $detail->description ?? ucfirst($detail->type) }}</span>
+                                            <strong>Rp {{ number_format((float) $detail->subtotal, 0, ',', '.') }}</strong>
+                                        </div>
+                                    @endforeach
+                                    <div class="d-flex justify-content-between mt-2 small text-muted">
+                                        <span>Subtotal</span><span>{{ $money($transaction->subtotal) }}</span>
+                                    </div>
+                                    @if ((float) $transaction->discount > 0)
+                                        <div class="d-flex justify-content-between small text-success">
+                                            <span>Discount</span><span>- {{ $money($transaction->discount) }}</span>
+                                        </div>
+                                    @endif
+                                    <div class="d-flex justify-content-between small text-muted">
+                                        <span>Bank Charge</span><span>{{ $money($transaction->bank_charge) }}</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-2 fw-bold">
+                                        <span>Transaction Total</span>
+                                        <span>Rp {{ number_format((float) $transaction->total_amount, 0, ',', '.') }}</span>
+                                    </div>
+                                    @if ($transaction->payment_date)
+                                        <div class="small text-muted mt-1">Paid: {{ $transaction->payment_date->format('d M Y H:i') }}</div>
+                                    @endif
+                                    @if ($transaction->expiry_va_date)
+                                        <div class="small text-muted">Expires: {{ $transaction->expiry_va_date->format('d M Y H:i') }}</div>
+                                    @endif
+                                    @if ($transaction->noted)
+                                        <div class="small text-muted">{{ $transaction->noted }}</div>
+                                    @endif
+                                    @if ($transaction->payment_url && strtoupper($transaction->payment_status) !== 'PAID')
+                                        <a href="{{ $transaction->payment_url }}" target="_blank" class="btn btn-outline-success btn-sm mt-2"><i class="fa fa-external-link"></i> Payment Link</a>
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
 
                 <div class="detail-card card">
                     <div class="card-header"><i class="fa fa-history me-1"></i> Enrolment History</div>

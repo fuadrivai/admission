@@ -18,6 +18,6 @@ class XenditCallBackApiController extends Controller
 
     public function handleCallback(Request $request)
     {
-        return $this->xenditCallbackService->post($request);
+        return $this->xenditCallbackService->post($request->all());
     }
 }
