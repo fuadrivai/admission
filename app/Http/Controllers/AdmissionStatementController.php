@@ -9,6 +9,7 @@ use App\Services\AdmissionStatementService;
 use App\Services\FinancialDocumentService;
 use App\Services\ParentStatementService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class AdmissionStatementController extends Controller
 {
@@ -69,6 +70,29 @@ class AdmissionStatementController extends Controller
      */
     public function store(Request $request)
     {
+        if ($request->boolean('is_completed')) {
+            $request->validate([
+                'id' => 'required|exists:admission_statements,id',
+            ]);
+
+            $statement = AdmissionStatement::whereKey($request->id)
+                ->where('admission_id', $request->admission_id)
+                ->first();
+
+            if (
+                !$statement ||
+                !$statement->signature_path ||
+                !Storage::disk('admission')->exists($statement->signature_path)
+            ) {
+                return response()->json([
+                    'message' => 'Please upload a signature image before completing the statement.',
+                    'errors' => [
+                        'signature' => ['A signature image is required.'],
+                    ],
+                ], 422);
+            }
+        }
+
         $data = $request->all();
         $statement = $this->admissionStatementService->postStatement($data);
         return response()->json($statement);
@@ -96,6 +120,41 @@ class AdmissionStatementController extends Controller
     {
         $agreement = $this->admissionStatementService->postAgreement($data);
         return response()->json($agreement);
+    }
+
+    public function storeSignature(Request $request)
+    {
+        $request->validate([
+            'admission_statement_id' => 'required|exists:admission_statements,id',
+            'admission_code' => 'required|exists:admissions,code',
+            'signature' => ['required', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
+        ]);
+
+        $statement = AdmissionStatement::whereKey($request->admission_statement_id)
+            ->whereHas('admission', function ($query) use ($request) {
+                $query->where('code', $request->admission_code);
+            })
+            ->firstOrFail();
+        $folder = $request->admission_code;
+        $signature = $request->file('signature');
+        $extension = $signature->extension();
+        $filename = 'signature-' . $statement->id . '.' . $extension;
+
+        $path = $signature->storeAs($folder, $filename, 'admission');
+        if (!$path) {
+            throw new \RuntimeException('Unable to store the parent signature image.');
+        }
+
+        $statement->update([
+            'signature_path' => $path,
+            'signature_uploaded_at' => now(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'path' => $path,
+            'signature_uploaded_at' => $statement->signature_uploaded_at,
+        ]);
     }
 
     public function getAgreement($id,$role)

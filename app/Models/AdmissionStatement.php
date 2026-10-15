@@ -12,6 +12,7 @@ class AdmissionStatement extends Model
 
     protected $casts = [
         'completed_at' => 'datetime',
+        'signature_uploaded_at' => 'datetime',
         'is_complete' => 'boolean'
     ];
 

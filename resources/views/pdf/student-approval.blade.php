@@ -226,7 +226,7 @@
             margin-top: 8px;
             font-size: 11px;
             color: var(--maroon-secondary);
-            text-align: center;
+            text-align: left;
         }
 
         /* Page break control */
@@ -334,6 +334,14 @@
             </table>
         </div>
         <div class="page-break"></div>
+        @if ($parentStatementDocument)
+            @include('pdf.partials.parent-statement')
+            @php($parentStatementRendered = true)
+        @endif
+        <div class="page-break"></div>
+        @if ($financialDocument)
+            @include('pdf.partials.financial-agreement')
+        @else
         <!-- Section 2: School Fee Payment Consent Form -->
         <div class="section">
             <div class="section-title">{{ config('student_approval.step2.title') }}</div>
@@ -527,7 +535,11 @@
                 </ol>
             </div>
         </div>
+        @endif
 
+        @if ($parentStatementDocument && empty($parentStatementRendered))
+            @include('pdf.partials.parent-statement')
+        @elseif (!$parentStatementDocument)
         <!-- Section 3: FORM PERNYATAAN ORANG TUA / WALI MURID -->
         <div class="section">
             <div class="section-title">{{ config('student_approval.step3.title') }}</div>
@@ -638,6 +650,7 @@
                 </ol>
             </div>
         </div>
+        @endif
 
         @if ($data->level->name == 'Upper Secondary')
             <div class="page-break"></div>
@@ -740,6 +753,14 @@
         <!-- Signature Area -->
         <div class="signature-area">
             <p><strong>Declared and agreed in good faith,</strong></p>
+
+            @if (!empty($signatureImage))
+                <div style="margin-top: 12px; text-align: left;">
+                    <img src="{{ $signatureImage }}" alt="Parent signature"
+                        style="max-width: 220px; max-height: 90px;">
+                </div>
+            @endif
+            <div class="signature-label">{{ $parent->fullname ?? $data->statement->fullname }}</div>
 
             <div style="margin-top: 20px;">
                 <label style="display: block; margin-bottom: 8px; font-weight: bold;">Agreed at</label>

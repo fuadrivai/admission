@@ -16,33 +16,27 @@
                     @endif
                 </div>
                 @if ($document->description)
-                    <div class="alert alert-light border">{{ $document->description }}</div>
+                    <div class="alert alert-light border" style="white-space: pre-line;">{{ $document->description }}</div>
                 @endif
                 @foreach ($document->sections as $section)
-                    <section class="mb-4">
-                        <h5 class="fw-bold">{{ $section->title_en }}</h5>
-                        <div class="text-muted mb-3">{{ $section->title_id }}</div>
-                        @php(
-    $numberedItems = $section->items->filter(function ($item) {
-        return $item->number > 0;
-    })
-)
+                    <section class="mb-4 border rounded p-3">
+                        <h5 class="fw-bold mb-3">{{ $section->title_en }}</h5>
+                        <div class="text-muted mb-3"><i>{{ $section->title_id }}</i></div>
                         @foreach ($section->items->where('number', 0) as $preamble)
                             <div class="mb-3">
-                                <p class="mb-1" style="text-align: justify;">{{ $preamble->text_en }}</p>
-                                <p class="text-muted mb-0" style="text-align: justify;">{{ $preamble->text_id }}</p>
+                                <div class="fw-semibold" style="text-align: justify; white-space: pre-line;">{{ $preamble->text_en }}</div>
+                                <div class="text-muted" style="text-align: justify; white-space: pre-line;"><i>{{ $preamble->text_id }}</i></div>
                             </div>
                         @endforeach
-                        @if ($numberedItems->isNotEmpty())
-                            <ol class="ps-3">
-                                @foreach ($numberedItems as $item)
-                                    <li value="{{ $item->number }}" class="mb-3">
-                                        <div style="text-align: justify;">{{ $item->text_en }}</div>
-                                        <div class="text-muted" style="text-align: justify;">{{ $item->text_id }}</div>
-                                    </li>
-                                @endforeach
-                            </ol>
-                        @endif
+                        @foreach ($section->items->where('number', '>', 0) as $item)
+                            <div class="d-flex align-items-start mb-3">
+                                <span class="flex-shrink-0 me-2" style="min-width: 1.5rem;">{{ $item->number }}.</span>
+                                <div class="flex-grow-1">
+                                    <div class="fw-semibold" style="text-align: justify; white-space: pre-line;">{{ $item->text_en }}</div>
+                                    <div class="text-muted" style="text-align: justify; white-space: pre-line;"><i>{{ $item->text_id }}</i></div>
+                                </div>
+                            </div>
+                        @endforeach
                     </section>
                 @endforeach
             </div>

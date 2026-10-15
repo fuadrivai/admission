@@ -5,6 +5,7 @@ namespace App\Services\Implement;
 use App\Mail\AdmissionEmail;
 use App\Models\Admission;
 use App\Models\AdmissionFinancialDocument;
+use App\Models\AdmissionStatementDocument;
 use App\Models\AdmissionStatement;
 use App\Models\FinancialAgreement;
 use App\Models\StatementAgreement;
@@ -44,7 +45,9 @@ class AdmissionStatementImplement implements AdmissionStatementService{
                 'level',
                 'applicant.parents',
                 'statement.financial',
+                'statement.financial.financialDocument.sections.items',
                 'statement.agreements',
+                'statement.agreements.statementDocument.sections.items',
             ])->findOrFail($data['admission_id']);
 
             $pdfPath = $this->generateStatementPdf($admission);
@@ -167,10 +170,38 @@ class AdmissionStatementImplement implements AdmissionStatementService{
         $role = $admission->statement->actor;
 
         $parent   = $parents->get($role);
+        $parentStatementDocument = $admission->statement->agreements
+            ->firstWhere('type', 'Parent')
+            ?->statementDocument;
+        if (!$parentStatementDocument) {
+            $parentStatementDocument = AdmissionStatementDocument::where('type', 'parent')
+                ->where('status', 'PUBLISHED')
+                ->with('sections.items')
+                ->first();
+        }
+
+        $financialDocument = $admission->statement->financial?->financialDocument;
+        if (!$financialDocument) {
+            $financialDocument = AdmissionFinancialDocument::where('type', 'financial')
+                ->where('status', 'PUBLISHED')
+                ->with('sections.items')
+                ->first();
+        }
 
         $logoPath = public_path('assets/images/Logo-all-branch.png');
         $imageBase64 = imageToBase64($logoPath);
-        $html = view('pdf.student-approval', ['data'=> $admission, 'logo' => $imageBase64,'parent'=>$parent])->render();
+        $signaturePath = $admission->statement->signature_path
+            ? Storage::disk('admission')->path($admission->statement->signature_path)
+            : null;
+        $signatureImage = $signaturePath ? imageToBase64($signaturePath) : null;
+        $html = view('pdf.student-approval', [
+            'data' => $admission,
+            'logo' => $imageBase64,
+            'parent' => $parent,
+            'signatureImage' => $signatureImage,
+            'parentStatementDocument' => $parentStatementDocument,
+            'financialDocument' => $financialDocument,
+        ])->render();
 
         $dompdf = new Dompdf();
         $dompdf->loadHtml($html);

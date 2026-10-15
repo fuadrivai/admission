@@ -390,3 +390,93 @@ body {
     border-radius: 10px;
     margin-top: 2rem;
 }
+
+.signature-upload {
+    position: relative;
+    border: 1px dashed #83b89a;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.72);
+    overflow: hidden;
+}
+
+.signature-upload-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+}
+
+.signature-upload-input:focus + .signature-upload-prompt {
+    outline: 2px solid #198754;
+    outline-offset: -2px;
+}
+
+.signature-upload-prompt {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 1rem;
+    margin: 0;
+    cursor: pointer;
+    color: #245c3b;
+}
+
+.signature-upload-prompt > .bi {
+    font-size: 1.8rem;
+}
+
+.signature-upload-prompt span:nth-child(2) {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+}
+
+.signature-upload-prompt small {
+    color: #66756b;
+}
+
+.signature-preview {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem;
+    border-top: 1px solid #d4e6da;
+    background: #fff;
+}
+
+.signature-preview img {
+    width: 76px;
+    height: 60px;
+    object-fit: contain;
+    border: 1px solid #e1e7e3;
+    border-radius: 5px;
+    background: #fff;
+}
+
+.signature-preview-details {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    flex-direction: column;
+}
+
+.signature-preview-details span {
+    overflow: hidden;
+    color: #66756b;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+@media (max-width: 575px) {
+    .signature-upload-prompt {
+        flex-wrap: wrap;
+    }
+
+    .signature-upload-prompt .btn {
+        margin-left: 2.65rem;
+    }
+
+    .signature-preview {
+        flex-wrap: wrap;
+    }
+}

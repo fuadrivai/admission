@@ -1444,6 +1444,22 @@
                                                 <br><i><small>{{ config('student_approval.step6.labels.text7.indonesian') }}</small></i>
                                             </p>
                                         </div>
+                                        @if ($admission->statement->signature_path)
+                                            <div style="margin-top: 18px;">
+                                                <strong style="color: #800000;">Parent Signature</strong>
+                                                <div style="margin-top: 8px;">
+                                                    <img
+                                                        src="{{ url('document/path/' . $admission->statement->signature_path) }}"
+                                                        alt="Uploaded parent signature"
+                                                        style="max-width: 240px; max-height: 100px; object-fit: contain; border: 1px solid #e0c0c0; padding: 6px; border-radius: 4px;">
+                                                </div>
+                                                @if ($admission->statement->signature_uploaded_at)
+                                                    <small class="text-muted">
+                                                        Uploaded {{ $admission->statement->signature_uploaded_at->format('d M Y H:i') }}
+                                                    </small>
+                                                @endif
+                                            </div>
+                                        @endif
                                     </div>
                                 @endif
                             @else

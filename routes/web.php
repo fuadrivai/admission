@@ -103,6 +103,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
     Route::post('document/statement', [AdmissionStatementController::class, 'store'])->name('admission.store');
     Route::post('document/statement/financial', [AdmissionStatementController::class, 'storeFinancial'])->name('admission.storeFinancial');
     Route::get('document/statement/financial/{id}', [AdmissionStatementController::class, 'getFinancial'])->name('admission.getFinancial');
+    Route::post('document/statement/signature', [AdmissionStatementController::class, 'storeSignature'])->name('admission.storeSignature');
     Route::post('document/statement/agreement', [AdmissionStatementController::class, 'postAgreement'])->name('admission.postAgreement');
     Route::post('document/statement/parent-agreement', [AdmissionStatementController::class, 'saveParentAgreement'])->name('admission.saveParentAgreement');
     Route::get('document/statement/parent-agreement/{id}', [AdmissionStatementController::class, 'getParentAgreementIds'])->name('admission.getParentAgreementIds');

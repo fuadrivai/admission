@@ -2,6 +2,7 @@ let admission = null;
 let statement = null;
 let currentStep = 1;
 let totalSteps = 5;
+let signaturePreviewUrl = null;
 
 $(document).ready(function () {
     checkAdmissionByCode();
@@ -43,6 +44,40 @@ $(document).ready(function () {
 
     $("input, select, textarea").on("input change", function () {
         validateCurrentStep();
+    });
+
+    $("#parentSignature").on("change", function () {
+        const files = this.files;
+        const isValid =
+            files &&
+            files.length === 1 &&
+            ["image/jpeg", "image/jpg", "image/png"].includes(files[0].type) &&
+            files[0].size <= 2 * 1024 * 1024;
+        $(this).toggleClass("validation-error", !isValid);
+        if (!isValid) {
+            $("#parentSignature-error").show();
+            $("#parentSignaturePreview").addClass("d-none");
+            $("#parentSignaturePreviewImage").attr("src", "");
+            $("#parentSignatureFileName").text("");
+            if (signaturePreviewUrl) {
+                URL.revokeObjectURL(signaturePreviewUrl);
+                signaturePreviewUrl = null;
+            }
+        } else {
+            $("#parentSignature-error").hide();
+            if (signaturePreviewUrl) {
+                URL.revokeObjectURL(signaturePreviewUrl);
+            }
+            signaturePreviewUrl = URL.createObjectURL(files[0]);
+            $("#parentSignaturePreviewImage").attr("src", signaturePreviewUrl);
+            $("#parentSignatureFileName").text(files[0].name);
+            $("#parentSignaturePreview").removeClass("d-none");
+        }
+        validateCurrentStep();
+    });
+
+    $("#removeParentSignature").on("click", function () {
+        $("#parentSignature").val("").trigger("change");
     });
 });
 
@@ -103,6 +138,20 @@ function validateCurrentStep() {
                 }
             } else if (field.is('input[type="text"]')) {
                 if (!field.val().trim()) {
+                    isValid = false;
+                    field.addClass("validation-error");
+                    if (errorElement.length) {
+                        errorElement.show();
+                    }
+                }
+            } else if (field.is('input[type="file"]')) {
+                const files = field[0].files;
+                if (
+                    !files ||
+                    files.length !== 1 ||
+                    !["image/jpeg", "image/jpg", "image/png"].includes(files[0].type) ||
+                    files[0].size > 2 * 1024 * 1024
+                ) {
                     isValid = false;
                     field.addClass("validation-error");
                     if (errorElement.length) {
@@ -214,24 +263,71 @@ function prevStep() {
 }
 
 async function submitForm() {
+    if (!validateCurrentStep()) {
+        return;
+    }
+
     blockUI();
     $(".final-submit-btn").html(
         '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Mengirim...',
     );
     $(".final-submit-btn").prop("disabled", true);
 
-    let type = totalSteps == 5 ? "student" : "parent";
-    await postAgreement(type);
-    let statement = await postStatement(true);
+    try {
+        const fileInput = document.getElementById("parentSignature");
+        if (fileInput && fileInput.files && fileInput.files.length > 0) {
+            const formData = new FormData();
+            formData.append("admission_statement_id", admission.statement.id);
+            formData.append("admission_code", admission.code);
+            formData.append("signature", fileInput.files[0]);
+            await ajaxFilePromise(formData, "/document/statement/signature", "POST");
+        }
 
-    toastify("success", "Formulir persetujuan telah berhasil dikirim.");
-    setTimeout(() => {
+        let type = totalSteps == 5 ? "student" : "parent";
+        await postAgreement(type);
+        let statement = await postStatement(true);
+
+        toastify("success", "Formulir persetujuan telah berhasil dikirim.");
+        setTimeout(() => {
+            $(".final-submit-btn").html(
+                '<i class="bi bi-send-check"></i> Kirim Formulir Persetujuan',
+            );
+            $(".final-submit-btn").prop("disabled", false);
+            window.location.href = `/document/success/${admission.code}`;
+        }, 500);
+    } catch (err) {
+        toastify(
+            "Error",
+            err?.responseJSON?.message ?? err?.message ?? "Please try again later",
+            "bottom",
+        );
         $(".final-submit-btn").html(
             '<i class="bi bi-send-check"></i> Kirim Formulir Persetujuan',
         );
         $(".final-submit-btn").prop("disabled", false);
-        window.location.href = `/document/success/${admission.code}`;
-    }, 500);
+        $.unblockUI();
+    }
+}
+
+function ajaxFilePromise(formData, url, method = "POST") {
+    return new Promise((resolve, reject) => {
+        $.ajax({
+            url,
+            type: method,
+            data: formData,
+            processData: false,
+            contentType: false,
+            headers: {
+                "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
+            },
+            success: function (response) {
+                resolve(response);
+            },
+            error: function (err) {
+                reject(err);
+            },
+        });
+    });
 }
 
 async function checkAdmissionByCode() {
@@ -435,20 +531,12 @@ async function postFinancial() {
     }
 
     blockUI();
-    try {
-        financial = await ajaxPromise(
-            data,
-            `/document/statement/financial`,
-            "POST",
-        );
-        admission.statement.financial = financial;
-    } catch (err) {
-        toastify(
-            "Error",
-            err?.responseJSON?.message ?? "Please try again later",
-            "bottom",
-        );
-    }
+    financial = await ajaxPromise(
+        data,
+        `/document/statement/financial`,
+        "POST",
+    );
+    admission.statement.financial = financial;
 }
 
 async function getFinancialStatement() {

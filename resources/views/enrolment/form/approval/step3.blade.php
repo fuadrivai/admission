@@ -16,8 +16,6 @@
                 <div class="text-muted small mt-2" style="text-align: justify; white-space: pre-line;"><i>{{ $openingText->text_id }}</i></div>
             </div>
         @endforeach
-    @else
-        <div class="alert alert-warning">No published Financial Agreement is available.</div>
     @endif
 
     <div class="row mb-4">
@@ -100,16 +98,15 @@
 
                 @php($numberedItems = $section->items->where('number', '>', 0))
                 @if ($numberedItems->isNotEmpty())
-                    <ol class="ps-3">
-                        @foreach ($numberedItems as $item)
-                            <li value="{{ $item->number }}" class="mb-3">
-                                <div class="fw-semibold text-muted" style="text-align: justify; white-space: pre-line;">
-                                    {{ $item->text_en }}</div>
-                                <div class="text-muted small" style="text-align: justify; white-space: pre-line;"><i>{{ $item->text_id }}</i>
-                                </div>
-                            </li>
-                        @endforeach
-                    </ol>
+                    @foreach ($numberedItems as $item)
+                        <div class="d-flex align-items-start mb-3">
+                            <span class="flex-shrink-0 me-2" style="min-width: 1.5rem;">{{ $item->number }}.</span>
+                            <div class="flex-grow-1">
+                                <div class="fw-semibold text-muted" style="text-align: justify; white-space: pre-line;">{{ $item->text_en }}</div>
+                                <div class="text-muted small" style="text-align: justify; white-space: pre-line;"><i>{{ $item->text_id }}</i></div>
+                            </div>
+                        </div>
+                    @endforeach
                 @endif
             </section>
         @endforeach
