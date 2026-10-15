@@ -16,8 +16,11 @@ use App\Http\Controllers\EnrolmentDpController;
 use App\Http\Controllers\EnrolmentDpPublicController;
 use App\Http\Controllers\EnrolmentPriceController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\EventCheckinController;
 use App\Http\Controllers\EventEmailTemplateController;
 use App\Http\Controllers\EventFormController;
+use App\Http\Controllers\EventInvitationController;
+use App\Http\Controllers\EventMicrositeController;
 use App\Http\Controllers\EventRegistrationController;
 use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\HomeController;
@@ -51,6 +54,17 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
     Route::get('/events/{event:slug}', [EventRegistrationController::class, 'show'])->name('events.show');
     Route::post('/events/{event:slug}/register', [EventRegistrationController::class, 'store'])->name('events.register');
     Route::get('/events/{event:slug}/success/{registration_code}', [EventRegistrationController::class, 'success'])->name('events.success');
+    Route::get('/microsite/{event:slug}', [EventMicrositeController::class, 'show'])->name('microsite.show');
+    Route::get('/microsite/{event:slug}/qr.svg', [EventMicrositeController::class, 'qr'])->name('microsite.qr');
+    Route::get('/microsite/{event:slug}/check-in', [EventMicrositeController::class, 'checkinPage'])->name('microsite.checkin');
+    Route::post('/microsite/{event:slug}/verify-code', [EventMicrositeController::class, 'verifyCode'])
+        ->middleware('throttle:5,1')
+        ->name('microsite.verify-code');
+    Route::post('/microsite/{event:slug}/check-in', [EventCheckinController::class, 'selfCheckin'])->name('microsite.self-checkin');
+    Route::get('/microsite/{event:slug}/walk-in', [EventCheckinController::class, 'walkInPage'])->name('microsite.walk-in');
+    Route::post('/microsite/{event:slug}/walk-in', [EventCheckinController::class, 'completeWalkIn'])
+        ->middleware('throttle:5,1')
+        ->name('microsite.walk-in.complete');
 
     Route::get('schoolvisit-form', [SchoolVisitController::class, 'form'])->name('schoolvisit-form');
     Route::get('schoolvisit-success', [SchoolVisitController::class, 'success'])->name('success');
@@ -221,6 +235,19 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
         Route::prefix('event')->name('event.')->group(function () {
             Route::get('datatables', [EventController::class, 'datatables'])->name('datatables');
             Route::get('get', [EventController::class, 'get'])->name('get');
+            Route::get('{event}/microsite', [EventMicrositeController::class, 'edit'])->name('microsite.edit');
+            Route::put('{event}/microsite', [EventMicrositeController::class, 'update'])->name('microsite.update');
+            Route::post('{event}/microsite/publish', [EventMicrositeController::class, 'publish'])->name('microsite.publish');
+            Route::get('{event}/invitations', [EventInvitationController::class, 'index'])->name('invitations.index');
+            Route::post('{event}/invitations/{registration}/send', [EventInvitationController::class, 'send'])->name('invitations.send');
+            Route::get('{event}/check-in', [EventCheckinController::class, 'index'])->name('checkin.index');
+            Route::post('{event}/check-in/walk-in', [EventCheckinController::class, 'authorizeWalkIn'])->name('checkin.walk-in');
+            Route::post('{event}/check-in/{registration}/code', [EventCheckinController::class, 'issueFamilyCode'])
+                ->whereNumber('registration')
+                ->name('checkin.code');
+            Route::post('{event}/check-in/{registration}', [EventCheckinController::class, 'staffCheckin'])
+                ->whereNumber('registration')
+                ->name('checkin.staff');
 
             Route::prefix('{event}/forms')->name('forms.')->group(function () {
                 Route::get('/', [EventFormController::class, 'index'])->name('index');

@@ -47,6 +47,11 @@ class Event extends Model
         return $this->hasMany(EventEmailTemplate::class);
     }
 
+    public function microsite()
+    {
+        return $this->hasOne(EventMicrosite::class);
+    }
+
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');

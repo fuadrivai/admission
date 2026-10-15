@@ -33,6 +33,63 @@
             flex-wrap: wrap;
         }
 
+        .event-actions-dropdown .event-actions-toggle {
+            display: inline-flex;
+            width: 36px;
+            height: 36px;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            border: 1px solid #e5e7eb;
+            border-radius: 9px;
+            color: #475467;
+            background: #fff;
+            box-shadow: 0 1px 2px rgba(16, 24, 40, .05);
+        }
+
+        .event-actions-dropdown .event-actions-toggle:hover,
+        .event-actions-dropdown .event-actions-toggle:focus,
+        .event-actions-dropdown .event-actions-toggle[aria-expanded="true"] {
+            border-color: #cbd5e1;
+            color: #1f2937;
+            background: #f8fafc;
+        }
+
+        .event-actions-dropdown .dropdown-menu {
+            min-width: 190px;
+            padding: .4rem;
+            border: 1px solid #eaecf0;
+            border-radius: 10px;
+            box-shadow: 0 10px 28px rgba(16, 24, 40, .12);
+        }
+
+        .event-actions-dropdown .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: .65rem;
+            padding: .55rem .65rem;
+            border-radius: 7px;
+            color: #344054;
+            font-size: .9rem;
+        }
+
+        .event-actions-dropdown .dropdown-item:hover,
+        .event-actions-dropdown .dropdown-item:focus {
+            color: #1d4ed8;
+            background: #f2f4f7;
+        }
+
+        .event-actions-dropdown .dropdown-item i {
+            width: 1rem;
+            color: #667085;
+            text-align: center;
+        }
+
+        .event-actions-dropdown .dropdown-divider {
+            margin: .35rem 0;
+            border-color: #eaecf0;
+        }
+
         .event-info-label {
             color: #6b7280;
             font-size: 0.78rem;
@@ -53,6 +110,10 @@
 
             .event-card-actions .btn {
                 flex: 1 1 auto;
+            }
+
+            .event-card-actions .event-actions-dropdown .event-actions-toggle {
+                flex: 0 0 36px;
             }
         }
     </style>

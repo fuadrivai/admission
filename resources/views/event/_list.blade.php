@@ -39,22 +39,61 @@
                 </div>
                 <div class="col-lg-4 col-md-4">
                     <div class="event-card-actions">
-                        @if (!auth()->check() || auth()->user()->role != 'user')
-                            <a href="{{ route('event.edit', $event) }}" class="btn btn-sm btn-primary"><i
-                                    class="fa fa-pencil"></i> Edit</a>
-                            {{-- <form method="POST" action="{{ route('event.destroy', $event) }}" style="display:inline;"
-                                onsubmit="return confirm('Are you sure you want to delete this event? This will permanently delete its form data, email data, registrations, and uploaded files. This action cannot be restored.');">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-danger text-white">
-                                    <i class="fa fa-trash"></i> Delete
-                                </button>
-                            </form> --}}
-                        @endif
-                        <a href="{{ route('events.show', $event) }}" class="btn btn-sm btn-warning"><i
-                                class="fa fa-eye"></i> Live Form</a>
-                        <a href="{{ route('event.registrations.index', $event) }}"
-                            class="btn btn-sm btn-info text-white"><i class="fa fa-users"></i> Registrations</a>
+                        <div class="dropdown d-inline-block event-actions-dropdown">
+                            <button class="btn event-actions-toggle" type="button"
+                                id="event-actions-{{ $event->id }}" data-bs-toggle="dropdown" aria-expanded="false"
+                                aria-label="Event actions" title="Event actions">
+                                <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end"
+                                aria-labelledby="event-actions-{{ $event->id }}">
+                                @if (!auth()->check() || auth()->user()->role != 'user')
+                                    <li>
+                                        <a href="{{ route('event.edit', $event) }}" class="dropdown-item">
+                                            <i class="fa fa-pencil"></i> Edit
+                                        </a>
+                                    </li>
+                                @endif
+                                <li>
+                                    <a href="{{ route('events.show', $event) }}" class="dropdown-item" target="_blank">
+                                        <i class="fa fa-eye"></i> Live Form
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('event.registrations.index', $event) }}" class="dropdown-item"
+                                        target="_blank">
+                                        <i class="fa fa-users"></i> Registrations
+                                    </a>
+                                </li>
+
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+
+                                <li>
+                                    <a href="{{ route('event.checkin.index', $event) }}" class="dropdown-item"
+                                        target="_blank">
+                                        <i class="fa fa-check"></i> Check-in
+                                    </a>
+                                </li>
+                                @if (!auth()->check() || auth()->user()->role != 'user')
+                                    <li>
+                                        <a href="{{ route('event.microsite.edit', $event) }}" class="dropdown-item">
+                                            <i class="fa fa-globe"></i> Microsite
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="{{ route('event.invitations.index', $event) }}" class="dropdown-item"
+                                            target="_blank">
+                                            <i class="fa fa-envelope"></i> Invitations
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                @endif
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>

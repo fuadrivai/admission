@@ -248,7 +248,19 @@
             @if (isset($template))
                 @method('PUT')
             @endif
-            <input type="hidden" name="key" value="{{ old('key', $template->key ?? 'email_template') }}">
+            @php($currentKey = old('key', $template->key ?? 'email_template'))
+            <div class="field-block">
+                <label class="field-label" for="key">Template type</label>
+                <select id="key" name="key" class="modern-input" required>
+                    @if (! in_array($currentKey, ['email_template', 'INVITATION', 'REMINDER'], true))
+                        <option value="{{ $currentKey }}" selected>{{ $currentKey }} (existing)</option>
+                    @endif
+                    <option value="email_template" {{ $currentKey === 'email_template' ? 'selected' : '' }}>General</option>
+                    <option value="INVITATION" {{ $currentKey === 'INVITATION' ? 'selected' : '' }}>Event invitation</option>
+                    <option value="REMINDER" {{ $currentKey === 'REMINDER' ? 'selected' : '' }}>Event reminder</option>
+                </select>
+                <div class="form-text">Invitation and reminder templates are used by the Event invitation dashboard.</div>
+            </div>
 
             <div class="field-block">
                 <label class="field-label" for="subject">Email Subject</label>
@@ -268,6 +280,10 @@
                     <span>Form Answers</span>
                 </div>
                 <div class="variables-body">
+                    @foreach (['event_title', 'invitation_code', 'microsite_url', 'registration_code'] as $coreVariable)
+                        @php($placeholder = '{' . '{' . $coreVariable . '}' . '}')
+                        <span class="variable-tag" data-value="{{ $placeholder }}">{{ $placeholder }}</span>
+                    @endforeach
                     @php($eventFields = $event->forms()->orderBy('order_index')->get())
                     @forelse ($eventFields as $field)
                         @php($fieldKey = $field->field_key ?? 'field_' . $field->id)

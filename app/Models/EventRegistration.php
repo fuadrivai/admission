@@ -44,6 +44,16 @@ class EventRegistration extends Model
         return $this->hasMany(EventFieldAnswer::class);
     }
 
+    public function invitation()
+    {
+        return $this->hasOne(EventInvitation::class);
+    }
+
+    public function checkin()
+    {
+        return $this->hasOne(EventCheckin::class);
+    }
+
     /**
      * Generate a unique registration code - doesn't require event to be loaded
      */
