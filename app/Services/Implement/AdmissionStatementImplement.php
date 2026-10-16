@@ -171,8 +171,7 @@ class AdmissionStatementImplement implements AdmissionStatementService{
 
         $parent   = $parents->get($role);
         $parentStatementDocument = $admission->statement->agreements
-            ->firstWhere('type', 'Parent')
-            ?->statementDocument;
+            ->firstWhere('type', 'Parent')->statementDocument;
         if (!$parentStatementDocument) {
             $parentStatementDocument = AdmissionStatementDocument::where('type', 'parent')
                 ->where('status', 'PUBLISHED')
