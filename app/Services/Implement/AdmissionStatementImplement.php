@@ -171,7 +171,7 @@ class AdmissionStatementImplement implements AdmissionStatementService{
 
         $parent   = $parents->get($role);
         $parentStatementDocument = $admission->statement->agreements
-            ->firstWhere('type', 'Parent')->statementDocument;
+            ->firstWhere('type', 'Parent')->statementDocument ?? null;
         if (!$parentStatementDocument) {
             $parentStatementDocument = AdmissionStatementDocument::where('type', 'parent')
                 ->where('status', 'PUBLISHED')
@@ -179,7 +179,7 @@ class AdmissionStatementImplement implements AdmissionStatementService{
                 ->first();
         }
 
-        $financialDocument = $admission->statement->financial?->financialDocument;
+        $financialDocument = $admission->statement->financial->financialDocument ?? null;
         if (!$financialDocument) {
             $financialDocument = AdmissionFinancialDocument::where('type', 'financial')
                 ->where('status', 'PUBLISHED')
