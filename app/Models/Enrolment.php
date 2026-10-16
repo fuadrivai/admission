@@ -67,6 +67,21 @@ class Enrolment extends Model
         return $this->hasMany(EnrolmentTransaction::class);
     }
 
+    public function mergedInto()
+    {
+        return $this->belongsTo(self::class, 'merged_into_enrolment_id');
+    }
+
+    public function mergedFrom()
+    {
+        return $this->hasMany(self::class, 'merged_into_enrolment_id');
+    }
+
+    public function isMerged(): bool
+    {
+        return $this->merged_into_enrolment_id !== null;
+    }
+
     public function hasPaidRegistrationPayment(): bool
     {
         if (in_array(strtoupper((string) $this->payment_status), ['PAID', 'SETTLED', 'COMPLETED'], true)) {

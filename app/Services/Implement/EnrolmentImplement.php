@@ -683,7 +683,14 @@ class EnrolmentImplement implements EnrolmentService
 
     public function search($request)
     {
-        $query = Enrolment::query()->with('transactions.details');
+        $query = Enrolment::query()->with(['transactions.details', 'mergedInto']);
+        $archive = $request->input('archive', 'active');
+        if ($archive === 'merged') {
+            $query->whereNotNull('merged_into_enrolment_id');
+        } elseif ($archive !== 'all') {
+            $query->whereNull('merged_into_enrolment_id');
+        }
+
         if (auth()->check() && auth()->user()->role == 'user') {
             $query->where('branch_id', auth()->user()->branch_id);
         }

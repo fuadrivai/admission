@@ -47,7 +47,7 @@ class EnrolmentController extends Controller
    public function datatables(UtilitiesRequest $request)
     {
 
-        $enrolment = Enrolment::query();
+        $enrolment = Enrolment::query()->whereNull('merged_into_enrolment_id');
         if ($request->ajax()) {
             return datatables()->of($enrolment->with(['branch','grade', 'level']))
                 ->addColumn('branch_name', function ($row) {
@@ -147,6 +147,13 @@ class EnrolmentController extends Controller
      */
     public function destroy(Enrolment $enrolment)
     {
+        if ($enrolment->isMerged()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Merged enrolments are archived and cannot be deleted.',
+            ], 422);
+        }
+
         $expireResponse = $this->expirePendingInvoice($enrolment);
         if ($expireResponse !== null) {
             return $expireResponse;
@@ -240,6 +247,13 @@ class EnrolmentController extends Controller
 
     public function cancel(Request $request, Enrolment $enrolment)
     {
+        if ($enrolment->isMerged()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Merged enrolments are archived and cannot be cancelled.',
+            ], 422);
+        }
+
         $validated = $request->validate([
             'reason' => 'required|string|max:1000',
         ]);

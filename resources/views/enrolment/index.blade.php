@@ -95,6 +95,17 @@
                 </p>
                 <div class="collapse" id="collapse-filter">
                     <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="filter-archive">Record</label>
+                                <select id="filter-archive" name="filter-archive" class="form-select"
+                                    style="width: 100%">
+                                    <option value="active" selected>Active enrolments</option>
+                                    <option value="merged">Merged archive</option>
+                                    <option value="all">All records</option>
+                                </select>
+                            </div>
+                        </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="filter-name">Search</label>
@@ -389,7 +400,7 @@
                 }, 400);
             });
 
-            $('#filter-level, #filter-branch, #filter-status, #filter-source-data, #filter-ay')
+            $('#filter-level, #filter-branch, #filter-status, #filter-source-data, #filter-ay, #filter-archive')
                 .on('change keyup', function() {
                     loadEnrolments();
                 });
@@ -629,6 +640,7 @@
                 data_from: $('#filter-data-from').val(),
                 regis_place: $('#filter-regis-place').val(),
                 academic_year: $('#filter-ay').val(),
+                archive: $('#filter-archive').val(),
             };
 
             let queryString = new URLSearchParams(data).toString();
@@ -648,6 +660,7 @@
                 source_data: $('#filter-source-data').val(),
                 data_from: $('#filter-data-from').val(),
                 regis_place: $('#filter-regis-place').val(),
+                archive: $('#filter-archive').val(),
             };
 
             $.ajax({

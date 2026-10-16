@@ -51,7 +51,8 @@ class HomeController extends Controller
         $schoolVisitsToday = (clone $visitBase)->whereDate('date', $today)->count();
         $schoolVisitsMonth = (clone $visitBase)->whereBetween('date', [$monthStart->toDateString(), $monthEnd->toDateString()])->count();
 
-        $enrolBase = Enrolment::when($branchId, fn($q) => $q->where('branch_id', $branchId));
+        $enrolBase = Enrolment::whereNull('merged_into_enrolment_id')
+            ->when($branchId, fn($q) => $q->where('branch_id', $branchId));
         $paidEnrolment  = (clone $enrolBase)->whereBetween('created_at', [$monthStart, $monthEnd])->where('payment_status', 'paid')->count();
         $enrolmentsMonth = (clone $enrolBase)->whereBetween('created_at', [$monthStart, $monthEnd])->count();
 
@@ -92,14 +93,16 @@ class HomeController extends Controller
         $lastWeekData = collect($dowOrder)->map(fn($d) => $lastWeekVisits[$d] ?? 0)->values()->all();
 
         // Enrolment weekly trend (grouped by DAYOFWEEK on created_at, paid only)
-        $thisWeekEnrolments = Enrolment::when($branchId, fn($q) => $q->where('branch_id', $branchId))
+        $thisWeekEnrolments = Enrolment::whereNull('merged_into_enrolment_id')
+            ->when($branchId, fn($q) => $q->where('branch_id', $branchId))
             ->where('payment_status', 'PAID')
             ->whereBetween('created_at', [$thisWeekStart->toDateString(), $thisWeekEnd->toDateString()])
             ->selectRaw('DAYOFWEEK(created_at) as dow, COUNT(*) as total')
             ->groupBy('dow')
             ->pluck('total', 'dow');
 
-        $lastWeekEnrolments = Enrolment::when($branchId, fn($q) => $q->where('branch_id', $branchId))
+        $lastWeekEnrolments = Enrolment::whereNull('merged_into_enrolment_id')
+            ->when($branchId, fn($q) => $q->where('branch_id', $branchId))
             ->where('payment_status', 'PAID')
             ->whereBetween('created_at', [$lastWeekStart->toDateString(), $lastWeekEnd->toDateString()])
             ->selectRaw('DAYOFWEEK(created_at) as dow, COUNT(*) as total')
@@ -124,14 +127,16 @@ class HomeController extends Controller
         })->values()->all();
 
         $levelEnrolments = $levels->map(function ($level) use ($branchId, $monthStart, $monthEnd) {
-            return Enrolment::when($branchId, fn($q) => $q->where('branch_id', $branchId))
+            return Enrolment::whereNull('merged_into_enrolment_id')
+                ->when($branchId, fn($q) => $q->where('branch_id', $branchId))
                 ->where('level_id', $level->id)
                 ->whereBetween('created_at', [$monthStart, $monthEnd])
                 ->count();
         })->values()->all();
 
         $levelPaidEnrolments = $levels->map(function ($level) use ($branchId, $monthStart, $monthEnd) {
-            return Enrolment::when($branchId, fn($q) => $q->where('branch_id', $branchId))
+            return Enrolment::whereNull('merged_into_enrolment_id')
+                ->when($branchId, fn($q) => $q->where('branch_id', $branchId))
                 ->where('payment_status', 'PAID')
                 ->where('level_id', $level->id)
                 ->whereBetween('created_at', [$monthStart, $monthEnd])

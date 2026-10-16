@@ -57,6 +57,11 @@
                 </div>
                 <div class="col-md-5">
                     <label for="">Kode : {{ $enrolment->code }}
+                        @if ($enrolment->isMerged())
+                            <span class="badge text-bg-warning">
+                                Merged into {{ optional($enrolment->mergedInto)->code ?? 'enrolment #' . $enrolment->merged_into_enrolment_id }}
+                            </span>
+                        @endif
                         <span
                             class="badge text-bg-{{ $enrolment->source_data === 'internal' ? 'secondary' : 'danger' }}">
                             {{ ucfirst($enrolment->source_data) }}
@@ -103,7 +108,7 @@
                                 <a class="dropdown-item view-detail" href="/enrolment/{{ $enrolment->id }}/edit"
                                     data-id="{{ $enrolment->id }}"><i class="fa fa-eye"></i><span>Detail</span></a>
                             </li>
-                            @if (auth()->user()->role !== 'user' && strtoupper((string) $enrolment->payment_status) !== 'CANCELLED')
+                            @if (!$enrolment->isMerged() && auth()->user()->role !== 'user' && strtoupper((string) $enrolment->payment_status) !== 'CANCELLED')
                                 <li>
                                     <hr class="dropdown-divider">
                                 </li>
@@ -113,7 +118,7 @@
                                             Enrolment</span></a>
                                 </li>
                             @endif
-                            @if (auth()->user()->role !== 'user')
+                            @if (!$enrolment->isMerged() && auth()->user()->role !== 'user')
                                 <li>
                                     <a class="dropdown-item text-danger delete-enrolment" href="#"
                                         data-id="{{ $enrolment->id }}" data-name="{{ $enrolment->child_name }}"><i
