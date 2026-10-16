@@ -75,9 +75,6 @@ class Enrolment extends Model
 
         return $this->transactions()
             ->whereRaw('UPPER(payment_status) IN (?, ?, ?)', ['PAID', 'SETTLED', 'COMPLETED'])
-            ->whereHas('details', function ($query) {
-                $query->where('type', 'enrolment');
-            })
             ->exists();
     }
 

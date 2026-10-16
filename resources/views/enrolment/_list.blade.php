@@ -157,14 +157,16 @@
                 <div class="col-md-4">
                     <div class="academic-info">
                         <div class="info-group">
-                            <div class="info-value">
-                                <span class="invoice-id">{{ $enrolment->invoice_id }}</span><br>
-                                Tgl Enrol: {{ \Carbon\Carbon::parse($enrolment->created_at)->format('d M Y H:i') }}<br>
-                                Status: <span
-                                    class="badge {{ $enrolment->payment_status === 'PAID' ? 'text-bg-success' : ($enrolment->payment_status === 'PENDING' ? 'text-bg-warning' : 'text-bg-danger') }}">
-                                    {{ $enrolment->payment_status }}
-                                </span><br>
-                                {{ $enrolment->payment_date ? 'Tanggal Bayar: ' . \Carbon\Carbon::parse($enrolment->payment_date)->format('d M Y') : 'Belum melakukan pembayaran' }}
+                            <div class="info-value small">
+                                @forelse ($enrolment->transactions->sortByDesc('created_at') as $transaction)
+                                    <div>
+                                        <span class="invoice-id">{{ $transaction->invoice_id ?? '-' }}</span>
+                                        <span
+                                            class="badge {{ strtoupper($transaction->payment_status ?? '') === 'PAID' ? 'text-bg-success' : (strtoupper($transaction->payment_status ?? '') === 'PENDING' ? 'text-bg-warning' : 'text-bg-danger') }}">{{ $transaction->payment_status ?? '-' }}</span>
+                                    </div>
+                                @empty
+                                    -
+                                @endforelse
                             </div>
                         </div>
                     </div>
