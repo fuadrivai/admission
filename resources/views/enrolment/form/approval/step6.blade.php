@@ -67,12 +67,12 @@
                             <span class="btn btn-outline-success btn-sm">Browse</span>
                         </label>
                         <div class="signature-preview d-none" id="parentSignaturePreview">
-                            <img src="" alt="Parent/guardian signature preview" id="parentSignaturePreviewImage">
+                            <img src="" alt="Parent/guardian signature preview" id="parentSignaturePreviewImage" class="signature-preview-image">
                             <div class="signature-preview-details">
                                 <strong>Signature preview</strong>
-                                <span id="parentSignatureFileName"></span>
+                                <span id="parentSignatureFileName" class="signature-file-name"></span>
                             </div>
-                            <button type="button" class="btn btn-outline-secondary btn-sm" id="removeParentSignature">
+                            <button type="button" class="btn btn-outline-secondary btn-sm remove-signature" id="removeParentSignature">
                                 <i class="bi bi-x-lg"></i> Remove
                             </button>
                         </div>

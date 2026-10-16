@@ -46,38 +46,42 @@ $(document).ready(function () {
         validateCurrentStep();
     });
 
-    $("#parentSignature").on("change", function () {
+    $(".signature-upload-input").on("change", function () {
+        const field = $(this);
         const files = this.files;
         const isValid =
             files &&
             files.length === 1 &&
             ["image/jpeg", "image/jpg", "image/png"].includes(files[0].type) &&
             files[0].size <= 2 * 1024 * 1024;
-        $(this).toggleClass("validation-error", !isValid);
+        const upload = field.closest(".signature-upload");
+        const preview = upload.find(".signature-preview");
+        const errorElement = $(`#${field.attr("id")}-error`);
+        field.toggleClass("validation-error", !isValid);
         if (!isValid) {
-            $("#parentSignature-error").show();
-            $("#parentSignaturePreview").addClass("d-none");
-            $("#parentSignaturePreviewImage").attr("src", "");
-            $("#parentSignatureFileName").text("");
+            errorElement.show();
+            preview.addClass("d-none");
+            preview.find(".signature-preview-image").attr("src", "");
+            preview.find(".signature-file-name").text("");
             if (signaturePreviewUrl) {
                 URL.revokeObjectURL(signaturePreviewUrl);
                 signaturePreviewUrl = null;
             }
         } else {
-            $("#parentSignature-error").hide();
+            errorElement.hide();
             if (signaturePreviewUrl) {
                 URL.revokeObjectURL(signaturePreviewUrl);
             }
             signaturePreviewUrl = URL.createObjectURL(files[0]);
-            $("#parentSignaturePreviewImage").attr("src", signaturePreviewUrl);
-            $("#parentSignatureFileName").text(files[0].name);
-            $("#parentSignaturePreview").removeClass("d-none");
+            preview.find(".signature-preview-image").attr("src", signaturePreviewUrl);
+            preview.find(".signature-file-name").text(files[0].name);
+            preview.removeClass("d-none");
         }
         validateCurrentStep();
     });
 
-    $("#removeParentSignature").on("click", function () {
-        $("#parentSignature").val("").trigger("change");
+    $(".remove-signature").on("click", function () {
+        $(this).closest(".signature-upload").find(".signature-upload-input").val("").trigger("change");
     });
 });
 
@@ -274,7 +278,9 @@ async function submitForm() {
     $(".final-submit-btn").prop("disabled", true);
 
     try {
-        const fileInput = document.getElementById("parentSignature");
+        const fileInput = document.getElementById(
+            totalSteps === 3 ? "parentSignatureStep3" : "parentSignature",
+        );
         if (fileInput && fileInput.files && fileInput.files.length > 0) {
             const formData = new FormData();
             formData.append("admission_statement_id", admission.statement.id);
@@ -283,9 +289,13 @@ async function submitForm() {
             await ajaxFilePromise(formData, "/document/statement/signature", "POST");
         }
 
+        if (totalSteps === 3) {
+            await postFinancial();
+        }
+
         let type = totalSteps == 5 ? "student" : "parent";
         await postAgreement(type);
-        let statement = await postStatement(true);
+        await postStatement(true);
 
         toastify("success", "Formulir persetujuan telah berhasil dikirim.");
         setTimeout(() => {
@@ -388,12 +398,14 @@ async function getAdmissionByCode() {
             .addClass("step-content");
         totalSteps = 5;
         $("#btn-under-upper-secondary").addClass("d-none");
+        $("#parentSignatureStep3").prop("required", false);
     } else {
         $("#step-4, #step-5").addClass("conditional-section");
         totalSteps = 3;
         $('.step[data-step="5"], .step[data-step="4"]').hide();
         $(".step").css("flex", "0 0 25%");
         $("#btn-under-upper-secondary").removeClass("d-none");
+        $("#parentSignatureStep3").prop("required", true);
     }
 
     validateCurrentStep();

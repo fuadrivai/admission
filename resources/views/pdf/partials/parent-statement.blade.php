@@ -13,7 +13,7 @@
             @foreach ($section->items as $item)
                 <li style="margin-bottom: 12px;">
                     <div class="text-bold" style="text-align: justify; white-space: pre-line;">{{ $item->text_en }}</div>
-                    <div class="text-italic" style="text-align: justify; white-space: pre-line;">{{ $item->text_id }}
+                    <div class="text-italic" style="text-align: justify; white-space: normal;">{{ $item->text_id }}
                     </div>
                 </li>
             @endforeach
@@ -30,7 +30,7 @@
             </div>
         @endif
         @if ($parentStatementDocument->description_id)
-            <div class="text-italic" style="margin-top: 10px; text-align: justify; white-space: pre-line;">
+            <div class="text-italic" style="text-align: justify; white-space: normal;">
                 {{ $parentStatementDocument->description_id }}
             </div>
         @endif
