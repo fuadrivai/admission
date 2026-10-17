@@ -64,6 +64,8 @@
                     <ul class="submenu ">
                         <li class="submenu-item"><a href="/enrolment" class="submenu-link">List</a></li>
                         @if (!auth()->check() || auth()->user()->role != 'user')
+                            <li class="submenu-item"><a href="{{ route('enrolment.merge') }}"
+                                    class="submenu-link {{ Request::is('enrolment/merge') ? 'text-red' : '' }}">Merge Records</a></li>
                             <li class="submenu-item"><a href="/enrolment/setting"
                                     class="submenu-link {{ Request::is('enrolment/setting') ? 'text-red' : '' }}">Settings</a>
                             </li>
