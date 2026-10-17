@@ -48,6 +48,10 @@
     </div>
 </div>
 
+<div class="mt-3">
+    {{ $enrolments->onEachSide(0)->links() }}
+</div>
+
 @forelse ($enrolments as $enrolment)
     <div class="card">
         <div class="card-body">
@@ -59,7 +63,8 @@
                     <label for="">Kode : {{ $enrolment->code }}
                         @if ($enrolment->isMerged())
                             <span class="badge text-bg-warning">
-                                Merged into {{ optional($enrolment->mergedInto)->code ?? 'enrolment #' . $enrolment->merged_into_enrolment_id }}
+                                Merged into
+                                {{ optional($enrolment->mergedInto)->code ?? 'enrolment #' . $enrolment->merged_into_enrolment_id }}
                             </span>
                         @endif
                         <span
@@ -108,7 +113,10 @@
                                 <a class="dropdown-item view-detail" href="/enrolment/{{ $enrolment->id }}/edit"
                                     data-id="{{ $enrolment->id }}"><i class="fa fa-eye"></i><span>Detail</span></a>
                             </li>
-                            @if (!$enrolment->isMerged() && auth()->user()->role !== 'user' && strtoupper((string) $enrolment->payment_status) !== 'CANCELLED')
+                            @if (
+                                !$enrolment->isMerged() &&
+                                    auth()->user()->role !== 'user' &&
+                                    strtoupper((string) $enrolment->payment_status) !== 'CANCELLED')
                                 <li>
                                     <hr class="dropdown-divider">
                                 </li>

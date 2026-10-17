@@ -29,7 +29,7 @@
                     </div>
                     <h1 class="auth-title">Log in.</h1>
 
-                    <form action="/auth" method="post">
+                    <form action="{{ route('login') }}" method="post">
                         @csrf
                         <div class="form-group position-relative has-icon-left mb-4">
                             <input type="text"
