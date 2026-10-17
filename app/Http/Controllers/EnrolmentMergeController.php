@@ -420,6 +420,7 @@ class EnrolmentMergeController extends Controller
         if (DB::table('enrolment_transactions')
             ->where('enrolment_id', $source->id)
             ->whereNotNull('invoice_id')
+            ->select('invoice_id')
             ->groupBy('invoice_id')
             ->havingRaw('COUNT(*) > 1')
             ->exists()) {
