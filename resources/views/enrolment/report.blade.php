@@ -110,7 +110,8 @@
                     <div class="col-md-4">
                         <label for="academic_year_id" class="form-label">Academic Year</label>
                         <select id="academic_year_id" name="academic_year_id" class="form-select" required>
-                            <option value="">Pilih Tahun Ajaran</option>
+                            <option value="all"
+                                {{ $selectedAcademicYearId === 'all' ? 'selected' : '' }}>All Academic Year</option>
                             @foreach ($academicYears as $academicYear)
                                 <option value="{{ $academicYear->id }}"
                                     {{ (string) $selectedAcademicYearId === (string) $academicYear->id ? 'selected' : '' }}>

@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Yajra\DataTables\Utilities\Request as UtilitiesRequest;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
 use function App\Helpers\expireXenditInvoice;
 
@@ -72,6 +73,9 @@ class EnrolmentController extends Controller
         $hasSubmittedFilters = $request->hasAny(['start_date', 'end_date', 'branch_id', 'level_id', 'academic_year_id']);
         $dateRules = $hasSubmittedFilters ? 'required|date' : 'nullable|date';
         $branchRules = $hasSubmittedFilters ? 'required|integer|exists:branches,id' : 'nullable|integer|exists:branches,id';
+        $academicYears = DB::table('academic_years')
+            ->orderByDesc('name')
+            ->get(['id', 'name']);
 
         $validated = $request->validate([
             'start_date' => $dateRules,
@@ -80,9 +84,12 @@ class EnrolmentController extends Controller
                 : 'nullable|date|after_or_equal:start_date',
             'level_id' => 'nullable|integer|exists:levels,id',
             'branch_id' => $branchRules,
-            'academic_year_id' => $hasSubmittedFilters
-                ? 'required|integer|exists:academic_years,id'
-                : 'nullable|integer|exists:academic_years,id',
+            'academic_year_id' => [
+                $hasSubmittedFilters ? 'required' : 'nullable',
+                Rule::in(array_merge(['all'], $academicYears->pluck('id')->map(function ($id) {
+                    return (string) $id;
+                })->all())),
+            ],
         ]);
 
         $startDate = !empty($validated['start_date'])
@@ -92,7 +99,7 @@ class EnrolmentController extends Controller
             ? Carbon::parse($validated['end_date'])->endOfDay()
             : null;
         $selectedLevelId = $validated['level_id'] ?? '';
-        $selectedAcademicYearId = $validated['academic_year_id'] ?? '';
+        $selectedAcademicYearId = $validated['academic_year_id'] ?? 'all';
         $selectedBranchId = auth()->user()->role === 'user'
             ? auth()->user()->branch_id
             : ($validated['branch_id'] ?? '');
@@ -119,10 +126,6 @@ class EnrolmentController extends Controller
             ")
             ->orderBy('levels.name')
             ->get();
-        $academicYears = DB::table('academic_years')
-            ->orderByDesc('name')
-            ->get(['id', 'name']);
-
         $rows = collect();
 
         if ($hasReportFilter) {
@@ -130,7 +133,9 @@ class EnrolmentController extends Controller
                 $join->on('enrolments.grade_id', '=', 'grades.id')
                     ->whereNull('enrolments.merged_into_enrolment_id');
 
-                $join->where('enrolments.academic_year_id', $selectedAcademicYearId);
+                if ($selectedAcademicYearId !== 'all') {
+                    $join->where('enrolments.academic_year_id', $selectedAcademicYearId);
+                }
 
                 if ($selectedBranchId) {
                     $join->where('enrolments.branch_id', $selectedBranchId);
