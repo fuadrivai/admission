@@ -95,7 +95,7 @@
                 </p>
                 <div class="collapse" id="collapse-filter">
                     <div class="row">
-                        <div class="col-md-3">
+                        {{-- <div class="col-md-3">
                             <div class="form-group">
                                 <label for="filter-archive">Record</label>
                                 <select id="filter-archive" name="filter-archive" class="form-select"
@@ -105,7 +105,7 @@
                                     <option value="all">All records</option>
                                 </select>
                             </div>
-                        </div>
+                        </div> --}}
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="filter-name">Search</label>

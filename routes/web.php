@@ -162,6 +162,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
         Route::prefix('enrolment')->name('enrolment.')->group(function () {
             Route::get('merge', [EnrolmentMergeController::class, 'index'])->name('merge');
             Route::post('merge', [EnrolmentMergeController::class, 'store'])->name('merge.store');
+            Route::get('report', [EnrolmentController::class, 'report'])->name('report');
             Route::get('dp/discount', [EnrolmentDpController::class, 'discount'])->name('dp.discount');
             Route::get('dp/search', [EnrolmentDpController::class, 'search'])->name('dp.search');
             Route::get('dp', [EnrolmentDpController::class, 'index'])->name('dp.index');

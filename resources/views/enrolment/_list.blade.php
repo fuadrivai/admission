@@ -48,9 +48,9 @@
     </div>
 </div>
 
-<div class="mt-3">
+{{-- <div class="mt-3">
     {{ $enrolments->onEachSide(0)->links() }}
-</div>
+</div> --}}
 
 @forelse ($enrolments as $enrolment)
     <div class="card">

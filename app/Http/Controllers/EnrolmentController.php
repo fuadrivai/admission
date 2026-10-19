@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exports\EnrolmentExport;
+use App\Models\Branch;
 use App\Models\Enrolment;
 use App\Models\EnrolmentTransaction;
 use App\Services\BranchService;
@@ -12,6 +13,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Utilities\Request as UtilitiesRequest;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use function App\Helpers\expireXenditInvoice;
 
@@ -64,6 +66,152 @@ class EnrolmentController extends Controller
 
         return view('enrolment.index', ["title" => "Enrolment"]);
     }
+
+    public function report(Request $request)
+    {
+        $hasSubmittedFilters = $request->hasAny(['start_date', 'end_date', 'branch_id', 'level_id', 'academic_year_id']);
+        $dateRules = $hasSubmittedFilters ? 'required|date' : 'nullable|date';
+        $branchRules = $hasSubmittedFilters ? 'required|integer|exists:branches,id' : 'nullable|integer|exists:branches,id';
+
+        $validated = $request->validate([
+            'start_date' => $dateRules,
+            'end_date' => $hasSubmittedFilters
+                ? 'required|date|after_or_equal:start_date'
+                : 'nullable|date|after_or_equal:start_date',
+            'level_id' => 'nullable|integer|exists:levels,id',
+            'branch_id' => $branchRules,
+            'academic_year_id' => $hasSubmittedFilters
+                ? 'required|integer|exists:academic_years,id'
+                : 'nullable|integer|exists:academic_years,id',
+        ]);
+
+        $startDate = !empty($validated['start_date'])
+            ? Carbon::parse($validated['start_date'])->startOfDay()
+            : null;
+        $endDate = !empty($validated['end_date'])
+            ? Carbon::parse($validated['end_date'])->endOfDay()
+            : null;
+        $selectedLevelId = $validated['level_id'] ?? '';
+        $selectedAcademicYearId = $validated['academic_year_id'] ?? '';
+        $selectedBranchId = auth()->user()->role === 'user'
+            ? auth()->user()->branch_id
+            : ($validated['branch_id'] ?? '');
+        $hasReportFilter = $hasSubmittedFilters && $request->filled('start_date')
+            && $request->filled('end_date') && $request->filled('branch_id')
+            && $request->filled('academic_year_id');
+        $branches = Branch::query()
+            ->when(auth()->user()->role === 'user', function ($query) {
+                $query->where('id', auth()->user()->branch_id);
+            })
+            ->orderBy('name')
+            ->get(['id', 'name']);
+        $levels = DB::table('levels')
+            ->leftJoin('divisions', 'divisions.id', '=', 'levels.division_id')
+            ->select('levels.id', 'levels.name', 'levels.branch_id', 'divisions.name as division_name')
+            ->orderByRaw("
+                CASE divisions.name
+                    WHEN 'Preschool' THEN 1
+                    WHEN 'Primary' THEN 2
+                    WHEN 'Secondary' THEN 3
+                    WHEN 'Development Class' THEN 4
+                    ELSE 5
+                END
+            ")
+            ->orderBy('levels.name')
+            ->get();
+        $academicYears = DB::table('academic_years')
+            ->orderByDesc('name')
+            ->get(['id', 'name']);
+
+        $rows = collect();
+
+        if ($hasReportFilter) {
+            $enrolmentJoin = function ($join) use ($startDate, $endDate, $selectedBranchId, $selectedAcademicYearId) {
+                $join->on('enrolments.grade_id', '=', 'grades.id')
+                    ->whereNull('enrolments.merged_into_enrolment_id');
+
+                $join->where('enrolments.academic_year_id', $selectedAcademicYearId);
+
+                if ($selectedBranchId) {
+                    $join->where('enrolments.branch_id', $selectedBranchId);
+                }
+
+                if ($startDate) {
+                    $join->where('enrolments.created_at', '>=', $startDate);
+                }
+
+                if ($endDate) {
+                    $join->where('enrolments.created_at', '<=', $endDate);
+                }
+            };
+
+            $rows = DB::table('grades')
+                ->leftJoin('levels', 'levels.id', '=', 'grades.level_id')
+                ->leftJoin('divisions', 'divisions.id', '=', 'levels.division_id')
+                ->when($selectedBranchId, function ($query) use ($selectedBranchId) {
+                    $query->where('levels.branch_id', $selectedBranchId);
+                })
+                ->leftJoin('enrolments', $enrolmentJoin)
+                ->when($selectedLevelId, function ($query) use ($selectedLevelId) {
+                    $query->where('levels.id', $selectedLevelId);
+                })
+                ->select('grades.name as level')
+                ->selectRaw("
+                    MIN(CASE divisions.name
+                        WHEN 'Preschool' THEN 1
+                        WHEN 'Primary' THEN 2
+                        WHEN 'Secondary' THEN 3
+                        WHEN 'Development Class' THEN 4
+                        ELSE 5
+                    END) as division_order
+                ")
+                ->selectRaw('COUNT(enrolments.id) as total_form')
+                ->selectRaw("SUM(CASE WHEN UPPER(enrolments.payment_status) = 'PAID' THEN 1 ELSE 0 END) as paid")
+                ->selectRaw("SUM(CASE WHEN UPPER(enrolments.payment_status) = 'PENDING' THEN 1 ELSE 0 END) as pending")
+                ->selectRaw("SUM(CASE WHEN UPPER(enrolments.payment_status) = 'EXPIRED' THEN 1 ELSE 0 END) as expired")
+                ->selectRaw("SUM(CASE WHEN UPPER(enrolments.payment_status) = 'CANCELLED' THEN 1 ELSE 0 END) as cancelled")
+                ->selectRaw("
+                    SUM(CASE WHEN EXISTS (
+                        SELECT 1
+                        FROM enrolment_transactions
+                        INNER JOIN enrolment_details
+                            ON enrolment_details.enrolment_transaction_id = enrolment_transactions.id
+                        WHERE enrolment_transactions.enrolment_id = enrolments.id
+                            AND UPPER(enrolment_transactions.payment_status) IN ('PAID', 'SETTLED', 'COMPLETED', 'PENDING')
+                            AND enrolment_details.type = 'dp'
+                    ) THEN 1 ELSE 0 END) as seat_rsvp
+                ")
+                ->groupBy('grades.name')
+                ->orderBy('division_order')
+                ->orderBy('grades.name')
+                ->get();
+        }
+
+        $totals = [
+            'total_form' => $rows->sum('total_form'),
+            'paid' => $rows->sum('paid'),
+            'pending' => $rows->sum('pending'),
+            'expired' => $rows->sum('expired'),
+            'seat_rsvp' => $rows->sum('seat_rsvp'),
+            'cancelled' => $rows->sum('cancelled'),
+        ];
+
+        return view('enrolment.report', [
+            'title' => 'Laporan Enrolment',
+            'rows' => $rows,
+            'totals' => $totals,
+            'levels' => $levels,
+            'academicYears' => $academicYears,
+            'branches' => $branches,
+            'selectedLevelId' => $selectedLevelId,
+            'selectedAcademicYearId' => $selectedAcademicYearId,
+            'selectedBranchId' => $selectedBranchId,
+            'hasReportFilter' => $hasReportFilter,
+            'startDate' => $validated['start_date'] ?? '',
+            'endDate' => $validated['end_date'] ?? '',
+        ]);
+    }
+
     public function setting()
     {
         $branches = $this->branchService->getShowInForm();

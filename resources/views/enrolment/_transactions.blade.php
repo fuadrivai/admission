@@ -195,7 +195,9 @@
 @php
     $transactions = $enrolment->transactions->sortByDesc('created_at');
     $money = fn($value) => 'Rp ' . number_format((float) $value, 0, ',', '.');
-    $transactionTotal = $transactions->sum('total_amount');
+    $transactionTotal = $transactions
+        ->filter(fn($transaction) => in_array(strtoupper((string) $transaction->payment_status), ['PENDING', 'PAID'], true))
+        ->sum('subtotal');
     $collapseId = 'tx-' . $enrolment->id;
 @endphp
 <div class="enrolment-transactions mt-3">
