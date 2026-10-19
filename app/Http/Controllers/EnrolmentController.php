@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exports\EnrolmentExport;
+use App\Exports\EnrolmentReportExport;
 use App\Models\Branch;
 use App\Models\Enrolment;
 use App\Models\EnrolmentTransaction;
@@ -70,20 +71,15 @@ class EnrolmentController extends Controller
 
     public function report(Request $request)
     {
-        $hasSubmittedFilters = $request->hasAny(['start_date', 'end_date', 'branch_id', 'level_id', 'academic_year_id']);
-        $dateRules = $hasSubmittedFilters ? 'required|date' : 'nullable|date';
+        $hasSubmittedFilters = $request->hasAny(['branch_id', 'level_id', 'academic_year_id']);
         $branchRules = $hasSubmittedFilters ? 'required|integer|exists:branches,id' : 'nullable|integer|exists:branches,id';
         $academicYears = DB::table('academic_years')
             ->orderByDesc('name')
-            ->get(['id', 'name']);
+            ->get(['id', 'name'            ]);
 
-        $validated = $request->validate([
-            'start_date' => $dateRules,
-            'end_date' => $hasSubmittedFilters
-                ? 'required|date|after_or_equal:start_date'
-                : 'nullable|date|after_or_equal:start_date',
-            'level_id' => 'nullable|integer|exists:levels,id',
-            'branch_id' => $branchRules,
+            $validated = $request->validate([
+                'level_id' => 'nullable|integer|exists:levels,id',
+                'branch_id' => $branchRules,
             'academic_year_id' => [
                 $hasSubmittedFilters ? 'required' : 'nullable',
                 Rule::in(array_merge(['all'], $academicYears->pluck('id')->map(function ($id) {
@@ -92,19 +88,13 @@ class EnrolmentController extends Controller
             ],
         ]);
 
-        $startDate = !empty($validated['start_date'])
-            ? Carbon::parse($validated['start_date'])->startOfDay()
-            : null;
-        $endDate = !empty($validated['end_date'])
-            ? Carbon::parse($validated['end_date'])->endOfDay()
-            : null;
         $selectedLevelId = $validated['level_id'] ?? '';
         $selectedAcademicYearId = $validated['academic_year_id'] ?? 'all';
         $selectedBranchId = auth()->user()->role === 'user'
             ? auth()->user()->branch_id
             : ($validated['branch_id'] ?? '');
-        $hasReportFilter = $hasSubmittedFilters && $request->filled('start_date')
-            && $request->filled('end_date') && $request->filled('branch_id')
+        $hasReportFilter = $hasSubmittedFilters
+            && $request->filled('branch_id')
             && $request->filled('academic_year_id');
         $branches = Branch::query()
             ->when(auth()->user()->role === 'user', function ($query) {
@@ -129,7 +119,7 @@ class EnrolmentController extends Controller
         $rows = collect();
 
         if ($hasReportFilter) {
-            $enrolmentJoin = function ($join) use ($startDate, $endDate, $selectedBranchId, $selectedAcademicYearId) {
+            $enrolmentJoin = function ($join) use ($selectedBranchId, $selectedAcademicYearId) {
                 $join->on('enrolments.grade_id', '=', 'grades.id')
                     ->whereNull('enrolments.merged_into_enrolment_id');
 
@@ -140,17 +130,20 @@ class EnrolmentController extends Controller
                 if ($selectedBranchId) {
                     $join->where('enrolments.branch_id', $selectedBranchId);
                 }
-
-                if ($startDate) {
-                    $join->where('enrolments.created_at', '>=', $startDate);
-                }
-
-                if ($endDate) {
-                    $join->where('enrolments.created_at', '<=', $endDate);
-                }
             };
 
-            $rows = DB::table('grades')
+            $targetRows = DB::table('enrolment_targets')
+                ->where('branch_id', $selectedBranchId)
+                ->whereIn('target_scope', ['level', 'grade'])
+                ->when($selectedAcademicYearId !== 'all', function ($query) use ($selectedAcademicYearId) {
+                    $query->where('academic_year_id', $selectedAcademicYearId);
+                })
+                ->when($selectedLevelId, function ($query) use ($selectedLevelId) {
+                    $query->where('level_id', $selectedLevelId);
+                })
+                ->get(['academic_year_id', 'level_id', 'grade_id', 'target_scope', 'target']);
+
+            $statsRows = DB::table('grades')
                 ->leftJoin('levels', 'levels.id', '=', 'grades.level_id')
                 ->leftJoin('divisions', 'divisions.id', '=', 'levels.division_id')
                 ->when($selectedBranchId, function ($query) use ($selectedBranchId) {
@@ -160,7 +153,13 @@ class EnrolmentController extends Controller
                 ->when($selectedLevelId, function ($query) use ($selectedLevelId) {
                     $query->where('levels.id', $selectedLevelId);
                 })
-                ->select('grades.name as level')
+                ->select(
+                    'levels.id as level_id',
+                    'levels.name as level_name',
+                    'grades.id as grade_id',
+                    'grades.name as grade_name',
+                    'enrolments.academic_year_id as academic_year_id'
+                )
                 ->selectRaw("
                     MIN(CASE divisions.name
                         WHEN 'Preschool' THEN 1
@@ -186,13 +185,121 @@ class EnrolmentController extends Controller
                             AND enrolment_details.type = 'dp'
                     ) THEN 1 ELSE 0 END) as seat_rsvp
                 ")
-                ->groupBy('grades.name')
+                ->groupBy('levels.id', 'levels.name', 'grades.id', 'grades.name', 'enrolments.academic_year_id')
                 ->orderBy('division_order')
                 ->orderBy('grades.name')
                 ->get();
+
+            $gradeInfo = $statsRows->unique('grade_id')->keyBy('grade_id');
+            $years = $selectedAcademicYearId === 'all'
+                ? $statsRows->pluck('academic_year_id')->filter()->merge($targetRows->pluck('academic_year_id'))->unique()->values()
+                : collect([(int) $selectedAcademicYearId]);
+            $outputRows = [];
+            $metricFields = ['total_form', 'paid', 'pending', 'expired', 'cancelled', 'seat_rsvp'];
+
+            $appendRow = function ($key, array $row) use (&$outputRows, $metricFields) {
+                if (!isset($outputRows[$key])) {
+                    $outputRows[$key] = (object) $row;
+
+                    return;
+                }
+
+                foreach (array_merge(['enrolment_target'], $metricFields) as $field) {
+                    $outputRows[$key]->{$field} += $row[$field];
+                }
+            };
+
+            foreach ($years as $yearId) {
+                $yearStats = $statsRows->filter(function ($row) use ($yearId) {
+                    return (string) $row->academic_year_id === (string) $yearId;
+                });
+                $yearTargets = $targetRows->where('academic_year_id', $yearId);
+                $levelTargets = $yearTargets->where('target_scope', 'level')->keyBy('level_id');
+                $gradeTargets = $yearTargets->where('target_scope', 'grade')->keyBy('grade_id');
+                $coveredGrades = [];
+
+                foreach ($levelTargets as $levelId => $target) {
+                    $levelGrades = $gradeInfo->where('level_id', $levelId);
+                    $levelGradeIds = $levelGrades->pluck('grade_id')->all();
+                    $coveredGrades = array_merge($coveredGrades, $levelGradeIds);
+                    $levelStats = $yearStats->whereIn('grade_id', $levelGradeIds);
+                    $firstGrade = $levelGrades->first();
+
+                    if (!$firstGrade) {
+                        continue;
+                    }
+
+                    $row = [
+                        'level' => $firstGrade->level_name,
+                        'division_order' => $firstGrade->division_order,
+                        'enrolment_target' => (int) $target->target,
+                    ];
+                    foreach ($metricFields as $field) {
+                        $row[$field] = (int) $levelStats->sum($field);
+                    }
+                    $appendRow('level:' . $levelId, $row);
+                }
+
+                foreach ($gradeTargets as $gradeId => $target) {
+                    $coveredGrades[] = $gradeId;
+                    $grade = $gradeInfo->get($gradeId);
+                    if (!$grade) {
+                        continue;
+                    }
+
+                    $gradeStats = $yearStats->where('grade_id', $gradeId);
+                    $row = [
+                        'level' => $grade->grade_name,
+                        'division_order' => $grade->division_order,
+                        'enrolment_target' => (int) $target->target,
+                    ];
+                    foreach ($metricFields as $field) {
+                        $row[$field] = (int) $gradeStats->sum($field);
+                    }
+                    $appendRow('grade:' . $gradeId, $row);
+                }
+
+                foreach ($yearStats as $stat) {
+                    if (in_array($stat->grade_id, $coveredGrades)) {
+                        continue;
+                    }
+
+                    $row = [
+                        'level' => $stat->grade_name,
+                        'division_order' => $stat->division_order,
+                        'enrolment_target' => 0,
+                    ];
+                    foreach ($metricFields as $field) {
+                        $row[$field] = (int) $stat->{$field};
+                    }
+                    $appendRow('grade:' . $stat->grade_id, $row);
+                }
+            }
+
+            foreach ($gradeInfo as $gradeId => $grade) {
+                if (isset($outputRows['level:' . $grade->level_id]) || isset($outputRows['grade:' . $gradeId])) {
+                    continue;
+                }
+
+                $row = [
+                    'level' => $grade->grade_name,
+                    'division_order' => $grade->division_order,
+                    'enrolment_target' => 0,
+                ];
+                foreach ($metricFields as $field) {
+                    $row[$field] = 0;
+                }
+                $appendRow('grade:' . $gradeId, $row);
+            }
+
+            $rows = collect($outputRows)->sortBy([
+                ['division_order', 'asc'],
+                ['level', 'asc'],
+            ])->values();
         }
 
         $totals = [
+            'enrolment_target' => $rows->sum('enrolment_target'),
             'total_form' => $rows->sum('total_form'),
             'paid' => $rows->sum('paid'),
             'pending' => $rows->sum('pending'),
@@ -200,6 +307,15 @@ class EnrolmentController extends Controller
             'seat_rsvp' => $rows->sum('seat_rsvp'),
             'cancelled' => $rows->sum('cancelled'),
         ];
+
+        if ($request->input('export') === 'excel') {
+            abort_unless($hasReportFilter, 422, 'Pilih cabang dan tahun ajaran sebelum mengekspor laporan.');
+
+            return Excel::download(
+                new EnrolmentReportExport($rows, $totals),
+                'Enrolment_Report_' . Carbon::now()->format('Ymd_His') . '.xlsx'
+            );
+        }
 
         return view('enrolment.report', [
             'title' => 'Laporan Enrolment',
@@ -212,8 +328,6 @@ class EnrolmentController extends Controller
             'selectedAcademicYearId' => $selectedAcademicYearId,
             'selectedBranchId' => $selectedBranchId,
             'hasReportFilter' => $hasReportFilter,
-            'startDate' => $validated['start_date'] ?? '',
-            'endDate' => $validated['end_date'] ?? '',
         ]);
     }
 

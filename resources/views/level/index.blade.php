@@ -15,6 +15,18 @@
     <section class="section">
         <div class="card">
             <div class="card-body">
+                <ul class="nav nav-tabs mb-3" id="branch-level-tabs" role="tablist">
+                    @foreach ($branches as $index => $branch)
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link {{ $index === 0 ? 'active' : '' }}"
+                                id="branch-level-tab-{{ $branch->id }}" type="button" role="tab"
+                                aria-selected="{{ $index === 0 ? 'true' : 'false' }}"
+                                data-branch-id="{{ $branch->id }}">
+                                {{ $branch->name }}
+                            </button>
+                        </li>
+                    @endforeach
+                </ul>
                 <div class="row">
                     <div class="table-responsive datatable-minimal table-striped">
                         <table class="table" id="tbl-level">
@@ -45,6 +57,8 @@
     <script src="/assets/extensions/datatables.net-bs5/js/dataTables.bootstrap5.min.js"></script>
     <script src="/assets/extensions/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
     <script>
+        let selectedBranchId = $('#branch-level-tabs .nav-link.active').data('branch-id');
+
         $(document).ready(function() {
             tbldate = $('#tbl-level').DataTable({
                 responsive: true,
@@ -71,6 +85,9 @@
                 ajax: {
                     url: "{{ route('level.datatables') }}",
                     type: "GET",
+                    data: function(data) {
+                        data.branch_id = selectedBranchId;
+                    }
                 },
                 columns: [{
                         data: "branch_code",
@@ -118,6 +135,14 @@
                 ]
             });
 
+            $('#branch-level-tabs').on('click', '.nav-link', function() {
+                $('#branch-level-tabs .nav-link')
+                    .removeClass('active')
+                    .attr('aria-selected', 'false');
+                $(this).addClass('active').attr('aria-selected', 'true');
+                selectedBranchId = $(this).data('branch-id');
+                tbldate.ajax.reload();
+            });
         });
     </script>
 @endsection

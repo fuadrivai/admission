@@ -29,14 +29,20 @@ class LevelController extends Controller
     }
     public function index()
     {
-        return view('level.index', ["title" => "Level"]);
+        return view('level.index', [
+            "title" => "Level",
+            "branches" => $this->branchService->getShowInForm(),
+        ]);
     }
 
     public function datatables(UtilitiesRequest $request)
     {
         $level = Level::query();
+        if ($request->filled('branch_id')) {
+            $level->where('branch_id', $request->input('branch_id'));
+        }
         if ($request->ajax()) {
-            return datatables()->of($level->with(['grades', 'division']))
+            return datatables()->of($level->with(['grades', 'division', 'branch']))
                 ->addColumn('division_name', function ($row) {
                     return $row->division ? $row->division->name : '-';
                 })

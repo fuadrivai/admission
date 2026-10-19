@@ -65,13 +65,13 @@
             <div class="card-body p-3 p-lg-4">
                 <div class="mb-4">
                     <h5 class="mb-1">Laporan Enrolment</h5>
-                    <p class="text-muted small mb-0">Pilih cabang, tahun ajaran, dan rentang tanggal. Level bersifat
+                    <p class="text-muted small mb-0">Pilih cabang dan tahun ajaran untuk melihat laporan. Level bersifat
                         opsional.</p>
                 </div>
 
                 <form id="enrolment-report-filters" method="GET" action="{{ route('enrolment.report') }}"
                     class="filter-card row g-3 align-items-end p-3 mb-4">
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label for="branch_id" class="form-label">Cabang</label>
                         @if (auth()->user()->role === 'user')
                             <select id="branch_id" class="form-select" disabled>
@@ -94,7 +94,7 @@
                             </select>
                         @endif
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label for="level_id" class="form-label">Level</label>
                         <select id="level_id" name="level_id" class="form-select"
                             {{ $selectedBranchId ? '' : 'disabled' }}>
@@ -107,11 +107,11 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label for="academic_year_id" class="form-label">Academic Year</label>
                         <select id="academic_year_id" name="academic_year_id" class="form-select" required>
-                            <option value="all"
-                                {{ $selectedAcademicYearId === 'all' ? 'selected' : '' }}>All Academic Year</option>
+                            <option value="all" {{ $selectedAcademicYearId === 'all' ? 'selected' : '' }}>All Academic
+                                Year</option>
                             @foreach ($academicYears as $academicYear)
                                 <option value="{{ $academicYear->id }}"
                                     {{ (string) $selectedAcademicYearId === (string) $academicYear->id ? 'selected' : '' }}>
@@ -120,17 +120,7 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-4">
-                        <label for="start_date" class="form-label">Start Date</label>
-                        <input type="date" id="start_date" name="start_date" class="form-control"
-                            value="{{ $startDate }}" required>
-                    </div>
-                    <div class="col-md-4">
-                        <label for="end_date" class="form-label">End Date</label>
-                        <input type="date" id="end_date" name="end_date" class="form-control"
-                            value="{{ $endDate }}" required>
-                    </div>
-                    <div class="col-md-4 d-flex justify-content-end gap-2">
+                    <div class="col-md-3 d-flex justify-content-end gap-2">
                         <button type="submit" class="btn btn-primary px-4">
                             <i class="fa fa-filter me-1"></i> Filter
                         </button>
@@ -138,17 +128,29 @@
                     </div>
                 </form>
 
+                <div class="d-flex justify-content-center mb-4">
+                    <button type="submit" form="enrolment-report-filters" name="export" value="excel"
+                        class="btn btn-success">
+                        <i class="fa fa-download me-1"></i> Export Excel
+                    </button>
+                </div>
+
                 @if ($errors->any())
                     <div class="alert alert-danger" role="alert">
                         {{ $errors->first() }}
                     </div>
                 @endif
 
-                <div id="report-pending-filter" class="alert alert-info d-none" role="status">
-                    Filter berubah. Klik <strong>Filter</strong> untuk menampilkan laporan sesuai pilihan terbaru.
+                <div id="report-pending-filter" class="alert alert-info {{ $hasReportFilter ? 'd-none' : '' }}"
+                    role="status">
+                    @if ($hasReportFilter)
+                        Filter berubah. Klik <strong>Filter</strong> untuk menampilkan laporan sesuai pilihan terbaru.
+                    @else
+                        Pilih cabang dan tahun ajaran, lalu klik <strong>Filter</strong> untuk menampilkan laporan.
+                    @endif
                 </div>
 
-                <div id="report-results" class="table-responsive">
+                <div id="report-results" class="table-responsive {{ $hasReportFilter ? '' : 'd-none' }}">
                     <table class="table table-bordered align-middle report-table mb-0">
                         <thead>
                             <tr>
@@ -156,6 +158,7 @@
                                 <th rowspan="2">Level</th>
                                 <th colspan="5" class="text-center">Enrolment Form</th>
                                 <th rowspan="2" class="text-end">DP</th>
+                                <th colspan="2" class="text-center">Target</th>
                             </tr>
                             <tr>
                                 <th class="text-end">Expired</th>
@@ -163,6 +166,8 @@
                                 <th class="text-end">Pending</th>
                                 <th class="text-end">Paid</th>
                                 <th class="text-end">Total</th>
+                                <th class="text-end">Siswa</th>
+                                <th class="text-end">% Target</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -212,15 +217,36 @@
                                             0
                                         @endif
                                     </td>
+                                    <td class="text-end">
+                                        @if ($row->enrolment_target != 0)
+                                            <span
+                                                class="badge text-bg-primary">{{ number_format($row->enrolment_target) }}</span>
+                                        @else
+                                            0
+                                        @endif
+                                    </td>
+                                    @php
+                                        $targetPercentage =
+                                            $row->enrolment_target > 0
+                                                ? ($row->seat_rsvp / $row->enrolment_target) * 100
+                                                : 0;
+                                    @endphp
+                                    <td class="text-end">
+                                        @if ($targetPercentage > 0)
+                                            <span
+                                                class="badge text-bg-info">{{ number_format($targetPercentage, 1) }}%</span>
+                                        @else
+                                            0%
+                                        @endif
+                                    </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="8" class="text-center text-muted">
+                                    <td colspan="10" class="text-center text-muted">
                                         @if ($hasReportFilter)
                                             Belum ada data grade.
                                         @else
-                                            Pilih cabang, tahun ajaran, dan rentang tanggal, lalu klik Filter untuk melihat
-                                            laporan.
+                                            Pilih cabang dan tahun ajaran, lalu klik Filter untuk melihat laporan.
                                         @endif
                                     </td>
                                 </tr>
@@ -271,6 +297,28 @@
                                             <span class="badge text-bg-info">{{ $totals['seat_rsvp'] }}</span>
                                         @else
                                             0
+                                        @endif
+                                    </td>
+                                    <td class="text-end">
+                                        @if ($totals['enrolment_target'] != 0)
+                                            <span
+                                                class="badge text-bg-primary">{{ number_format($totals['enrolment_target']) }}</span>
+                                        @else
+                                            0
+                                        @endif
+                                    </td>
+                                    @php
+                                        $totalTargetPercentage =
+                                            $totals['enrolment_target'] > 0
+                                                ? ($totals['seat_rsvp'] / $totals['enrolment_target']) * 100
+                                                : 0;
+                                    @endphp
+                                    <td class="text-end">
+                                        @if ($totalTargetPercentage > 0)
+                                            <span
+                                                class="badge text-bg-info">{{ number_format($totalTargetPercentage, 1) }}%</span>
+                                        @else
+                                            0%
                                         @endif
                                     </td>
                                 </tr>

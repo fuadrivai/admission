@@ -69,6 +69,9 @@
                             <li class="submenu-item"><a href="/enrolment/setting"
                                     class="submenu-link {{ Request::is('enrolment/setting') ? 'text-red' : '' }}">Settings</a>
                             </li>
+                            <li class="submenu-item"><a href="{{ route('enrolment.target.index') }}"
+                                    class="submenu-link {{ Request::is('enrolment/target*') ? 'text-red' : '' }}">Enrolment Target</a>
+                            </li>
                             <li class="submenu-item"><a href="/setting/discount-rule"
                                     class="submenu-link {{ Request::is('setting/discount-rule*') ? 'text-red' : '' }}">Discount
                                     Rules</a>
