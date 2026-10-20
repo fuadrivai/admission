@@ -78,19 +78,19 @@ class EnrolmentController extends Controller
             ->orderByDesc('name')
             ->get(['id', 'name'            ]);
 
-            $validated = $request->validate([
-                'level_id' => 'nullable|integer|exists:levels,id',
-                'branch_id' => $branchRules,
+        $validated = $request->validate([
+            'level_id' => 'nullable|integer|exists:levels,id',
+            'branch_id' => $branchRules,
             'academic_year_id' => [
                 $hasSubmittedFilters ? 'required' : 'nullable',
-                Rule::in(array_merge(['all'], $academicYears->pluck('id')->map(function ($id) {
+                Rule::in($academicYears->pluck('id')->map(function ($id) {
                     return (string) $id;
-                })->all())),
+                })->all()),
             ],
         ]);
 
         $selectedLevelId = $validated['level_id'] ?? '';
-        $selectedAcademicYearId = $validated['academic_year_id'] ?? 'all';
+        $selectedAcademicYearId = $validated['academic_year_id'] ?? '';
         $selectedBranchId = auth()->user()->role === 'user'
             ? auth()->user()->branch_id
             : ($validated['branch_id'] ?? '');
@@ -124,9 +124,7 @@ class EnrolmentController extends Controller
                 $join->on('enrolments.grade_id', '=', 'grades.id')
                     ->whereNull('enrolments.merged_into_enrolment_id');
 
-                if ($selectedAcademicYearId !== 'all') {
-                    $join->where('enrolments.academic_year_id', $selectedAcademicYearId);
-                }
+                $join->where('enrolments.academic_year_id', $selectedAcademicYearId);
 
                 if ($selectedBranchId) {
                     $join->where('enrolments.branch_id', $selectedBranchId);
@@ -136,9 +134,7 @@ class EnrolmentController extends Controller
             $targetRows = DB::table('enrolment_targets')
                 ->where('branch_id', $selectedBranchId)
                 ->whereIn('target_scope', ['level', 'grade'])
-                ->when($selectedAcademicYearId !== 'all', function ($query) use ($selectedAcademicYearId) {
-                    $query->where('academic_year_id', $selectedAcademicYearId);
-                })
+                ->where('academic_year_id', $selectedAcademicYearId)
                 ->when($selectedLevelId, function ($query) use ($selectedLevelId) {
                     $query->where('level_id', $selectedLevelId);
                 })
@@ -170,7 +166,7 @@ class EnrolmentController extends Controller
                         ELSE 5
                     END) as division_order
                 ")
-                ->selectRaw('COUNT(enrolments.id) as total_form')
+                ->selectRaw("COUNT(CASE WHEN UPPER(COALESCE(enrolments.payment_status, '')) <> 'EXPIRED' THEN enrolments.id END) as total_form")
                 ->selectRaw("SUM(CASE WHEN UPPER(enrolments.payment_status) = 'PAID' THEN 1 ELSE 0 END) as paid")
                 ->selectRaw("SUM(CASE WHEN UPPER(enrolments.payment_status) = 'PENDING' THEN 1 ELSE 0 END) as pending")
                 ->selectRaw("SUM(CASE WHEN UPPER(enrolments.payment_status) = 'EXPIRED' THEN 1 ELSE 0 END) as expired")
@@ -192,9 +188,7 @@ class EnrolmentController extends Controller
                 ->get();
 
             $gradeInfo = $statsRows->unique('grade_id')->keyBy('grade_id');
-            $years = $selectedAcademicYearId === 'all'
-                ? $statsRows->pluck('academic_year_id')->filter()->merge($targetRows->pluck('academic_year_id'))->unique()->values()
-                : collect([(int) $selectedAcademicYearId]);
+            $years = collect([(int) $selectedAcademicYearId]);
             $outputRows = [];
             $metricFields = ['total_form', 'paid', 'pending', 'expired', 'cancelled', 'seat_rsvp'];
 

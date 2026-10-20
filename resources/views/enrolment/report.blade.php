@@ -72,6 +72,19 @@
                 <form id="enrolment-report-filters" method="GET" action="{{ route('enrolment.report') }}"
                     class="filter-card row g-3 align-items-end p-3 mb-4">
                     <div class="col-md-3">
+                        <label for="academic_year_id" class="form-label">Academic Year</label>
+                        <select id="academic_year_id" name="academic_year_id" class="form-select" required>
+                            <option value="" disabled {{ $selectedAcademicYearId === '' ? 'selected' : '' }}>Pilih
+                                Academic Year</option>
+                            @foreach ($academicYears as $academicYear)
+                                <option value="{{ $academicYear->id }}"
+                                    {{ (string) $selectedAcademicYearId === (string) $academicYear->id ? 'selected' : '' }}>
+                                    {{ $academicYear->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-3">
                         <label for="branch_id" class="form-label">Cabang</label>
                         @if (auth()->user()->role === 'user')
                             <select id="branch_id" class="form-select" disabled>
@@ -107,22 +120,9 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-3">
-                        <label for="academic_year_id" class="form-label">Academic Year</label>
-                        <select id="academic_year_id" name="academic_year_id" class="form-select" required>
-                            <option value="all" {{ $selectedAcademicYearId === 'all' ? 'selected' : '' }}>All Academic
-                                Year</option>
-                            @foreach ($academicYears as $academicYear)
-                                <option value="{{ $academicYear->id }}"
-                                    {{ (string) $selectedAcademicYearId === (string) $academicYear->id ? 'selected' : '' }}>
-                                    {{ $academicYear->name }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
                     <div class="col-md-3 d-flex justify-content-end gap-2">
                         <button type="submit" class="btn btn-primary px-4">
-                            <i class="fa fa-filter me-1"></i> Filter
+                            <i class="fa fa-filter me-1"></i> Submit
                         </button>
                         <a href="{{ route('enrolment.report') }}" class="btn btn-light border px-3">Reset</a>
                     </div>
