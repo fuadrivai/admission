@@ -452,7 +452,7 @@ Mutiara Harapan Islamic School";
         $event->name = "School Visit - " . $visit['level_name'] . " - " . $visit['child_name'];
         $event->startDateTime = $dateTime;
         $event->endDateTime = $dateTime->addHour();
-        $event->description = "School visit for " . $visit['child_name'] . " (" . $visit['parent_name'] . "/" . $visit['phone_number'] . ") at " . $visit['branch_name'] . " - " . $visit['level_name'];
+        $event->description = "School visit for " . $visit['child_name'] . " (" . $visit['parent_name'] . "/" . $visit['phone_number'] . ") at " . $visit['branch_name'] . " - " . $visit['level_name']." - " .$visit['current_school']??"" ;
         $eventEmail = EmailSetting::where('branch_id', $visit['branch_id'])->first()->from_address; 
         // $event->addAttendee(['email' => $eventEmail]);
         $event->addAttendee(['email' => $visit['email'],'responseStatus' => 'accepted']);

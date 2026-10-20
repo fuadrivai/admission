@@ -173,7 +173,8 @@
                                     Level:
                                     <span class="badge {{ $badgeClass }}" style="opacity:.85; font-size:.85em;">
                                         {{ $visit->level->name ?? '-' }}/{{ $visit->grade->name ?? '-' }}
-                                    </span>
+                                    </span> <br>
+                                    Current School: {{ $visit->current_school ?? '-' }}
                                 @endif
                             </div>
                         </div>
