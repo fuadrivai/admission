@@ -114,6 +114,7 @@ class FinancialDocumentController extends Controller
             'sections.*.title_en' => 'required|string|max:255',
             'sections.*.title_id' => 'required|string|max:255',
             'sections.*.sort_order' => 'required|integer',
+            'sections.*.is_required' => 'nullable|boolean',
             'sections.*.items' => 'required|array|min:1',
             'sections.*.items.*.id' => 'nullable|integer',
             'sections.*.items.*.number' => 'required|integer|min:0',

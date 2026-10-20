@@ -207,6 +207,34 @@ class AdmissionStatementImplement implements AdmissionStatementService{
         $dompdf->setPaper('A4');
         $dompdf->render();
 
+        $canvas = $dompdf->getCanvas();
+        $fontMetrics = $dompdf->getFontMetrics();
+        $canvas->page_script(function ($pageNumber, $pageCount, $canvas, $fontMetrics) use ($signaturePath) {
+            $pageWidth = $canvas->get_width();
+            $pageHeight = $canvas->get_height();
+            $pageNumberText = $pageNumber . ' / ' . $pageCount;
+            $pageNumberWidth = $fontMetrics->getTextWidth($pageNumberText, 'Helvetica', 9);
+
+            $canvas->text(
+                ($pageWidth - $pageNumberWidth) / 2,
+                $pageHeight - 30,
+                $pageNumberText,
+                'Helvetica',
+                9,
+                [0, 0, 0]
+            );
+
+            if ($signaturePath && file_exists($signaturePath) && $pageNumber < $pageCount) {
+                $canvas->image(
+                    $signaturePath,
+                    $pageWidth - 105,
+                    $pageHeight - 48,
+                    65,
+                    24
+                );
+            }
+        });
+
         $path = $admission['code']. '/Statement-'.$student_name .'.pdf';
 
         Storage::disk('admission')->put($path, $dompdf->output());

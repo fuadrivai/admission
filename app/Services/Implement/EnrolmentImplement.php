@@ -681,10 +681,10 @@ class EnrolmentImplement implements EnrolmentService
         return $result;
     }
 
-    public function search($request)
+    public function search($request, $archive = null)
     {
         $query = Enrolment::query()->with(['transactions.details', 'mergedInto']);
-        $archive = $request->input('archive', 'active');
+        $archive = $archive ?? $request->input('archive', 'active');
         if ($archive === 'merged') {
             $query->whereNotNull('merged_into_enrolment_id');
         } elseif ($archive !== 'all') {

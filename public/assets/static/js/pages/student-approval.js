@@ -573,13 +573,14 @@ async function getFinancialStatement() {
         financial.agree_financial_terms_and_consequences,
         financial.agree_truth_and_consent,
     ];
-    $("#agreeFinancialDocument").prop(
-        "checked",
+    const financialAgreementAccepted =
         Number(financial.financial_document_id) ===
             Number($("#agreeFinancialDocument").data("document-id")) &&
-            legacyAgreementFlags.every(
-                (value) => value === true || value === 1,
-            ),
+        legacyAgreementFlags.every((value) => value === true || value === 1);
+    $("#agreeFinancialDocument").prop("checked", financialAgreementAccepted);
+    $(".financial-agreement-item[required]").prop(
+        "checked",
+        financialAgreementAccepted,
     );
     $("#developmentFee").val(formatCurrency(financial.development_fee));
     formatMoneyInput($("#developmentFee"));

@@ -264,7 +264,7 @@ return [
                 'indonesian'=>'Penyelesaian Formulir',
             ],
             'text4'=>[
-                'english'=>'Thank you for your time. You have completed all sections of the enrolment form. Please review the information provided before submitting.',
+                'english'=>'Dear Parents, you have completed all sections of the Parent/Guardian Statement Form. Please review your information before submitting.',
                 'indonesian'=>'Selamat! Anda telah menyelesaikan semua bagian formulir persetujuan orang tua. Silakan tinjau informasi Anda sebelum mengirimkan.',
             ],
             'text5'=>[

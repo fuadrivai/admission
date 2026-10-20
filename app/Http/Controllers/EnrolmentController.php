@@ -39,7 +39,8 @@ class EnrolmentController extends Controller
     public function index(Request $request)
     {
         $query = $this->enrolmentService->search($request);
-        $summary = $this->enrolmentService->summary($query);
+        $summaryQuery = $this->enrolmentService->search($request, 'active');
+        $summary = $this->enrolmentService->summary($summaryQuery);
         $enrolments = $query->paginate(request('perpage')??10)->withQueryString();
         if ($request->ajax()) {
             return view('enrolment._list', compact('enrolments', 'summary'))->render();

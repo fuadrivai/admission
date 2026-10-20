@@ -92,6 +92,13 @@
                                 <label class="form-label">Sort Order</label>
                                 <input type="number" class="form-control" name="sections[${sectionIndex}][sort_order]" value="${sectionIndex}" required>
                             </div>
+                            <div class="col-12">
+                                <input type="hidden" name="sections[${sectionIndex}][is_required]" value="0">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="section-required-${sectionIndex}" name="sections[${sectionIndex}][is_required]" value="1">
+                                    <label class="form-check-label" for="section-required-${sectionIndex}">Require agreement for this section</label>
+                                </div>
+                            </div>
                         </div>
                         <div class="financial-items"></div>
                         <div class="d-flex justify-content-end mt-3">
@@ -106,10 +113,14 @@
                     $section.find(`[name="sections[${sectionIndex}][title_en]"]`).val(section.title_en);
                     $section.find(`[name="sections[${sectionIndex}][title_id]"]`).val(section.title_id);
                     $section.find(`[name="sections[${sectionIndex}][sort_order]"]`).val(section.sort_order);
+                    $section.find(`[name="sections[${sectionIndex}][is_required]"][type="checkbox"]`)
+                        .prop('checked', section.is_required === undefined || Boolean(Number(section.is_required)));
                     (section.items || []).forEach(function(item, itemIndex) {
                         addItem($section, sectionIndex, item, itemIndex);
                     });
                 } else {
+                    $section.find(`[name="sections[${sectionIndex}][is_required]"][type="checkbox"]`)
+                        .prop('checked', true);
                     addItem($section, sectionIndex, null, 0);
                 }
             }
@@ -122,7 +133,6 @@
                     Number($section.attr('data-next-item-index')) || 0,
                     itemIndex + 1
                 ));
-                const required = !item || item.is_required ? 'checked' : '';
                 const itemHtml = `
                     <div class="financial-item border rounded p-3 mb-3">
                         <input type="hidden" name="sections[${sectionIndex}][items][${itemIndex}][id]">
@@ -136,10 +146,10 @@
                                 <input type="number" class="form-control" name="sections[${sectionIndex}][items][${itemIndex}][sort_order]" value="${item ? item.sort_order : itemIndex}" required>
                             </div>
                             <div class="col-md-4 d-flex align-items-end pb-2">
+                                <input type="hidden" name="sections[${sectionIndex}][items][${itemIndex}][is_required]" value="0">
                                 <div class="form-check">
-                                    <input type="hidden" name="sections[${sectionIndex}][items][${itemIndex}][is_required]" value="0">
-                                    <input type="checkbox" class="form-check-input" name="sections[${sectionIndex}][items][${itemIndex}][is_required]" value="1" ${required}>
-                                    <label class="form-check-label">Required statement</label>
+                                    <input type="checkbox" class="form-check-input" id="item-required-${sectionIndex}-${itemIndex}" name="sections[${sectionIndex}][items][${itemIndex}][is_required]" value="1">
+                                    <label class="form-check-label" for="item-required-${sectionIndex}-${itemIndex}">Required statement</label>
                                 </div>
                             </div>
                             <div class="col-md-3 text-end">
@@ -165,6 +175,11 @@
                         .text_en);
                     $item.find(`[name="sections[${sectionIndex}][items][${itemIndex}][text_id]"]`).val(item
                         .text_id);
+                    $item.find(`[name="sections[${sectionIndex}][items][${itemIndex}][is_required]"][type="checkbox"]`)
+                        .prop('checked', item.is_required === undefined || Boolean(Number(item.is_required)));
+                } else {
+                    $item.find(`[name="sections[${sectionIndex}][items][${itemIndex}][is_required]"][type="checkbox"]`)
+                        .prop('checked', true);
                 }
             }
 

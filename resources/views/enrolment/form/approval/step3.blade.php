@@ -5,17 +5,44 @@
 
     @if ($openingSection)
         <h2 class="section-title">{{ $openingSection->title_en }}</h2>
-        <div class="text-muted mb-3"><i>{{ $openingSection->title_id }}</i></div>
+        <div class="text-muted mb-1"><i>{{ $openingSection->title_id }}</i></div>
         <div class="info-box">
             <div><i class="bi bi-info-circle"></i> {{ config('student_approval.step3.labels.text0.english') }}</div>
             <div><i><small>{{ config('student_approval.step3.labels.text0.indonesian') }}</small></i></div>
         </div>
         @foreach ($openingSection->items->where('number', 0) as $openingText)
             <div class="checkbox-declaration mb-4 statement-section-block">
-                <div class="fw-semibold text-muted" style="text-align: justify; white-space: pre-line;">{{ $openingText->text_en }}</div>
-                <div class="text-muted small mt-2" style="text-align: justify; white-space: pre-line;"><i>{{ $openingText->text_id }}</i></div>
+                <div class="fw-semibold text-muted" style="text-align: justify; white-space: pre-line; margin: 0; padding: 0;">
+                    {{ $openingText->text_en }}</div>
+                <div class="text-muted small" style="text-align: justify; white-space: pre-line; margin: 0; padding: 0;">
+                    <i>{{ $openingText->text_id }}</i>
+                </div>
+                @if ($openingText->is_required)
+                    <div class="form-check mt-2">
+                        <input class="form-check-input financial-agreement-item" type="checkbox"
+                            id="agreeFinancialItem-{{ $openingText->id }}" required>
+                        <label class="form-check-label required" for="agreeFinancialItem-{{ $openingText->id }}">
+                            I agree to this statement. <i class="text-muted">Saya menyetujui pernyataan ini.</i>
+                        </label>
+                        <div class="error-message" id="agreeFinancialItem-{{ $openingText->id }}-error">
+                            Please acknowledge this required statement.
+                        </div>
+                    </div>
+                @endif
             </div>
         @endforeach
+        @if ($openingSection->is_required)
+            <div class="form-check mb-4">
+                <input class="form-check-input financial-agreement-item" type="checkbox"
+                    id="agreeFinancialSection-{{ $openingSection->id }}" required>
+                <label class="form-check-label required" for="agreeFinancialSection-{{ $openingSection->id }}">
+                    I agree.
+                </label>
+                <div class="error-message" id="agreeFinancialSection-{{ $openingSection->id }}-error">
+                    Please agree to this required section.
+                </div>
+            </div>
+        @endif
     @endif
 
     <div class="row mb-4">
@@ -91,22 +118,62 @@
 
                 @foreach ($section->items->where('number', 0) as $preamble)
                     <div class="mb-3">
-                        <div class="fw-semibold text-muted mb-1" style="text-align: justify; white-space: pre-line;">{{ $preamble->text_en }}</div>
-                        <div class="text-muted small" style="text-align: justify; white-space: pre-line;"><i>{{ $preamble->text_id }}</i></div>
+                        <div class="fw-semibold text-muted" style="text-align: justify; white-space: pre-line; margin: 0; padding: 0;">
+                            {{ $preamble->text_en }}</div>
+                        <div class="text-muted small" style="text-align: justify; white-space: pre-line; margin: 0; padding: 0;">
+                            <i>{{ $preamble->text_id }}</i>
+                        </div>
+                        @if ($preamble->is_required)
+                            <div class="form-check mt-2">
+                                <input class="form-check-input financial-agreement-item" type="checkbox"
+                                    id="agreeFinancialItem-{{ $preamble->id }}" required>
+                                <label class="form-check-label required"
+                                    for="agreeFinancialItem-{{ $preamble->id }}">
+                                    I agree.
+                                </label>
+                                <div class="error-message" id="agreeFinancialItem-{{ $preamble->id }}-error">
+                                    Please acknowledge this required statement.
+                                </div>
+                            </div>
+                        @endif
                     </div>
                 @endforeach
 
                 @php($numberedItems = $section->items->where('number', '>', 0))
                 @if ($numberedItems->isNotEmpty())
-                    @foreach ($numberedItems as $item)
-                        <div class="d-flex align-items-start mb-3">
-                            <span class="flex-shrink-0 me-2" style="min-width: 1.5rem;">{{ $item->number }}.</span>
-                            <div class="flex-grow-1">
-                                <div class="fw-semibold text-muted" style="text-align: justify; white-space: pre-line;">{{ $item->text_en }}</div>
-                                <div class="text-muted small" style="text-align: justify; white-space: pre-line;"><i>{{ $item->text_id }}</i></div>
-                            </div>
+                    <ol class="ps-3">
+                        @foreach ($numberedItems as $item)
+                            <li class="mb-3">
+                                <div class="fw-semibold text-muted" style="text-align: justify;">{{ $item->text_en }}</div>
+                                <div class="text-muted small" style="text-align: justify;"><i>{{ $item->text_id }}</i></div>
+                                @if ($item->is_required)
+                                    <div class="form-check mt-2">
+                                        <input class="form-check-input financial-agreement-item" type="checkbox"
+                                            id="agreeFinancialItem-{{ $item->id }}" required>
+                                        <label class="form-check-label required"
+                                            for="agreeFinancialItem-{{ $item->id }}">
+                                            I agree.
+                                        </label>
+                                        <div class="error-message" id="agreeFinancialItem-{{ $item->id }}-error">
+                                            Please acknowledge this required statement.
+                                        </div>
+                                    </div>
+                                @endif
+                            </li>
+                        @endforeach
+                    </ol>
+                @endif
+                @if ($section->is_required)
+                    <div class="form-check">
+                        <input class="form-check-input financial-agreement-item" type="checkbox"
+                            id="agreeFinancialSection-{{ $section->id }}" required>
+                        <label class="form-check-label required" for="agreeFinancialSection-{{ $section->id }}">
+                            I agree.
+                        </label>
+                        <div class="error-message" id="agreeFinancialSection-{{ $section->id }}-error">
+                            Please agree to this required section.
                         </div>
-                    @endforeach
+                    </div>
                 @endif
             </section>
         @endforeach
@@ -129,18 +196,13 @@
     <div class="final-submit-section d-none" id="btn-under-upper-secondary">
         <div class="alert alert-success">
             <h5 class="alert-heading"><i class="bi bi-check-circle-fill"></i>
-                {{ config('student_approval.step4.labels.text3.indonesian') }}</h5>
-            <p class="mb-3">{{ config('student_approval.step4.labels.text4.indonesian') }}</p>
+                {{ config('student_approval.step4.labels.text3.english') }}</h5>
+            <p class="mb-3">{{ config('student_approval.step4.labels.text4.english') }}</p>
             <div class="text-start mb-4">
                 <label class="form-label required" for="parentSignatureStep3">Parent/Guardian signature image</label>
                 <div class="signature-upload">
-                    <input
-                        type="file"
-                        class="signature-upload-input"
-                        id="parentSignatureStep3"
-                        name="signature"
-                        accept="image/jpeg,image/jpg,image/png"
-                        required>
+                    <input type="file" class="signature-upload-input" id="parentSignatureStep3" name="signature"
+                        accept="image/jpeg,image/jpg,image/png" required>
                     <label class="signature-upload-prompt" for="parentSignatureStep3">
                         <i class="bi bi-cloud-arrow-up"></i>
                         <span><strong>Choose a signature image</strong><small>JPG or PNG, up to 2 MB</small></span>
@@ -157,8 +219,8 @@
                         </button>
                     </div>
                 </div>
-                <div class="form-text mt-2">Upload one image of the parent/guardian's signature, not the student's.</div>
-                <div class="error-message" id="parentSignatureStep3-error">Please upload one parent/guardian signature image.</div>
+                <div class="form-text mt-2">Please upload one image of the parent/guardian’s signature to proceed.
+                </div>
             </div>
             <button type="button" class="btn btn-success btn-lg final-submit-btn" id="final-submit-btn-1">
                 <i class="bi bi-send-check"></i> {{ config('student_approval.step4.labels.text5.indonesian') }}

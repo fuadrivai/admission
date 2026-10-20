@@ -11,6 +11,10 @@ class AdmissionFinancialSection extends Model
 
     protected $guarded = ['id'];
 
+    protected $casts = [
+        'is_required' => 'boolean',
+    ];
+
     public function document()
     {
         return $this->belongsTo(AdmissionFinancialDocument::class, 'document_id');

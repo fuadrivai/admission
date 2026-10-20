@@ -54,31 +54,28 @@
                 <div class="text-start mb-4">
                     <label class="form-label required" for="parentSignature">Parent/Guardian signature image</label>
                     <div class="signature-upload">
-                        <input
-                            type="file"
-                            class="signature-upload-input"
-                            id="parentSignature"
-                            name="signature"
-                            accept="image/jpeg,image/jpg,image/png"
-                            required>
+                        <input type="file" class="signature-upload-input" id="parentSignature" name="signature"
+                            accept="image/jpeg,image/jpg,image/png" required>
                         <label class="signature-upload-prompt" for="parentSignature">
                             <i class="bi bi-cloud-arrow-up"></i>
                             <span><strong>Choose a signature image</strong><small>JPG or PNG, up to 2 MB</small></span>
                             <span class="btn btn-outline-success btn-sm">Browse</span>
                         </label>
                         <div class="signature-preview d-none" id="parentSignaturePreview">
-                            <img src="" alt="Parent/guardian signature preview" id="parentSignaturePreviewImage" class="signature-preview-image">
+                            <img src="" alt="Parent/guardian signature preview" id="parentSignaturePreviewImage"
+                                class="signature-preview-image">
                             <div class="signature-preview-details">
                                 <strong>Signature preview</strong>
                                 <span id="parentSignatureFileName" class="signature-file-name"></span>
                             </div>
-                            <button type="button" class="btn btn-outline-secondary btn-sm remove-signature" id="removeParentSignature">
+                            <button type="button" class="btn btn-outline-secondary btn-sm remove-signature"
+                                id="removeParentSignature">
                                 <i class="bi bi-x-lg"></i> Remove
                             </button>
                         </div>
                     </div>
-                    <div class="form-text mt-2">Upload one image of the parent/guardian's signature, not the student's.</div>
-                    <div class="error-message" id="parentSignature-error">Please upload one parent/guardian signature image.</div>
+                    <div class="form-text mt-2">Please upload one image of the parent/guardian’s signature to proceed.
+                    </div>
                 </div>
                 <button type="button" class="btn btn-success btn-lg final-submit-btn" id="final-submit-btn-2">
                     <i class="bi bi-send-check"></i> {{ config('student_approval.step4.labels.text5.english') }}

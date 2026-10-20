@@ -70,6 +70,7 @@ class FinancialDocumentImplement implements FinancialDocumentService
                 $section->title_en = $sectionPayload['title_en'];
                 $section->title_id = $sectionPayload['title_id'];
                 $section->sort_order = $sectionPayload['sort_order'] ?? ($sectionIndex + 1);
+                $section->is_required = (bool) ($sectionPayload['is_required'] ?? true);
                 $section->save();
                 $incomingSectionIds[] = $section->id;
 
@@ -127,6 +128,7 @@ class FinancialDocumentImplement implements FinancialDocumentService
                     'title_en' => $section->title_en,
                     'title_id' => $section->title_id,
                     'sort_order' => $section->sort_order,
+                    'is_required' => $section->is_required,
                 ]);
 
                 foreach ($section->items as $item) {
