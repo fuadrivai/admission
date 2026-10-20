@@ -170,12 +170,14 @@ function normalizePhoneNumber($phone)
 
 function createXenditInvoice(array $payload,$branchName="bintaro")
 {
-    $apiKey =  config('services.xendit.api_key_' . strtolower($branchName));
+    // $apiKey =  config('services.xendit.api_key_' . strtolower($branchName));
+    $url = config('services.h2h.api_url') . '/api/v1/invoice/create';
+    $apiKey =  config('services.h2h.api_key_' . strtolower($branchName));
     $response = Http::withBasicAuth($apiKey, '')
         ->withHeaders([
             'Content-Type' => 'application/json'
         ])
-        ->post('https://api.xendit.co/v2/invoices', $payload);
+        ->post($url, $payload);
     if ($response->failed()) {
         return [
             'success' => false,
@@ -191,7 +193,7 @@ function expireXenditInvoice(string $paymentUrl, string $branchName = "bintaro")
     $path = parse_url($paymentUrl, PHP_URL_PATH);
     $parts = array_values(array_filter(explode('/', trim((string) $path, '/'))));
     $transId = end($parts);
-    $apiKey = config('services.xendit.api_key_' . strtolower($branchName));
+    $apiKey = config('services.h2h.api_key_' . strtolower($branchName));
 
     if (!$transId || !$apiKey) {
         return [
@@ -199,6 +201,8 @@ function expireXenditInvoice(string $paymentUrl, string $branchName = "bintaro")
             'message' => 'Invalid Xendit payment URL or API key configuration.',
         ];
     }
+
+    
 
     $response = Http::withBasicAuth($apiKey, '')
         ->withHeaders([

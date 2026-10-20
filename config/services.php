@@ -34,5 +34,11 @@ return [
         'api_key_bangka' => env('XENDIT_API_KEY_BANGKA'),
         'api_key_semarang' => env('XENDIT_API_KEY_SEMARANG'),
     ],
+    'h2h' => [
+        'api_key_bintaro' => env('H2H_API_KEY_BINTARO'),
+        'api_key_bangka' => env('H2H_API_KEY_BANGKA'),
+        'api_key_semarang' => env('H2H_API_KEY_SEMARANG'),
+        'api_url' => env('H2H_API_URL'),
+    ],
 
 ];
