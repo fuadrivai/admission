@@ -56,7 +56,7 @@
                     </ul>
                 </li>
                 <li
-                    class="sidebar-item has-sub {{ Request::is('enrolment*') || Request::is('price*') || Request::is('setting/discount-rule*') ? 'active' : '' }}">
+                    class="sidebar-item has-sub {{ Request::is('enrolment*') || Request::is('price*') || Request::is('setting/discount-rule*') || Request::is('setting/statement*') || Request::is('setting/financial-document*') || Request::is('setting/registration-place*') ? 'active' : '' }}">
                     <a href="#" class='sidebar-link'>
                         <i class="bi bi-currency-exchange"></i>
                         <span>Enrolment</span>
@@ -66,28 +66,60 @@
                         @if (!auth()->check() || auth()->user()->role != 'user')
                             {{-- <li class="submenu-item"><a href="{{ route('enrolment.merge') }}"
                                     class="submenu-link {{ Request::is('enrolment/merge') ? 'text-red' : '' }}">Merge Records</a></li> --}}
-                            <li class="submenu-item"><a href="/enrolment/setting"
-                                    class="submenu-link {{ Request::is('enrolment/setting') ? 'text-red' : '' }}">Settings</a>
+                            <li
+                                class="submenu-item has-sub {{ Request::is('enrolment/setting*') || Request::is('enrolment/target*') || Request::is('setting/discount-rule*') || Request::is('setting/registration-place*') ? 'active' : '' }}">
+                                <a href="#" class="submenu-link">Setting</a>
+                                <ul class="submenu">
+                                    <li class="submenu-item"><a href="/enrolment/setting"
+                                            class="submenu-link {{ Request::is('enrolment/setting') ? 'text-red' : '' }}">Settings</a>
+                                    </li>
+                                    <li class="submenu-item"><a href="{{ route('enrolment.target.index') }}"
+                                            class="submenu-link {{ Request::is('enrolment/target*') ? 'text-red' : '' }}">Enrolment
+                                            Target</a>
+                                    </li>
+                                    <li class="submenu-item"><a href="/setting/discount-rule"
+                                            class="submenu-link {{ Request::is('setting/discount-rule*') ? 'text-red' : '' }}">Discount
+                                            Rules</a>
+                                    </li>
+                                    <li class="submenu-item"><a href="/setting/registration-place"
+                                            class="submenu-link {{ Request::is('setting/registration-place*') ? 'text-red' : '' }}">Registration
+                                            Place</a>
+                                    </li>
+                                </ul>
                             </li>
-                            <li class="submenu-item"><a href="{{ route('enrolment.target.index') }}"
-                                    class="submenu-link {{ Request::is('enrolment/target*') ? 'text-red' : '' }}">Enrolment Target</a>
-                            </li>
-                            <li class="submenu-item"><a href="/setting/discount-rule"
-                                    class="submenu-link {{ Request::is('setting/discount-rule*') ? 'text-red' : '' }}">Discount
-                                    Rules</a>
+                            <li
+                                class="submenu-item has-sub {{ Request::is('setting/statement*') || Request::is('setting/financial-document*') ? 'active' : '' }}">
+                                <a href="#" class="submenu-link">Letter</a>
+                                <ul class="submenu">
+                                    <li class="submenu-item"><a href="/setting/statement"
+                                            class="submenu-link {{ Request::is('setting/statement*') ? 'text-red' : '' }}">Parent
+                                            Statement</a>
+                                    </li>
+                                    <li class="submenu-item"><a href="/setting/financial-document"
+                                            class="submenu-link {{ Request::is('setting/financial-document*') ? 'text-red' : '' }}">Financial
+                                            Agreement</a>
+                                    </li>
+                                </ul>
                             </li>
                         @endif
-                        <li class="submenu-item"><a target="blank" href="/enrolment/form/"
-                                class="submenu-link">Enrolment Form</a>
-                        </li>
-                        @if (!auth()->check() || auth()->user()->role != 'user')
-                            <li class="submenu-item"><a href="{{ route('enrolment.dp.index') }}"
-                                    class="submenu-link {{ Request::is('enrolment/dp*') ? 'text-red' : '' }}">Development
-                                    Fee</a>
-                            </li>
-                        @endif
-                        <li class="submenu-item"><a target="blank" href="{{ route('enrolment.dp-public.index') }}"
-                                class="submenu-link">Development Fee Public</a>
+                        <li
+                            class="submenu-item has-sub {{ Request::is('enrolment/form*') || Request::is('enrolment/dp*') ? 'active' : '' }}">
+                            <a href="#" class="submenu-link">Form</a>
+                            <ul class="submenu">
+                                <li class="submenu-item"><a target="blank" href="/enrolment/form/"
+                                        class="submenu-link">Enrolment Form</a>
+                                </li>
+                                @if (!auth()->check() || auth()->user()->role != 'user')
+                                    <li class="submenu-item"><a href="{{ route('enrolment.dp.index') }}"
+                                            class="submenu-link {{ Request::is('enrolment/dp*') ? 'text-red' : '' }}">Development
+                                            Fee</a>
+                                    </li>
+                                @endif
+                                <li class="submenu-item"><a target="blank"
+                                        href="{{ route('enrolment.dp-public.index') }}" class="submenu-link">Development
+                                        Fee Public</a>
+                                </li>
+                            </ul>
                         </li>
                         <li class="submenu-item"><a href="{{ route('enrolment.report') }}"
                                 class="submenu-link {{ Request::is('enrolment/report') ? 'text-red' : '' }}">Report</a>
@@ -172,7 +204,7 @@
                     </ul>
                 </li>
                 <li class="sidebar-title">Setting</li>
-                <li class="sidebar-item has-sub {{ Request::is('setting*') ? 'active' : '' }}">
+                <li class="sidebar-item has-sub {{ Request::is('setting*') && !Request::is('setting/statement*') && !Request::is('setting/financial-document*') ? 'active' : '' }}">
                     <a href="#" class='sidebar-link'>
                         <i class="fa fa-gear"></i>
                         <span>Setting</span>
@@ -184,17 +216,6 @@
                             </li>
                             <li class="submenu-item"><a href="/setting/year" class="submenu-link">Academic
                                     Year</a>
-                            </li>
-                            <li class="submenu-item"><a href="/setting/statement"
-                                    class="submenu-link {{ Request::is('setting/statement*') ? 'text-red' : '' }}">Parent
-                                    Statement</a>
-                            </li>
-                            <li class="submenu-item"><a href="/setting/financial-document"
-                                    class="submenu-link {{ Request::is('setting/financial-document*') ? 'text-red' : '' }}">Financial
-                                    Agreement</a>
-                            <li class="submenu-item"><a href="/setting/registration-place"
-                                    class="submenu-link {{ Request::is('setting/registration-place*') ? 'text-red' : '' }}">Registration
-                                    Place</a>
                             </li>
                             <li class="submenu-item"><a href="/setting/password/change"
                                     class="submenu-link">Users</a>
