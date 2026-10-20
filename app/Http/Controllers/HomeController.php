@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Admission;
 use App\Models\Branch;
 use App\Models\Enrolment;
 use App\Models\Level;
@@ -56,14 +55,55 @@ class HomeController extends Controller
         $paidEnrolment  = (clone $enrolBase)->whereBetween('created_at', [$monthStart, $monthEnd])->where('payment_status', 'paid')->count();
         $enrolmentsMonth = (clone $enrolBase)->whereBetween('created_at', [$monthStart, $monthEnd])->count();
 
-        $admissionBase = Admission::when($branchId, fn($q) => $q->where('branch_id', $branchId))
-            ->whereBetween('created_at', [$monthStart, $monthEnd]);
-        $studentDocumentsMonth = (clone $admissionBase)->count();
-        $documentComplete = (clone $admissionBase)
-            ->where('is_complete', 1)
-            ->whereHas('statement', fn($q) => $q->where('is_completed', 1))
-            ->has('documents', '>=', 4)
-            ->count();
+        $paidDpThisMonth = Enrolment::whereNull('merged_into_enrolment_id')
+            ->when($branchId, fn($q) => $q->where('branch_id', $branchId))
+            ->whereHas('transactions', function ($query) use ($monthStart, $monthEnd) {
+                $query->whereRaw('UPPER(payment_status) IN (?, ?, ?)', ['PAID', 'SETTLED', 'COMPLETED'])
+                    ->whereBetween('payment_date', [$monthStart, $monthEnd])
+                    ->whereHas('details', fn($details) => $details->where('type', 'dp'));
+            })
+            ->distinct()
+            ->count('email');
+
+        $comparisonMonthStart = Carbon::now()->startOfMonth();
+        $comparisonMonths = collect([
+            $comparisonMonthStart->copy()->subMonth(),
+            $comparisonMonthStart->copy()->subMonths(2),
+        ]);
+        $paymentComparisons = [];
+
+        foreach (['dp', 'enrolment'] as $paymentType) {
+            $months = $comparisonMonths->map(function (Carbon $month) use ($branchId, $paymentType) {
+                $monthStart = $month->copy()->startOfMonth();
+                $monthEnd = $month->copy()->endOfMonth();
+                $count = Enrolment::whereNull('merged_into_enrolment_id')
+                    ->when($branchId, fn($q) => $q->where('branch_id', $branchId))
+                    ->whereHas('transactions', function ($query) use ($monthStart, $monthEnd, $paymentType) {
+                        $query->whereRaw('UPPER(payment_status) IN (?, ?, ?)', ['PAID', 'SETTLED', 'COMPLETED'])
+                            ->whereBetween('payment_date', [$monthStart, $monthEnd])
+                            ->whereHas('details', fn($details) => $details->where('type', $paymentType));
+                    })
+                    ->distinct()
+                    ->count('email');
+
+                return [
+                    'label' => $month->format('F Y'),
+                    'count' => $count,
+                ];
+            })->values();
+
+            $currentCount = $months[0]['count'];
+            $previousCount = $months[1]['count'];
+            $paymentComparisons[$paymentType] = [
+                'months' => $months,
+                'change_percentage' => $previousCount > 0
+                    ? (($currentCount - $previousCount) / $previousCount) * 100
+                    : null,
+                'direction' => $currentCount <=> $previousCount,
+                'previous_month' => $months[1]['label'],
+                'previous_count' => $previousCount,
+            ];
+        }
 
         $obsBase = Observation::when($branchId, fn($q) => $q->where('branch_id', $branchId));
         $observationsToday = (clone $obsBase)->whereDate('date', $today)->count();
@@ -148,8 +188,9 @@ class HomeController extends Controller
             'schoolVisitsMonth' => $schoolVisitsMonth,
             'paidEnrolment' => $paidEnrolment,
             'enrolmentsMonth' => $enrolmentsMonth,
-            'documentComplete' => $documentComplete,
-            'studentDocumentsMonth' => $studentDocumentsMonth,
+            'paidDpThisMonth' => $paidDpThisMonth,
+            'dpPaymentComparison' => $paymentComparisons['dp'],
+            'enrolmentPaymentComparison' => $paymentComparisons['enrolment'],
             'observationsToday' => $observationsToday,
             'observationsMonth' => $observationsMonth,
             'thisWeekVisits' => $thisWeekData,

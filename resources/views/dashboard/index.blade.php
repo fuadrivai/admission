@@ -59,10 +59,10 @@
                 <div class="kpi-card c-warning card h-100">
                     <div class="card-body">
                         <div class="kpi-icon ic-warning"><i class="bi bi-people-fill"></i></div>
-                        <div class="kpi-label">Student Documents</div>
-                        <div class="kpi-value">{{ number_format($documentComplete) }}</div>
+                        <div class="kpi-label">PAID DP</div>
+                        <div class="kpi-value">{{ number_format($paidDpThisMonth) }}</div>
                         <span class="kpi-badge neu mt-2"><i class="bi bi-calendar-week"></i>
-                            {{ number_format($studentDocumentsMonth) }} submitted this month</span>
+                            parents paid this month</span>
                     </div>
                 </div>
             </div>
@@ -75,6 +75,99 @@
                         <div class="kpi-value">{{ number_format($observationsToday) }}</div>
                         <span class="kpi-badge down mt-2"><i class="bi bi-exclamation-circle"></i>
                             {{ number_format($observationsMonth) }} this month</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-4">
+            <div class="col-xl-6">
+                <div class="db-card">
+                    <div class="db-card-header">
+                        <div>
+                            <p class="db-card-title">Parents Paid Enrolment</p>
+                        </div>
+                    </div>
+                    <div class="db-card-body">
+                        <div class="row align-items-center text-center">
+                            @foreach ($enrolmentPaymentComparison['months'] as $month)
+                                <div class="col">
+                                    <div class="text-muted fw-semibold">{{ $month['label'] }}</div>
+                                    <div class="fs-2 fw-bold text-dark">{{ number_format($month['count']) }}</div>
+                                    <div class="text-muted small">parents</div>
+                                </div>
+                                @if (!$loop->last)
+                                    <div class="col-auto text-muted fw-semibold">vs</div>
+                                @endif
+                            @endforeach
+                        </div>
+                        @if ($enrolmentPaymentComparison['change_percentage'] === null)
+                            <div class="text-center text-muted small mt-3">
+                                Belum ada pembanding untuk {{ $enrolmentPaymentComparison['previous_month'] }}
+                                ({{ number_format($enrolmentPaymentComparison['previous_count']) }} orang tua).
+                            </div>
+                        @else
+                            <div
+                                class="text-center mt-3 {{ $enrolmentPaymentComparison['direction'] > 0 ? 'text-success' : ($enrolmentPaymentComparison['direction'] < 0 ? 'text-danger' : 'text-muted') }}">
+                                <strong>
+                                    @if ($enrolmentPaymentComparison['direction'] > 0)
+                                        <i class="bi bi-arrow-up-short"></i> Naik
+                                    @elseif ($enrolmentPaymentComparison['direction'] < 0)
+                                        <i class="bi bi-arrow-down-short"></i> Turun
+                                    @else
+                                        <i class="bi bi-dash"></i> Tidak berubah
+                                    @endif
+                                    {{ number_format(abs($enrolmentPaymentComparison['change_percentage']), 1) }}%
+                                </strong>
+                                <span class="text-muted small">dibanding
+                                    {{ $enrolmentPaymentComparison['previous_month'] }}</span>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-6">
+                <div class="db-card">
+                    <div class="db-card-header">
+                        <div>
+                            <p class="db-card-title">Parents Paid DP</p>
+                        </div>
+                    </div>
+                    <div class="db-card-body">
+                        <div class="row align-items-center text-center">
+                            @foreach ($dpPaymentComparison['months'] as $month)
+                                <div class="col">
+                                    <div class="text-muted fw-semibold">{{ $month['label'] }}</div>
+                                    <div class="fs-2 fw-bold text-dark">{{ number_format($month['count']) }}</div>
+                                    <div class="text-muted small">parents</div>
+                                </div>
+                                @if (!$loop->last)
+                                    <div class="col-auto text-muted fw-semibold">vs</div>
+                                @endif
+                            @endforeach
+                        </div>
+                        @if ($dpPaymentComparison['change_percentage'] === null)
+                            <div class="text-center text-muted small mt-3">
+                                Belum ada pembanding untuk {{ $dpPaymentComparison['previous_month'] }}
+                                ({{ number_format($dpPaymentComparison['previous_count']) }} orang tua).
+                            </div>
+                        @else
+                            <div
+                                class="text-center mt-3 {{ $dpPaymentComparison['direction'] > 0 ? 'text-success' : ($dpPaymentComparison['direction'] < 0 ? 'text-danger' : 'text-muted') }}">
+                                <strong>
+                                    @if ($dpPaymentComparison['direction'] > 0)
+                                        <i class="bi bi-arrow-up-short"></i> Naik
+                                    @elseif ($dpPaymentComparison['direction'] < 0)
+                                        <i class="bi bi-arrow-down-short"></i> Turun
+                                    @else
+                                        <i class="bi bi-dash"></i> Tidak berubah
+                                    @endif
+                                    {{ number_format(abs($dpPaymentComparison['change_percentage']), 1) }}%
+                                </strong>
+                                <span class="text-muted small">dibanding
+                                    {{ $dpPaymentComparison['previous_month'] }}</span>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -112,7 +205,8 @@
                                 <div class="legend-dot" style="background:#4361ee;"></div> This Week
                             </div>
                             <div class="chart-legend-item">
-                                <div class="legend-dot" style="background:#cbd5fb; border:1.5px dashed #4361ee;"></div> Last
+                                <div class="legend-dot" style="background:#cbd5fb; border:1.5px dashed #4361ee;"></div>
+                                Last
                                 Week
                             </div>
                         </div>
