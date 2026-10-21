@@ -7,6 +7,7 @@ use App\Exports\EnrolmentReportExport;
 use App\Models\Branch;
 use App\Models\Enrolment;
 use App\Models\EnrolmentTransaction;
+use App\Models\HistoricalEnrolmentReport;
 use App\Services\BranchService;
 use App\Services\EnrolmentService;
 use App\Services\ProspectService;
@@ -87,6 +88,12 @@ class EnrolmentController extends Controller
                     return (string) $id;
                 })->all()),
             ],
+            'comparison_academic_year_id' => [
+                'nullable',
+                'integer',
+                'exists:academic_years,id',
+                'different:academic_year_id',
+            ],
         ]);
 
         $selectedLevelId = $validated['level_id'] ?? '';
@@ -94,6 +101,7 @@ class EnrolmentController extends Controller
         $selectedBranchId = auth()->user()->role === 'user'
             ? auth()->user()->branch_id
             : ($validated['branch_id'] ?? '');
+        $selectedComparisonAcademicYearId = $validated['comparison_academic_year_id'] ?? '';
         $hasReportFilter = $hasSubmittedFilters
             && $request->filled('branch_id')
             && $request->filled('academic_year_id');
@@ -118,6 +126,20 @@ class EnrolmentController extends Controller
             ->orderBy('levels.name')
             ->get();
         $rows = collect();
+        $historicalRows = collect();
+        $historicalTotals = [
+            'enrolment_target' => 0,
+            'total_form' => 0,
+            'active_children' => 0,
+            'cancelled_children' => 0,
+            'paid' => 0,
+            'pending' => 0,
+            'expired' => 0,
+            'dp_paid' => 0,
+            'dp_pending' => 0,
+            'dp_expired' => 0,
+            'dp_total' => 0,
+        ];
 
         if ($hasReportFilter) {
             $enrolmentJoin = function ($join) use ($selectedBranchId, $selectedAcademicYearId) {
@@ -361,6 +383,61 @@ class EnrolmentController extends Controller
                 ['division_order', 'asc'],
                 ['level', 'asc'],
             ])->values();
+
+            if ($selectedComparisonAcademicYearId !== '') {
+                $historicalRows = HistoricalEnrolmentReport::query()
+                    ->join('levels', 'levels.id', '=', 'historical_enrolment_reports.level_id')
+                    ->leftJoin('divisions', 'divisions.id', '=', 'levels.division_id')
+                    ->leftJoin('grades', 'grades.id', '=', 'historical_enrolment_reports.grade_id')
+                    ->where('historical_enrolment_reports.academic_year_id', $selectedComparisonAcademicYearId)
+                    ->where('historical_enrolment_reports.branch_id', $selectedBranchId)
+                    ->when($selectedLevelId, function ($query) use ($selectedLevelId) {
+                        $query->where('historical_enrolment_reports.level_id', $selectedLevelId);
+                    })
+                    ->select(
+                        'historical_enrolment_reports.*',
+                        'levels.name as level_name',
+                        'grades.name as grade_name'
+                    )
+                    ->selectRaw("CASE divisions.name
+                        WHEN 'Preschool' THEN 1
+                        WHEN 'Primary' THEN 2
+                        WHEN 'Secondary' THEN 3
+                        WHEN 'Development Class' THEN 4
+                        ELSE 5
+                    END as division_order")
+                    ->get()
+                    ->map(function ($snapshot) {
+                        $row = (object) [
+                            'level' => $snapshot->scope_type === 'level'
+                                ? $snapshot->level_name
+                                : ($snapshot->grade_name ?: $snapshot->level_name),
+                            'division_order' => (int) $snapshot->division_order,
+                            'active_children' => (int) $snapshot->active_children,
+                            'cancelled_children' => (int) $snapshot->cancelled_children,
+                            'expired' => (int) $snapshot->enrolment_expired,
+                            'pending' => (int) $snapshot->enrolment_pending,
+                            'paid' => (int) $snapshot->enrolment_paid,
+                            'dp_expired' => (int) $snapshot->dp_expired,
+                            'dp_pending' => (int) $snapshot->dp_pending,
+                            'dp_paid' => (int) $snapshot->dp_paid,
+                            'enrolment_target' => (int) $snapshot->target,
+                        ];
+                        $row->total_form = $row->paid + $row->pending;
+                        $row->dp_total = $row->dp_paid + $row->dp_pending;
+
+                        return $row;
+                    })
+                    ->sortBy([
+                        ['division_order', 'asc'],
+                        ['level', 'asc'],
+                    ])
+                    ->values();
+
+                foreach ($historicalTotals as $field => $value) {
+                    $historicalTotals[$field] = (int) $historicalRows->sum($field);
+                }
+            }
         }
 
         $totals = [
@@ -381,7 +458,15 @@ class EnrolmentController extends Controller
             abort_unless($hasReportFilter, 422, 'Pilih cabang dan tahun ajaran sebelum mengekspor laporan.');
 
             return Excel::download(
-                new EnrolmentReportExport($rows, $totals),
+                new EnrolmentReportExport(
+                    $rows,
+                    $totals,
+                    $historicalRows,
+                    $historicalTotals,
+                    $selectedComparisonAcademicYearId !== ''
+                        ? optional($academicYears->firstWhere('id', (int) $selectedComparisonAcademicYearId))->name
+                        : null
+                ),
                 'Enrolment_Report_' . Carbon::now()->format('Ymd_His') . '.xlsx'
             );
         }
@@ -390,12 +475,15 @@ class EnrolmentController extends Controller
             'title' => 'Laporan Enrolment',
             'rows' => $rows,
             'totals' => $totals,
+            'historicalRows' => $historicalRows,
+            'historicalTotals' => $historicalTotals,
             'levels' => $levels,
             'academicYears' => $academicYears,
             'branches' => $branches,
             'selectedLevelId' => $selectedLevelId,
             'selectedAcademicYearId' => $selectedAcademicYearId,
             'selectedBranchId' => $selectedBranchId,
+            'selectedComparisonAcademicYearId' => $selectedComparisonAcademicYearId,
             'hasReportFilter' => $hasReportFilter,
         ]);
     }

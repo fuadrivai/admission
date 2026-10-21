@@ -117,6 +117,8 @@
                         <li><strong>Target Siswa</strong> mengikuti target yang ditetapkan untuk level atau grade.
                             <strong>% Target</strong> = (DP Paid &divide; Target Siswa) &times; 100; DP Pending tidak
                             dihitung.</li>
+                        <li>Perbandingan tahun lain memakai snapshot historis yang diinput terpisah; angka lama
+                            ditampilkan hanya pada cakupan Level atau Grade yang benar-benar tersedia.</li>
                     </ul>
                 </div>
 
@@ -168,6 +170,20 @@
                                     {{ (string) $selectedLevelId === (string) $level->id ? 'selected' : '' }}>
                                     {{ $level->name }}{{ $level->division_name ? ' - ' . $level->division_name : '' }}
                                 </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="comparison_academic_year_id" class="form-label">Bandingkan dengan Snapshot</label>
+                        <select id="comparison_academic_year_id" name="comparison_academic_year_id" class="form-select">
+                            <option value="">Tidak dibandingkan</option>
+                            @foreach ($academicYears as $academicYear)
+                                @if ((string) $academicYear->id !== (string) $selectedAcademicYearId)
+                                    <option value="{{ $academicYear->id }}"
+                                        {{ (string) $selectedComparisonAcademicYearId === (string) $academicYear->id ? 'selected' : '' }}>
+                                        {{ $academicYear->name }}
+                                    </option>
+                                @endif
                             @endforeach
                         </select>
                     </div>
@@ -439,6 +455,133 @@
                         @endif
                     </table>
                 </div>
+
+                @if ($hasReportFilter && $selectedComparisonAcademicYearId !== '')
+                    <div class="mt-5">
+                        <div class="d-flex flex-wrap align-items-start justify-content-between gap-2 mb-3">
+                            <div>
+                                <h6 class="mb-1">Snapshot Historis: {{ optional($academicYears->firstWhere('id', (int) $selectedComparisonAcademicYearId))->name }}</h6>
+                                <p class="small text-muted mb-0">Angka ditampilkan sesuai cakupan yang diinput (Level atau Grade), tanpa mengalokasikan angka agregat secara fiktif.</p>
+                            </div>
+                            @if (auth()->user()->role !== 'user')
+                                <a href="{{ route('enrolment.historical-report.index', ['academic_year_id' => $selectedComparisonAcademicYearId, 'branch_id' => $selectedBranchId]) }}"
+                                    class="btn btn-sm btn-outline-primary">Kelola Snapshot</a>
+                            @endif
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-bordered align-middle report-table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Level / Grade</th>
+                                        <th class="text-end">Active</th>
+                                        <th class="text-end">Cancel</th>
+                                        <th class="text-end">Enrolment Expired</th>
+                                        <th class="text-end">Enrolment Pending</th>
+                                        <th class="text-end">Enrolment Paid</th>
+                                        <th class="text-end">Enrolment Total</th>
+                                        <th class="text-end">DP Expired</th>
+                                        <th class="text-end">DP Pending</th>
+                                        <th class="text-end">DP Paid</th>
+                                        <th class="text-end">DP Total</th>
+                                        <th class="text-end">Target</th>
+                                        <th class="text-end">% Target</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse ($historicalRows as $row)
+                                        @php
+                                            $historicalValues = [
+                                                [$row->active_children, 'success'],
+                                                [$row->cancelled_children, 'danger'],
+                                                [$row->expired, 'secondary'],
+                                                [$row->pending, 'warning'],
+                                                [$row->paid, 'success'],
+                                                [$row->total_form, 'primary'],
+                                                [$row->dp_expired, 'secondary'],
+                                                [$row->dp_pending, 'warning'],
+                                                [$row->dp_paid, 'success'],
+                                                [$row->dp_total, 'primary'],
+                                                [$row->enrolment_target, 'primary'],
+                                            ];
+                                            $historicalPercentage = $row->enrolment_target > 0
+                                                ? ($row->dp_paid / $row->enrolment_target) * 100
+                                                : 0;
+                                        @endphp
+                                        <tr>
+                                            <td class="level-name">{{ $row->level }}</td>
+                                            @foreach ($historicalValues as [$value, $color])
+                                                <td class="text-end">
+                                                    @if ($value != 0)
+                                                        <span class="badge text-bg-{{ $color }}">{{ number_format($value) }}</span>
+                                                    @else
+                                                        0
+                                                    @endif
+                                                </td>
+                                            @endforeach
+                                            <td class="text-end">
+                                                @if ($historicalPercentage > 0)
+                                                    <span class="badge text-bg-info">{{ number_format($historicalPercentage, 1) }}%</span>
+                                                @else
+                                                    0%
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="13" class="text-center text-muted py-4">
+                                                Belum ada snapshot untuk tahun dan cabang ini.
+                                                @if (auth()->user()->role !== 'user')
+                                                    <a href="{{ route('enrolment.historical-report.index', ['academic_year_id' => $selectedComparisonAcademicYearId, 'branch_id' => $selectedBranchId]) }}">Tambah data historis</a>.
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                                @if ($historicalRows->isNotEmpty())
+                                    <tfoot class="fw-bold">
+                                        @php
+                                            $historicalTotalValues = [
+                                                [$historicalTotals['active_children'], 'success'],
+                                                [$historicalTotals['cancelled_children'], 'danger'],
+                                                [$historicalTotals['expired'], 'secondary'],
+                                                [$historicalTotals['pending'], 'warning'],
+                                                [$historicalTotals['paid'], 'success'],
+                                                [$historicalTotals['total_form'], 'primary'],
+                                                [$historicalTotals['dp_expired'], 'secondary'],
+                                                [$historicalTotals['dp_pending'], 'warning'],
+                                                [$historicalTotals['dp_paid'], 'success'],
+                                                [$historicalTotals['dp_total'], 'primary'],
+                                                [$historicalTotals['enrolment_target'], 'primary'],
+                                            ];
+                                            $historicalTotalPercentage = $historicalTotals['enrolment_target'] > 0
+                                                ? ($historicalTotals['dp_paid'] / $historicalTotals['enrolment_target']) * 100
+                                                : 0;
+                                        @endphp
+                                        <tr>
+                                            <td>Total</td>
+                                            @foreach ($historicalTotalValues as [$value, $color])
+                                                <td class="text-end">
+                                                    @if ($value != 0)
+                                                        <span class="badge text-bg-{{ $color }}">{{ number_format($value) }}</span>
+                                                    @else
+                                                        0
+                                                    @endif
+                                                </td>
+                                            @endforeach
+                                            <td class="text-end">
+                                                @if ($historicalTotalPercentage > 0)
+                                                    <span class="badge text-bg-info">{{ number_format($historicalTotalPercentage, 1) }}%</span>
+                                                @else
+                                                    0%
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    </tfoot>
+                                @endif
+                            </table>
+                        </div>
+                    </div>
+                @endif
             </div>
         </div>
     </section>

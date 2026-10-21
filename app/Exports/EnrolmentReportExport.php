@@ -15,11 +15,22 @@ class EnrolmentReportExport implements FromArray, WithEvents, WithHeadings
 {
     private Collection $rows;
     private array $totals;
+    private Collection $historicalRows;
+    private array $historicalTotals;
+    private ?string $historicalYearName;
 
-    public function __construct(Collection $rows, array $totals)
-    {
+    public function __construct(
+        Collection $rows,
+        array $totals,
+        ?Collection $historicalRows = null,
+        ?array $historicalTotals = null,
+        ?string $historicalYearName = null
+    ) {
         $this->rows = $rows;
         $this->totals = $totals;
+        $this->historicalRows = $historicalRows ?? collect();
+        $this->historicalTotals = $historicalTotals ?? [];
+        $this->historicalYearName = $historicalYearName;
     }
 
     public function array(): array
@@ -66,6 +77,71 @@ class EnrolmentReportExport implements FromArray, WithEvents, WithHeadings
                 : 0,
         ];
 
+        if ($this->historicalYearName) {
+            $data[] = array_fill(0, 14, '');
+            $data[] = ['', 'Snapshot Historis: ' . $this->historicalYearName];
+            $data[] = [
+                'No',
+                'Level / Grade',
+                'Active',
+                'Cancel',
+                'Enrolment Expired',
+                'Enrolment Pending',
+                'Enrolment Paid',
+                'Enrolment Total',
+                'DP Expired',
+                'DP Pending',
+                'DP Paid',
+                'DP Total',
+                'Target Siswa',
+                '% Target',
+            ];
+
+            foreach ($this->historicalRows as $index => $row) {
+                $data[] = [
+                    $index + 1,
+                    $row->level,
+                    $row->active_children,
+                    $row->cancelled_children,
+                    $row->expired,
+                    $row->pending,
+                    $row->paid,
+                    $row->total_form,
+                    $row->dp_expired,
+                    $row->dp_pending,
+                    $row->dp_paid,
+                    $row->dp_total,
+                    $row->enrolment_target,
+                    $row->enrolment_target > 0
+                        ? round(($row->dp_paid / $row->enrolment_target) * 100, 1)
+                        : 0,
+                ];
+            }
+
+            if ($this->historicalRows->isNotEmpty()) {
+                $data[] = [
+                    '',
+                    'Total Historis',
+                    $this->historicalTotals['active_children'],
+                    $this->historicalTotals['cancelled_children'],
+                    $this->historicalTotals['expired'],
+                    $this->historicalTotals['pending'],
+                    $this->historicalTotals['paid'],
+                    $this->historicalTotals['total_form'],
+                    $this->historicalTotals['dp_expired'],
+                    $this->historicalTotals['dp_pending'],
+                    $this->historicalTotals['dp_paid'],
+                    $this->historicalTotals['dp_total'],
+                    $this->historicalTotals['enrolment_target'],
+                    $this->historicalTotals['enrolment_target'] > 0
+                        ? round(($this->historicalTotals['dp_paid'] / $this->historicalTotals['enrolment_target']) * 100, 1)
+                        : 0,
+                ];
+            } else {
+                $data[] = ['', 'Belum ada snapshot historis untuk filter ini.'];
+            }
+        }
+
         return $data;
     }
 
@@ -79,7 +155,7 @@ class EnrolmentReportExport implements FromArray, WithEvents, WithHeadings
 
     public function registerEvents(): array
     {
-        $lastRow = $this->rows->count() + 3;
+        $lastRow = count($this->array()) + 2;
 
         return [
             AfterSheet::class => function (AfterSheet $event) use ($lastRow) {
@@ -127,15 +203,47 @@ class EnrolmentReportExport implements FromArray, WithEvents, WithHeadings
                 $sheet->getStyle("M1:M{$lastRow}")
                     ->getBorders()->getLeft()
                     ->setBorderStyle(Border::BORDER_MEDIUM)->getColor()->setRGB('98A2B3');
-                $sheet->getStyle("A{$lastRow}:N{$lastRow}")->applyFromArray([
-                    'font' => ['bold' => true],
-                    'fill' => [
-                        'fillType' => Fill::FILL_SOLID,
-                        'color' => ['rgb' => 'F3F6FB'],
-                    ],
-                ]);
+                if ($this->historicalRows->isNotEmpty()) {
+                    $sheet->getStyle("A{$lastRow}:N{$lastRow}")->applyFromArray([
+                        'font' => ['bold' => true],
+                        'fill' => [
+                            'fillType' => Fill::FILL_SOLID,
+                            'color' => ['rgb' => 'F3F6FB'],
+                        ],
+                    ]);
+                }
                 $sheet->getStyle("N3:N{$lastRow}")
                     ->getNumberFormat()->setFormatCode('0.0"%"');
+
+                if ($this->historicalYearName) {
+                    $historicalTitleRow = $this->rows->count() + 5;
+                    $historicalHeaderRow = $historicalTitleRow + 1;
+                    $sheet->getStyle("A{$historicalTitleRow}:N{$historicalHeaderRow}")
+                        ->applyFromArray([
+                            'font' => ['bold' => true, 'color' => ['rgb' => '475467']],
+                            'fill' => [
+                                'fillType' => Fill::FILL_SOLID,
+                                'color' => ['rgb' => 'F3F6FB'],
+                            ],
+                            'alignment' => [
+                                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                                'vertical' => Alignment::VERTICAL_CENTER,
+                            ],
+                            'borders' => [
+                                'allBorders' => [
+                                    'borderStyle' => Border::BORDER_THIN,
+                                    'color' => ['rgb' => 'E8EDF3'],
+                                ],
+                            ],
+                        ]);
+                    $sheet->getStyle("A{$lastRow}:N{$lastRow}")->applyFromArray([
+                        'font' => ['bold' => true],
+                        'fill' => [
+                            'fillType' => Fill::FILL_SOLID,
+                            'color' => ['rgb' => 'F3F6FB'],
+                        ],
+                    ]);
+                }
 
                 foreach (range('A', 'N') as $column) {
                     $sheet->getColumnDimension($column)->setAutoSize(true);

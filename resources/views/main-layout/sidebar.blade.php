@@ -124,6 +124,11 @@
                         <li class="submenu-item"><a href="{{ route('enrolment.report') }}"
                                 class="submenu-link {{ Request::is('enrolment/report') ? 'text-red' : '' }}">Report</a>
                         </li>
+                        @if (auth()->check() && auth()->user()->role != 'user')
+                            <li class="submenu-item"><a href="{{ route('enrolment.historical-report.index') }}"
+                                    class="submenu-link {{ Request::is('enrolment/historical-report*') ? 'text-red' : '' }}">Data Historis Enrolment</a>
+                            </li>
+                        @endif
                     </ul>
                 </li>
                 @if (!auth()->check() || auth()->user()->role != 'user')
