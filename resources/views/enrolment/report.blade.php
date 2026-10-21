@@ -102,9 +102,10 @@
                     <ul class="mb-0 mt-2">
                         <li><strong>Status Anak:</strong> menghitung master enrolment satu kali. Active berisi master
                             berstatus Active, sedangkan Cancel berisi master berstatus Cancelled.</li>
-                        <li><strong>Enrolment:</strong> Paid, Pending, dan Expired dihitung dari transaksi yang memiliki
-                            detail <code>enrolment</code>. Master Inactive/Cancelled tidak masuk ke hitungan status
-                            transaksi; master Cancelled tetap terlihat pada kolom Cancel di Status Anak.</li>
+                        <li><strong>Enrolment:</strong> Paid dan Pending dihitung dari master Active yang memiliki
+                            transaksi dengan detail <code>enrolment</code> dan status sesuai. Expired dihitung dari
+                            transaksi Expired pada master yang bukan Cancelled, termasuk master Inactive. Master
+                            Cancelled tetap terlihat pada kolom Cancel di Status Anak.</li>
                         <li><strong>DP:</strong> Paid, Pending, dan Expired dihitung dari transaksi yang memiliki detail
                             <code>dp</code>. Master Inactive/Cancelled tidak masuk ke hitungan status transaksi.</li>
                         <li>Setiap master enrolment dihitung maksimal satu kali di tiap status transaksi yang cocok.

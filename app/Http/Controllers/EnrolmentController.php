@@ -200,7 +200,7 @@ class EnrolmentController extends Controller
                     INNER JOIN enrolment_details status_detail
                         ON status_detail.enrolment_transaction_id = status_transaction.id
                     WHERE status_transaction.enrolment_id = enrolments.id
-                        AND UPPER(COALESCE(enrolments.status, 'ACTIVE')) = 'ACTIVE'
+                        AND UPPER(COALESCE(enrolments.status, 'ACTIVE')) <> 'CANCELLED'
                         AND UPPER(status_transaction.payment_status) = 'EXPIRED'
                         AND status_detail.type = 'enrolment'
                 ) THEN enrolments.id END) as expired")
