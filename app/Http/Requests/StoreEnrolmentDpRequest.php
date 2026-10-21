@@ -67,8 +67,17 @@ class StoreEnrolmentDpRequest extends FormRequest
             }
 
             $enrolment = Enrolment::where('code', trim($this->input('enrolment_code')))->first();
+            if ($enrolment && strtoupper((string) $enrolment->status) === 'CANCELLED') {
+                $validator->errors()->add(
+                    'enrolment_code',
+                    'This enrolment has been cancelled and cannot receive another payment.'
+                );
+
+                return;
+            }
+
             if ($enrolment && !$enrolment->hasPaidRegistrationPayment()) {
-                $paymentStatus = strtoupper((string) $enrolment->payment_status);
+                $paymentStatus = (string) $enrolment->registrationPaymentStatus();
                 $message = $paymentStatus === 'EXPIRED'
                     ? 'This enrolment has expired. Select "No, new parent" to create a new enrolment.'
                     : ($paymentStatus === 'PENDING'

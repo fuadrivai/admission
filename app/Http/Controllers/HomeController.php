@@ -52,18 +52,18 @@ class HomeController extends Controller
 
         $enrolBase = Enrolment::whereNull('merged_into_enrolment_id')
             ->when($branchId, fn($q) => $q->where('branch_id', $branchId));
-        $paidEnrolment  = (clone $enrolBase)->whereBetween('created_at', [$monthStart, $monthEnd])->where('payment_status', 'paid')->count();
+        $paidEnrolment = $this->paidMasterEnrolments($branchId, 'enrolment')
+            ->whereBetween('created_at', [$monthStart, $monthEnd])
+            ->count();
         $enrolmentsMonth = (clone $enrolBase)->whereBetween('created_at', [$monthStart, $monthEnd])->count();
 
-        $paidDpThisMonth = Enrolment::whereNull('merged_into_enrolment_id')
-            ->when($branchId, fn($q) => $q->where('branch_id', $branchId))
+        $paidDpThisMonth = $this->paidMasterEnrolments($branchId, 'dp')
             ->whereHas('transactions', function ($query) use ($monthStart, $monthEnd) {
-                $query->whereRaw('UPPER(payment_status) IN (?, ?, ?)', ['PAID', 'SETTLED', 'COMPLETED'])
+                $query->whereRaw('UPPER(payment_status) = ?', ['PAID'])
                     ->whereBetween('payment_date', [$monthStart, $monthEnd])
                     ->whereHas('details', fn($details) => $details->where('type', 'dp'));
             })
-            ->distinct()
-            ->count('email');
+            ->count();
 
         $comparisonMonthStart = Carbon::now()->startOfMonth();
         $comparisonMonths = collect([
@@ -76,15 +76,13 @@ class HomeController extends Controller
             $months = $comparisonMonths->map(function (Carbon $month) use ($branchId, $paymentType) {
                 $monthStart = $month->copy()->startOfMonth();
                 $monthEnd = $month->copy()->endOfMonth();
-                $count = Enrolment::whereNull('merged_into_enrolment_id')
-                    ->when($branchId, fn($q) => $q->where('branch_id', $branchId))
+                $count = $this->paidMasterEnrolments($branchId, $paymentType)
                     ->whereHas('transactions', function ($query) use ($monthStart, $monthEnd, $paymentType) {
-                        $query->whereRaw('UPPER(payment_status) IN (?, ?, ?)', ['PAID', 'SETTLED', 'COMPLETED'])
+                        $query->whereRaw('UPPER(payment_status) = ?', ['PAID'])
                             ->whereBetween('payment_date', [$monthStart, $monthEnd])
                             ->whereHas('details', fn($details) => $details->where('type', $paymentType));
                     })
-                    ->distinct()
-                    ->count('email');
+                    ->count();
 
                 return [
                     'label' => $month->format('F Y'),
@@ -133,17 +131,13 @@ class HomeController extends Controller
         $lastWeekData = collect($dowOrder)->map(fn($d) => $lastWeekVisits[$d] ?? 0)->values()->all();
 
         // Enrolment weekly trend (grouped by DAYOFWEEK on created_at, paid only)
-        $thisWeekEnrolments = Enrolment::whereNull('merged_into_enrolment_id')
-            ->when($branchId, fn($q) => $q->where('branch_id', $branchId))
-            ->where('payment_status', 'PAID')
+        $thisWeekEnrolments = $this->paidMasterEnrolments($branchId, 'enrolment')
             ->whereBetween('created_at', [$thisWeekStart->toDateString(), $thisWeekEnd->toDateString()])
             ->selectRaw('DAYOFWEEK(created_at) as dow, COUNT(*) as total')
             ->groupBy('dow')
             ->pluck('total', 'dow');
 
-        $lastWeekEnrolments = Enrolment::whereNull('merged_into_enrolment_id')
-            ->when($branchId, fn($q) => $q->where('branch_id', $branchId))
-            ->where('payment_status', 'PAID')
+        $lastWeekEnrolments = $this->paidMasterEnrolments($branchId, 'enrolment')
             ->whereBetween('created_at', [$lastWeekStart->toDateString(), $lastWeekEnd->toDateString()])
             ->selectRaw('DAYOFWEEK(created_at) as dow, COUNT(*) as total')
             ->groupBy('dow')
@@ -175,9 +169,7 @@ class HomeController extends Controller
         })->values()->all();
 
         $levelPaidEnrolments = $levels->map(function ($level) use ($branchId, $monthStart, $monthEnd) {
-            return Enrolment::whereNull('merged_into_enrolment_id')
-                ->when($branchId, fn($q) => $q->where('branch_id', $branchId))
-                ->where('payment_status', 'PAID')
+            return $this->paidMasterEnrolments($branchId, 'enrolment')
                 ->where('level_id', $level->id)
                 ->whereBetween('created_at', [$monthStart, $monthEnd])
                 ->count();
@@ -203,5 +195,17 @@ class HomeController extends Controller
             'levelEnrolments' => $levelEnrolments,
             'levelPaidEnrolments' => $levelPaidEnrolments,
         ];
+    }
+
+    private function paidMasterEnrolments(?int $branchId, string $detailType)
+    {
+        return Enrolment::query()
+            ->whereNull('merged_into_enrolment_id')
+            ->whereRaw("UPPER(COALESCE(status, 'ACTIVE')) = ?", ['ACTIVE'])
+            ->when($branchId, fn($query) => $query->where('branch_id', $branchId))
+            ->whereHas('transactions', function ($query) use ($detailType) {
+                $query->whereRaw('UPPER(payment_status) = ?', ['PAID'])
+                    ->whereHas('details', fn($details) => $details->where('type', $detailType));
+            });
     }
 }

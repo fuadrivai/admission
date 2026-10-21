@@ -67,6 +67,57 @@ class Enrolment extends Model
         return $this->hasMany(EnrolmentTransaction::class);
     }
 
+    public function initialPaymentTransaction()
+    {
+        return $this->hasOne(EnrolmentTransaction::class)
+            ->whereHas('details', function ($query) {
+                $query->whereIn('type', ['enrolment', 'streaming_test']);
+            })
+            ->orderBy('id');
+    }
+
+    public function getPaymentStatusAttribute($value): ?string
+    {
+        $transaction = $this->getRelationValue('initialPaymentTransaction');
+        if (!$transaction) {
+            $transaction = $this->initialPaymentTransaction()->first();
+        }
+
+        return $transaction ? strtoupper((string) $transaction->payment_status) : null;
+    }
+
+    public function registrationPaymentStatus(): ?string
+    {
+        return $this->payment_status;
+    }
+
+    public function syncLifecycleStatusFromTransactions(): void
+    {
+        if (strtoupper((string) $this->status) === 'CANCELLED') {
+            return;
+        }
+
+        $statuses = $this->transactions()
+            ->pluck('payment_status')
+            ->map(function ($status) {
+                return strtoupper((string) $status);
+            });
+
+        if ($statuses->contains(function ($status) {
+            return in_array($status, ['PAID', 'SETTLED', 'COMPLETED', 'PENDING'], true);
+        })) {
+            $this->status = 'Active';
+        } elseif ($statuses->isNotEmpty() && $statuses->every(function ($status) {
+            return in_array($status, ['EXPIRED', 'FAILED', 'CANCELLED'], true);
+        })) {
+            $this->status = 'Inactive';
+        } else {
+            return;
+        }
+
+        $this->save();
+    }
+
     public function mergedInto()
     {
         return $this->belongsTo(self::class, 'merged_into_enrolment_id');
@@ -84,11 +135,7 @@ class Enrolment extends Model
 
     public function hasPaidRegistrationPayment(): bool
     {
-        if (in_array(strtoupper((string) $this->payment_status), ['PAID', 'SETTLED', 'COMPLETED'], true)) {
-            return true;
-        }
-
-        return $this->transactions()
+        return $this->initialPaymentTransaction()
             ->whereRaw('UPPER(payment_status) IN (?, ?, ?)', ['PAID', 'SETTLED', 'COMPLETED'])
             ->exists();
     }
@@ -105,7 +152,9 @@ class Enrolment extends Model
 
     public function canCreateDp(): bool
     {
-        return $this->hasPaidRegistrationPayment() && !$this->hasActiveDpPayment();
+        return strtoupper((string) $this->status) === 'ACTIVE'
+            && $this->hasPaidRegistrationPayment()
+            && !$this->hasActiveDpPayment();
     }
 
     public function amountPaid()
@@ -130,7 +179,11 @@ class Enrolment extends Model
 
     public function paymentDateFormatted()
     {
-        return date('d F Y', strtotime($this->payment_date));
+        $transaction = $this->initialPaymentTransaction()->first();
+
+        return $transaction && $transaction->payment_date
+            ? $transaction->payment_date->format('d F Y')
+            : '-';
     }
 
     public function avatarName()

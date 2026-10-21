@@ -18,6 +18,40 @@
             border-color: #e8edf3;
         }
 
+        .enrolment-report #report-results {
+            max-height: 65vh;
+            overflow: auto;
+        }
+
+        .enrolment-report .report-table thead th {
+            position: sticky;
+            z-index: 2;
+        }
+
+        .enrolment-report .report-table thead tr:first-child th {
+            top: 0;
+            z-index: 3;
+        }
+
+        .enrolment-report .report-table thead tr:nth-child(2) th {
+            top: 42px;
+        }
+
+        .enrolment-report .report-table thead tr:first-child th:nth-child(4),
+        .enrolment-report .report-table thead tr:first-child th:nth-child(5),
+        .enrolment-report .report-table thead tr:first-child th:nth-child(6),
+        .enrolment-report .report-table thead tr:nth-child(2) th:nth-child(3),
+        .enrolment-report .report-table thead tr:nth-child(2) th:nth-child(7),
+        .enrolment-report .report-table thead tr:nth-child(2) th:nth-child(11),
+        .enrolment-report .report-table tbody td:nth-child(5),
+        .enrolment-report .report-table tbody td:nth-child(9),
+        .enrolment-report .report-table tbody td:nth-child(13),
+        .enrolment-report .report-table tfoot td:nth-child(5),
+        .enrolment-report .report-table tfoot td:nth-child(9),
+        .enrolment-report .report-table tfoot td:nth-child(13) {
+            border-left: 2px solid #98a2b3;
+        }
+
         .enrolment-report .report-table thead th {
             padding: .9rem 1rem;
             border-bottom: 0;
@@ -63,10 +97,26 @@
     <section class="section enrolment-report">
         <div class="card border-0 shadow-sm">
             <div class="card-body p-3 p-lg-4">
-                <div class="mb-4">
-                    <h5 class="mb-1">Laporan Enrolment</h5>
-                    <p class="text-muted small mb-0">Pilih cabang dan tahun ajaran untuk melihat laporan. Level bersifat
-                        opsional.</p>
+                <div class="alert alert-light border small text-muted mb-4" role="note">
+                    <strong>Catatan perhitungan:</strong>
+                    <ul class="mb-0 mt-2">
+                        <li><strong>Status Anak:</strong> menghitung master enrolment satu kali. Active mengikuti
+                            status master Active; Inactive mencakup status master Inactive atau Cancelled.</li>
+                        <li><strong>Enrolment:</strong> Paid, Pending, dan Expired dihitung dari transaksi yang memiliki
+                            detail <code>enrolment</code>. Master Inactive/Cancelled tidak masuk ke hitungan status
+                            transaksi; status master tersebut tetap terlihat pada kolom Status Anak.</li>
+                        <li><strong>DP:</strong> Paid, Pending, dan Expired dihitung dari transaksi yang memiliki detail
+                            <code>dp</code>. Master Inactive/Cancelled tidak masuk ke hitungan status transaksi.</li>
+                        <li>Setiap master enrolment dihitung maksimal satu kali di tiap status transaksi yang cocok.
+                            Transaksi dengan detail <code>enrolment</code> sekaligus <code>dp</code> dihitung pada
+                            kedua kelompok; status transaksi tetap tidak diubah.</li>
+                        <li><strong>Total Enrolment</strong> = Enrolment Pending + Enrolment Paid. Expired tidak
+                            ditambahkan ke total.</li>
+                        <li><strong>Total DP</strong> = DP Pending + DP Paid. DP Expired tidak ditambahkan ke total.</li>
+                        <li><strong>Target Siswa</strong> mengikuti target yang ditetapkan untuk level atau grade.
+                            <strong>% Target</strong> = (DP Paid &divide; Target Siswa) &times; 100; DP Pending tidak
+                            dihitung.</li>
+                    </ul>
                 </div>
 
                 <form id="enrolment-report-filters" method="GET" action="{{ route('enrolment.report') }}"
@@ -156,13 +206,19 @@
                             <tr>
                                 <th rowspan="2">No</th>
                                 <th rowspan="2">Level</th>
-                                <th colspan="5" class="text-center">Enrolment Form</th>
-                                <th rowspan="2" class="text-end">DP</th>
+                                <th colspan="2" class="text-center">Status Anak</th>
+                                <th colspan="4" class="text-center">Enrolment Form</th>
+                                <th colspan="4" class="text-center">DP</th>
                                 <th colspan="2" class="text-center">Target</th>
                             </tr>
                             <tr>
+                                <th class="text-end">Active</th>
+                                <th class="text-end">Inactive</th>
                                 <th class="text-end">Expired</th>
-                                <th class="text-end">Cancelled</th>
+                                <th class="text-end">Pending</th>
+                                <th class="text-end">Paid</th>
+                                <th class="text-end">Total</th>
+                                <th class="text-end">Expired</th>
                                 <th class="text-end">Pending</th>
                                 <th class="text-end">Paid</th>
                                 <th class="text-end">Total</th>
@@ -176,15 +232,22 @@
                                     <td class="text-center">{{ $loop->iteration }}</td>
                                     <td class="level-name">{{ $row->level }}</td>
                                     <td class="text-end">
-                                        @if ($row->expired != 0)
-                                            <span class="badge text-bg-secondary">{{ $row->expired }}</span>
+                                        @if ($row->active_children != 0)
+                                            <span class="badge text-bg-success">{{ $row->active_children }}</span>
                                         @else
                                             0
                                         @endif
                                     </td>
                                     <td class="text-end">
-                                        @if ($row->cancelled != 0)
-                                            <span class="badge text-bg-danger">{{ $row->cancelled }}</span>
+                                        @if ($row->inactive_children != 0)
+                                            <span class="badge text-bg-secondary">{{ $row->inactive_children }}</span>
+                                        @else
+                                            0
+                                        @endif
+                                    </td>
+                                    <td class="text-end">
+                                        @if ($row->expired != 0)
+                                            <span class="badge text-bg-secondary">{{ $row->expired }}</span>
                                         @else
                                             0
                                         @endif
@@ -211,8 +274,29 @@
                                         @endif
                                     </td>
                                     <td class="text-end">
-                                        @if ($row->seat_rsvp != 0)
-                                            <span class="badge text-bg-info">{{ $row->seat_rsvp }}</span>
+                                        @if ($row->dp_expired != 0)
+                                            <span class="badge text-bg-secondary">{{ $row->dp_expired }}</span>
+                                        @else
+                                            0
+                                        @endif
+                                    </td>
+                                    <td class="text-end">
+                                        @if ($row->dp_pending != 0)
+                                            <span class="badge text-bg-warning">{{ $row->dp_pending }}</span>
+                                        @else
+                                            0
+                                        @endif
+                                    </td>
+                                    <td class="text-end">
+                                        @if ($row->dp_paid != 0)
+                                            <span class="badge text-bg-success">{{ $row->dp_paid }}</span>
+                                        @else
+                                            0
+                                        @endif
+                                    </td>
+                                    <td class="text-end">
+                                        @if ($row->dp_total != 0)
+                                            <span class="badge text-bg-primary">{{ $row->dp_total }}</span>
                                         @else
                                             0
                                         @endif
@@ -228,7 +312,7 @@
                                     @php
                                         $targetPercentage =
                                             $row->enrolment_target > 0
-                                                ? ($row->seat_rsvp / $row->enrolment_target) * 100
+                                                ? ($row->dp_paid / $row->enrolment_target) * 100
                                                 : 0;
                                     @endphp
                                     <td class="text-end">
@@ -242,7 +326,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="10" class="text-center text-muted">
+                                    <td colspan="14" class="text-center text-muted">
                                         @if ($hasReportFilter)
                                             Belum ada data grade.
                                         @else
@@ -258,15 +342,22 @@
                                     <td></td>
                                     <td>Total</td>
                                     <td class="text-end">
-                                        @if ($totals['expired'] != 0)
-                                            <span class="badge text-bg-secondary">{{ $totals['expired'] }}</span>
+                                        @if ($totals['active_children'] != 0)
+                                            <span class="badge text-bg-success">{{ $totals['active_children'] }}</span>
                                         @else
                                             0
                                         @endif
                                     </td>
                                     <td class="text-end">
-                                        @if ($totals['cancelled'] != 0)
-                                            <span class="badge text-bg-danger">{{ $totals['cancelled'] }}</span>
+                                        @if ($totals['inactive_children'] != 0)
+                                            <span class="badge text-bg-secondary">{{ $totals['inactive_children'] }}</span>
+                                        @else
+                                            0
+                                        @endif
+                                    </td>
+                                    <td class="text-end">
+                                        @if ($totals['expired'] != 0)
+                                            <span class="badge text-bg-secondary">{{ $totals['expired'] }}</span>
                                         @else
                                             0
                                         @endif
@@ -293,8 +384,29 @@
                                         @endif
                                     </td>
                                     <td class="text-end">
-                                        @if ($totals['seat_rsvp'] != 0)
-                                            <span class="badge text-bg-info">{{ $totals['seat_rsvp'] }}</span>
+                                        @if ($totals['dp_expired'] != 0)
+                                            <span class="badge text-bg-secondary">{{ $totals['dp_expired'] }}</span>
+                                        @else
+                                            0
+                                        @endif
+                                    </td>
+                                    <td class="text-end">
+                                        @if ($totals['dp_pending'] != 0)
+                                            <span class="badge text-bg-warning">{{ $totals['dp_pending'] }}</span>
+                                        @else
+                                            0
+                                        @endif
+                                    </td>
+                                    <td class="text-end">
+                                        @if ($totals['dp_paid'] != 0)
+                                            <span class="badge text-bg-success">{{ $totals['dp_paid'] }}</span>
+                                        @else
+                                            0
+                                        @endif
+                                    </td>
+                                    <td class="text-end">
+                                        @if ($totals['dp_total'] != 0)
+                                            <span class="badge text-bg-primary">{{ $totals['dp_total'] }}</span>
                                         @else
                                             0
                                         @endif
@@ -310,7 +422,7 @@
                                     @php
                                         $totalTargetPercentage =
                                             $totals['enrolment_target'] > 0
-                                                ? ($totals['seat_rsvp'] / $totals['enrolment_target']) * 100
+                                                ? ($totals['dp_paid'] / $totals['enrolment_target']) * 100
                                                 : 0;
                                     @endphp
                                     <td class="text-end">

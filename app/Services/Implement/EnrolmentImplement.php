@@ -71,6 +71,7 @@ class EnrolmentImplement implements EnrolmentService
     {
         
         $data = [
+            'status'                   => 'Active',
             'prospects_id'             => null,
             'already_visit'            => 0,
             'code'                     => null,
@@ -105,10 +106,7 @@ class EnrolmentImplement implements EnrolmentService
             'recommender_phone'        => null,
             'recommender_child_name'   => null,
             'recommender_child_class'  => null,
-            'payment_date'             => null,
             'source_data'              => $request->source,
-            'regis_place'              => $request->place,
-            'data_from'                => "custom_form",
         ];
 
         $strLevel = $this->resolveLevel($request->level);
@@ -174,18 +172,20 @@ class EnrolmentImplement implements EnrolmentService
                     'amount' => (float) $data['custom_payment'],
                 ];
             }
-            $this->createInitialPaymentTransaction(
+            $initialTransaction = $this->createInitialPaymentTransaction(
                 $enrolment,
                 $requiredItems,
                 $extraItems,
                 (float) $data['discount'],
                 (float) $data['bank_charger'],
-                $level->name
+                $level->name,
+                $request->place,
+                'custom_form'
             );
             $enrolment->activities()->create([
                 'prospects_id' => $enrolment->prospects_id,
-                'note' => "Enrolment created with invoice ID " . $enrolment->invoice_id
-                    . " and payment status: " . $enrolment->payment_status,
+                'note' => "Enrolment created with invoice ID " . $initialTransaction->invoice_id
+                    . " and payment status: " . $initialTransaction->payment_status,
             ]);
 
             return $enrolment;
@@ -223,6 +223,7 @@ class EnrolmentImplement implements EnrolmentService
     {
 
         $data = [
+            'status'                   => 'Active',
             'prospects_id'             => null,
             'already_visit'            => ($request->alreadyVisit ?? null) === 'true'?1:0,
             'code'                     => null,
@@ -258,10 +259,7 @@ class EnrolmentImplement implements EnrolmentService
             'recommender_phone'        => $request->recommenderPhone,
             'recommender_child_name'   => $request->recommenderChildName,
             'recommender_child_class'  => $request->recommenderChildClass,
-            'payment_date'             => null,
             'source_data'              => $request->isCurrentStudent == "yes"? "internal":"external",
-            'regis_place'              => null,
-            'data_from'                => "web_form",
         ];
 
         $requiredItems = $this->enrolmentPriceService->getRequiredPriceItems(
@@ -297,18 +295,20 @@ class EnrolmentImplement implements EnrolmentService
             }
 
             $enrolment = Enrolment::create($data);
-            $this->createInitialPaymentTransaction(
+            $initialTransaction = $this->createInitialPaymentTransaction(
                 $enrolment,
                 $requiredItems,
                 [],
                 (float) $data['discount'],
                 (float) $data['bank_charger'],
-                $level->name
+                $level->name,
+                null,
+                'web_form'
             );
             $enrolment->activities()->create([
                 'prospects_id' => $enrolment->prospects_id,
-                'note' => "Enrolment created with invoice ID " . $enrolment->invoice_id
-                    . " and payment status: " . $enrolment->payment_status,
+                'note' => "Enrolment created with invoice ID " . $initialTransaction->invoice_id
+                    . " and payment status: " . $initialTransaction->payment_status,
             ]);
 
             return $enrolment;
@@ -400,11 +400,15 @@ class EnrolmentImplement implements EnrolmentService
 
     private function attachPaymentSummary(Enrolment $enrolment): void
     {
-        $transaction = $enrolment->transactions()
+        $transaction = $enrolment->initialPaymentTransaction()
             ->with('details')
-            ->where('invoice_id', $enrolment->invoice_id)
             ->firstOrFail();
 
+        $enrolment['invoice_id'] = $transaction->invoice_id;
+        $enrolment['payment_url'] = $transaction->payment_url;
+        $enrolment['create_va_date'] = $transaction->create_va_date;
+        $enrolment['expiry_va_date'] = $transaction->expiry_va_date;
+        $enrolment['payment_date'] = $transaction->payment_date;
         $enrolment['payment_details'] = $transaction->details
             ->map(function ($detail) {
                 return [
@@ -424,7 +428,9 @@ class EnrolmentImplement implements EnrolmentService
         array $additionalItems,
         float $discount,
         float $bankCharge,
-        string $levelName
+        string $levelName,
+        ?string $paymentPlace,
+        string $dataFrom
     ): EnrolmentTransaction {
         $enrolmentFee = $this->sumPriceItemsByType($requiredItems, 'enrolment');
         if ($discount < 0 || $discount > $enrolmentFee) {
@@ -479,11 +485,6 @@ class EnrolmentImplement implements EnrolmentService
         }
 
         $paymentFields = [
-            'invoice_id' => $invoiceId,
-            'payment_status' => strtoupper($xendit['status']),
-            'payment_url' => $xendit['invoice_url'],
-            'create_va_date' => Carbon::parse($xendit['created']),
-            'expiry_va_date' => Carbon::parse($xendit['expiry_date']),
             'registration_fee' => $enrolmentFee - $discount,
             'bank_charger' => $bankCharge,
             'discount' => $discount,
@@ -502,8 +503,9 @@ class EnrolmentImplement implements EnrolmentService
             'create_va_date' => Carbon::parse($xendit['created']),
             'expiry_va_date' => Carbon::parse($xendit['expiry_date']),
             'payment_url' => $xendit['invoice_url'],
-            'payment_place' => $enrolment->regis_place,
+            'payment_place' => $paymentPlace,
             'source' => $enrolment->source_data,
+            'data_from' => $dataFrom,
             'noted' => $enrolment->noted,
             'created_by' => auth()->id(),
         ]);
@@ -532,16 +534,10 @@ class EnrolmentImplement implements EnrolmentService
         $prefix = env('PREFIX_XENDIT') ?: 'INV-ENROL';
         $date = now()->format('ymd');
         $pattern = $prefix . $date . '%';
-        $invoiceIds = DB::table('enrolments')
+        $invoiceIds = DB::table('enrolment_transactions')
             ->where('invoice_id', 'like', $pattern)
             ->lockForUpdate()
-            ->pluck('invoice_id')
-            ->merge(
-                DB::table('enrolment_transactions')
-                    ->where('invoice_id', 'like', $pattern)
-                    ->lockForUpdate()
-                    ->pluck('invoice_id')
-            );
+            ->pluck('invoice_id');
         $lastSequence = $invoiceIds->map(function ($invoiceId) use ($prefix, $date) {
             $sequence = substr($invoiceId, strlen($prefix) + strlen($date));
 
@@ -683,7 +679,7 @@ class EnrolmentImplement implements EnrolmentService
 
     public function search($request, $archive = null)
     {
-        $query = Enrolment::query()->with(['transactions.details', 'mergedInto']);
+        $query = Enrolment::query()->with(['transactions.details', 'initialPaymentTransaction', 'mergedInto']);
         $archive = $archive ?? $request->input('archive', 'active');
         if ($archive === 'merged') {
             $query->whereNotNull('merged_into_enrolment_id');
@@ -702,7 +698,9 @@ class EnrolmentImplement implements EnrolmentService
                 ->orWhere('parent_name', 'like', '%'.$request->search.'%')
                 ->orWhere('email', 'like', '%'.$request->search.'%')
                 ->orWhere('child_name', 'like', '%'.$request->search.'%')
-                ->orWhere('invoice_id', 'like', '%'.$request->search.'%')
+                ->orWhereHas('transactions', function ($transactionQuery) use ($request) {
+                    $transactionQuery->where('invoice_id', 'like', '%'.$request->search.'%');
+                })
                 ->orWhere('phone_number', 'like', '%'.$request->search.'%');
                 });
         }
@@ -717,7 +715,13 @@ class EnrolmentImplement implements EnrolmentService
             $query->where('grade_id', $request->grade);
         }
         if ($request->status && $request->status !== 'all') {
-            $query->where('payment_status', $request->status);
+            if (strtoupper($request->status) === 'CANCELLED') {
+                $query->where('status', 'Cancelled');
+            } else {
+                $query->whereHas('transactions', function ($transactionQuery) use ($request) {
+                    $transactionQuery->whereRaw('UPPER(payment_status) = ?', [strtoupper($request->status)]);
+                });
+            }
         }
 
         if ($request->source_data && $request->source_data !== 'all') {
@@ -725,11 +729,15 @@ class EnrolmentImplement implements EnrolmentService
         }
 
         if ($request->data_from && $request->data_from !== 'all') {
-            $query->where('data_from', $request->data_from);
+            $query->whereHas('transactions', function ($transactionQuery) use ($request) {
+                $transactionQuery->where('data_from', $request->data_from);
+            });
         }
 
         if ($request->regis_place && $request->regis_place !== 'all') {
-            $query->where('regis_place', $request->regis_place);
+            $query->whereHas('transactions', function ($transactionQuery) use ($request) {
+                $transactionQuery->where('payment_place', $request->regis_place);
+            });
         }
         if ($request->academic_year && $request->academic_year !== 'all') {
             $query->where('academic_year_id', $request->academic_year);
@@ -750,23 +758,21 @@ class EnrolmentImplement implements EnrolmentService
 
     public function summary($query)
     {
-        $statusQuery = clone $query;
-
-        $statusCounts = $statusQuery
-            ->reorder()
-            ->selectRaw("payment_status, COUNT(*) as total")
-            ->groupBy('payment_status')
-            ->pluck('total', 'payment_status');
-
         $totalFiltered = (clone $query)->reorder()->count();
 
         $visitCount = (clone $query)->whereHas('prospect.schoolVisit')->count();
 
         $summary = [
-            'pending' => $statusCounts['PENDING'] ?? 0,
-            'paid' => $statusCounts['PAID'] ?? 0,
-            'expired' => $statusCounts['EXPIRED'] ?? 0,
-            'cancelled' => $statusCounts['CANCELLED'] ?? 0,
+            'pending' => (clone $query)->whereHas('transactions', function ($transactionQuery) {
+                $transactionQuery->whereRaw('UPPER(payment_status) = ?', ['PENDING']);
+            })->count(),
+            'paid' => (clone $query)->whereHas('transactions', function ($transactionQuery) {
+                $transactionQuery->whereRaw('UPPER(payment_status) = ?', ['PAID']);
+            })->count(),
+            'expired' => (clone $query)->whereHas('transactions', function ($transactionQuery) {
+                $transactionQuery->whereRaw('UPPER(payment_status) = ?', ['EXPIRED']);
+            })->count(),
+            'cancelled' => (clone $query)->where('status', 'Cancelled')->count(),
             'total' => $totalFiltered,
             'visitSummary' => [
                 'visit' => $visitCount,

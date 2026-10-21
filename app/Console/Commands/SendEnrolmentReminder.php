@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 
 use App\Mail\AdmissionEmail;
 use App\Models\EmailSetting;
-use App\Models\Enrolment;
+use App\Models\EnrolmentTransaction;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -49,34 +49,56 @@ class SendEnrolmentReminder extends Command
     {
         $targetDate = $today->copy()->subDays($daysAfterCreate);
 
-        $enrolments = Enrolment::whereDate('create_va_date', $targetDate)
-            ->where('payment_status', 'PENDING')
+        $transactions = EnrolmentTransaction::with('enrolment')
+            ->whereDate('create_va_date', $targetDate)
+            ->whereRaw('UPPER(payment_status) = ?', ['PENDING'])
+            ->whereHas('details', function ($query) {
+                $query->whereIn('type', ['enrolment', 'streaming_test']);
+            })
             ->get();
 
-        foreach ($enrolments as $enrolment) {
+        foreach ($transactions as $transaction) {
+            $enrolment = $transaction->enrolment;
+            if (!$enrolment) {
+                Log::warning('Skipping enrolment reminder for a transaction without an enrolment.', [
+                    'transaction_id' => $transaction->id,
+                ]);
+                continue;
+            }
 
             if ($this->alreadySent($enrolment->id, 'enrolments', $type)) {
                 continue;
             }
 
-            $this->sendNotification($enrolment, $type);
+            $this->sendNotification($enrolment, $transaction, $type);
             $this->logReminder($enrolment->id, 'enrolments', $type);
         }
     }
 
     private function processExpiryReminder($today)
     {
-        $enrolments = Enrolment::whereDate('expiry_va_date', $today)
-            ->where('payment_status', 'PENDING')
+        $transactions = EnrolmentTransaction::with('enrolment')
+            ->whereDate('expiry_va_date', $today)
+            ->whereRaw('UPPER(payment_status) = ?', ['PENDING'])
+            ->whereHas('details', function ($query) {
+                $query->whereIn('type', ['enrolment', 'streaming_test']);
+            })
             ->get();
 
-        foreach ($enrolments as $enrolment) {
+        foreach ($transactions as $transaction) {
+            $enrolment = $transaction->enrolment;
+            if (!$enrolment) {
+                Log::warning('Skipping enrolment expiry reminder for a transaction without an enrolment.', [
+                    'transaction_id' => $transaction->id,
+                ]);
+                continue;
+            }
 
             if ($this->alreadySent($enrolment->id, 'enrolments', 'H+7')) {
                 continue;
             }
 
-            $this->sendNotification($enrolment, 'H+7');
+            $this->sendNotification($enrolment, $transaction, 'H+7');
             $this->logReminder($enrolment->id, 'enrolments', 'H+7');
         }
     }
@@ -102,8 +124,12 @@ class SendEnrolmentReminder extends Command
         ]);
     }
 
-    private function sendNotification($enrolment, $type)
+    private function sendNotification($enrolment, EnrolmentTransaction $transaction, $type)
     {
+        $enrolment['payment_url'] = $transaction->payment_url;
+        $enrolment['invoice_id'] = $transaction->invoice_id;
+        $enrolment['payment_status'] = $transaction->payment_status;
+
         $enrolment['subject'] = "Enrolment Payment of $enrolment->child_name - Mutiara Harapan Islamic School";
         $enrolment['template'] = 'email-template.enrolment-reminder';
         $setting = EmailSetting::where('branch_id',$enrolment->branch_id)->first();

@@ -54,7 +54,14 @@ class EnrolmentDpImplement implements EnrolmentDpService
             ];
         }
 
-        $paymentStatus = strtoupper((string) $enrolment->payment_status);
+        $paymentStatus = (string) $enrolment->registrationPaymentStatus();
+        if (strtoupper((string) $enrolment->status) === 'CANCELLED') {
+            return [
+                'success' => false,
+                'status' => 'CANCELLED',
+                'message' => 'This enrolment has been cancelled and cannot receive another payment.',
+            ];
+        }
         if ($paymentStatus === 'EXPIRED') {
             return [
                 'success' => false,
@@ -112,7 +119,7 @@ class EnrolmentDpImplement implements EnrolmentDpService
                 'branch' => optional($enrolment->branch)->name,
                 'level' => optional($enrolment->level)->name,
                 'grade' => optional($enrolment->grade)->name,
-                'payment_status' => strtoupper($enrolment->payment_status),
+                'payment_status' => $enrolment->registrationPaymentStatus(),
                 'registration_fee' => (float) $requiredItems
                     ->where('type', 'enrolment')
                     ->sum(function ($item) {
@@ -140,8 +147,14 @@ class EnrolmentDpImplement implements EnrolmentDpService
 
     public function validateExistingEnrolment(Enrolment $enrolment): void
     {
+        if (strtoupper((string) $enrolment->status) === 'CANCELLED') {
+            throw ValidationException::withMessages([
+                'enrolment_code' => 'This enrolment has been cancelled and cannot receive another payment.',
+            ]);
+        }
+
         if (!$enrolment->hasPaidRegistrationPayment()) {
-            $paymentStatus = strtoupper((string) $enrolment->payment_status);
+            $paymentStatus = (string) $enrolment->registrationPaymentStatus();
             $message = $paymentStatus === 'EXPIRED'
                 ? 'This enrolment has expired. Select "No, new parent" to create a new enrolment.'
                 : ($paymentStatus === 'PENDING'
@@ -152,6 +165,7 @@ class EnrolmentDpImplement implements EnrolmentDpService
                 'enrolment_code' => $message,
             ]);
         }
+        $enrolment->syncLifecycleStatusFromTransactions();
     }
 
     public function getRegistrationFee($academicYearId, $branchId, $levelId, $gradeId)
@@ -233,6 +247,7 @@ class EnrolmentDpImplement implements EnrolmentDpService
                         'branch_id' => $branch->id,
                         'level_id' => $level->id,
                         'grade_id' => $grade->id,
+                        'status' => 'Active',
                         'academic_year_id' => $academicYear->id,
                         'academic_year' => $academicYear->name,
                         'parent_name' => $data['parent_name'],
@@ -256,11 +271,7 @@ class EnrolmentDpImplement implements EnrolmentDpService
                         'bank_charger' => 0,
                         'discount' => 0,
                         'amount_paid' => 0,
-                        'invoice_id' => null,
-                        'payment_status' => 'unpaid',
                         'source_data' => $data['registration_type'],
-                        'regis_place' => $this->registrationPlace($data),
-                        'data_from' => 'custom_form',
                     ]);
                 }
 
@@ -403,6 +414,7 @@ class EnrolmentDpImplement implements EnrolmentDpService
                     'payment_url' => $xendit['invoice_url'],
                     'payment_place' => $this->registrationPlace($data),
                     'source' => $data['registration_type'],
+                    'data_from' => 'custom_form',
                     'noted' => 'Payment transaction created through Development Fee form.',
                     'created_by' => auth()->id(),
                     'request_key' => $requestKey,
@@ -426,11 +438,6 @@ class EnrolmentDpImplement implements EnrolmentDpService
                         'bank_charger' => $bankCharge,
                         'discount' => $discount,
                         'amount_paid' => $total,
-                        'invoice_id' => $invoiceId,
-                        'payment_status' => strtoupper($xendit['status']),
-                        'create_va_date' => Carbon::parse($xendit['created']),
-                        'expiry_va_date' => Carbon::parse($xendit['expiry_date']),
-                        'payment_url' => $xendit['invoice_url'],
                     ]);
                 }
 
@@ -553,7 +560,7 @@ class EnrolmentDpImplement implements EnrolmentDpService
     {
         $hasTransactionDetails = $enrolment->transactions()->whereHas('details')->exists();
         if (!$hasTransactionDetails
-            && in_array(strtoupper((string) $enrolment->payment_status), ['PAID', 'SETTLED', 'COMPLETED'], true)) {
+            && in_array((string) $enrolment->registrationPaymentStatus(), ['PAID', 'SETTLED', 'COMPLETED'], true)) {
             return $requiredItems->pluck('type')->unique()->values()->all();
         }
 

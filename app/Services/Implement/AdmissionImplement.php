@@ -53,7 +53,7 @@ class AdmissionImplement implements AdmissionService
                         ->where('code', $code)->first();
         if (!$admission){
             $enrolment = Enrolment::with(['branch', 'grade', 'level'])->where('code', $code)->firstOrFail();
-            if ($enrolment->payment_status == 'PAID') {
+            if ($enrolment->registrationPaymentStatus() === 'PAID') {
                 $applicantData = [
                     'fullname' => $enrolment->child_name,
                     'date_of_birth'=>$enrolment->date_of_birth,
@@ -95,9 +95,9 @@ class AdmissionImplement implements AdmissionService
 
                 return Admission::with(['applicant','enrolment','branch','level','grade'])
                         ->where('code', $code)->first();
-            }else if($enrolment->payment_status == 'PENDING'){
+            }else if($enrolment->registrationPaymentStatus() === 'PENDING'){
                 throw new \Exception("Enrolment has not been paid.");
-            } else if($enrolment->payment_status == 'EXPIRED'){
+            } else if($enrolment->registrationPaymentStatus() === 'EXPIRED'){
                 throw new \Exception("Enrolment has been EXPIRED");
             } else{
                 throw new \Exception("no code found in enrolment or admission");

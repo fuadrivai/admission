@@ -37,10 +37,11 @@ class EnrolmentExport implements
             $enrolment = $enrolment->prospect->enrolment;
         }
 
+        $transaction = $enrolment->initialPaymentTransaction;
         $dateOfBirth = $enrolment->date_of_birth ? Carbon::parse($enrolment->date_of_birth)->format('d F Y') : '-';
-        $paymentDate = $enrolment->payment_date ? Carbon::parse($enrolment->payment_date)->format('d F Y H:i') : '-';
-        $createVaDate = $enrolment->create_va_date ? Carbon::parse($enrolment->create_va_date)->format('d F Y H:i') : '-';
-        $expiryVaDate = $enrolment->expiry_va_date ? Carbon::parse($enrolment->expiry_va_date)->format('d F Y H:i') : '-';
+        $paymentDate = $transaction && $transaction->payment_date ? Carbon::parse($transaction->payment_date)->format('d F Y H:i') : '-';
+        $createVaDate = $transaction && $transaction->create_va_date ? Carbon::parse($transaction->create_va_date)->format('d F Y H:i') : '-';
+        $expiryVaDate = $transaction && $transaction->expiry_va_date ? Carbon::parse($transaction->expiry_va_date)->format('d F Y H:i') : '-';
         $createdAt = $enrolment->created_at ? Carbon::parse($enrolment->created_at)->format('d F Y H:i') : '-';
         $updatedAt = $enrolment->updated_at ? Carbon::parse($enrolment->updated_at)->format('d F Y H:i') : '-';
 
@@ -82,13 +83,13 @@ class EnrolmentExport implements
             $enrolment->bank_charger ?? '-',
             $enrolment->discount ?? '-',
             $enrolment->amount_paid ?? '-',
-            $enrolment->invoice_id ?? '-',
-            $enrolment->payment_status ?? '-',
+            optional($transaction)->invoice_id ?? '-',
+            optional($transaction)->payment_status ?? '-',
             $paymentDate,
             $enrolment->source_data ?? '-',
             $enrolment->noted ?? '-',
-            $enrolment->regis_place ?? '-',
-            $enrolment->data_from ?? '-',
+            optional($transaction)->payment_place ?? '-',
+            optional($transaction)->data_from ?? '-',
             $createdAt,
         ];
     }

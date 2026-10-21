@@ -233,9 +233,7 @@
         $admission = $enrolment->admission;
         $dash = fn ($value) => filled($value) ? $value : '-';
         $yesNo = fn ($value) => is_null($value) || $value === '' ? '-' : (in_array($value, [true, 1, '1', 'yes', 'Yes'], true) ? 'Yes' : 'No');
-        $placeLabel = $enrolment->regis_place
-            ? (\App\Models\RegistrationPlace::where('code', $enrolment->regis_place)->value('name') ?? $enrolment->regis_place)
-            : null;
+        $initialPaymentTransaction = $enrolment->initialPaymentTransaction;
         $money = fn ($value) => 'Rp ' . number_format((float) $value, 0, ',', '.');
         $hasTransactions = $enrolment->transactions->isNotEmpty();
 
@@ -263,7 +261,7 @@
                             <p class="hero-subtitle">
                                 Code: <strong>{{ $enrolment->code ?? '-' }}</strong>
                                 <span class="mx-1">•</span>
-                                Invoice: <strong>{{ $enrolment->invoice_id ?? '-' }}</strong>
+                                Invoice: <strong>{{ optional($initialPaymentTransaction)->invoice_id ?? '-' }}</strong>
                             </p>
                         </div>
                     </div>
@@ -272,9 +270,8 @@
                             <a href="{{ route('enrolment.dp.index', ['code' => $enrolment->code]) }}" class="btn btn-sm btn-warning"><i class="fa fa-money me-1"></i> Create DP Form</a>
                         @endif
                         <span class="badge {{ $paymentBadge }}">{{ $paymentStatus }}</span>
+                        <span class="badge text-bg-light border">{{ $enrolment->status ?? 'Active' }}</span>
                         <span class="badge text-bg-light border">{{ ucfirst($enrolment->source_data ?? '-') }}</span>
-                        <span
-                            class="badge text-bg-light border">{{ ucfirst(str_replace('_', ' ', $enrolment->data_from ?? '-')) }}</span>
                     </div>
                 </div>
 
@@ -382,14 +379,6 @@
                                 <div class="detail-val">{{ $enrolment->source_data ? ucfirst($enrolment->source_data) : '-' }}</div>
                             </div>
                             <div class="detail-row">
-                                <div class="detail-key">Registration Place</div>
-                                <div class="detail-val">{{ $dash($placeLabel) }}</div>
-                            </div>
-                            <div class="detail-row">
-                                <div class="detail-key">Data Source</div>
-                                <div class="detail-val">{{ $enrolment->data_from ? ucfirst(str_replace('_', ' ', $enrolment->data_from)) : 'Legacy / Unknown' }}</div>
-                            </div>
-                            <div class="detail-row">
                                 <div class="detail-key">Prospect Code</div>
                                 <div class="detail-val">{{ $dash(optional($prospect)->code) }}</div>
                             </div>
@@ -493,26 +482,26 @@
                             </div>
                             <div class="detail-row">
                                 <div class="detail-key">Invoice ID</div>
-                                <div class="detail-val">{{ $dash($enrolment->invoice_id) }}</div>
+                                <div class="detail-val">{{ $dash(optional($initialPaymentTransaction)->invoice_id) }}</div>
                             </div>
                             <div class="detail-row">
                                 <div class="detail-key">Payment Date</div>
-                                <div class="detail-val">{{ $enrolment->payment_date ? $enrolment->paymentDateFormatted() : '-' }}</div>
+                                <div class="detail-val">{{ optional($initialPaymentTransaction)->payment_date ? $initialPaymentTransaction->payment_date->format('d F Y') : '-' }}</div>
                             </div>
                             <div class="detail-row">
                                 <div class="detail-key">Virtual Account Created</div>
-                                <div class="detail-val">{{ $enrolment->create_va_date ? \Carbon\Carbon::parse($enrolment->create_va_date)->format('d M Y H:i') : '-' }}</div>
+                                <div class="detail-val">{{ optional($initialPaymentTransaction)->create_va_date ? $initialPaymentTransaction->create_va_date->format('d M Y H:i') : '-' }}</div>
                             </div>
                             <div class="detail-row">
                                 <div class="detail-key">Virtual Account Expiry</div>
-                                <div class="detail-val">{{ $enrolment->expiry_va_date ? \Carbon\Carbon::parse($enrolment->expiry_va_date)->format('d M Y H:i') : '-' }}</div>
+                                <div class="detail-val">{{ optional($initialPaymentTransaction)->expiry_va_date ? $initialPaymentTransaction->expiry_va_date->format('d M Y H:i') : '-' }}</div>
                             </div>
                         </div>
                         @if (!$hasTransactions)
                             <div class="small text-muted mt-3">Legacy enrolment: no itemised payment transactions are recorded; amounts come from the enrolment record.</div>
                         @endif
-                        @if (!empty($enrolment->payment_url))
-                            <a href="{{ $enrolment->payment_url }}" target="_blank" class="btn btn-success btn-sm mt-3">
+                        @if (optional($initialPaymentTransaction)->payment_url)
+                            <a href="{{ $initialPaymentTransaction->payment_url }}" target="_blank" class="btn btn-success btn-sm mt-3">
                                 <i class="fa fa-external-link"></i> Open Payment Link
                             </a>
                         @endif
@@ -532,8 +521,16 @@
                                         </span>
                                     </div>
                                     <div class="small text-muted">
-                                        {{ $transaction->payment_place ?? '-' }} · {{ ucfirst($transaction->source ?? '-') }}
-                                        · {{ $transaction->created_at ? $transaction->created_at->format('d M Y H:i') : '-' }}
+                                        {{ $transaction->created_at ? $transaction->created_at->format('d M Y H:i') : '-' }}
+                                        @if ($transaction->data_from)
+                                            · {{ $transaction->data_from === 'custom_form' ? 'Custom Form' : ucfirst(str_replace('_', ' ', $transaction->data_from)) }}
+                                        @endif
+                                        @if ($transaction->payment_place)
+                                            · {{ $transaction->payment_place }}
+                                        @endif
+                                        @if ($transaction->source)
+                                            · {{ ucfirst($transaction->source) }}
+                                        @endif
                                     </div>
                                     @foreach ($transaction->details as $detail)
                                         <div class="d-flex justify-content-between mt-2">

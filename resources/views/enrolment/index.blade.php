@@ -473,6 +473,46 @@
                 $('#sourceDataModal').modal('show');
             });
 
+            $('#enrolment-list').on('click', '.copy-enrolment-code', function() {
+                const code = $(this).data('code').toString();
+                const showCopyResult = function(success) {
+                    toastify(
+                        success ? 'Success' : 'Error',
+                        success ? 'Kode enrolment berhasil disalin' : 'Kode enrolment gagal disalin',
+                        success ? 'success' : 'error'
+                    );
+                };
+
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(code)
+                        .then(function() {
+                            showCopyResult(true);
+                        })
+                        .catch(function() {
+                            const temporaryInput = document.createElement('textarea');
+                            temporaryInput.value = code;
+                            temporaryInput.style.position = 'fixed';
+                            temporaryInput.style.opacity = '0';
+                            document.body.appendChild(temporaryInput);
+                            temporaryInput.select();
+                            const copied = document.execCommand('copy');
+                            temporaryInput.remove();
+                            showCopyResult(copied);
+                        });
+                    return;
+                }
+
+                const temporaryInput = document.createElement('textarea');
+                temporaryInput.value = code;
+                temporaryInput.style.position = 'fixed';
+                temporaryInput.style.opacity = '0';
+                document.body.appendChild(temporaryInput);
+                temporaryInput.select();
+                const copied = document.execCommand('copy');
+                temporaryInput.remove();
+                showCopyResult(copied);
+            });
+
             $('#enrolment-list').on('click', '.cancel-enrolment', function(e) {
                 e.preventDefault();
                 $('#cancel-enrolment-id').val($(this).data('id'));

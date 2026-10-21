@@ -61,31 +61,17 @@
                 </div>
                 <div class="col-md-5">
                     <label for="">Kode : {{ $enrolment->code }}
+                        <button type="button" class="btn btn-sm btn-link p-0 ms-1 copy-enrolment-code"
+                            data-code="{{ $enrolment->code }}" title="Salin kode enrolment"
+                            aria-label="Salin kode enrolment {{ $enrolment->code }}">
+                            <i class="fa fa-copy"></i>
+                        </button>
                         @if ($enrolment->isMerged())
                             <span class="badge text-bg-warning">
                                 Merged into
                                 {{ optional($enrolment->mergedInto)->code ?? 'enrolment #' . $enrolment->merged_into_enrolment_id }}
                             </span>
                         @endif
-                        <span
-                            class="badge text-bg-{{ $enrolment->source_data === 'internal' ? 'secondary' : 'danger' }}">
-                            {{ ucfirst($enrolment->source_data) }}
-                        </span>
-                        @if (!auth()->check() || auth()->user()->role != 'user')
-                            <button type="button" class="btn btn-sm btn-light border ms-1 edit-source-data"
-                                data-id="{{ $enrolment->id }}" data-source="{{ $enrolment->source_data }}"
-                                title="Edit Source Data">
-                                <i class="fa fa-pencil"></i>
-                            </button>
-                        @endif
-                        <span class="badge text-bg-{{ $enrolment->data_from === 'custom_form' ? 'primary' : '' }}">
-                            {{ $enrolment->data_from == 'custom_form' ? 'Custom Form' : 'Web Form' }}
-                        </span>
-                        @isset($enrolment->regis_place)
-                            <span class="badge text-bg-success">
-                                {{ $enrolment->regis_place ?? '' }}
-                            </span>
-                        @endisset
                     </label><br>
                     <div class="student-name">{{ $enrolment->child_name }} - <i>
                             {{ isset($enrolment->child_nick_name) ? '(' . $enrolment->child_nick_name . ')' : '' }}</i>
@@ -98,6 +84,9 @@
                             <i class="fa fa-money me-1"></i>Send DP
                         </a>
                     @endif
+                    <span class="badge me-1 {{ strtoupper((string) ($enrolment->status ?? 'Active')) === 'CANCELLED' ? 'text-bg-danger' : (strtoupper((string) ($enrolment->status ?? 'Active')) === 'INACTIVE' ? 'text-bg-secondary' : 'text-bg-success') }}">
+                        {{ $enrolment->status ?? 'Active' }}
+                    </span>
                     <div class="dropdown d-inline-block enrolment-actions">
                         <button class="btn btn-sm btn-secondary dropdown-toggle" type="button"
                             data-bs-toggle="dropdown" aria-expanded="false" title="Enrolment actions">
@@ -116,7 +105,7 @@
                             @if (
                                 !$enrolment->isMerged() &&
                                     auth()->user()->role !== 'user' &&
-                                    strtoupper((string) $enrolment->payment_status) !== 'CANCELLED')
+                                    strtoupper((string) $enrolment->status) !== 'CANCELLED')
                                 <li>
                                     <hr class="dropdown-divider">
                                 </li>
@@ -163,6 +152,19 @@
                             <div class="info-value">
                                 {{ $enrolment->email }}<br>
                                 {{ $enrolment->phone_number }}
+                            </div>
+                            <div class="mt-1">
+                                <span
+                                    class="badge text-bg-{{ $enrolment->source_data === 'internal' ? 'secondary' : 'danger' }}">
+                                    {{ ucfirst($enrolment->source_data) }}
+                                </span>
+                                @if (!auth()->check() || auth()->user()->role != 'user')
+                                    <button type="button" class="btn btn-sm btn-light border ms-1 edit-source-data"
+                                        data-id="{{ $enrolment->id }}" data-source="{{ $enrolment->source_data }}"
+                                        title="Edit Source Data">
+                                        <i class="fa fa-pencil"></i>
+                                    </button>
+                                @endif
                             </div>
                         </div>
                     </div>

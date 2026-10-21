@@ -225,6 +225,9 @@
                         <div class="tx-invoice">{{ $transaction->invoice_id ?? $transaction->code }}</div>
                         <div class="tx-meta">
                             {{ optional($transaction->created_at)->format('d M Y H:i') ?? '-' }}
+                            @if ($transaction->data_from)
+                                &middot; {{ $transaction->data_from === 'custom_form' ? 'Custom Form' : ucfirst(str_replace('_', ' ', $transaction->data_from)) }}
+                            @endif
                             @if ($transaction->payment_place)
                                 &middot; {{ $transaction->payment_place }}
                             @endif

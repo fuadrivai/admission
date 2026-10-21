@@ -166,21 +166,79 @@ class EnrolmentController extends Controller
                         ELSE 5
                     END) as division_order
                 ")
-                ->selectRaw("COUNT(CASE WHEN UPPER(COALESCE(enrolments.payment_status, '')) <> 'EXPIRED' THEN enrolments.id END) as total_form")
-                ->selectRaw("SUM(CASE WHEN UPPER(enrolments.payment_status) = 'PAID' THEN 1 ELSE 0 END) as paid")
-                ->selectRaw("SUM(CASE WHEN UPPER(enrolments.payment_status) = 'PENDING' THEN 1 ELSE 0 END) as pending")
-                ->selectRaw("SUM(CASE WHEN UPPER(enrolments.payment_status) = 'EXPIRED' THEN 1 ELSE 0 END) as expired")
-                ->selectRaw("SUM(CASE WHEN UPPER(enrolments.payment_status) = 'CANCELLED' THEN 1 ELSE 0 END) as cancelled")
+                ->selectRaw("COUNT(DISTINCT CASE
+                    WHEN UPPER(COALESCE(enrolments.status, 'ACTIVE')) = 'ACTIVE'
+                    THEN enrolments.id
+                END) as active_children")
+                ->selectRaw("COUNT(DISTINCT CASE
+                    WHEN UPPER(enrolments.status) IN ('INACTIVE', 'CANCELLED')
+                    THEN enrolments.id
+                END) as inactive_children")
+                ->selectRaw("COUNT(DISTINCT CASE WHEN EXISTS (
+                    SELECT 1
+                    FROM enrolment_transactions status_transaction
+                    INNER JOIN enrolment_details status_detail
+                        ON status_detail.enrolment_transaction_id = status_transaction.id
+                    WHERE status_transaction.enrolment_id = enrolments.id
+                        AND UPPER(COALESCE(enrolments.status, 'ACTIVE')) = 'ACTIVE'
+                        AND UPPER(status_transaction.payment_status) = 'PAID'
+                        AND status_detail.type = 'enrolment'
+                ) THEN enrolments.id END) as paid")
+                ->selectRaw("COUNT(DISTINCT CASE WHEN EXISTS (
+                    SELECT 1
+                    FROM enrolment_transactions status_transaction
+                    INNER JOIN enrolment_details status_detail
+                        ON status_detail.enrolment_transaction_id = status_transaction.id
+                    WHERE status_transaction.enrolment_id = enrolments.id
+                        AND UPPER(COALESCE(enrolments.status, 'ACTIVE')) = 'ACTIVE'
+                        AND UPPER(status_transaction.payment_status) = 'PENDING'
+                        AND status_detail.type = 'enrolment'
+                ) THEN enrolments.id END) as pending")
+                ->selectRaw("COUNT(DISTINCT CASE WHEN EXISTS (
+                    SELECT 1
+                    FROM enrolment_transactions status_transaction
+                    INNER JOIN enrolment_details status_detail
+                        ON status_detail.enrolment_transaction_id = status_transaction.id
+                    WHERE status_transaction.enrolment_id = enrolments.id
+                        AND UPPER(COALESCE(enrolments.status, 'ACTIVE')) = 'ACTIVE'
+                        AND UPPER(status_transaction.payment_status) = 'EXPIRED'
+                        AND status_detail.type = 'enrolment'
+                ) THEN enrolments.id END) as expired")
                 ->selectRaw("
-                    SUM(CASE WHEN EXISTS (
+                    COUNT(DISTINCT CASE WHEN EXISTS (
                         SELECT 1
                         FROM enrolment_transactions
                         INNER JOIN enrolment_details
                             ON enrolment_details.enrolment_transaction_id = enrolment_transactions.id
                         WHERE enrolment_transactions.enrolment_id = enrolments.id
-                            AND UPPER(enrolment_transactions.payment_status) IN ('PAID', 'SETTLED', 'COMPLETED', 'PENDING')
+                            AND UPPER(COALESCE(enrolments.status, 'ACTIVE')) = 'ACTIVE'
+                            AND UPPER(enrolment_transactions.payment_status) = 'PAID'
                             AND enrolment_details.type = 'dp'
-                    ) THEN 1 ELSE 0 END) as seat_rsvp
+                    ) THEN enrolments.id END) as dp_paid
+                ")
+                ->selectRaw("
+                    COUNT(DISTINCT CASE WHEN EXISTS (
+                        SELECT 1
+                        FROM enrolment_transactions
+                        INNER JOIN enrolment_details
+                            ON enrolment_details.enrolment_transaction_id = enrolment_transactions.id
+                        WHERE enrolment_transactions.enrolment_id = enrolments.id
+                            AND UPPER(COALESCE(enrolments.status, 'ACTIVE')) = 'ACTIVE'
+                            AND UPPER(enrolment_transactions.payment_status) = 'PENDING'
+                            AND enrolment_details.type = 'dp'
+                    ) THEN enrolments.id END) as dp_pending
+                ")
+                ->selectRaw("
+                    COUNT(DISTINCT CASE WHEN EXISTS (
+                        SELECT 1
+                        FROM enrolment_transactions
+                        INNER JOIN enrolment_details
+                            ON enrolment_details.enrolment_transaction_id = enrolment_transactions.id
+                        WHERE enrolment_transactions.enrolment_id = enrolments.id
+                            AND UPPER(enrolments.status) <> 'CANCELLED'
+                            AND UPPER(enrolment_transactions.payment_status) = 'EXPIRED'
+                            AND enrolment_details.type = 'dp'
+                    ) THEN enrolments.id END) as dp_expired
                 ")
                 ->groupBy('levels.id', 'levels.name', 'grades.id', 'grades.name', 'enrolments.academic_year_id')
                 ->orderBy('division_order')
@@ -190,7 +248,16 @@ class EnrolmentController extends Controller
             $gradeInfo = $statsRows->unique('grade_id')->keyBy('grade_id');
             $years = collect([(int) $selectedAcademicYearId]);
             $outputRows = [];
-            $metricFields = ['total_form', 'paid', 'pending', 'expired', 'cancelled', 'seat_rsvp'];
+            $metricFields = [
+                'active_children',
+                'inactive_children',
+                'paid',
+                'pending',
+                'expired',
+                'dp_expired',
+                'dp_paid',
+                'dp_pending',
+            ];
 
             $appendRow = function ($key, array $row) use (&$outputRows, $metricFields) {
                 if (!isset($outputRows[$key])) {
@@ -287,7 +354,10 @@ class EnrolmentController extends Controller
                 $appendRow('grade:' . $gradeId, $row);
             }
 
-            $rows = collect($outputRows)->sortBy([
+            $rows = collect($outputRows)->each(function ($row) {
+                $row->total_form = $row->paid + $row->pending;
+                $row->dp_total = $row->dp_paid + $row->dp_pending;
+            })->sortBy([
                 ['division_order', 'asc'],
                 ['level', 'asc'],
             ])->values();
@@ -296,11 +366,15 @@ class EnrolmentController extends Controller
         $totals = [
             'enrolment_target' => $rows->sum('enrolment_target'),
             'total_form' => $rows->sum('total_form'),
+            'active_children' => $rows->sum('active_children'),
+            'inactive_children' => $rows->sum('inactive_children'),
             'paid' => $rows->sum('paid'),
             'pending' => $rows->sum('pending'),
             'expired' => $rows->sum('expired'),
-            'seat_rsvp' => $rows->sum('seat_rsvp'),
-            'cancelled' => $rows->sum('cancelled'),
+            'dp_paid' => $rows->sum('dp_paid'),
+            'dp_pending' => $rows->sum('dp_pending'),
+            'dp_expired' => $rows->sum('dp_expired'),
+            'dp_total' => $rows->sum('dp_total'),
         ];
 
         if ($request->input('export') === 'excel') {
@@ -385,7 +459,10 @@ class EnrolmentController extends Controller
      */
     public function edit(Enrolment $enrolment)
     {
-        $enrolment = $this->enrolmentService->show($enrolment->id)->load('transactions.details');
+        $enrolment = $this->enrolmentService->show($enrolment->id)->load([
+            'transactions.details',
+            'initialPaymentTransaction',
+        ]);
         return view('enrolment.detail', ["title" => "Enrolment Detail", "enrolment" => $enrolment]);
     }
 
@@ -520,20 +597,11 @@ class EnrolmentController extends Controller
             'reason' => 'required|string|max:1000',
         ]);
 
-        if (strtoupper((string) $enrolment->payment_status) === 'CANCELLED') {
+        if (strtoupper((string) $enrolment->status) === 'CANCELLED') {
             return response()->json(['status' => 'error', 'message' => 'Enrolment is already cancelled.'], 422);
         }
 
-        $expireResponse = $this->expirePendingInvoice($enrolment);
-        if ($expireResponse !== null) {
-            return $expireResponse;
-        }
-
-        EnrolmentTransaction::where('code', $enrolment->code)
-            ->whereRaw('UPPER(payment_status) = ?', ['PENDING'])
-            ->update(['payment_status' => 'EXPIRED']);
-
-        $enrolment->payment_status = 'CANCELLED';
+        $enrolment->status = 'Cancelled';
         $enrolment->cancel_reason = $validated['reason'];
         $enrolment->cancelled_at = now();
         $enrolment->save();
@@ -552,14 +620,10 @@ class EnrolmentController extends Controller
             ->whereRaw('UPPER(payment_status) = ?', ['PENDING'])
             ->get();
 
-        if ($transactions->isNotEmpty()) {
-            $paymentUrls = $transactions->pluck('payment_url')->filter()->unique();
-        } elseif (strtoupper((string) $enrolment->payment_status) === 'PENDING') {
-            // Legacy data: invoice is stored on the enrolment itself.
-            $paymentUrls = collect([(string) $enrolment->payment_url]);
-        } else {
+        if ($transactions->isEmpty()) {
             return null;
         }
+        $paymentUrls = $transactions->pluck('payment_url')->filter()->unique();
 
         foreach ($paymentUrls as $paymentUrl) {
             $result = expireXenditInvoice((string) $paymentUrl, $branchName);

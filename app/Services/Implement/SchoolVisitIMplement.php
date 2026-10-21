@@ -58,13 +58,19 @@ class SchoolVisitIMplement implements SchoolVisitService
             if ($request->enrol === 'yes') {
                 $query->whereHas('prospect.enrolment',function($q) use ($request) {
                     if ($request->payment == 'PAID') {
-                        $q->where('payment_status', 'PAID');
+                        $q->whereHas('transactions', function ($transactionQuery) {
+                            $transactionQuery->whereRaw('UPPER(payment_status) = ?', ['PAID']);
+                        });
                     }
                     if ($request->payment == 'PENDING') {
-                        $q->where('payment_status', 'PENDING');
+                        $q->whereHas('transactions', function ($transactionQuery) {
+                            $transactionQuery->whereRaw('UPPER(payment_status) = ?', ['PENDING']);
+                        });
                     }
                     if ($request->payment == 'EXPIRED') {
-                        $q->where('payment_status', 'EXPIRED');
+                        $q->whereHas('transactions', function ($transactionQuery) {
+                            $transactionQuery->whereRaw('UPPER(payment_status) = ?', ['EXPIRED']);
+                        });
                     }
                 });
             } elseif ($request->enrol === 'no') {
@@ -122,13 +128,19 @@ class SchoolVisitIMplement implements SchoolVisitService
             'enrolSummary' => [
                 'enrolled' => $enrolledCount,
                 'paid' => (clone $query)->whereHas('prospect.enrolment', function($q) {
-                    $q->where('payment_status', 'PAID');
+                    $q->whereHas('transactions', function ($transactionQuery) {
+                        $transactionQuery->whereRaw('UPPER(payment_status) = ?', ['PAID']);
+                    });
                 })->count(),
                 'pending' => (clone $query)->whereHas('prospect.enrolment', function($q) {
-                    $q->where('payment_status', 'PENDING');
+                    $q->whereHas('transactions', function ($transactionQuery) {
+                        $transactionQuery->whereRaw('UPPER(payment_status) = ?', ['PENDING']);
+                    });
                 })->count(),
                 'expired' => (clone $query)->whereHas('prospect.enrolment', function($q) {
-                    $q->where('payment_status', 'EXPIRED');
+                    $q->whereHas('transactions', function ($transactionQuery) {
+                        $transactionQuery->whereRaw('UPPER(payment_status) = ?', ['EXPIRED']);
+                    });
                 })->count(),
             ],
         ];

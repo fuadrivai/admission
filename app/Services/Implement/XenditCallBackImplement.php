@@ -67,84 +67,57 @@ class XenditCallBackImplement implements XenditCallBackService
             ->where('invoice_id', $externalId)
             ->first();
 
-        if ($transaction) {
-            $enrolment = $transaction->enrolment;
-            if (!$enrolment) {
-                Log::warning('Enrolment transaction has no linked enrolment', [
-                    'invoice_id' => $externalId,
-                    'transaction_id' => $transaction->id,
-                ]);
-            }
-
-            if ($enrolment) {
-                $transaction->update([
-                    'code' => $enrolment->code,
-                    'payment_status' => $mappedStatus,
-                    'payment_date' => $paidDate,
-                ]);
-
-                $hasRequiredEnrolmentCharge = $transaction->details->contains(function ($detail) {
-                    return in_array($detail->type, ['enrolment', 'streaming_test'], true);
-                });
-                if (!$hasRequiredEnrolmentCharge) {
-                    return;
-                }
-
-                $enrolment->update([
-                    'payment_status' => $mappedStatus,
-                    'payment_date' => $paidDate,
-                ]);
-                $enrolment->activities()->create([
-                    'prospects_id' => $enrolment->prospects_id,
-                    'note' => "Initial required payment status updated to {$mappedStatus} via Xendit.",
-                ]);
-
-                if ($mappedStatus === 'PAID') {
-                    $this->sendEnrolmentConfirmation($enrolment->fresh(), $transaction, $data['description'] ?? null);
-                    $transaction->update(['confirmation_email_sent_at' => now()]);
-                }
-
-                return;
-            }
-        }
-
-        $enrolment = Enrolment::where('invoice_id', $externalId)->first();
-        if (!$enrolment) {
+        if (!$transaction) {
             Log::warning("Enrolment transaction not found for Xendit invoice: {$externalId}");
 
             return;
         }
 
-        $previousStatus = strtoupper((string) $enrolment->payment_status);
-        $enrolment->update([
+        $enrolment = $transaction->enrolment;
+        if (!$enrolment) {
+            Log::warning('Enrolment transaction has no linked enrolment', [
+                'invoice_id' => $externalId,
+                'transaction_id' => $transaction->id,
+            ]);
+
+            return;
+        }
+
+        $transaction->update([
+            'code' => $enrolment->code,
             'payment_status' => $mappedStatus,
             'payment_date' => $paidDate,
         ]);
+        $enrolment->syncLifecycleStatusFromTransactions();
+
+        $hasRequiredEnrolmentCharge = $transaction->details->contains(function ($detail) {
+            return in_array($detail->type, ['enrolment', 'streaming_test'], true);
+        });
+        if (!$hasRequiredEnrolmentCharge) {
+            return;
+        }
+
         $enrolment->activities()->create([
             'prospects_id' => $enrolment->prospects_id,
-            'note' => "Payment status updated to {$mappedStatus} via Xendit.",
+            'note' => "Initial required payment status updated to {$mappedStatus} via Xendit.",
         ]);
 
         if ($mappedStatus === 'PAID') {
-            $transaction = EnrolmentTransaction::with('details')
-                ->where('invoice_id', $externalId)
-                ->first();
-            if ($transaction) {
-                $this->sendEnrolmentConfirmation($enrolment->fresh(), $transaction, $data['description'] ?? null);
-                $transaction->update(['confirmation_email_sent_at' => now()]);
-            } elseif (!$transaction && $previousStatus !== 'PAID') {
-                $this->sendEnrolmentConfirmation($enrolment->fresh(), null, $data['description'] ?? null);
-            }
+            $this->sendEnrolmentConfirmation($enrolment->fresh(), $transaction, $data['description'] ?? null);
+            $transaction->update(['confirmation_email_sent_at' => now()]);
         }
     }
 
     private function sendEnrolmentConfirmation(
         Enrolment $enrolment,
-        ?EnrolmentTransaction $transaction,
+        EnrolmentTransaction $transaction,
         $description
     ): void
     {
         $enrolmentData = $enrolment->getAttributes();
+        $enrolmentData['invoice_id'] = $transaction->invoice_id;
+        $enrolmentData['payment_status'] = $transaction->payment_status;
+        $enrolmentData['payment_date'] = $transaction->payment_date;
         $enrolmentData['level_name'] = optional(Level::find($enrolment->level_id))->name ?? '-';
         $enrolmentData['grade_name'] = optional(Grade::find($enrolment->grade_id))->name ?? '-';
         $pdfPath = $this->generateEnrolmentInvoicePdf($enrolment, $transaction, $description);
@@ -156,7 +129,7 @@ class XenditCallBackImplement implements XenditCallBackService
         setupMail($enrolment->branch_id);
         Mail::to($enrolment->email)->send(
             (new AdmissionEmail($enrolmentData))->attach($pdfPath, [
-                'as' => 'Receipt-' . $enrolment->invoice_id . '.pdf',
+                'as' => 'Receipt-' . $transaction->invoice_id . '.pdf',
                 'mime' => 'application/pdf',
             ])
         );
@@ -244,7 +217,7 @@ class XenditCallBackImplement implements XenditCallBackService
 
     private function generateEnrolmentInvoicePdf(
         Enrolment $enrolment,
-        ?EnrolmentTransaction $transaction,
+        EnrolmentTransaction $transaction,
         $description = null
     )
     {
@@ -271,13 +244,11 @@ class XenditCallBackImplement implements XenditCallBackService
         $total = $transaction
             ? (float) $transaction->total_amount
             : (float) $enrolment->amount_paid;
-        $paymentDate = $transaction && $transaction->payment_date
-            ? $transaction->payment_date
-            : $enrolment->payment_date;
+        $paymentDate = $transaction->payment_date;
         $logoPath = public_path('assets/images/Logo-all-branch.png');
         $imageBase64 = imageToBase64($logoPath);
         $html = view('pdf.invoice', [
-            'invoice_no' => $transaction->invoice_id ?? $enrolment->invoice_id,
+            'invoice_no' => $transaction->invoice_id,
             'payment_date' => $paymentDate ? Carbon::parse($paymentDate)->format('d M Y') : Carbon::now()->format('d M Y'),
             'student_name' => $enrolment->child_name,
             'payment_items' => $paymentItems,
@@ -297,7 +268,7 @@ class XenditCallBackImplement implements XenditCallBackService
         $dompdf->render();
 
         $path = $enrolment->code . '/receipt-' . preg_replace('/[^A-Za-z0-9_-]/', '_', $enrolment->child_name)
-            . '-' . ($transaction->invoice_id ?? $enrolment->invoice_id) . '.pdf';
+            . '-' . $transaction->invoice_id . '.pdf';
 
         Storage::disk('admission')->put($path, $dompdf->output());
 
