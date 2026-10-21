@@ -7,7 +7,7 @@
                 <div class="d-flex flex-wrap align-items-start justify-content-between gap-3 mb-4">
                     <div>
                         <h5 class="mb-1">Data Historis Enrolment</h5>
-                        <p class="text-muted small mb-0">Simpan angka laporan lama tanpa membuat data enrolment atau transaksi buatan.</p>
+                        <p class="text-muted small mb-0">Simpan angka bulanan tanpa membuat data enrolment atau transaksi buatan.</p>
                     </div>
                     <a href="{{ route('enrolment.historical-report.create') }}" class="btn btn-primary">
                         <i class="fa fa-plus me-1"></i> Tambah Snapshot
@@ -19,9 +19,9 @@
                 @endif
 
                 <div class="alert alert-info small">
-                    Masukkan angka sesuai data yang benar-benar tersedia. Pilih cakupan Level bila angka hanya tersedia
-                    sebagai agregat level, atau Grade bila data lama memang dirinci per grade. Kedua cakupan tidak boleh
-                    dicampur pada satu level, dan nilai total enrolment/DP serta persentase target dihitung otomatis.
+                    Masukkan angka yang terjadi pada bulan tersebut, bukan angka kumulatif. Pilih cakupan Level bila
+                    angka hanya tersedia sebagai agregat level, atau Grade bila data dirinci per grade. Total enrolment/DP
+                    dan persentase target dihitung otomatis.
                 </div>
 
                 <form method="GET" action="{{ route('enrolment.historical-report.index') }}"
@@ -38,7 +38,7 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-5">
+                    <div class="col-md-4">
                         <label for="filter-branch" class="form-label">Cabang</label>
                         <select id="filter-branch" name="branch_id" class="form-select" required>
                             <option value="">Pilih Cabang</option>
@@ -46,6 +46,18 @@
                                 <option value="{{ $branch->id }}"
                                     {{ (string) $selectedBranchId === (string) $branch->id ? 'selected' : '' }}>
                                     {{ $branch->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="filter-month" class="form-label">Bulan</label>
+                        <select id="filter-month" name="snapshot_month" class="form-select">
+                            <option value="">Semua Bulan</option>
+                            @foreach ($months as $monthNumber => $monthName)
+                                <option value="{{ $monthNumber }}"
+                                    {{ (string) $selectedMonth === (string) $monthNumber ? 'selected' : '' }}>
+                                    {{ $monthName }}
                                 </option>
                             @endforeach
                         </select>
@@ -64,6 +76,7 @@
                     <table class="table table-bordered table-hover align-middle mb-0">
                         <thead class="table-light">
                             <tr>
+                                <th>Bulan</th>
                                 <th>Level</th>
                                 <th>Cakupan</th>
                                 <th class="text-end">Active</th>
@@ -81,6 +94,7 @@
                         <tbody>
                             @forelse ($snapshots as $snapshot)
                                 <tr>
+                                    <td>{{ $snapshot->snapshot_month ? $months[$snapshot->snapshot_month] : 'Tahunan (lama)' }}</td>
                                     <td>{{ $snapshot->level->name }}</td>
                                     <td>{{ $snapshot->scope_type === 'level' ? 'Level' : 'Grade: ' . optional($snapshot->grade)->name }}</td>
                                     @foreach (['active_children', 'cancelled_children', 'enrolment_expired', 'enrolment_pending', 'enrolment_paid', 'dp_expired', 'dp_pending', 'dp_paid', 'target'] as $metric)
@@ -100,7 +114,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="12" class="text-center text-muted py-4">
+                                    <td colspan="13" class="text-center text-muted py-4">
                                         @if ($hasFilters)
                                             Belum ada snapshot untuk filter yang dipilih.
                                         @else

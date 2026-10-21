@@ -7,7 +7,7 @@
                 <div class="d-flex justify-content-between align-items-start gap-3 mb-4">
                     <div>
                         <h5 class="mb-1">{{ $snapshot->exists ? 'Edit Snapshot Historis' : 'Tambah Snapshot Historis' }}</h5>
-                        <p class="text-muted small mb-0">Snapshot hanya menyimpan angka agregat; tidak membuat enrolment/transaksi.</p>
+                        <p class="text-muted small mb-0">Masukkan angka yang terjadi selama bulan yang dipilih; snapshot tidak membuat enrolment/transaksi.</p>
                     </div>
                     <a href="{{ route('enrolment.historical-report.index') }}" class="btn btn-light border">Kembali</a>
                 </div>
@@ -39,6 +39,18 @@
                                     <option value="{{ $academicYear->id }}"
                                         {{ (string) old('academic_year_id', $snapshot->academic_year_id) === (string) $academicYear->id ? 'selected' : '' }}>
                                         {{ $academicYear->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="snapshot_month" class="form-label">Bulan</label>
+                            <select id="snapshot_month" name="snapshot_month" class="form-select" required>
+                                <option value="">Pilih Bulan</option>
+                                @foreach ($months as $monthNumber => $monthName)
+                                    <option value="{{ $monthNumber }}"
+                                        {{ (string) old('snapshot_month', $snapshot->snapshot_month) === (string) $monthNumber ? 'selected' : '' }}>
+                                        {{ $monthName }}
                                     </option>
                                 @endforeach
                             </select>
@@ -88,7 +100,7 @@
                         </div>
                     </div>
 
-                    <h6 class="mb-3">Angka Historis</h6>
+                    <h6 class="mb-3">Angka Bulan Ini</h6>
                     <div class="row g-3">
                         @foreach ([
                             'active_children' => 'Status Anak - Active',

@@ -14,6 +14,62 @@
             font-weight: 600;
         }
 
+        .enrolment-report .filter-card .form-select {
+            min-width: 0;
+        }
+
+        .enrolment-report .filter-actions {
+            display: flex;
+            align-items: end;
+            justify-content: flex-end;
+            gap: .5rem;
+        }
+
+        .enrolment-report .filter-actions .btn {
+            min-width: 6rem;
+        }
+
+        .enrolment-report .report-notes {
+            border: 1px solid #e8edf3;
+            border-radius: 10px;
+            background: #f8faff;
+        }
+
+        .enrolment-report .report-notes summary {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #475467;
+            cursor: pointer;
+            font-weight: 600;
+            list-style: none;
+        }
+
+        .enrolment-report .report-notes summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .enrolment-report .report-notes summary::after {
+            content: "";
+            width: .55rem;
+            height: .55rem;
+            margin-left: 1rem;
+            color: #667085;
+            border-right: 2px solid currentColor;
+            border-bottom: 2px solid currentColor;
+            flex: 0 0 auto;
+            transform: rotate(45deg);
+            transition: transform .2s ease;
+        }
+
+        .enrolment-report .report-notes[open] summary::after {
+            transform: rotate(225deg);
+        }
+
+        .enrolment-report .report-notes[open] summary {
+            margin-bottom: .5rem;
+        }
+
         .enrolment-report .report-table {
             border-color: #e8edf3;
         }
@@ -97,17 +153,22 @@
     <section class="section enrolment-report">
         <div class="card border-0 shadow-sm">
             <div class="card-body p-3 p-lg-4">
-                <div class="alert alert-light border small text-muted mb-4" role="note">
-                    <strong>Catatan perhitungan:</strong>
-                    <ul class="mb-0 mt-2">
+                <details class="report-notes small text-muted p-3 mb-3" role="note" open
+                    style="margin-bottom: 2rem !important;">
+                    <summary>Catatan perhitungan</summary>
+                    <ul class="mb-0 mt-2 ps-4">
                         <li><strong>Status Anak:</strong> menghitung master enrolment satu kali. Active berisi master
                             berstatus Active, sedangkan Cancel berisi master berstatus Cancelled.</li>
+                        <li>Jika Bulan dipilih, laporan aktual hanya menampilkan master enrolment yang dibuat pada bulan
+                            tersebut di Academic Year terpilih; kategori status transaksi mengikuti status saat ini,
+                            bukan rekonstruksi status pada tanggal lampau.</li>
                         <li><strong>Enrolment:</strong> Paid dan Pending dihitung dari master Active yang memiliki
                             transaksi dengan detail <code>enrolment</code> dan status sesuai. Expired dihitung dari
                             transaksi Expired pada master yang bukan Cancelled, termasuk master Inactive. Master
                             Cancelled tetap terlihat pada kolom Cancel di Status Anak.</li>
                         <li><strong>DP:</strong> Paid, Pending, dan Expired dihitung dari transaksi yang memiliki detail
-                            <code>dp</code>. Master Inactive/Cancelled tidak masuk ke hitungan status transaksi.</li>
+                            <code>dp</code>. Master Inactive/Cancelled tidak masuk ke hitungan status transaksi.
+                        </li>
                         <li>Setiap master enrolment dihitung maksimal satu kali di tiap status transaksi yang cocok.
                             Transaksi dengan detail <code>enrolment</code> sekaligus <code>dp</code> dihitung pada
                             kedua kelompok; status transaksi tetap tidak diubah.</li>
@@ -116,15 +177,17 @@
                         <li><strong>Total DP</strong> = DP Pending + DP Paid. DP Expired tidak ditambahkan ke total.</li>
                         <li><strong>Target Siswa</strong> mengikuti target yang ditetapkan untuk level atau grade.
                             <strong>% Target</strong> = (DP Paid &divide; Target Siswa) &times; 100; DP Pending tidak
-                            dihitung.</li>
-                        <li>Perbandingan tahun lain memakai snapshot historis yang diinput terpisah; angka lama
+                            dihitung.
+                        </li>
+                        <li>Perbandingan bulan membutuhkan pilihan Bulan dan snapshot historis tahun pembanding;
+                            snapshot menampilkan angka yang dicatat khusus untuk bulan itu. Angka historis
                             ditampilkan hanya pada cakupan Level atau Grade yang benar-benar tersedia.</li>
                     </ul>
-                </div>
+                </details>
 
                 <form id="enrolment-report-filters" method="GET" action="{{ route('enrolment.report') }}"
                     class="filter-card row g-3 align-items-end p-3 mb-4">
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <label for="academic_year_id" class="form-label">Academic Year</label>
                         <select id="academic_year_id" name="academic_year_id" class="form-select" required>
                             <option value="" disabled {{ $selectedAcademicYearId === '' ? 'selected' : '' }}>Pilih
@@ -137,7 +200,7 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <label for="branch_id" class="form-label">Cabang</label>
                         @if (auth()->user()->role === 'user')
                             <select id="branch_id" class="form-select" disabled>
@@ -160,7 +223,7 @@
                             </select>
                         @endif
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <label for="level_id" class="form-label">Level</label>
                         <select id="level_id" name="level_id" class="form-select"
                             {{ $selectedBranchId ? '' : 'disabled' }}>
@@ -173,7 +236,19 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-4">
+                        <label for="report_month" class="form-label">Bulan</label>
+                        <select id="report_month" name="report_month" class="form-select">
+                            <option value="">Semua Bulan (Academic Year)</option>
+                            @foreach ($months as $monthNumber => $monthName)
+                                <option value="{{ $monthNumber }}"
+                                    {{ (string) $selectedReportMonth === (string) $monthNumber ? 'selected' : '' }}>
+                                    {{ $monthName }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-4">
                         <label for="comparison_academic_year_id" class="form-label">Bandingkan dengan Snapshot</label>
                         <select id="comparison_academic_year_id" name="comparison_academic_year_id" class="form-select">
                             <option value="">Tidak dibandingkan</option>
@@ -187,7 +262,7 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-3 d-flex justify-content-end gap-2">
+                    <div class="col-md-4 filter-actions">
                         <button type="submit" class="btn btn-primary px-4">
                             <i class="fa fa-filter me-1"></i> Submit
                         </button>
@@ -460,8 +535,11 @@
                     <div class="mt-5">
                         <div class="d-flex flex-wrap align-items-start justify-content-between gap-2 mb-3">
                             <div>
-                                <h6 class="mb-1">Snapshot Historis: {{ optional($academicYears->firstWhere('id', (int) $selectedComparisonAcademicYearId))->name }}</h6>
-                                <p class="small text-muted mb-0">Angka ditampilkan sesuai cakupan yang diinput (Level atau Grade), tanpa mengalokasikan angka agregat secara fiktif.</p>
+                                <h6 class="mb-1">Snapshot Historis:
+                                    {{ optional($academicYears->firstWhere('id', (int) $selectedComparisonAcademicYearId))->name }}
+                                    - {{ $months[$selectedReportMonth] ?? '' }}</h6>
+                                <p class="small text-muted mb-0">Angka bulan terpilih dibandingkan pada cakupan yang
+                                    diinput (Level atau Grade), tanpa mengalokasikan angka agregat secara fiktif.</p>
                             </div>
                             @if (auth()->user()->role !== 'user')
                                 <a href="{{ route('enrolment.historical-report.index', ['academic_year_id' => $selectedComparisonAcademicYearId, 'branch_id' => $selectedBranchId]) }}"
@@ -503,16 +581,18 @@
                                                 [$row->dp_total, 'primary'],
                                                 [$row->enrolment_target, 'primary'],
                                             ];
-                                            $historicalPercentage = $row->enrolment_target > 0
-                                                ? ($row->dp_paid / $row->enrolment_target) * 100
-                                                : 0;
+                                            $historicalPercentage =
+                                                $row->enrolment_target > 0
+                                                    ? ($row->dp_paid / $row->enrolment_target) * 100
+                                                    : 0;
                                         @endphp
                                         <tr>
                                             <td class="level-name">{{ $row->level }}</td>
                                             @foreach ($historicalValues as [$value, $color])
                                                 <td class="text-end">
                                                     @if ($value != 0)
-                                                        <span class="badge text-bg-{{ $color }}">{{ number_format($value) }}</span>
+                                                        <span
+                                                            class="badge text-bg-{{ $color }}">{{ number_format($value) }}</span>
                                                     @else
                                                         0
                                                     @endif
@@ -520,7 +600,8 @@
                                             @endforeach
                                             <td class="text-end">
                                                 @if ($historicalPercentage > 0)
-                                                    <span class="badge text-bg-info">{{ number_format($historicalPercentage, 1) }}%</span>
+                                                    <span
+                                                        class="badge text-bg-info">{{ number_format($historicalPercentage, 1) }}%</span>
                                                 @else
                                                     0%
                                                 @endif
@@ -529,9 +610,11 @@
                                     @empty
                                         <tr>
                                             <td colspan="13" class="text-center text-muted py-4">
-                                                Belum ada snapshot untuk tahun dan cabang ini.
+                                                Belum ada snapshot untuk bulan, tahun ajaran, dan cabang ini.
                                                 @if (auth()->user()->role !== 'user')
-                                                    <a href="{{ route('enrolment.historical-report.index', ['academic_year_id' => $selectedComparisonAcademicYearId, 'branch_id' => $selectedBranchId]) }}">Tambah data historis</a>.
+                                                    <a
+                                                        href="{{ route('enrolment.historical-report.index', ['academic_year_id' => $selectedComparisonAcademicYearId, 'branch_id' => $selectedBranchId]) }}">Tambah
+                                                        data historis</a>.
                                                 @endif
                                             </td>
                                         </tr>
@@ -553,16 +636,20 @@
                                                 [$historicalTotals['dp_total'], 'primary'],
                                                 [$historicalTotals['enrolment_target'], 'primary'],
                                             ];
-                                            $historicalTotalPercentage = $historicalTotals['enrolment_target'] > 0
-                                                ? ($historicalTotals['dp_paid'] / $historicalTotals['enrolment_target']) * 100
-                                                : 0;
+                                            $historicalTotalPercentage =
+                                                $historicalTotals['enrolment_target'] > 0
+                                                    ? ($historicalTotals['dp_paid'] /
+                                                            $historicalTotals['enrolment_target']) *
+                                                        100
+                                                    : 0;
                                         @endphp
                                         <tr>
                                             <td>Total</td>
                                             @foreach ($historicalTotalValues as [$value, $color])
                                                 <td class="text-end">
                                                     @if ($value != 0)
-                                                        <span class="badge text-bg-{{ $color }}">{{ number_format($value) }}</span>
+                                                        <span
+                                                            class="badge text-bg-{{ $color }}">{{ number_format($value) }}</span>
                                                     @else
                                                         0
                                                     @endif
@@ -570,7 +657,8 @@
                                             @endforeach
                                             <td class="text-end">
                                                 @if ($historicalTotalPercentage > 0)
-                                                    <span class="badge text-bg-info">{{ number_format($historicalTotalPercentage, 1) }}%</span>
+                                                    <span
+                                                        class="badge text-bg-info">{{ number_format($historicalTotalPercentage, 1) }}%</span>
                                                 @else
                                                     0%
                                                 @endif
@@ -592,6 +680,8 @@
         document.addEventListener('DOMContentLoaded', function() {
             const branchSelect = document.getElementById('branch_id');
             const levelSelect = document.getElementById('level_id');
+            const comparisonSelect = document.getElementById('comparison_academic_year_id');
+            const monthSelect = document.getElementById('report_month');
             const reportForm = document.getElementById('enrolment-report-filters');
             const reportResults = document.getElementById('report-results');
             const pendingFilterMessage = document.getElementById('report-pending-filter');
@@ -603,6 +693,14 @@
                 }
             }
 
+            if (comparisonSelect && monthSelect) {
+                const requireMonthForComparison = function() {
+                    monthSelect.required = comparisonSelect.value !== '';
+                };
+                comparisonSelect.addEventListener('change', requireMonthForComparison);
+                requireMonthForComparison();
+            }
+
             if (!branchSelect || branchSelect.disabled) {
                 if (levelSelect && branchSelect && branchSelect.value) {
                     filterLevels(branchSelect.value);
@@ -612,6 +710,7 @@
                         field.addEventListener('change', markReportAsPending);
                     });
                 }
+
                 return;
             }
 

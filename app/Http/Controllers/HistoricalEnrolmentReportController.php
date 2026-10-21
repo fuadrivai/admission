@@ -39,6 +39,7 @@ class HistoricalEnrolmentReportController extends Controller
         $filters = $request->validate([
             'academic_year_id' => 'nullable|integer|exists:academic_years,id',
             'branch_id' => 'nullable|integer|exists:branches,id',
+            'snapshot_month' => 'nullable|integer|between:1,12',
         ]);
         $hasFilters = $request->filled('academic_year_id') && $request->filled('branch_id');
         $snapshots = collect();
@@ -50,7 +51,11 @@ class HistoricalEnrolmentReportController extends Controller
                 ->leftJoin('grades as report_grades', 'report_grades.id', '=', 'historical_enrolment_reports.grade_id')
                 ->where('historical_enrolment_reports.academic_year_id', $filters['academic_year_id'])
                 ->where('historical_enrolment_reports.branch_id', $filters['branch_id'])
+                ->when($request->filled('snapshot_month'), function ($query) use ($filters) {
+                    $query->where('historical_enrolment_reports.snapshot_month', $filters['snapshot_month']);
+                })
                 ->select('historical_enrolment_reports.*')
+                ->orderBy('historical_enrolment_reports.snapshot_month')
                 ->orderByRaw("CASE report_divisions.name
                     WHEN 'Preschool' THEN 1
                     WHEN 'Primary' THEN 2
@@ -68,8 +73,10 @@ class HistoricalEnrolmentReportController extends Controller
             'snapshots' => $snapshots,
             'academicYears' => AcademicYear::orderByDesc('name')->get(['id', 'name']),
             'branches' => Branch::orderBy('name')->get(['id', 'name']),
+            'months' => $this->months(),
             'selectedAcademicYearId' => $filters['academic_year_id'] ?? '',
             'selectedBranchId' => $filters['branch_id'] ?? '',
+            'selectedMonth' => $filters['snapshot_month'] ?? '',
             'hasFilters' => $hasFilters,
         ]);
     }
@@ -88,11 +95,13 @@ class HistoricalEnrolmentReportController extends Controller
         HistoricalEnrolmentReport::updateOrCreate(
             [
                 'academic_year_id' => $validated['academic_year_id'],
+                'snapshot_month' => $validated['snapshot_month'],
                 'branch_id' => $validated['branch_id'],
                 'level_id' => $validated['level_id'],
                 'scope_key' => $scopeKey,
             ],
             $this->snapshotValues($validated) + [
+                'snapshot_month' => $validated['snapshot_month'],
                 'scope_type' => $validated['scope_type'],
                 'grade_id' => $validated['scope_type'] === 'grade' ? $validated['grade_id'] : null,
                 'created_by' => auth()->id(),
@@ -102,6 +111,7 @@ class HistoricalEnrolmentReportController extends Controller
         return redirect()->route('enrolment.historical-report.index', [
             'academic_year_id' => $validated['academic_year_id'],
             'branch_id' => $validated['branch_id'],
+            'snapshot_month' => $validated['snapshot_month'],
         ])->with('success', 'Snapshot historis berhasil disimpan.');
     }
 
@@ -117,6 +127,7 @@ class HistoricalEnrolmentReportController extends Controller
         $this->ensureScopeIsConsistent($validated, $historicalEnrolmentReport);
 
         $duplicate = HistoricalEnrolmentReport::where('academic_year_id', $validated['academic_year_id'])
+            ->where('snapshot_month', $validated['snapshot_month'])
             ->where('branch_id', $validated['branch_id'])
             ->where('level_id', $validated['level_id'])
             ->where('scope_key', $scopeKey)
@@ -130,6 +141,7 @@ class HistoricalEnrolmentReportController extends Controller
 
         $historicalEnrolmentReport->update($this->snapshotValues($validated) + [
             'academic_year_id' => $validated['academic_year_id'],
+            'snapshot_month' => $validated['snapshot_month'],
             'branch_id' => $validated['branch_id'],
             'level_id' => $validated['level_id'],
             'scope_type' => $validated['scope_type'],
@@ -140,6 +152,7 @@ class HistoricalEnrolmentReportController extends Controller
         return redirect()->route('enrolment.historical-report.index', [
             'academic_year_id' => $validated['academic_year_id'],
             'branch_id' => $validated['branch_id'],
+            'snapshot_month' => $validated['snapshot_month'],
         ])->with('success', 'Snapshot historis berhasil diperbarui.');
     }
 
@@ -148,6 +161,7 @@ class HistoricalEnrolmentReportController extends Controller
         $filters = [
             'academic_year_id' => $historicalEnrolmentReport->academic_year_id,
             'branch_id' => $historicalEnrolmentReport->branch_id,
+            'snapshot_month' => $historicalEnrolmentReport->snapshot_month,
         ];
         $historicalEnrolmentReport->delete();
 
@@ -162,6 +176,7 @@ class HistoricalEnrolmentReportController extends Controller
             'snapshot' => $snapshot,
             'academicYears' => AcademicYear::orderByDesc('name')->get(['id', 'name']),
             'branches' => Branch::orderBy('name')->get(['id', 'name']),
+            'months' => $this->months(),
             'levels' => Level::orderBy('name')->get(['id', 'name', 'branch_id']),
             'grades' => Grade::orderBy('name')->get(['id', 'name', 'level_id']),
         ]);
@@ -171,6 +186,7 @@ class HistoricalEnrolmentReportController extends Controller
     {
         $rules = [
             'academic_year_id' => 'required|integer|exists:academic_years,id',
+            'snapshot_month' => 'required|integer|between:1,12',
             'branch_id' => 'required|integer|exists:branches,id',
             'level_id' => [
                 'required',
@@ -196,6 +212,7 @@ class HistoricalEnrolmentReportController extends Controller
     private function ensureScopeIsConsistent(array $validated, ?HistoricalEnrolmentReport $current = null): void
     {
         $existingScope = HistoricalEnrolmentReport::where('academic_year_id', $validated['academic_year_id'])
+            ->where('snapshot_month', $validated['snapshot_month'])
             ->where('branch_id', $validated['branch_id'])
             ->where('level_id', $validated['level_id'])
             ->when($current, function ($query) use ($current) {
@@ -222,5 +239,23 @@ class HistoricalEnrolmentReportController extends Controller
         return collect(self::METRICS)->mapWithKeys(function ($metric) use ($validated) {
             return [$metric => $validated[$metric]];
         })->all();
+    }
+
+    private function months(): array
+    {
+        return [
+            1 => 'Januari',
+            2 => 'Februari',
+            3 => 'Maret',
+            4 => 'April',
+            5 => 'Mei',
+            6 => 'Juni',
+            7 => 'Juli',
+            8 => 'Agustus',
+            9 => 'September',
+            10 => 'Oktober',
+            11 => 'November',
+            12 => 'Desember',
+        ];
     }
 }

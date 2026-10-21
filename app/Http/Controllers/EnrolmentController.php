@@ -78,6 +78,20 @@ class EnrolmentController extends Controller
         $academicYears = DB::table('academic_years')
             ->orderByDesc('name')
             ->get(['id', 'name'            ]);
+        $months = [
+            1 => 'Januari',
+            2 => 'Februari',
+            3 => 'Maret',
+            4 => 'April',
+            5 => 'Mei',
+            6 => 'Juni',
+            7 => 'Juli',
+            8 => 'Agustus',
+            9 => 'September',
+            10 => 'Oktober',
+            11 => 'November',
+            12 => 'Desember',
+        ];
 
         $validated = $request->validate([
             'level_id' => 'nullable|integer|exists:levels,id',
@@ -94,6 +108,12 @@ class EnrolmentController extends Controller
                 'exists:academic_years,id',
                 'different:academic_year_id',
             ],
+            'report_month' => [
+                Rule::requiredIf($request->filled('comparison_academic_year_id')),
+                'nullable',
+                'integer',
+                'between:1,12',
+            ],
         ]);
 
         $selectedLevelId = $validated['level_id'] ?? '';
@@ -102,6 +122,7 @@ class EnrolmentController extends Controller
             ? auth()->user()->branch_id
             : ($validated['branch_id'] ?? '');
         $selectedComparisonAcademicYearId = $validated['comparison_academic_year_id'] ?? '';
+        $selectedReportMonth = $validated['report_month'] ?? '';
         $hasReportFilter = $hasSubmittedFilters
             && $request->filled('branch_id')
             && $request->filled('academic_year_id');
@@ -142,11 +163,14 @@ class EnrolmentController extends Controller
         ];
 
         if ($hasReportFilter) {
-            $enrolmentJoin = function ($join) use ($selectedBranchId, $selectedAcademicYearId) {
+            $enrolmentJoin = function ($join) use ($selectedBranchId, $selectedAcademicYearId, $selectedReportMonth) {
                 $join->on('enrolments.grade_id', '=', 'grades.id')
                     ->whereNull('enrolments.merged_into_enrolment_id');
 
                 $join->where('enrolments.academic_year_id', $selectedAcademicYearId);
+                if ($selectedReportMonth !== '') {
+                    $join->whereMonth('enrolments.created_at', $selectedReportMonth);
+                }
 
                 if ($selectedBranchId) {
                     $join->where('enrolments.branch_id', $selectedBranchId);
@@ -390,6 +414,7 @@ class EnrolmentController extends Controller
                     ->leftJoin('divisions', 'divisions.id', '=', 'levels.division_id')
                     ->leftJoin('grades', 'grades.id', '=', 'historical_enrolment_reports.grade_id')
                     ->where('historical_enrolment_reports.academic_year_id', $selectedComparisonAcademicYearId)
+                    ->where('historical_enrolment_reports.snapshot_month', $selectedReportMonth)
                     ->where('historical_enrolment_reports.branch_id', $selectedBranchId)
                     ->when($selectedLevelId, function ($query) use ($selectedLevelId) {
                         $query->where('historical_enrolment_reports.level_id', $selectedLevelId);
@@ -465,6 +490,7 @@ class EnrolmentController extends Controller
                     $historicalTotals,
                     $selectedComparisonAcademicYearId !== ''
                         ? optional($academicYears->firstWhere('id', (int) $selectedComparisonAcademicYearId))->name
+                            . ' - ' . ($months[$selectedReportMonth] ?? '')
                         : null
                 ),
                 'Enrolment_Report_' . Carbon::now()->format('Ymd_His') . '.xlsx'
@@ -479,11 +505,13 @@ class EnrolmentController extends Controller
             'historicalTotals' => $historicalTotals,
             'levels' => $levels,
             'academicYears' => $academicYears,
+            'months' => $months,
             'branches' => $branches,
             'selectedLevelId' => $selectedLevelId,
             'selectedAcademicYearId' => $selectedAcademicYearId,
             'selectedBranchId' => $selectedBranchId,
             'selectedComparisonAcademicYearId' => $selectedComparisonAcademicYearId,
+            'selectedReportMonth' => $selectedReportMonth,
             'hasReportFilter' => $hasReportFilter,
         ]);
     }

@@ -156,9 +156,10 @@ class EnrolmentReportExport implements FromArray, WithEvents, WithHeadings
     public function registerEvents(): array
     {
         $lastRow = count($this->array()) + 2;
+        $currentTotalRow = $this->rows->count() + 3;
 
         return [
-            AfterSheet::class => function (AfterSheet $event) use ($lastRow) {
+            AfterSheet::class => function (AfterSheet $event) use ($lastRow, $currentTotalRow) {
                 $sheet = $event->sheet->getDelegate();
                 $sheet->mergeCells('A1:A2');
                 $sheet->mergeCells('B1:B2');
@@ -214,6 +215,13 @@ class EnrolmentReportExport implements FromArray, WithEvents, WithHeadings
                 }
                 $sheet->getStyle("N3:N{$lastRow}")
                     ->getNumberFormat()->setFormatCode('0.0"%"');
+                $sheet->getStyle("A{$currentTotalRow}:N{$currentTotalRow}")->applyFromArray([
+                    'font' => ['bold' => true],
+                    'fill' => [
+                        'fillType' => Fill::FILL_SOLID,
+                        'color' => ['rgb' => 'F3F6FB'],
+                    ],
+                ]);
 
                 if ($this->historicalYearName) {
                     $historicalTitleRow = $this->rows->count() + 5;

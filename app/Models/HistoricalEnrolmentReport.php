@@ -9,6 +9,7 @@ class HistoricalEnrolmentReport extends Model
     protected $guarded = ['id'];
 
     protected $casts = [
+        'snapshot_month' => 'integer',
         'active_children' => 'integer',
         'cancelled_children' => 'integer',
         'enrolment_expired' => 'integer',
