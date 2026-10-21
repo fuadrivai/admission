@@ -31,7 +31,7 @@ class EnrolmentReportExport implements FromArray, WithEvents, WithHeadings
                 $index + 1,
                 $row->level,
                 $row->active_children,
-                $row->inactive_children,
+                $row->cancelled_children,
                 $row->expired,
                 $row->pending,
                 $row->paid,
@@ -51,7 +51,7 @@ class EnrolmentReportExport implements FromArray, WithEvents, WithHeadings
             '',
             'Total',
             $this->totals['active_children'],
-            $this->totals['inactive_children'],
+            $this->totals['cancelled_children'],
             $this->totals['expired'],
             $this->totals['pending'],
             $this->totals['paid'],
@@ -73,7 +73,7 @@ class EnrolmentReportExport implements FromArray, WithEvents, WithHeadings
     {
         return [
             ['No', 'Level', 'Status Anak', '', 'Enrolment Form', '', '', '', 'DP', '', '', '', 'Target', ''],
-            ['', '', 'Active', 'Inactive', 'Expired', 'Pending', 'Paid', 'Total', 'Expired', 'Pending', 'Paid', 'Total', 'Siswa', '% Target'],
+            ['', '', 'Active', 'Cancel', 'Expired', 'Pending', 'Paid', 'Total', 'Expired', 'Pending', 'Paid', 'Total', 'Siswa', '% Target'],
         ];
     }
 

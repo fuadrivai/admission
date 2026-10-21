@@ -171,9 +171,9 @@ class EnrolmentController extends Controller
                     THEN enrolments.id
                 END) as active_children")
                 ->selectRaw("COUNT(DISTINCT CASE
-                    WHEN UPPER(enrolments.status) IN ('INACTIVE', 'CANCELLED')
+                    WHEN UPPER(enrolments.status) = 'CANCELLED'
                     THEN enrolments.id
-                END) as inactive_children")
+                END) as cancelled_children")
                 ->selectRaw("COUNT(DISTINCT CASE WHEN EXISTS (
                     SELECT 1
                     FROM enrolment_transactions status_transaction
@@ -250,7 +250,7 @@ class EnrolmentController extends Controller
             $outputRows = [];
             $metricFields = [
                 'active_children',
-                'inactive_children',
+                'cancelled_children',
                 'paid',
                 'pending',
                 'expired',
@@ -367,7 +367,7 @@ class EnrolmentController extends Controller
             'enrolment_target' => $rows->sum('enrolment_target'),
             'total_form' => $rows->sum('total_form'),
             'active_children' => $rows->sum('active_children'),
-            'inactive_children' => $rows->sum('inactive_children'),
+            'cancelled_children' => $rows->sum('cancelled_children'),
             'paid' => $rows->sum('paid'),
             'pending' => $rows->sum('pending'),
             'expired' => $rows->sum('expired'),

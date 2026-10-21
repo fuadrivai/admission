@@ -100,11 +100,11 @@
                 <div class="alert alert-light border small text-muted mb-4" role="note">
                     <strong>Catatan perhitungan:</strong>
                     <ul class="mb-0 mt-2">
-                        <li><strong>Status Anak:</strong> menghitung master enrolment satu kali. Active mengikuti
-                            status master Active; Inactive mencakup status master Inactive atau Cancelled.</li>
+                        <li><strong>Status Anak:</strong> menghitung master enrolment satu kali. Active berisi master
+                            berstatus Active, sedangkan Cancel berisi master berstatus Cancelled.</li>
                         <li><strong>Enrolment:</strong> Paid, Pending, dan Expired dihitung dari transaksi yang memiliki
                             detail <code>enrolment</code>. Master Inactive/Cancelled tidak masuk ke hitungan status
-                            transaksi; status master tersebut tetap terlihat pada kolom Status Anak.</li>
+                            transaksi; master Cancelled tetap terlihat pada kolom Cancel di Status Anak.</li>
                         <li><strong>DP:</strong> Paid, Pending, dan Expired dihitung dari transaksi yang memiliki detail
                             <code>dp</code>. Master Inactive/Cancelled tidak masuk ke hitungan status transaksi.</li>
                         <li>Setiap master enrolment dihitung maksimal satu kali di tiap status transaksi yang cocok.
@@ -213,7 +213,7 @@
                             </tr>
                             <tr>
                                 <th class="text-end">Active</th>
-                                <th class="text-end">Inactive</th>
+                                <th class="text-end">Cancel</th>
                                 <th class="text-end">Expired</th>
                                 <th class="text-end">Pending</th>
                                 <th class="text-end">Paid</th>
@@ -239,8 +239,8 @@
                                         @endif
                                     </td>
                                     <td class="text-end">
-                                        @if ($row->inactive_children != 0)
-                                            <span class="badge text-bg-secondary">{{ $row->inactive_children }}</span>
+                                        @if ($row->cancelled_children != 0)
+                                            <span class="badge text-bg-danger">{{ $row->cancelled_children }}</span>
                                         @else
                                             0
                                         @endif
@@ -349,8 +349,8 @@
                                         @endif
                                     </td>
                                     <td class="text-end">
-                                        @if ($totals['inactive_children'] != 0)
-                                            <span class="badge text-bg-secondary">{{ $totals['inactive_children'] }}</span>
+                                        @if ($totals['cancelled_children'] != 0)
+                                            <span class="badge text-bg-danger">{{ $totals['cancelled_children'] }}</span>
                                         @else
                                             0
                                         @endif
