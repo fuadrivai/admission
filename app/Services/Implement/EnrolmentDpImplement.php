@@ -383,8 +383,10 @@ class EnrolmentDpImplement implements EnrolmentDpService
                     'external_id' => $invoiceId,
                     'amount' => $total,
                     'payer_email' => $enrolment->email,
-                    'description' => 'Enrolment payment - ' . $enrolment->child_name
-                        . ' (' . $enrolment->code . ')',
+                    'description' => 'Enrolment Payment - ' . $enrolment->child_name
+                        . ' for ' . $enrolment->academic_year
+                        . ' - ' . optional($enrolment->level)->name
+                        . ' - ' . optional($enrolment->grade)->name,
                     'invoice_duration' => $invoiceDuration,
                 ];
                 $xendit = createXenditInvoice($payload, $branch->name ?? 'bintaro');
