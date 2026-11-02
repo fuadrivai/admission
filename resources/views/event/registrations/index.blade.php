@@ -17,11 +17,31 @@
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">Registrations</h5>
-                        <a href="{{ route('event.registrations.export', $event) }}" class="btn btn-success">
-                            <i class="fa fa-download"></i> Export Excel
-                        </a>
+                        <div class="d-flex gap-2">
+                            @if ($event->google_sheet_url)
+                                <a href="{{ $event->google_sheet_url }}" target="_blank" rel="noopener noreferrer"
+                                    class="btn btn-outline-success">
+                                    <i class="fa fa-table"></i> Open Google Sheet
+                                </a>
+                            @endif
+                            <form method="POST" action="{{ route('event.registrations.google-sheet', $event) }}">
+                                @csrf
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fa fa-cloud-upload"></i> Sync Google Sheet
+                                </button>
+                            </form>
+                            <a href="{{ route('event.registrations.export', $event) }}" class="btn btn-primary">
+                                <i class="fa fa-download"></i> Export Excel
+                            </a>
+                        </div>
                     </div>
                     <div class="card-body">
+                        @if ($errors->has('google_sheet'))
+                            <div class="alert alert-danger">{{ $errors->first('google_sheet') }}</div>
+                        @endif
+                        @if (session('success'))
+                            <div class="alert alert-success">{{ session('success') }}</div>
+                        @endif
                         @if ($levelField)
                             <div class="row mb-3">
                                 <div class="col-md-3">

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Google\EventRegistrationGoogleSheetService;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -9,6 +10,91 @@ use Tests\TestCase;
 
 class EventFormFeatureTest extends TestCase
 {
+    public function test_registration_page_can_sync_to_google_sheets(): void
+    {
+        $event = \App\Models\Event::create([
+            'title' => 'Open House 2026',
+            'slug' => 'open-house-' . uniqid(),
+            'status' => 'PUBLISHED',
+            'intro_html' => '<p>Welcome</p>',
+        ]);
+
+        $this->actingAs(User::create([
+            'name' => 'Admin User',
+            'email' => 'admin-' . uniqid() . '@example.com',
+            'password' => bcrypt('secret123'),
+        ]));
+
+        $sheetUrl = 'https://docs.google.com/spreadsheets/d/event-sheet-id/edit';
+        $googleSheet = \Mockery::mock(EventRegistrationGoogleSheetService::class);
+        $googleSheet->shouldReceive('syncEvent')->once()->with(\Mockery::on(function ($syncedEvent) use ($event) {
+            return $syncedEvent->is($event);
+        }))->andReturn($sheetUrl);
+        $this->app->instance(EventRegistrationGoogleSheetService::class, $googleSheet);
+
+        $this->post(route('event.registrations.google-sheet', $event))
+            ->assertRedirect(route('event.registrations.index', $event))
+            ->assertSessionHas('success', 'Registrations synced to Google Sheets.')
+            ->assertSessionHas('google_sheet_url', $sheetUrl);
+    }
+
+    public function test_event_google_sheet_url_can_be_created_updated_and_displayed(): void
+    {
+        $this->actingAs(User::create([
+            'name' => 'Admin User',
+            'email' => 'admin-' . uniqid() . '@example.com',
+            'password' => bcrypt('secret123'),
+        ]));
+
+        $eventUrl = 'https://docs.google.com/spreadsheets/d/event-sheet-id/edit';
+        $eventData = [
+            'title' => 'Open House 2026',
+            'slug' => 'open-house-' . uniqid(),
+            'status' => 'DRAFT',
+            'availability_type' => 'ALWAYS',
+            'google_sheet_url' => $eventUrl,
+        ];
+
+        $this->post(route('event.store'), $eventData)
+            ->assertRedirect(route('event.index'))
+            ->assertSessionHasNoErrors()
+            ->assertSessionHas('success', 'Event created successfully.');
+
+        $event = \App\Models\Event::where('slug', $eventData['slug'])->firstOrFail();
+        $this->assertSame($eventUrl, $event->google_sheet_url);
+
+        $updatedUrl = 'https://docs.google.com/spreadsheets/d/updated-sheet-id/edit';
+        $this->put(route('event.update', $event), array_merge($eventData, [
+            'slug' => $event->slug,
+            'google_sheet_url' => $updatedUrl,
+        ]))->assertRedirect(route('event.index'));
+
+        $this->assertSame($updatedUrl, $event->fresh()->google_sheet_url);
+        $this->get(route('event.edit', $event))
+            ->assertOk()
+            ->assertSee($updatedUrl);
+    }
+
+    public function test_event_google_sheet_url_must_be_a_valid_url(): void
+    {
+        $this->actingAs(User::create([
+            'name' => 'Admin User',
+            'email' => 'admin-' . uniqid() . '@example.com',
+            'password' => bcrypt('secret123'),
+        ]));
+
+        $this->from(route('event.create'))
+            ->post(route('event.store'), [
+                'title' => 'Open House 2026',
+                'slug' => 'open-house-' . uniqid(),
+                'status' => 'DRAFT',
+                'availability_type' => 'ALWAYS',
+                'google_sheet_url' => 'not-a-url',
+            ])
+            ->assertRedirect(route('event.create'))
+            ->assertSessionHasErrors('google_sheet_url');
+    }
+
     public function test_public_event_registration_route_is_available_for_published_event(): void
     {
         $slug = 'open-house-' . now()->timestamp;
@@ -264,6 +350,37 @@ class EventFormFeatureTest extends TestCase
             'event_field_id' => $interestField->id,
             'value' => json_encode(['Sports', 'Music']),
         ]);
+    }
+
+    public function test_new_registration_is_appended_to_its_google_sheet(): void
+    {
+        $slug = 'open-house-' . uniqid();
+        $event = \App\Models\Event::create([
+            'title' => 'Open House 2026',
+            'slug' => $slug,
+            'status' => 'PUBLISHED',
+            'intro_html' => '<p>Welcome</p>',
+            'google_sheet_url' => 'https://docs.google.com/spreadsheets/d/event-sheet-id/edit',
+        ]);
+
+        $event->fields()->create([
+            'field_key' => 'full_name',
+            'label' => 'Full Name',
+            'type' => 'text',
+            'is_required' => true,
+            'order_index' => 1,
+            'is_active' => true,
+        ]);
+
+        $googleSheet = \Mockery::mock(EventRegistrationGoogleSheetService::class);
+        $googleSheet->shouldReceive('appendRegistration')->once()->with(\Mockery::on(function ($registration) use ($event) {
+            return $registration->event_id === $event->id;
+        }));
+        $this->app->instance(EventRegistrationGoogleSheetService::class, $googleSheet);
+
+        $this->post('/events/' . $slug . '/register', [
+            'full_name' => 'Jane Doe',
+        ])->assertRedirect();
     }
 
     public function test_event_registration_export_uses_full_attachment_url(): void

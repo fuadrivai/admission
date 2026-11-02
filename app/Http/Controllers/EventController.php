@@ -7,9 +7,11 @@ use App\Models\Event;
 use App\Models\EventFieldAnswer;
 use App\Models\EventRegistration;
 use App\Exports\EventRegistrationExport;
+use App\Google\EventRegistrationGoogleSheetService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
@@ -120,6 +122,7 @@ class EventController extends Controller
             'slug' => ['required', 'string', 'max:255', 'unique:events,slug'],
             'intro_html' => ['nullable', 'string'],
             'price_question_label' => ['nullable', 'string', 'max:150'],
+            'google_sheet_url' => ['nullable', 'url', 'max:2048'],
             'status' => ['required', 'in:DRAFT,PUBLISHED,CLOSED'],
             'availability_type' => ['required', 'in:ALWAYS,LIMITED'],
             'active_until' => $availabilityType === 'LIMITED'
@@ -188,6 +191,7 @@ class EventController extends Controller
             'slug' => ['required', 'string', 'max:255', 'unique:events,slug,' . $event->id],
             'intro_html' => ['nullable', 'string'],
             'price_question_label' => ['nullable', 'string', 'max:150'],
+            'google_sheet_url' => ['nullable', 'url', 'max:2048'],
             'status' => ['required', 'in:DRAFT,PUBLISHED,CLOSED'],
             'availability_type' => ['required', 'in:ALWAYS,LIMITED'],
             'active_until' => $availabilityType === 'LIMITED'
@@ -320,6 +324,25 @@ class EventController extends Controller
         $filename = 'event-registrations-' . Str::slug($event->title) . '-' . now()->format('Y-m-d') . '.xlsx';
 
         return Excel::download(new EventRegistrationExport($event), $filename);
+    }
+
+    public function syncRegistrationsToGoogleSheet(Event $event, EventRegistrationGoogleSheetService $googleSheet)
+    {
+        try {
+            $url = $googleSheet->syncEvent($event);
+        } catch (\Exception $exception) {
+            Log::error('Google Sheets registration sync failed.', [
+                'event_id' => $event->id,
+                'exception' => $exception->getMessage(),
+            ]);
+
+            return redirect()->route('event.registrations.index', $event)
+                ->withErrors(['google_sheet' => 'Google Sheets sync failed. Check the application log and confirm the Google service account is authorized.']);
+        }
+
+        return redirect()->route('event.registrations.index', $event)
+            ->with('success', 'Registrations synced to Google Sheets.')
+            ->with('google_sheet_url', $url);
     }
 
     /**

@@ -136,6 +136,17 @@
                                     <div class="invalid-feedback d-block">{{ $message }}</div>
                                 @enderror
                             </div>
+                            <div class="col-lg-6">
+                                <label for="google_sheet_url" class="form-label">Google Sheet URL <small
+                                        class="text-muted">(Optional)</small></label>
+                                <input type="url" class="form-control @error('google_sheet_url') is-invalid @enderror"
+                                    id="google_sheet_url" name="google_sheet_url"
+                                    value="{{ old('google_sheet_url', $event->google_sheet_url ?? '') }}"
+                                    placeholder="https://docs.google.com/spreadsheets/d/...">
+                                @error('google_sheet_url')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
+                            </div>
                             <div class="col-lg-6" id="active_until_wrapper"
                                 style="display: {{ old('availability_type', $event->availability_type ?? 'ALWAYS') === 'LIMITED' ? 'block' : 'none' }};">
                                 <label for="active_until" class="form-label">Active Until</label>

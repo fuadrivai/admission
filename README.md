@@ -59,6 +59,12 @@ In order to ensure that the Laravel community is welcoming to all, please review
 
 If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
 
+## Event Registration Google Sheets
+
+The registrations page can create or sync an event spreadsheet. The Google service account key must be available at `storage/google/admission-service-account.json`. Enable the Google Sheets API and Google Drive API, and configure domain-wide delegation for the service account to impersonate `admission@mutiaraharapan.sch.id` with the Sheets and Drive scopes.
+
+The sync shares the spreadsheet as view-only with anyone, while the configured admission accounts and service account receive editor access. Because the spreadsheet contains registration data, anyone with its link can read that data.
+
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).

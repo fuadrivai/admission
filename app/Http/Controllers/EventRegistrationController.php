@@ -8,11 +8,13 @@ use App\Models\Event;
 use App\Models\EventFieldAnswer;
 use App\Models\EventPriceOption;
 use App\Models\EventRegistration;
+use App\Google\EventRegistrationGoogleSheetService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -77,7 +79,7 @@ class EventRegistrationController extends Controller
         return view('events.registration.form', compact('event', 'fields', 'priceOptions'));
     }
 
-    public function store(Request $request, Event $event)
+    public function store(Request $request, Event $event, EventRegistrationGoogleSheetService $googleSheet)
     {
         $fields = $event->fields()
             ->where('is_active', true)
@@ -173,6 +175,18 @@ class EventRegistrationController extends Controller
                 'event_field_id' => $field->id,
                 'value' => $storedValue,
             ]);
+        }
+
+        if ($event->google_sheet_url) {
+            try {
+                $googleSheet->appendRegistration($registration);
+            } catch (\Exception $exception) {
+                Log::error('New event registration could not be appended to Google Sheets.', [
+                    'event_id' => $event->id,
+                    'registration_id' => $registration->id,
+                    'exception' => $exception->getMessage(),
+                ]);
+            }
         }
 
         $this->sendPrimaryRegistrationEmail($event, $registration, $fields, $request);

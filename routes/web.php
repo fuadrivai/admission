@@ -266,6 +266,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
                 Route::get('/', [EventController::class, 'registrations'])->name('index');
                 Route::get('datatables', [EventController::class, 'registrationsDatatables'])->name('datatables');
                 Route::get('export', [EventController::class, 'exportRegistrations'])->name('export');
+                Route::post('google-sheet', [EventController::class, 'syncRegistrationsToGoogleSheet'])->name('google-sheet');
             });
 
             Route::get('{event}/registration/{registration}', [EventController::class, 'showRegistration'])->name('registration.show');
