@@ -212,6 +212,9 @@
                     <ul class="submenu ">
                         @if (!auth()->check() || auth()->user()->role != 'user')
                             <li class="submenu-item"><a href="/setting/role" class="submenu-link">Role</a></li>
+                            <li class="submenu-item"><a href="{{ route('setting.google-sheet-master.index') }}"
+                                    class="submenu-link {{ Request::is('setting/gSheet-master*') ? 'text-red' : '' }}">gSheet Master</a>
+                            </li>
                             <li class="submenu-item"><a href="/setting/form" class="submenu-link">General</a>
                             </li>
                             <li class="submenu-item"><a href="/setting/year" class="submenu-link">Academic

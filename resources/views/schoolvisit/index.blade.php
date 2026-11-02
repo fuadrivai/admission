@@ -11,6 +11,12 @@
 
 @section('content-child')
     <section class="section">
+        @if (session('google_sheet_success'))
+            <div class="alert alert-success">{{ session('google_sheet_success') }}</div>
+        @endif
+        @if ($errors->has('google_sheet'))
+            <div class="alert alert-danger">{{ $errors->first('google_sheet') }}</div>
+        @endif
         <div class="card">
             <div class="card-body">
                 <p class="d-inline-flex gap-1">
@@ -110,10 +116,18 @@
                     </div>
                     <div class="row">
                         <hr>
-                        <div class="col-md-12 text-center">
+                        <div class="col-md-12 d-flex justify-content-center gap-2">
                             <button onclick="download()" class="btn btn-sm btn-success" type="submit">
                                 <i class="fa fa-download"></i> Download excel
                             </button>
+                            @if (!auth()->check() || auth()->user()->role != 'user')
+                                <form method="POST" action="{{ route('schoolvisit.google-sheet.sync') }}">
+                                    @csrf
+                                    <button class="btn btn-sm btn-primary" type="submit">
+                                        <i class="fa fa-refresh"></i> Sync Google Sheet
+                                    </button>
+                                </form>
+                            @endif
                         </div>
                     </div>
                 </div>

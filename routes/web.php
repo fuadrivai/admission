@@ -23,6 +23,7 @@ use App\Http\Controllers\EventEmailTemplateController;
 use App\Http\Controllers\EventFormController;
 use App\Http\Controllers\EventRegistrationController;
 use App\Http\Controllers\FinancialDocumentController;
+use App\Http\Controllers\GoogleSheetMasterController;
 use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LevelController;
@@ -152,6 +153,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
             Route::get('datatables', [SchoolVisitController::class, 'datatables'])->name('list-schoolvisit');
             Route::get('setting', [SchoolVisitController::class, 'setting'])->name('schoolvisit-setting');
             Route::post('max-capacity', [SchoolVisitController::class, 'postMax'])->name('post-max');
+            Route::post('google-sheet/sync', [SchoolVisitController::class, 'syncGoogleSheet'])->name('google-sheet.sync');
             // history/timeline endpoint for AJAX modal
             Route::get('{schoolvisit}/history', [SchoolVisitController::class, 'history'])->name('history');
             Route::get('handle/olddata', [SchoolVisitController::class, 'handleOldData'])->name('handleOldData');
@@ -300,6 +302,9 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
             Route::get('whatsapp', [BlastMessageController::class, 'whatsapp'])->name('whatsapp');
         });
         Route::prefix('setting')->name('setting.')->group(function () {
+            Route::get('/gSheet-master', [GoogleSheetMasterController::class, 'index'])->name('google-sheet-master.index');
+            Route::put('/gSheet-master/{integrationKey}', [GoogleSheetMasterController::class, 'update'])->name('google-sheet-master.update');
+            Route::post('/gSheet-master/school-visit/sync', [GoogleSheetMasterController::class, 'syncSchoolVisit'])->name('google-sheet-master.school-visit.sync');
             Route::get('/password/change', [AuthController::class, 'edit']);
             Route::post('/password/change', [AuthController::class, 'update']);
 

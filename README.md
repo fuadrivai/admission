@@ -65,6 +65,8 @@ The registrations page can create or sync an event spreadsheet. The Google servi
 
 The sync shares the spreadsheet as view-only with anyone, while the configured admission accounts and service account receive editor access. Because the spreadsheet contains registration data, anyone with its link can read that data.
 
+The **Setting → gSheet Master** page stores spreadsheet URLs for School Visit, Enrolment, Uniform, and Observation. School Visit sync is currently available; run `php artisan migrate` to create the master table. After connecting or creating the School Visit sheet, new and updated visits are appended or updated automatically.
+
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).

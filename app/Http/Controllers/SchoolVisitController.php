@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exports\SchoolVisitExport;
+use App\Google\SchoolVisitGoogleSheetService;
 use App\Models\Prospects;
 use App\Models\SchoolVisit;
 use App\Services\BranchService;
@@ -12,6 +13,7 @@ use App\Services\SchoolVisitMessageService;
 use App\Services\SchoolVisitService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Utilities\Request as UtilitiesRequest;
 
@@ -196,7 +198,7 @@ class SchoolVisitController extends Controller
      * @param  \App\Models\SchoolVisit  $schoolVisit
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request)
+    public function update(Request $request, SchoolVisitGoogleSheetService $googleSheet)
     {
         $visit = SchoolVisit::findOrFail($request->id);
         $data = collect($request->all())
@@ -207,6 +209,16 @@ class SchoolVisitController extends Controller
         ->toArray();
 
         $dataVisit = $this->schooolVisitService->put($visit, $data);
+
+        try {
+            $googleSheet->appendVisit($dataVisit);
+        } catch (\Exception $exception) {
+            Log::error('Updated School Visit could not be synced to Google Sheets.', [
+                'school_visit_id' => $dataVisit->id,
+                'exception' => $exception->getMessage(),
+            ]);
+        }
+
         return response()->json($dataVisit);
     }
 
@@ -221,7 +233,7 @@ class SchoolVisitController extends Controller
         return $this->schooolVisitService->delete($id);
     }
 
-    public function post(Request $request)
+    public function post(Request $request, SchoolVisitGoogleSheetService $googleSheet)
     {
         $validated = $request->validate([
             'parent_name' => 'required|string|max:255',
@@ -254,6 +266,16 @@ class SchoolVisitController extends Controller
         ]);
 
         $visit = $this->schooolVisitService->post($validated);
+
+        try {
+            $googleSheet->appendVisit($visit);
+        } catch (\Exception $exception) {
+            Log::error('New School Visit could not be appended to Google Sheets.', [
+                'school_visit_id' => $visit->id,
+                'exception' => $exception->getMessage(),
+            ]);
+        }
+
         return response()->json($visit);
     }
 
@@ -301,6 +323,25 @@ class SchoolVisitController extends Controller
             'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             'Content-Disposition' => 'attachment; filename="School_Visit_Report_' . $timestamps . '.xlsx"',
         ]);
+    }
+
+    public function syncGoogleSheet(SchoolVisitGoogleSheetService $googleSheet)
+    {
+        abort_unless(auth()->check() && auth()->user()->role !== 'user', 403);
+
+        try {
+            $googleSheet->sync();
+        } catch (\Exception $exception) {
+            Log::error('School Visit Google Sheets sync from list failed.', [
+                'exception' => $exception->getMessage(),
+            ]);
+
+            return redirect()->route('schoolvisit.index')
+                ->withErrors(['google_sheet' => 'Google Sheet sync failed. Check the application log and Google API authorization.']);
+        }
+
+        return redirect()->route('schoolvisit.index')
+            ->with('google_sheet_success', 'School Visit data synced to Google Sheets.');
     }
 
     public function deleteMany(Request $request)
