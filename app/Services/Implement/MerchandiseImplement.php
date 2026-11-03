@@ -759,7 +759,7 @@ class MerchandiseImplement implements MerchandiseService
         $cartData['items'] = $cartData['items']->where('is_selected', true)->values();
         if ($cartData['items']->isEmpty()) {
             throw ValidationException::withMessages([
-                'cart' => 'Pilih minimal satu barang sebelum melanjutkan ke pembayaran.',
+                'cart' => 'Select at least one item before proceeding to payment.',
             ]);
         }
         $cartData['branches'] = Branch::orderBy('name')->get()->filter(function ($branch) {
@@ -798,7 +798,7 @@ class MerchandiseImplement implements MerchandiseService
         $quote = $voucher ? $this->evaluatePromotion($voucher, $selectedItems) : null;
         if (!$quote) {
             throw ValidationException::withMessages([
-                'code' => 'Kode promo tidak valid, belum aktif, kuota habis, atau syarat belanja belum terpenuhi.',
+                'code' => 'This promo code is invalid, inactive, out of uses, or your cart does not meet its requirements.',
             ]);
         }
 
@@ -812,7 +812,7 @@ class MerchandiseImplement implements MerchandiseService
         $quote = $this->promotionQuote($selectedItems, $code, true, $giftVariantId);
         if (empty($quote['gift_items'])) {
             throw ValidationException::withMessages([
-                'gift_variant_id' => 'Hadiah yang dipilih tidak tersedia atau tidak memenuhi syarat promo.',
+                'gift_variant_id' => 'The selected gift is unavailable or does not qualify for this promotion.',
             ]);
         }
 
@@ -839,7 +839,7 @@ class MerchandiseImplement implements MerchandiseService
 
             if ($newQuantity > $this->availableStockForVariant($variant->id, null, true)) {
                 throw ValidationException::withMessages([
-                    'quantity' => 'Jumlah yang dipilih melebihi stok tersedia.',
+                    'quantity' => 'The selected quantity exceeds available stock.',
                 ]);
             }
 
@@ -867,7 +867,7 @@ class MerchandiseImplement implements MerchandiseService
                 $isSelected = (bool) $itemData['is_selected'];
                 if ($isSelected && (int) $itemData['quantity'] > $this->availableStockForVariant($variant->id, null, true)) {
                     throw ValidationException::withMessages([
-                        'items' => 'Jumlah ' . $item->variant->product->name . ' melebihi stok tersedia.',
+                        'items' => 'The quantity for ' . $item->variant->product->name . ' exceeds available stock.',
                     ]);
                 }
                 $item->update([
@@ -888,13 +888,13 @@ class MerchandiseImplement implements MerchandiseService
     {
         if (!$this->getStoreSettings()->is_open) {
             throw ValidationException::withMessages([
-                'payment' => 'Toko sedang tutup dan belum dapat menerima pesanan.',
+                'payment' => 'The store is currently closed and cannot accept orders.',
             ]);
         }
         $branch = Branch::findOrFail($data['branch_id']);
         if (!config('services.xendit.api_key_' . strtolower($branch->name))) {
             throw ValidationException::withMessages([
-                'branch_id' => 'Pembayaran Xendit belum dikonfigurasi untuk cabang yang dipilih.',
+                'branch_id' => 'Xendit payments are not configured for the selected branch.',
             ]);
         }
 
@@ -904,7 +904,7 @@ class MerchandiseImplement implements MerchandiseService
             $cartItems = $cart->items()->where('is_selected', true)->with('variant.product')->lockForUpdate()->get();
             if ($cartItems->isEmpty()) {
                 throw ValidationException::withMessages([
-                    'cart' => 'Pilih minimal satu barang sebelum melanjutkan ke pembayaran.',
+                    'cart' => 'Select at least one item before proceeding to payment.',
                 ]);
             }
             $cartItemIds = $cartItems->pluck('id')->all();
@@ -921,13 +921,13 @@ class MerchandiseImplement implements MerchandiseService
                 $variant = $variants->get($cartItem->variant_id);
                 if (!$variant) {
                     throw ValidationException::withMessages([
-                        'cart' => 'Salah satu produk dalam keranjang sudah tidak tersedia.',
+                        'cart' => 'One of the products in your cart is no longer available.',
                     ]);
                 }
                 $this->assertVariantPublic($variant);
                 if ($cartItem->quantity > $this->availableStockForVariant($variant->id, null, true)) {
                     throw ValidationException::withMessages([
-                        'cart' => 'Stok ' . $variant->product->name . ' tidak mencukupi. Perbarui keranjang sebelum membayar.',
+                        'cart' => 'There is not enough stock for ' . $variant->product->name . '. Update your cart before paying.',
                     ]);
                 }
                 $subtotal += (float) $variant->price * $cartItem->quantity;
@@ -939,7 +939,7 @@ class MerchandiseImplement implements MerchandiseService
             }
             if ($subtotal <= 0) {
                 throw ValidationException::withMessages([
-                    'cart' => 'Total pembayaran harus lebih dari Rp0 untuk membuat invoice.',
+                    'cart' => 'The payment total must be greater than Rp0 to create an invoice.',
                 ]);
             }
 
@@ -971,12 +971,12 @@ class MerchandiseImplement implements MerchandiseService
                 );
                 if (!$promotionQuote) {
                     throw ValidationException::withMessages([
-                        'promotion_code' => 'Promo tidak lagi memenuhi syarat atau kuotanya sudah habis.',
+                        'promotion_code' => 'This promotion is no longer eligible or has reached its usage limit.',
                     ]);
                 }
                 if (!empty($promotionQuote['gift_options']) && empty($promotionQuote['gift_items'])) {
                     throw ValidationException::withMessages([
-                        'promotion_gift_variant_id' => 'Pilih salah satu hadiah promo sebelum melanjutkan.',
+                        'promotion_gift_variant_id' => 'Choose a promotional gift before continuing.',
                     ]);
                 }
                 $promotionQuote['promotion'] = $promotion;
@@ -1026,7 +1026,7 @@ class MerchandiseImplement implements MerchandiseService
                     'variant_id' => $giftVariant->id,
                     'product_name' => $giftVariant->product->name,
                     'variant_name' => trim(($giftVariant->color ? $giftVariant->color . ' / ' : '') . $giftVariant->name)
-                        . ' (Hadiah promo)',
+                            . ' (Promotional gift)',
                     'sku' => $giftVariant->sku,
                     'image_path' => $giftVariant->image_path ?: $giftVariant->product->image_path,
                     'quantity' => $giftItem['quantity'],
@@ -1051,21 +1051,21 @@ class MerchandiseImplement implements MerchandiseService
         } catch (ConnectionException $exception) {
             $order->update(['payment_status' => 'FAILED']);
             throw ValidationException::withMessages([
-                'payment' => 'Tidak dapat terhubung ke Xendit. Silakan coba kembali.',
+                'payment' => 'Unable to connect to Xendit. Please try again.',
             ]);
         }
 
         if (!empty($xendit['success']) && $xendit['success'] === false) {
             $order->update(['payment_status' => 'FAILED']);
             throw ValidationException::withMessages([
-                'payment' => 'Invoice Xendit gagal dibuat: ' . ($xendit['message'] ?? 'Unknown Xendit error.'),
+                'payment' => 'Failed to create the Xendit invoice: ' . ($xendit['message'] ?? 'Unknown Xendit error.'),
             ]);
         }
         if (empty($xendit['status']) || empty($xendit['invoice_url'])
             || empty($xendit['created']) || empty($xendit['expiry_date'])) {
             $order->update(['payment_status' => 'FAILED']);
             throw ValidationException::withMessages([
-                'payment' => 'Respons Xendit tidak lengkap; silakan coba lagi.',
+                'payment' => 'The Xendit response was incomplete. Please try again.',
             ]);
         }
 
@@ -1893,7 +1893,7 @@ class MerchandiseImplement implements MerchandiseService
         if ($items->isEmpty()) {
             if ($strict && $promotionId !== null) {
                 throw ValidationException::withMessages([
-                    'promotion_code' => 'Tambahkan barang ke keranjang sebelum memakai promo.',
+                    'promotion_code' => 'Add items to your cart before applying a promotion.',
                 ]);
             }
 
@@ -1908,7 +1908,7 @@ class MerchandiseImplement implements MerchandiseService
             });
             if (!$selectedQuote && $strict) {
                 throw ValidationException::withMessages([
-                    'promotion_id' => 'Promo yang dipilih sudah tidak tersedia atau tidak memenuhi syarat.',
+                    'promotion_id' => 'The selected promotion is no longer available or eligible.',
                 ]);
             }
         }
@@ -1939,7 +1939,7 @@ class MerchandiseImplement implements MerchandiseService
         }
         if (!$selectedQuote && $strict) {
             throw ValidationException::withMessages([
-                'promotion_id' => 'Promo yang dipilih sudah tidak tersedia atau tidak memenuhi syarat.',
+                'promotion_id' => 'The selected promotion is no longer available or eligible.',
             ]);
         }
 
@@ -2190,7 +2190,7 @@ class MerchandiseImplement implements MerchandiseService
             || ($product->sale_start_at && $product->sale_start_at->isFuture())
             || ($product->sale_end_at && $product->sale_end_at->isPast())) {
             throw ValidationException::withMessages([
-                'variant_id' => 'Varian produk saat ini tidak tersedia di toko.',
+                'variant_id' => 'This product variant is currently unavailable in the store.',
             ]);
         }
     }

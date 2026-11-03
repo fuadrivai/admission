@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -67,7 +67,7 @@
 <body>
     @include('merchandise.store.partials.header', ['showSearch' => false])
     <main class="store-main">
-        <a class="store-back" href="{{ route('merchandise.public-store') }}"><i class="bi bi-arrow-left"></i> Kembali ke toko</a>
+        <a class="store-back" href="{{ route('merchandise.public-store') }}"><i class="bi bi-arrow-left"></i> Back to store</a>
         @if (session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
         @if ($errors->any())<div class="alert alert-danger"><ul class="mb-0">@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
 
@@ -76,18 +76,18 @@
                 <div class="product-main-image-wrap">
                     <img id="product-main-image" class="product-main-image" src="/storage/{{ $product->image_path }}" alt="{{ $product->name }}">
                 </div>
-                <div class="product-thumbnails" aria-label="Galeri gambar produk">
-                    <button class="product-thumb is-active" type="button" data-image-src="/storage/{{ $product->image_path }}" aria-label="Gambar utama">
+                <div class="product-thumbnails" aria-label="Product image gallery">
+                    <button class="product-thumb is-active" type="button" data-image-src="/storage/{{ $product->image_path }}" aria-label="Main image">
                         <img src="/storage/{{ $product->image_path }}" alt="">
                     </button>
                     @foreach ($product->images as $image)
-                        <button class="product-thumb" type="button" data-image-src="/storage/{{ $image->image_path }}" aria-label="Gambar produk lainnya">
+                        <button class="product-thumb" type="button" data-image-src="/storage/{{ $image->image_path }}" aria-label="Other product image">
                             <img src="/storage/{{ $image->image_path }}" alt="">
                         </button>
                     @endforeach
                     @foreach ($variants as $variant)
                         @if ($variant->image_path)
-                            <button class="product-thumb" type="button" data-variant-image="{{ $variant->id }}" data-image-src="/storage/{{ $variant->image_path }}" aria-label="Gambar varian {{ $variant->name }}">
+                            <button class="product-thumb" type="button" data-variant-image="{{ $variant->id }}" data-image-src="/storage/{{ $variant->image_path }}" aria-label="Image for {{ $variant->name }}">
                                 <img src="/storage/{{ $variant->image_path }}" alt="">
                             </button>
                         @endif
@@ -101,11 +101,11 @@
                 @if ($variants->isNotEmpty())
                     <div class="product-price" id="product-price">Rp{{ number_format($variants->first()->price, 0, ',', '.') }}</div>
                 @endif
-                <div class="product-description">{{ $product->description ?: 'Merchandise resmi Mutiara Harapan Islamic School.' }}</div>
+                <div class="product-description">{{ $product->description ?: 'Official merchandise from Mutiara Harapan Islamic School.' }}</div>
                 @if ($settings->is_open && $variants->isNotEmpty())
                     <form class="product-form" method="POST" action="{{ route('merchandise.public-cart.add', ['productId' => $product->id]) }}">
                         @csrf
-                        <label for="variant-id" class="form-label">Pilih varian</label>
+                        <label for="variant-id" class="form-label">Select a variant</label>
                         <select id="variant-id" name="variant_id" class="form-select" required>
                             @foreach ($variants as $variant)
                                 <option value="{{ $variant->id }}"
@@ -117,17 +117,17 @@
                             @endforeach
                         </select>
                         <div class="product-stock" id="product-stock"></div>
-                        <label for="quantity" class="form-label">Jumlah</label>
+                        <label for="quantity" class="form-label">Quantity</label>
                         <input id="quantity" name="quantity" class="form-control" type="number" min="1" value="1" required>
                         <div class="product-actions mt-3">
-                            <button class="btn-outline-maroon" type="submit"><i class="bi bi-cart-plus me-1"></i> Masukkan ke Keranjang</button>
-                            <button class="btn-maroon" type="submit" name="buy_now" value="1"><i class="bi bi-lightning-fill me-1"></i> Beli Sekarang</button>
+                            <button class="btn-outline-maroon" type="submit"><i class="bi bi-cart-plus me-1"></i> Add to Cart</button>
+                            <button class="btn-maroon" type="submit" name="buy_now" value="1"><i class="bi bi-lightning-fill me-1"></i> Buy Now</button>
                         </div>
                     </form>
                 @elseif (!$settings->is_open)
-                    <div class="alert alert-warning mt-3 mb-0">{{ $settings->closed_message ?: 'Toko sedang tutup.' }}</div>
+                    <div class="alert alert-warning mt-3 mb-0">{{ $settings->closed_message ?: 'The store is currently closed.' }}</div>
                 @else
-                    <div class="alert alert-secondary mt-3 mb-0">Stok produk sedang habis.</div>
+                    <div class="alert alert-secondary mt-3 mb-0">This product is currently out of stock.</div>
                 @endif
             </div>
         </section>
@@ -149,7 +149,7 @@
                     var stock = Number(option.getAttribute('data-stock'));
                     quantity.max = stock;
                     if (Number(quantity.value) > stock) quantity.value = stock;
-                    stockLabel.textContent = stock + ' tersedia';
+                    stockLabel.textContent = stock + ' available';
                     priceLabel.textContent = 'Rp' + option.getAttribute('data-price');
                     var image = option.getAttribute('data-image');
                     if (image) {

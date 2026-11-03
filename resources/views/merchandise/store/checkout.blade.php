@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#650d20">
-    <title>Konfirmasi Pembelian - {{ $settings->store_name }}</title>
+    <title>Checkout - {{ $settings->store_name }}</title>
     <link rel="stylesheet" href="/assets/compiled/css/app.css">
     <style>
         :root { --maroon:#690f24; --ink:#292329; --muted:#81777a; --line:#f0e9eb; --canvas:#f7f5f5; }
@@ -60,12 +60,12 @@
 <body>
     @include('merchandise.store.partials.header', ['showSearch' => false])
     <main class="store-main">
-        <h1 class="store-title">Konfirmasi Pembelian</h1>
-        <p class="store-subtitle">Pastikan jumlah dan total belanja sudah sesuai, lalu isi informasi orang tua.</p>
+        <h1 class="store-title">Checkout</h1>
+        <p class="store-subtitle">Review your order and enter the parent or guardian information.</p>
         @if ($errors->any())<div class="alert alert-danger"><ul class="mb-0">@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
 
         @if ($items->isEmpty())
-            <div class="alert alert-warning">Keranjang masih kosong. <a href="{{ route('merchandise.public-store') }}">Kembali ke toko</a>.</div>
+            <div class="alert alert-warning">Your cart is empty. <a href="{{ route('merchandise.public-store') }}">Back to store</a>.</div>
         @else
             @php($hasUnavailableItem = $items->contains(function ($item) { return !$item->is_available; }))
             @php($voucherAvailable = collect($promotionOptions)->contains(function ($option) {
@@ -73,22 +73,22 @@
                     && strtoupper((string) $option['promotion']->code) === strtoupper((string) session('merchandise_promotion_code'));
             }))
             <section class="checkout-card mb-3">
-                <h2 class="mb-2">Kode Promo</h2>
+                <h2 class="mb-2">Promo Code</h2>
                 <form method="POST" action="{{ route('merchandise.public-checkout.promotion') }}" class="d-flex flex-wrap gap-2">
                     @csrf
                     <div class="input-group">
-                        <input name="code" class="form-control" maxlength="50" placeholder="Masukkan kode voucher" value="{{ old('code', session('merchandise_promotion_code')) }}">
-                        <button class="btn btn-outline-primary" type="submit">Terapkan</button>
+                        <input name="code" class="form-control" maxlength="50" placeholder="Enter voucher code" value="{{ old('code', session('merchandise_promotion_code')) }}">
+                        <button class="btn btn-outline-primary" type="submit">Apply</button>
                     </div>
                     @if (session('merchandise_promotion_code'))
-                        <button class="btn btn-outline-secondary" type="submit" name="clear" value="1">Hapus</button>
+                        <button class="btn btn-outline-secondary" type="submit" name="clear" value="1">Remove</button>
                     @endif
                 </form>
                 @if (session('merchandise_promotion_code') && !$voucherAvailable)
-                    <div class="text-danger small mt-2">Voucher ini tidak berlaku atau tidak memenuhi syarat keranjang. Coba kode lain atau hapus voucher.</div>
+                    <div class="text-danger small mt-2">This voucher is invalid or your cart does not meet its requirements. Try another code or remove the voucher.</div>
                 @elseif ($promotionQuote['promotion'])
                     <div class="text-success small mt-2">
-                        Promo terpilih:
+                        Selected promotion:
                         <strong>{{ $promotionQuote['promotion']->name }}</strong>
                         @if ($promotionQuote['promotion']->code) · {{ $promotionQuote['promotion']->code }} @endif
                     </div>
@@ -96,17 +96,17 @@
             </section>
             @if (count($promotionOptions) > 1)
                 <section class="checkout-card mb-3">
-                    <h2 class="mb-2">Pilih Promo</h2>
-                    <p class="text-muted small">Sistem memilih promo dengan diskon nominal terbesar sebagai awal. Anda dapat memilih promo lain; promo tidak digabungkan.</p>
+                    <h2 class="mb-2">Choose a Promotion</h2>
+                    <p class="text-muted small">The promotion with the highest discount is selected by default. You can choose another promotion; promotions cannot be combined.</p>
                     <form method="POST" action="{{ route('merchandise.public-checkout.promotion') }}">
                         @csrf
-                        <select name="promotion_id" class="form-select" aria-label="Pilih promo" onchange="this.form.submit()">
+                        <select name="promotion_id" class="form-select" aria-label="Choose a promotion" onchange="this.form.submit()">
                             @foreach ($promotionOptions as $option)
                                 @php($optionPromotion = $option['promotion'])
                                 <option value="{{ $optionPromotion->id }}" {{ (int) $selectedPromotionId === (int) $optionPromotion->id ? 'selected' : '' }}>
                                     {{ $optionPromotion->name }}
                                     @if ($optionPromotion->code) · {{ $optionPromotion->code }} @endif
-                                    · {{ $option['discount_amount'] > 0 ? 'Hemat Rp' . number_format($option['discount_amount'], 0, ',', '.') : 'Hadiah promo' }}
+                                    · {{ $option['discount_amount'] > 0 ? 'Save Rp' . number_format($option['discount_amount'], 0, ',', '.') : 'Free gift' }}
                                 </option>
                             @endforeach
                         </select>
@@ -115,15 +115,15 @@
             @endif
             @if (!empty($promotionQuote['gift_options']))
                 <section class="checkout-card mb-3">
-                    <h2 class="mb-2">Pilih Hadiah Promo</h2>
-                    <p class="text-muted small">Pilih satu hadiah yang ingin diterima. Pilihan pertama sudah otomatis terpilih.</p>
+                    <h2 class="mb-2">Choose a Promotional Gift</h2>
+                    <p class="text-muted small">Choose one gift. The first available option is selected by default.</p>
                     <form method="POST" action="{{ route('merchandise.public-checkout.promotion') }}">
                         @csrf
                         <input type="hidden" name="promotion_id" value="{{ $selectedPromotionId }}">
-                        <select name="gift_variant_id" class="form-select" aria-label="Pilih hadiah promo" onchange="this.form.submit()">
+                        <select name="gift_variant_id" class="form-select" aria-label="Choose a promotional gift" onchange="this.form.submit()">
                             @foreach ($promotionQuote['gift_options'] as $giftOption)
                                 <option value="{{ $giftOption['variant_id'] }}" {{ (string) ($promotionQuote['selected_gift_variant_id'] ?? '') === (string) $giftOption['variant_id'] ? 'selected' : '' }}>
-                                    {{ $giftOption['name'] }} · maksimal {{ $giftOption['quantity'] }} item
+                                    {{ $giftOption['name'] }} · up to {{ $giftOption['quantity'] }} {{ \Illuminate\Support\Str::plural('item', $giftOption['quantity']) }}
                                 </option>
                             @endforeach
                         </select>
@@ -134,10 +134,10 @@
                 @csrf
                 <div class="checkout-layout">
                     <section class="checkout-card">
-                        <h2>Informasi Orang Tua</h2>
+                        <h2>Parent or Guardian Information</h2>
                         <div class="checkout-fields">
                             <div class="full-width">
-                                <label for="parent-name" class="form-label">Nama orang tua</label>
+                                <label for="parent-name" class="form-label">Parent or guardian name</label>
                                 <input id="parent-name" name="parent_name" class="form-control" value="{{ old('parent_name') }}" maxlength="150" required autocomplete="name">
                             </div>
                             <div>
@@ -145,7 +145,7 @@
                                 <input id="email" name="email" class="form-control" type="email" value="{{ old('email') }}" maxlength="150" required autocomplete="email">
                             </div>
                             <div>
-                                <label for="phone" class="form-label">Nomor telepon</label>
+                                <label for="phone" class="form-label">Phone number</label>
                                 <input id="phone" name="phone" class="form-control" type="tel" value="{{ old('phone') }}" maxlength="40" required autocomplete="tel">
                             </div>
                             <div>
@@ -153,27 +153,27 @@
                                 <input id="portal-username" name="portal_username" class="form-control" value="{{ old('portal_username') }}" maxlength="100" required autocomplete="username">
                             </div>
                             <div>
-                                <label for="branch-id" class="form-label">Cabang pembayaran</label>
+                                <label for="branch-id" class="form-label">Payment branch</label>
                                 <select id="branch-id" name="branch_id" class="form-select" required>
-                                    <option value="">Pilih cabang</option>
+                                    <option value="">Select a branch</option>
                                     @foreach ($branches as $branch)
                                         <option value="{{ $branch->id }}" {{ (string) old('branch_id') === (string) $branch->id ? 'selected' : '' }}>{{ $branch->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
                         </div>
-                        <div class="text-muted small mt-3">Username MHIS Portal dicatat untuk keperluan identifikasi pesanan merchandise.</div>
+                        <div class="text-muted small mt-3">Your MHIS Portal username is used to identify your merchandise order.</div>
                     </section>
 
                     <aside class="checkout-card">
-                        <h2>Ringkasan Pesanan</h2>
+                        <h2>Order Summary</h2>
                         @foreach ($items as $item)
                             <div class="checkout-item">
                                 <img src="/storage/{{ $item->variant->image_path ?: $item->variant->product->image_path }}" alt="">
                                 <div>
                                     <div class="checkout-item-name">{{ $item->variant->product->name }}</div>
-                                    <div class="checkout-item-detail">{{ $item->variant->color ? $item->variant->color . ' / ' : '' }}{{ $item->variant->name }} · {{ $item->quantity }} item</div>
-                                    @unless ($item->is_available)<div class="text-danger small">Stok tidak mencukupi</div>@endunless
+                                    <div class="checkout-item-detail">{{ $item->variant->color ? $item->variant->color . ' / ' : '' }}{{ $item->variant->name }} · {{ $item->quantity }} {{ \Illuminate\Support\Str::plural('item', $item->quantity) }}</div>
+                                    @unless ($item->is_available)<div class="text-danger small">Insufficient stock</div>@endunless
                                 </div>
                                 <div class="checkout-item-total">Rp{{ number_format($item->line_total, 0, ',', '.') }}</div>
                             </div>
@@ -183,24 +183,25 @@
                                 <div class="d-flex align-items-center justify-content-center rounded bg-light text-success"><i class="bi bi-gift"></i></div>
                                 <div>
                                     <div class="checkout-item-name">{{ $giftItem['name'] }}</div>
-                                    <div class="checkout-item-detail">Hadiah promo · {{ $giftItem['quantity'] }} item</div>
+                                    <div class="checkout-item-detail">Promotional gift · {{ $giftItem['quantity'] }} {{ \Illuminate\Support\Str::plural('item', $giftItem['quantity']) }}</div>
                                 </div>
-                                <div class="checkout-item-total">Gratis</div>
+                                <div class="checkout-item-total">Free</div>
                             </div>
                         @endforeach
-                        <div class="summary-row mt-3"><span>Total barang</span><strong>{{ $totalItems + collect($promotionQuote['gift_items'])->sum('quantity') }} item</strong></div>
+                        @php($checkoutItemCount = $totalItems + collect($promotionQuote['gift_items'])->sum('quantity'))
+                        <div class="summary-row mt-3"><span>Items</span><strong>{{ $checkoutItemCount }} {{ \Illuminate\Support\Str::plural('item', $checkoutItemCount) }}</strong></div>
                         <div class="summary-row"><span>Subtotal</span><strong>Rp{{ number_format($subtotal, 0, ',', '.') }}</strong></div>
                         @if ($promotionQuote['discount_amount'] > 0)
-                            <div class="summary-row text-success"><span>Diskon promo</span><strong>-Rp{{ number_format(min($subtotal, $promotionQuote['discount_amount']), 0, ',', '.') }}</strong></div>
+                            <div class="summary-row text-success"><span>Promotion discount</span><strong>-Rp{{ number_format(min($subtotal, $promotionQuote['discount_amount']), 0, ',', '.') }}</strong></div>
                         @endif
-                        <div class="summary-row"><span>Biaya admin</span><strong>Rp{{ number_format($bank_charger, 0, ',', '.') }}</strong></div>
-                        <div class="checkout-total"><span>Total pembayaran</span><span>Rp{{ number_format(max(0, $subtotal - min($subtotal, $promotionQuote['discount_amount'])) + $bank_charger, 0, ',', '.') }}</span></div>
-                        <div class="text-muted small mt-2">Pembayaran dilanjutkan melalui Xendit. Stok dicadangkan selama invoice aktif (maksimal 24 jam), tetapi baru dicatat keluar setelah pembayaran berhasil.</div>
+                        <div class="summary-row"><span>Admin fee</span><strong>Rp{{ number_format($bank_charger, 0, ',', '.') }}</strong></div>
+                        <div class="checkout-total"><span>Total payment</span><span>Rp{{ number_format(max(0, $subtotal - min($subtotal, $promotionQuote['discount_amount'])) + $bank_charger, 0, ',', '.') }}</span></div>
+                        <div class="text-muted small mt-2">Payment is processed securely through Xendit. Stock is reserved while the invoice is active (up to 24 hours) and deducted only after payment succeeds.</div>
                         <button class="checkout-submit" type="submit" {{ $hasUnavailableItem || $branches->isEmpty() ? 'disabled' : '' }}>
-                            Lanjut ke Pembayaran <i class="bi bi-arrow-right ms-1"></i>
+                            Continue to Payment <i class="bi bi-arrow-right ms-1"></i>
                         </button>
-                        @if ($branches->isEmpty())<div class="text-danger small mt-2">Belum ada cabang yang dapat dipilih.</div>@endif
-                        <a class="btn btn-light w-100 mt-2" href="{{ route('merchandise.public-cart') }}">Kembali ke Keranjang</a>
+                        @if ($branches->isEmpty())<div class="text-danger small mt-2">No payment branches are currently available.</div>@endif
+                        <a class="btn btn-light w-100 mt-2" href="{{ route('merchandise.public-cart') }}">Back to Cart</a>
                     </aside>
                 </div>
             </form>

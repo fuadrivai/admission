@@ -207,7 +207,7 @@ class MerchandiseController extends Controller
             session(['merchandise_selected_promotion_id' => $promotionId]);
             session(['merchandise_promotion_gift_variant_id' => (int) $data['gift_variant_id']]);
 
-            return redirect()->route('merchandise.public-checkout')->with('success', 'Hadiah promo berhasil dipilih.');
+            return redirect()->route('merchandise.public-checkout')->with('success', 'Promotional gift selected.');
         }
 
         if (!empty($data['promotion_id'])) {
@@ -220,14 +220,14 @@ class MerchandiseController extends Controller
             session(['merchandise_selected_promotion_id' => $promotionId]);
             session()->forget('merchandise_promotion_gift_variant_id');
 
-            return redirect()->route('merchandise.public-checkout')->with('success', 'Promo berhasil dipilih.');
+            return redirect()->route('merchandise.public-checkout')->with('success', 'Promotion selected.');
         }
 
         if (!empty($data['clear']) || empty(trim($data['code'] ?? ''))) {
             session()->forget('merchandise_promotion_code');
             session()->forget('merchandise_promotion_gift_variant_id');
             session()->forget('merchandise_selected_promotion_id');
-            return redirect()->route('merchandise.public-checkout')->with('success', 'Kode promo dihapus.');
+            return redirect()->route('merchandise.public-checkout')->with('success', 'Promo code removed.');
         }
 
         $promotion = $this->merchandiseService->previewPromotion(
@@ -239,7 +239,7 @@ class MerchandiseController extends Controller
         session()->forget('merchandise_selected_promotion_id');
 
         return redirect()->route('merchandise.public-checkout')
-            ->with('success', 'Voucher memenuhi syarat dan ditambahkan ke pilihan promo.');
+            ->with('success', 'Voucher applied and added to your available promotions.');
     }
 
     public function publicStore()
@@ -253,7 +253,7 @@ class MerchandiseController extends Controller
     public function publicProduct($productId)
     {
         return view('merchandise.store.product', array_merge(
-            ['title' => 'Detail Merchandise'],
+            ['title' => 'Merchandise Details'],
             $this->merchandiseService->getPublicProduct($productId, session()->getId())
         ));
     }
@@ -261,7 +261,7 @@ class MerchandiseController extends Controller
     public function cart()
     {
         return view('merchandise.store.cart', array_merge(
-            ['title' => 'Keranjang Merchandise'],
+            ['title' => 'Merchandise Cart'],
             $this->merchandiseService->getCart(session()->getId())
         ));
     }
@@ -280,7 +280,7 @@ class MerchandiseController extends Controller
         }
 
         return redirect()->route('merchandise.public-product', ['productId' => $productId])
-            ->with('success', 'Produk berhasil dimasukkan ke keranjang.');
+            ->with('success', 'Product added to your cart.');
     }
 
     public function updateCart(Request $request)
@@ -293,14 +293,14 @@ class MerchandiseController extends Controller
         ]);
         $this->merchandiseService->updateCart(session()->getId(), $data['items']);
 
-        return redirect()->route('merchandise.public-cart')->with('success', 'Keranjang berhasil diperbarui.');
+        return redirect()->route('merchandise.public-cart')->with('success', 'Cart updated successfully.');
     }
 
     public function removeCartItem($itemId)
     {
         $this->merchandiseService->removeCartItem(session()->getId(), $itemId);
 
-        return redirect()->route('merchandise.public-cart')->with('success', 'Produk dihapus dari keranjang.');
+        return redirect()->route('merchandise.public-cart')->with('success', 'Product removed from your cart.');
     }
 
     public function checkout()
@@ -318,7 +318,7 @@ class MerchandiseController extends Controller
         }
 
         return view('merchandise.store.checkout', array_merge(
-            ['title' => 'Konfirmasi Pembelian'],
+            ['title' => 'Checkout'],
             $checkoutData
         ));
     }

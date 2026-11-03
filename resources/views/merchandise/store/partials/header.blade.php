@@ -15,16 +15,16 @@
             <div class="store-searchbar-inner">
                 <label class="store-search">
                     <i class="bi bi-search store-search-icon" aria-hidden="true"></i>
-                    <input id="store-search" type="search" placeholder="Cari merchandise..." autocomplete="off" aria-label="Cari merchandise">
+                    <input id="store-search" type="search" placeholder="Search merchandise..." autocomplete="off" aria-label="Search merchandise">
                 </label>
-                <a class="store-cart-link" href="{{ route('merchandise.public-cart') }}" aria-label="Keranjang belanja">
+                <a class="store-cart-link" href="{{ route('merchandise.public-cart') }}" aria-label="Shopping cart">
                     <i class="bi bi-cart3" aria-hidden="true"></i>
                     @if ($cartCount > 0)<span class="store-cart-count">{{ $cartCount > 99 ? '99+' : $cartCount }}</span>@endif
                 </a>
             </div>
         </div>
     @else
-        <a class="store-cart-link store-cart-header-link" href="{{ route('merchandise.public-cart') }}" aria-label="Keranjang belanja">
+        <a class="store-cart-link store-cart-header-link" href="{{ route('merchandise.public-cart') }}" aria-label="Shopping cart">
             <i class="bi bi-cart3" aria-hidden="true"></i>
             @if ($cartCount > 0)<span class="store-cart-count">{{ $cartCount > 99 ? '99+' : $cartCount }}</span>@endif
         </a>

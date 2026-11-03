@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#650d20">
-    <title>Keranjang - {{ $settings->store_name }}</title>
+    <title>Cart - {{ $settings->store_name }}</title>
     <link rel="stylesheet" href="/assets/compiled/css/app.css">
     <style>
         :root { --maroon:#690f24; --ink:#292329; --muted:#81777a; --line:#f0e9eb; --canvas:#f7f5f5; }
@@ -66,21 +66,21 @@
 <body>
     @include('merchandise.store.partials.header', ['showSearch' => false])
     <main class="store-main">
-        <h1 class="store-title">Keranjang Belanja</h1>
-        <p class="store-subtitle">Periksa pilihan merchandise sebelum melanjutkan pembayaran.</p>
+        <h1 class="store-title">Shopping Cart</h1>
+        <p class="store-subtitle">Review your merchandise before proceeding to checkout.</p>
         @if (session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
         @if ($errors->any())<div class="alert alert-danger"><ul class="mb-0">@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
 
         @if ($items->isEmpty())
             <div class="store-empty">
                 <i class="bi bi-cart-x" aria-hidden="true"></i>
-                <strong>Keranjang masih kosong</strong>
-                <div class="mt-1 mb-3">Temukan merchandise yang kamu suka di toko.</div>
-                <a class="btn btn-primary" href="{{ route('merchandise.public-store') }}">Lihat Produk</a>
+                <strong>Your cart is empty</strong>
+                <div class="mt-1 mb-3">Find merchandise you love in the store.</div>
+                <a class="btn btn-primary" href="{{ route('merchandise.public-store') }}">Browse Products</a>
             </div>
         @else
             <div class="cart-layout">
-                <section class="cart-items" aria-label="Barang di keranjang">
+                <section class="cart-items" aria-label="Items in cart">
                     @foreach ($items as $item)
                         <div class="cart-item">
                             <form method="POST" action="{{ route('merchandise.public-cart.update') }}">
@@ -90,7 +90,7 @@
                                 <input type="hidden" name="items[0][quantity]" value="{{ $item->quantity }}">
                                 <input type="hidden" name="items[0][is_selected]" value="0">
                                 <label class="cart-item-select">
-                                    <input type="checkbox" name="items[0][is_selected]" value="1" aria-label="Pilih {{ $item->variant->product->name }} untuk dibeli" {{ $item->is_selected ? 'checked' : '' }} onchange="this.form.submit()">
+                                    <input type="checkbox" name="items[0][is_selected]" value="1" aria-label="Select {{ $item->variant->product->name }} for purchase" {{ $item->is_selected ? 'checked' : '' }} onchange="this.form.submit()">
                                 </label>
                             </form>
                             <img class="cart-item-image" src="/storage/{{ $item->variant->image_path ?: $item->variant->product->image_path }}" alt="{{ $item->variant->product->name }}">
@@ -98,9 +98,9 @@
                                 <h2 class="cart-item-name">{{ $item->variant->product->name }}</h2>
                                 <div class="cart-item-variant">{{ $item->variant->color ? $item->variant->color . ' / ' : '' }}{{ $item->variant->name }}</div>
                                 <div class="cart-item-price">Rp{{ number_format($item->variant->price, 0, ',', '.') }} / item</div>
-                                <div class="cart-item-stock">Stok tersedia: {{ number_format($item->variant->available_stock) }}</div>
+                                <div class="cart-item-stock">Available stock: {{ number_format($item->variant->available_stock) }}</div>
                                 @unless ($item->is_available)
-                                    <div class="text-danger small mt-1">Jumlah melebihi stok. Sesuaikan jumlah untuk melanjutkan.</div>
+                                    <div class="text-danger small mt-1">Quantity exceeds available stock. Adjust it to continue.</div>
                                 @endunless
                             </div>
                             <div class="cart-item-side">
@@ -109,32 +109,32 @@
                                     @method('PUT')
                                     <input type="hidden" name="items[0][id]" value="{{ $item->id }}">
                                     <input type="hidden" name="items[0][is_selected]" value="{{ $item->is_selected ? 1 : 0 }}">
-                                    <input type="number" name="items[0][quantity]" value="{{ $item->quantity }}" min="1" max="{{ max(1, $item->variant->available_stock) }}" aria-label="Jumlah {{ $item->variant->product->name }}" onchange="this.form.submit()">
+                                    <input type="number" name="items[0][quantity]" value="{{ $item->quantity }}" min="1" max="{{ max(1, $item->variant->available_stock) }}" aria-label="Quantity of {{ $item->variant->product->name }}" onchange="this.form.submit()">
                                 </form>
                                 <form method="POST" action="{{ route('merchandise.public-cart.remove', ['itemId' => $item->id]) }}" class="mt-2 text-end">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-link text-danger p-0"><i class="bi bi-trash me-1"></i>Hapus</button>
+                                    <button type="submit" class="btn btn-sm btn-link text-danger p-0"><i class="bi bi-trash me-1"></i>Remove</button>
                                 </form>
                             </div>
                         </div>
                     @endforeach
                 </section>
                 <aside class="cart-summary">
-                    <h2>Ringkasan Belanja</h2>
-                    <div class="summary-row"><span>Total barang</span><strong>{{ $totalItems }} item</strong></div>
+                    <h2>Order Summary</h2>
+                    <div class="summary-row"><span>Items</span><strong>{{ $totalItems }} {{ \Illuminate\Support\Str::plural('item', $totalItems) }}</strong></div>
                     <div class="summary-row"><span>Subtotal</span><strong>Rp{{ number_format($subtotal, 0, ',', '.') }}</strong></div>
-                    <div class="summary-row"><span>Biaya admin</span><strong>Rp{{ number_format($bank_charger, 0, ',', '.') }}</strong></div>
+                    <div class="summary-row"><span>Admin fee</span><strong>Rp{{ number_format($bank_charger, 0, ',', '.') }}</strong></div>
                     <div class="summary-row summary-total"><span>Total</span><span>Rp{{ number_format($subtotal + $bank_charger, 0, ',', '.') }}</span></div>
-                    <div class="text-muted small">Ongkos kirim belum termasuk.</div>
+                    <div class="text-muted small">Shipping is not included.</div>
                     @if (!$items->contains(function ($item) { return $item->is_selected; }))
-                        <button class="btn-maroon" type="button" disabled>Pilih Barang Terlebih Dahulu</button>
+                        <button class="btn-maroon" type="button" disabled>Select Items First</button>
                     @elseif ($items->contains(function ($item) { return $item->is_selected && !$item->is_available; }))
-                        <button class="btn-maroon" type="button" disabled>Sesuaikan Stok Terlebih Dahulu</button>
+                        <button class="btn-maroon" type="button" disabled>Adjust Stock First</button>
                     @else
-                        <a class="btn-maroon d-flex justify-content-center align-items-center text-decoration-none" href="{{ route('merchandise.public-checkout') }}">Beli Sekarang</a>
+                        <a class="btn-maroon d-flex justify-content-center align-items-center text-decoration-none" href="{{ route('merchandise.public-checkout') }}">Proceed to Checkout</a>
                     @endif
-                    <a class="btn btn-light w-100 mt-2" href="{{ route('merchandise.public-store') }}">Lanjut Belanja</a>
+                    <a class="btn btn-light w-100 mt-2" href="{{ route('merchandise.public-store') }}">Continue Shopping</a>
                 </aside>
             </div>
         @endif

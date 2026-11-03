@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -246,16 +246,16 @@
         @unless ($settings->is_open)
             <section class="store-closed">
                 <i class="bi bi-shop-window store-closed-icon" aria-hidden="true"></i>
-                <h2>Toko sedang tutup</h2>
-                <p>{{ $settings->closed_message ?: 'Silakan kembali lagi nanti.' }}</p>
+                <h2>The store is currently closed</h2>
+                <p>{{ $settings->closed_message ?: 'Please check back later.' }}</p>
             </section>
         @else
             <section class="store-intro">
                 <div>
-                    <h1>Temukan merchandise favoritmu</h1>
-                    <p>{{ $settings->description ?: 'Pilihan merchandise resmi Mutiara Harapan Islamic School.' }}</p>
+                    <h1>Find your favorite merchandise</h1>
+                    <p>{{ $settings->description ?: 'Official merchandise from Mutiara Harapan Islamic School.' }}</p>
                 </div>
-                <span class="store-open-badge"><span class="store-open-dot"></span> Toko buka</span>
+                <span class="store-open-badge"><span class="store-open-dot"></span> Store open</span>
             </section>
 
             @php
@@ -271,8 +271,8 @@
             @endphp
 
             @if ($storeCategories->isNotEmpty())
-                <nav class="store-categories" aria-label="Kategori merchandise">
-                    <button class="store-category-chip is-active" type="button" data-category-filter="all">Semua</button>
+                <nav class="store-categories" aria-label="Merchandise categories">
+                    <button class="store-category-chip is-active" type="button" data-category-filter="all">All</button>
                     @foreach ($storeCategories as $category)
                         <button class="store-category-chip" type="button" data-category-filter="{{ $category->id }}">{{ $category->name }}</button>
                     @endforeach
@@ -280,13 +280,13 @@
             @endif
 
             <div class="store-results-bar">
-                <span id="store-result-count">{{ $visibleProductCount }} produk</span>
+                <span id="store-result-count">{{ $visibleProductCount }} {{ \Illuminate\Support\Str::plural('product', $visibleProductCount) }}</span>
                 @if ($products->hasPages())
-                    <span>Halaman {{ $products->currentPage() }} dari {{ $products->lastPage() }}</span>
+                    <span>Page {{ $products->currentPage() }} of {{ $products->lastPage() }}</span>
                 @endif
             </div>
 
-            <section class="store-products-grid" id="store-products" aria-label="Daftar merchandise">
+            <section class="store-products-grid" id="store-products" aria-label="Merchandise products">
                 @forelse ($products as $product)
                     @continue($product->variants->isEmpty())
                     <a class="store-product-card"
@@ -317,14 +317,14 @@
                 @empty
                     <div class="store-empty">
                         <i class="bi bi-bag store-empty-icon" aria-hidden="true"></i>
-                        <strong>Belum ada merchandise tersedia</strong>
-                        <div class="small mt-1">Silakan cek kembali nanti.</div>
+                        <strong>No merchandise is available yet</strong>
+                        <div class="small mt-1">Please check back later.</div>
                     </div>
                 @endforelse
                 <div class="store-empty d-none" id="store-no-results">
                     <i class="bi bi-search store-empty-icon" aria-hidden="true"></i>
-                    <strong>Produk tidak ditemukan</strong>
-                    <div class="small mt-1">Coba kata kunci atau kategori lain.</div>
+                    <strong>No products found</strong>
+                    <div class="small mt-1">Try another search term or category.</div>
                 </div>
             </section>
 
@@ -349,7 +349,7 @@
                 var activeCategory = 'all';
 
                 function filterProducts() {
-                    var query = (searchInput.value || '').trim().toLocaleLowerCase('id-ID');
+                    var query = (searchInput.value || '').trim().toLocaleLowerCase('en');
                     var visibleCount = 0;
 
                     cards.forEach(function (card) {
@@ -361,7 +361,7 @@
                     });
 
                     noResults.classList.toggle('d-none', visibleCount > 0 || cards.length === 0);
-                    resultCount.textContent = visibleCount + ' produk';
+                    resultCount.textContent = visibleCount + ' ' + (visibleCount === 1 ? 'product' : 'products');
                 }
 
                 searchInput.addEventListener('input', filterProducts);
