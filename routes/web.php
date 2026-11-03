@@ -35,6 +35,7 @@ use App\Http\Controllers\SchoolVisitController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\SiswaEreportController;
 use App\Http\Controllers\UniformController;
+use App\Http\Controllers\MerchandiseController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -88,6 +89,19 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
     Route::post('uniform/post', [UniformController::class, 'storeOrder'])->name('uniform.postForm');
     Route::post('uniform/{uniform}/pickup', [UniformController::class, 'confirmPickup'])->name('uniform.confirm');
     Route::get('uniform/leaderboard', [UniformController::class, 'leaderboard'])->name('uniform.leaderboard');
+    Route::get('merchandise-store', [MerchandiseController::class, 'publicStore'])
+        ->middleware('throttle:120,1')
+        ->name('merchandise.public-store');
+    Route::prefix('merchandise-store')->name('merchandise.public-')->middleware('throttle:120,1')->group(function () {
+        Route::get('products/{productId}', [MerchandiseController::class, 'publicProduct'])->name('product');
+        Route::get('cart', [MerchandiseController::class, 'cart'])->name('cart');
+        Route::post('products/{productId}/cart', [MerchandiseController::class, 'addToCart'])->name('cart.add');
+        Route::put('cart', [MerchandiseController::class, 'updateCart'])->name('cart.update');
+        Route::delete('cart/items/{itemId}', [MerchandiseController::class, 'removeCartItem'])->name('cart.remove');
+        Route::get('checkout', [MerchandiseController::class, 'checkout'])->name('checkout');
+        Route::post('checkout/promotion', [MerchandiseController::class, 'applyPromotion'])->name('checkout.promotion');
+        Route::post('checkout', [MerchandiseController::class, 'createPayment'])->name('checkout.submit');
+    });
 
     Route::get('document/student', [AdmissionController::class, 'studentForm'])->name('admission.studentForm');
     Route::post('document/applicant', [AdmissionController::class, 'postApplicant'])->name('admission.postApplicant');
@@ -217,6 +231,49 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
             Route::post('category', [UniformController::class, 'postCategories'])->name('uniform.categories.post');
             Route::get('product', [UniformController::class, 'getProducts'])->name('uniform.products');
             Route::resource('/', UniformController::class)->parameters(['' => 'uniform']);
+        });
+
+        Route::prefix('merchandise')->name('merchandise.')->group(function () {
+            Route::get('/', [MerchandiseController::class, 'dashboard'])->name('dashboard');
+            Route::get('store-settings', [MerchandiseController::class, 'storeSettings'])->name('store-settings');
+            Route::put('store-settings', [MerchandiseController::class, 'updateStoreSettings'])->name('store-settings.update');
+            Route::get('catalog', [MerchandiseController::class, 'catalog'])->name('catalog');
+            Route::put('catalog/{productId}', [MerchandiseController::class, 'updateCatalogProduct'])->name('catalog.update');
+
+            Route::get('categories', [MerchandiseController::class, 'categories'])->name('categories');
+            Route::post('categories', [MerchandiseController::class, 'storeCategory'])->name('categories.store');
+            Route::put('categories/{id}', [MerchandiseController::class, 'updateCategory'])->name('categories.update');
+            Route::delete('categories/{id}', [MerchandiseController::class, 'destroyCategory'])->name('categories.destroy');
+
+            Route::get('products', [MerchandiseController::class, 'products'])->name('products');
+            Route::get('products/create', [MerchandiseController::class, 'createProduct'])->name('products.create');
+            Route::post('products', [MerchandiseController::class, 'storeProduct'])->name('products.store');
+            Route::get('products/{id}/edit', [MerchandiseController::class, 'editProduct'])->name('products.edit');
+            Route::put('products/{id}', [MerchandiseController::class, 'updateProduct'])->name('products.update');
+            Route::delete('products/{id}', [MerchandiseController::class, 'destroyProduct'])->name('products.destroy');
+
+            Route::get('inventory', [MerchandiseController::class, 'inventory'])->name('inventory');
+            Route::get('selling-prices', [MerchandiseController::class, 'sellingPrices'])->name('selling-prices');
+            Route::post('selling-prices/{variantId}', [MerchandiseController::class, 'updateSellingPrice'])->name('selling-prices.update');
+            Route::get('selling-prices/{variantId}/history', [MerchandiseController::class, 'sellingPriceHistory'])->name('selling-prices.history');
+            Route::get('stock-in', [MerchandiseController::class, 'stockIns'])->name('stock-ins');
+            Route::get('stock-in/create', [MerchandiseController::class, 'createStockIn'])->name('stock-ins.create');
+            Route::post('stock-in', [MerchandiseController::class, 'storeStockIn'])->name('stock-ins.store');
+            Route::get('stock-opname', [MerchandiseController::class, 'stockOpnames'])->name('stock-opnames');
+            Route::get('stock-opname/create', [MerchandiseController::class, 'createStockOpname'])->name('stock-opnames.create');
+            Route::post('stock-opname', [MerchandiseController::class, 'storeStockOpname'])->name('stock-opnames.store');
+            Route::get('stock-opname/{id}', [MerchandiseController::class, 'showStockOpname'])->name('stock-opnames.show');
+            Route::get('reports', [MerchandiseController::class, 'reports'])->name('reports');
+
+            Route::get('promotions', [MerchandiseController::class, 'promotions'])->name('promotions');
+            Route::get('promotions/create', [MerchandiseController::class, 'createPromotion'])->name('promotions.create');
+            Route::post('promotions', [MerchandiseController::class, 'storePromotion'])->name('promotions.store');
+            Route::get('promotions/{id}/edit', [MerchandiseController::class, 'editPromotion'])->name('promotions.edit');
+            Route::put('promotions/{id}', [MerchandiseController::class, 'updatePromotion'])->name('promotions.update');
+            Route::delete('promotions/{id}', [MerchandiseController::class, 'destroyPromotion'])->name('promotions.destroy');
+
+            Route::get('orders', [MerchandiseController::class, 'orders'])->name('orders');
+            Route::get('orders/{id}', [MerchandiseController::class, 'showOrder'])->name('orders.show');
         });
 
         Route::prefix('price')->name('price.')->group(function () {

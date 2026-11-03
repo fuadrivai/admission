@@ -14,6 +14,8 @@ use App\Services\Implement\EnrolmentDpImplement;
 use App\Services\Implement\UniformProductImplement;
 use App\Services\ParentStatementService;
 use App\Services\UniformProductService;
+use App\Services\MerchandiseService;
+use App\Services\Implement\MerchandiseImplement;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\ServiceProvider;
 
@@ -28,6 +30,7 @@ class AppServiceProvider extends ServiceProvider
     public array $singletons = [
         AcademicYearService::class => AcademicYearImplement::class,
         UniformProductService::class => UniformProductImplement::class,
+        MerchandiseService::class => MerchandiseImplement::class,
         BlastMessageService::class => BlastMessageImplement::class,
         ParentStatementService::class => ParentStatementImplement::class,
         FinancialDocumentService::class => FinancialDocumentImplement::class,

@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Services\MerchandiseService;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class XenditCallbackFeatureTest extends TestCase
@@ -21,5 +23,25 @@ class XenditCallbackFeatureTest extends TestCase
         ])
             ->assertStatus(404)
             ->assertJson(['message' => 'Unknown transaction']);
+    }
+
+    public function test_merchandise_callback_uses_the_standard_callback_flow_without_a_token(): void
+    {
+        $merchandiseService = \Mockery::mock(MerchandiseService::class);
+        $externalId = 'MERCH-' . strtoupper(Str::random(16));
+        $callbackData = [
+            'external_id' => $externalId,
+            'status' => 'PAID',
+        ];
+
+        $merchandiseService->shouldReceive('processOrderPaymentCallback')
+            ->once()
+            ->with($externalId, $callbackData)
+            ->andReturn(true);
+        $this->app->instance(MerchandiseService::class, $merchandiseService);
+
+        $this->postJson('/api/xendit/callback', $callbackData)
+            ->assertOk()
+            ->assertJson(['message' => 'Callback processed']);
     }
 }

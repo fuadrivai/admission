@@ -154,6 +154,69 @@
                         </li>
                     </ul>
                 </li>
+                <li class="sidebar-title">Merchandise</li>
+                <li class="sidebar-item has-sub {{ Request::is('merchandise*') ? 'active' : '' }}">
+                    <a href="#" class="sidebar-link">
+                        <i class="bi bi-bag-fill"></i>
+                        <span>Merchandise</span>
+                    </a>
+                    <ul class="submenu">
+                        <li class="submenu-item"><a href="{{ route('merchandise.dashboard') }}"
+                                class="submenu-link {{ Request::is('merchandise') ? 'text-red' : '' }}">Dashboard</a></li>
+                        <li class="submenu-item has-sub {{ Request::is('merchandise/categories*') || Request::is('merchandise/products*') || Request::is('merchandise/selling-prices*') ? 'active' : '' }}">
+                            <a href="#" class="submenu-link">Product Setup</a>
+                            <ul class="submenu">
+                                <li class="submenu-item"><a href="{{ route('merchandise.categories') }}"
+                                        class="submenu-link {{ Request::is('merchandise/categories*') ? 'text-red' : '' }}">Categories</a></li>
+                                <li class="submenu-item"><a href="{{ route('merchandise.products') }}"
+                                        class="submenu-link {{ Request::is('merchandise/products*') ? 'text-red' : '' }}">Products</a></li>
+                                @if (auth()->user()->role === 'admin')
+                                    <li class="submenu-item"><a href="{{ route('merchandise.selling-prices') }}"
+                                            class="submenu-link {{ Request::is('merchandise/selling-prices*') ? 'text-red' : '' }}">Selling Prices</a></li>
+                                @endif
+                            </ul>
+                        </li>
+                        <li class="submenu-item has-sub {{ Request::is('merchandise/stock-in*') || Request::is('merchandise/stock-opname*') || Request::is('merchandise/inventory') ? 'active' : '' }}">
+                            <a href="#" class="submenu-link">Inventory</a>
+                            <ul class="submenu">
+                                <li class="submenu-item"><a href="{{ route('merchandise.inventory') }}"
+                                        class="submenu-link {{ Request::is('merchandise/inventory') ? 'text-red' : '' }}">Stock Overview</a></li>
+                                @if (auth()->user()->role === 'admin')
+                                    <li class="submenu-item"><a href="{{ route('merchandise.stock-ins') }}"
+                                            class="submenu-link {{ Request::is('merchandise/stock-in*') ? 'text-red' : '' }}">Stock In</a></li>
+                                    <li class="submenu-item"><a href="{{ route('merchandise.stock-opnames') }}"
+                                            class="submenu-link {{ Request::is('merchandise/stock-opname*') ? 'text-red' : '' }}">Stock Opname</a></li>
+                                @endif
+                            </ul>
+                        </li>
+                        <li class="submenu-item has-sub {{ Request::is('merchandise/store-settings*') || Request::is('merchandise/catalog*') ? 'active' : '' }}">
+                            <a href="#" class="submenu-link">Online Store</a>
+                            <ul class="submenu">
+                                @if (auth()->user()->role === 'admin')
+                                    <li class="submenu-item"><a href="{{ route('merchandise.store-settings') }}"
+                                            class="submenu-link {{ Request::is('merchandise/store-settings*') ? 'text-red' : '' }}">Store Settings</a></li>
+                                    <li class="submenu-item"><a href="{{ route('merchandise.catalog') }}"
+                                            class="submenu-link {{ Request::is('merchandise/catalog*') ? 'text-red' : '' }}">Catalog</a></li>
+                                @endif
+                                <li class="submenu-item"><a target="_blank" href="{{ route('merchandise.public-store') }}"
+                                        class="submenu-link">View Public Store</a></li>
+                            </ul>
+                        </li>
+                        @if (auth()->user()->role === 'admin')
+                            <li class="submenu-item has-sub {{ Request::is('merchandise/promotions*') || Request::is('merchandise/orders*') ? 'active' : '' }}">
+                                <a href="#" class="submenu-link">Sales</a>
+                                <ul class="submenu">
+                                    <li class="submenu-item"><a href="{{ route('merchandise.promotions') }}"
+                                            class="submenu-link {{ Request::is('merchandise/promotions*') ? 'text-red' : '' }}">Promotions</a></li>
+                                    <li class="submenu-item"><a href="{{ route('merchandise.orders') }}"
+                                            class="submenu-link {{ Request::is('merchandise/orders*') ? 'text-red' : '' }}">Order Management</a></li>
+                                </ul>
+                            </li>
+                            <li class="submenu-item"><a href="{{ route('merchandise.reports') }}"
+                                    class="submenu-link {{ Request::is('merchandise/reports*') ? 'text-red' : '' }}">Reports &amp; Analytics</a></li>
+                        @endif
+                    </ul>
+                </li>
                 <li class="sidebar-title">Transaction</li>
                 <li class="sidebar-item has-sub {{ Request::is('uniform*') ? 'active' : '' }}">
                     <a href="#" class='sidebar-link'>

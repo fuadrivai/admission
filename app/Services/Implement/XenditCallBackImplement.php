@@ -10,6 +10,7 @@ use App\Models\Level;
 use App\Models\EnrolmentTransaction;
 use App\Models\UniformOrder;
 use App\Services\XenditCallBackService;
+use App\Services\MerchandiseService;
 use Carbon\Carbon;
 use Dompdf\Dompdf;
 use Illuminate\Support\Facades\Log;
@@ -22,6 +23,13 @@ use function App\Helpers\setupMail;
 
 class XenditCallBackImplement implements XenditCallBackService
 {
+    private MerchandiseService $merchandiseService;
+
+    public function __construct(MerchandiseService $merchandiseService)
+    {
+        $this->merchandiseService = $merchandiseService;
+    }
+
     public function post($data)
     {
         $externalId = $data['external_id'] ?? null;
@@ -35,6 +43,7 @@ class XenditCallBackImplement implements XenditCallBackService
             'INV-ENROL'    => ['enrolment_transactions', 'enrolment'],
             'EX_INV-ENROL' => ['enrolment_transactions'],
             'UORD'         => ['uniform_orders'],
+            'MERCH-'       => ['merchandise_orders'],
         ];
 
         $tables = $this->resolveTables($externalId, $transactionMap);
@@ -53,8 +62,18 @@ class XenditCallBackImplement implements XenditCallBackService
         if (in_array('uniform_orders', $tables, true)) {
             $this->uniform('uniform_orders', $externalId, $data);
         }
+        if (in_array('merchandise_orders', $tables, true)) {
+            $this->merchandise($externalId, $data);
+        }
 
         return response()->json(['message' => 'Callback processed'], 200);
+    }
+
+    private function merchandise($externalId, $data)
+    {
+        if (!$this->merchandiseService->processOrderPaymentCallback($externalId, $data)) {
+            Log::warning("Merchandise order not found for Xendit invoice: {$externalId}");
+        }
     }
 
     private function enrolment($externalId, $data)
