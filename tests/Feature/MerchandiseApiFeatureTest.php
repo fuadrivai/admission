@@ -21,6 +21,28 @@ class MerchandiseApiFeatureTest extends TestCase
             ->assertJsonValidationErrors('cart_token');
     }
 
+    public function test_cart_endpoint_returns_json_instead_of_redirecting_when_token_is_missing(): void
+    {
+        $this->get('/api/v1/merchandise/carts')
+            ->assertStatus(422)
+            ->assertHeader('content-type', 'application/json')
+            ->assertJsonValidationErrors('cart_token');
+    }
+
+    public function test_anonymous_cart_token_allows_cart_access_without_login(): void
+    {
+        $response = $this->postJson('/api/v1/merchandise/carts')
+            ->assertCreated()
+            ->assertJsonPath('success', true);
+
+        $cartToken = $response->json('data.cart_token');
+
+        $this->withHeader('X-Cart-Token', $cartToken)
+            ->getJson('/api/v1/merchandise/carts')
+            ->assertOk()
+            ->assertJsonPath('success', true);
+    }
+
     public function test_mobile_api_documentation_is_publicly_available(): void
     {
         $this->get('/api/docs/merchandise')
@@ -28,6 +50,8 @@ class MerchandiseApiFeatureTest extends TestCase
             ->assertSee('Merchandise Mobile API')
             ->assertSee('swagger-ui-bundle.js')
             ->assertSee('openapi.json')
+            ->assertSee('No account login is required')
+            ->assertSee('not a login credential')
             ->assertSee('does not expose order history by username');
     }
 

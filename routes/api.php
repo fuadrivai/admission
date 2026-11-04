@@ -19,7 +19,9 @@ use Illuminate\Support\Facades\Route;
 */
 Route::post('/xendit/callback', [XenditCallBackApiController::class, 'handleCallback']);
 Route::post('/enrolment/post', [EnrolmentApiController::class, 'post']);
-Route::prefix('v1/merchandise')->middleware('throttle:60,1')->group(function () {
+Route::prefix('v1/merchandise')
+    ->middleware(['throttle:60,1', \App\Http\Middleware\ForceJsonResponse::class])
+    ->group(function () {
     Route::get('/store', [MerchandiseApiController::class, 'store']);
     Route::get('/categories', [MerchandiseApiController::class, 'categories']);
     Route::get('/products', [MerchandiseApiController::class, 'products']);
@@ -35,7 +37,7 @@ Route::prefix('v1/merchandise')->middleware('throttle:60,1')->group(function () 
         ->whereNumber('itemId');
     Route::get('/carts/checkout', [MerchandiseApiController::class, 'checkout']);
     Route::post('/orders', [MerchandiseApiController::class, 'createOrder']);
-});
+    });
 Route::get('/v1/merchandise/openapi.json', MerchandiseApiDocumentationController::class);
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();

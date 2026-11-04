@@ -30,7 +30,8 @@
         <p>Interactive API reference. Use "Try it out" to send requests to this environment.</p>
     </header>
     <aside class="docs-note">
-        Cart and checkout endpoints require the <code>X-Cart-Token</code> returned by <code>POST /carts</code>.
+        No account login is required to use this API. Cart and checkout endpoints require the anonymous
+        <code>X-Cart-Token</code> returned by <code>POST /carts</code>; this token identifies your cart and is not a login credential.
         A Portal username alone is not verified identity, so this API does not expose order history by username.
     </aside>
     <div id="swagger-ui"></div>

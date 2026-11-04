@@ -13,7 +13,7 @@ class MerchandiseApiDocumentationController extends Controller
             'info' => [
                 'title' => 'MHIS Merchandise Mobile API',
                 'version' => '1.0.0',
-                'description' => 'Public merchandise catalog, cart, checkout, promotions, and Xendit invoice APIs.',
+                'description' => 'All endpoints are available without an account login. Cart operations use an anonymously generated X-Cart-Token to identify the cart; it is not a user login credential.',
             ],
             'servers' => [
                 ['url' => url('/api/v1/merchandise'), 'description' => 'Current application'],
