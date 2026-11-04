@@ -51,6 +51,7 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::group(['middleware' => 'prevent-back-history'], function () {
+    Route::view('/api/docs/merchandise', 'api.merchandise-docs')->name('api.merchandise-docs');
     Route::get('auth', [AuthController::class, 'index'])->middleware('guest')->name('login');
     Route::post('auth', [AuthController::class, 'authenticate']);
 

@@ -155,7 +155,7 @@
                     </ul>
                 </li>
                 <li class="sidebar-title">Merchandise</li>
-                <li class="sidebar-item has-sub {{ Request::is('merchandise*') ? 'active' : '' }}">
+                <li class="sidebar-item has-sub {{ Request::is('merchandise*') || Request::is('api/docs/merchandise') ? 'active' : '' }}">
                     <a href="#" class="sidebar-link">
                         <i class="bi bi-bag-fill"></i>
                         <span>Merchandise</span>
@@ -163,6 +163,8 @@
                     <ul class="submenu">
                         <li class="submenu-item"><a href="{{ route('merchandise.dashboard') }}"
                                 class="submenu-link {{ Request::is('merchandise') ? 'text-red' : '' }}">Dashboard</a></li>
+                        <li class="submenu-item"><a href="{{ route('api.merchandise-docs') }}"
+                                class="submenu-link {{ Request::is('api/docs/merchandise') ? 'text-red' : '' }}">Mobile API Documentation</a></li>
                         <li class="submenu-item has-sub {{ Request::is('merchandise/categories*') || Request::is('merchandise/products*') || Request::is('merchandise/selling-prices*') ? 'active' : '' }}">
                             <a href="#" class="submenu-link">Product Setup</a>
                             <ul class="submenu">

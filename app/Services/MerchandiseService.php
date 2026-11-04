@@ -30,7 +30,8 @@ interface MerchandiseService
     public function deletePromotion($id);
     public function getOrders(array $filters = []);
     public function showOrder($id);
-    public function getPublicStore($cartKey);
+    public function getPublicStore($cartKey, array $filters = []);
+    public function getPublicCategories();
     public function getPublicProduct($productId, $cartKey);
     public function getCart($cartKey);
     public function getCheckout(

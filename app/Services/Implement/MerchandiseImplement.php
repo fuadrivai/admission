@@ -668,9 +668,9 @@ class MerchandiseImplement implements MerchandiseService
         });
     }
 
-    public function getPublicStore($cartKey)
+    public function getPublicStore($cartKey, array $filters = [])
     {
-        $products = $this->publicProductsQuery()
+        $query = $this->publicProductsQuery()
             ->join('merchandise_categories as store_categories', 'store_categories.id', '=', 'merchandise_products.category_id')
             ->select('merchandise_products.*')
             ->with('category', 'images')
@@ -679,14 +679,42 @@ class MerchandiseImplement implements MerchandiseService
             }])
             ->orderBy('store_categories.display_order')
             ->orderBy('merchandise_products.display_order')
-            ->orderBy('merchandise_products.name')
-            ->paginate(24);
+            ->orderBy('merchandise_products.name');
+
+        if (!empty($filters['category_id'])) {
+            $query->where('merchandise_products.category_id', $filters['category_id']);
+        }
+        if (!empty($filters['search'])) {
+            $search = trim($filters['search']);
+            $query->where(function ($productQuery) use ($search) {
+                $productQuery->where('merchandise_products.name', 'like', '%' . $search . '%')
+                    ->orWhere('merchandise_products.description', 'like', '%' . $search . '%')
+                    ->orWhereHas('variants', function ($variantQuery) use ($search) {
+                        $variantQuery->where('name', 'like', '%' . $search . '%')
+                            ->orWhere('color', 'like', '%' . $search . '%')
+                            ->orWhere('sku', 'like', '%' . $search . '%');
+                    });
+            });
+        }
+
+        $products = $query->paginate(24);
 
         return [
             'settings' => $this->getStoreSettings(),
             'products' => $products,
             'cartCount' => $this->cartItemCount($cartKey),
         ];
+    }
+
+    public function getPublicCategories()
+    {
+        return MerchandiseCategory::query()
+            ->where('is_active', true)
+            ->where('is_store_visible', true)
+            ->whereIn('id', $this->publicProductsQuery()->select('category_id'))
+            ->orderBy('display_order')
+            ->orderBy('name')
+            ->get(['id', 'name', 'description']);
     }
 
     public function getPublicProduct($productId, $cartKey)
