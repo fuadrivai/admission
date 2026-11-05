@@ -8,6 +8,20 @@
             'EXPIRED' => ['Kedaluwarsa', 'bg-secondary'],
             'FAILED' => ['Gagal', 'bg-danger'],
         ];
+        $fulfillmentLabels = [
+            'AWAITING_PAYMENT' => 'Awaiting payment',
+            'WAITING_FOR_STOCK' => 'Waiting for stock',
+            'PARTIALLY_AVAILABLE' => 'Partially allocated',
+            'READY_FOR_FULFILLMENT' => 'Ready to fulfill',
+            'FULFILLED' => 'Fulfilled',
+            'CANCELLED' => 'Cancelled',
+        ];
+        $fulfillmentClasses = [
+            'WAITING_FOR_STOCK' => 'bg-warning text-dark',
+            'PARTIALLY_AVAILABLE' => 'bg-info text-dark',
+            'READY_FOR_FULFILLMENT' => 'bg-primary',
+            'FULFILLED' => 'bg-success',
+        ];
     @endphp
 
     <div class="row g-3 mb-3">
@@ -98,18 +112,7 @@
                                 </td>
                                 <td>
                                     @if ($order->order_type === 'PREORDER')
-                                        @php
-                                            $fulfillmentLabels = [
-                                                'AWAITING_PAYMENT' => ['Awaiting payment', 'bg-secondary'],
-                                                'WAITING_FOR_STOCK' => ['Waiting for stock', 'bg-warning text-dark'],
-                                                'PARTIALLY_AVAILABLE' => ['Partially allocated', 'bg-info text-dark'],
-                                                'READY_FOR_FULFILLMENT' => ['Ready to fulfill', 'bg-primary'],
-                                                'FULFILLED' => ['Fulfilled', 'bg-success'],
-                                                'CANCELLED' => ['Cancelled', 'bg-secondary'],
-                                            ];
-                                            [$fulfillmentLabel, $fulfillmentClass] = $fulfillmentLabels[$order->fulfillment_status] ?? [$order->fulfillment_status, 'bg-secondary'];
-                                        @endphp
-                                        <span class="badge {{ $fulfillmentClass }}">{{ $fulfillmentLabel }}</span>
+                                        <span class="badge {{ $fulfillmentClasses[$order->fulfillment_status] ?? 'bg-secondary' }}">{{ $fulfillmentLabels[$order->fulfillment_status] ?? $order->fulfillment_status }}</span>
                                     @elseif ($order->stock_is_held)
                                         <span class="badge bg-warning text-dark">Dicadangkan</span>
                                     @elseif ($order->display_payment_status === 'PAID')

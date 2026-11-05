@@ -139,7 +139,7 @@
                             <div class="col-md-2"><label class="form-label">Ukuran / nama varian</label><input name="variants[{{ $index }}][name]" class="form-control" maxlength="100" required value="{{ $variant['name'] ?? '' }}"></div>
                             <div class="col-md-1"><label class="form-label">Warna</label><input name="variants[{{ $index }}][color]" class="form-control" maxlength="80" value="{{ $variant['color'] ?? '' }}"></div>
                             <div class="col-md-1"><label class="form-label">SKU</label><input name="variants[{{ $index }}][sku]" class="form-control" maxlength="64" value="{{ $variant['sku'] ?? '' }}"></div>
-                            <div class="col-md-2"><label class="form-label">Harga jual (Rp)</label><input name="variants[{{ $index }}][price]" class="form-control" type="number" min="0" step="0.01" required value="{{ $variant['price'] ?? '' }}" {{ !empty($variant['id']) ? 'readonly' : '' }}></div>
+                            <div class="col-md-2"><label class="form-label">Harga jual (Rp)</label><input name="variants[{{ $index }}][price]" class="form-control" type="number" min="0" step="0.01" required value="{{ $variant['price'] ?? '' }}"></div>
                             <div class="col-md-2"><label class="form-label">Batas stok</label><input name="variants[{{ $index }}][low_stock_threshold]" class="form-control" type="number" min="0" step="1" value="{{ $variant['low_stock_threshold'] ?? 0 }}"></div>
                             <div class="col-md-1">
                                 <input type="hidden" name="variants[{{ $index }}][is_active]" value="0">
