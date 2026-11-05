@@ -191,7 +191,7 @@
                                 @endif
                             </ul>
                         </li>
-                        <li class="submenu-item has-sub {{ Request::is('merchandise/store-settings*') || Request::is('merchandise/catalog*') ? 'active' : '' }}">
+                        <li class="submenu-item has-sub {{ Request::is('merchandise/store-settings*') || Request::is('merchandise/catalog*') || Request::is('merchandise/email-templates*') ? 'active' : '' }}">
                             <a href="#" class="submenu-link">Online Store</a>
                             <ul class="submenu">
                                 @if (auth()->user()->role === 'admin')
@@ -199,6 +199,8 @@
                                             class="submenu-link {{ Request::is('merchandise/store-settings*') ? 'text-red' : '' }}">Store Settings</a></li>
                                     <li class="submenu-item"><a href="{{ route('merchandise.catalog') }}"
                                             class="submenu-link {{ Request::is('merchandise/catalog*') ? 'text-red' : '' }}">Catalog</a></li>
+                                    <li class="submenu-item"><a href="{{ route('merchandise.email-templates') }}"
+                                            class="submenu-link {{ Request::is('merchandise/email-templates*') ? 'text-red' : '' }}">Email Templates</a></li>
                                 @endif
                                 <li class="submenu-item"><a target="_blank" href="{{ route('merchandise.public-store') }}"
                                         class="submenu-link">View Public Store</a></li>

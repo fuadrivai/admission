@@ -2,9 +2,12 @@
 
 namespace App\Services\Implement;
 
+use App\Mail\AdmissionEmail;
 use App\Models\MerchandiseCategory;
 use App\Models\MerchandiseCart;
 use App\Models\MerchandiseCartItem;
+use App\Models\EmailSetting;
+use App\Models\MerchandiseEmailTemplate;
 use App\Models\MerchandiseOrder;
 use App\Models\MerchandiseOrderItem;
 use App\Models\MerchandiseProduct;
@@ -23,8 +26,11 @@ use App\Models\Branch;
 use App\Models\BankCharger;
 use App\Services\MerchandiseService;
 use Carbon\Carbon;
+use Dompdf\Dompdf;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -32,6 +38,8 @@ use RuntimeException;
 use Throwable;
 
 use function App\Helpers\createXenditInvoice;
+use function App\Helpers\imageToBase64;
+use function App\Helpers\setupMail;
 
 class MerchandiseImplement implements MerchandiseService
 {
@@ -340,6 +348,28 @@ class MerchandiseImplement implements MerchandiseService
         ]);
 
         return $settings;
+    }
+
+    public function getEmailTemplates()
+    {
+        return MerchandiseEmailTemplate::query()
+            ->orderBy('key')
+            ->get();
+    }
+
+    public function updateEmailTemplate(string $key, array $data)
+    {
+        if (!in_array($key, ['invoice', 'receipt'], true)) {
+            throw new \InvalidArgumentException('Unknown Merchandise email template.');
+        }
+
+        $template = MerchandiseEmailTemplate::where('key', $key)->firstOrFail();
+        $template->update([
+            'subject' => $data['subject'],
+            'body' => $data['body'],
+        ]);
+
+        return $template->fresh();
     }
 
     private function ensureStoreSettingsExists(): void
@@ -1101,6 +1131,7 @@ class MerchandiseImplement implements MerchandiseService
             'payment_url' => $xendit['invoice_url'],
             'expires_at' => Carbon::parse($xendit['expiry_date']),
         ]);
+        $this->sendMerchandiseInvoiceEmail($order->fresh('items'));
         MerchandiseCart::where('cart_key', $cartKey)->firstOrFail()->items()->whereIn('id', $cartItemIds)->delete();
 
         return $order->fresh();
@@ -1113,16 +1144,22 @@ class MerchandiseImplement implements MerchandiseService
             ? 'PAID'
             : (in_array($status, ['EXPIRED', 'FAILED'], true) ? $status : 'PENDING');
 
-        return DB::transaction(function () use ($externalId, $callbackData, $mappedStatus) {
+        $result = DB::transaction(function () use ($externalId, $callbackData, $mappedStatus) {
             $order = MerchandiseOrder::where('external_id', $externalId)->lockForUpdate()->first();
             if (!$order) {
                 return false;
             }
             if ($order->payment_status === 'PAID') {
-                return true;
+                return [
+                    'order_id' => $order->id,
+                    'send_receipt' => !$order->receipt_email_sent_at,
+                ];
             }
             if (in_array($order->payment_status, ['FAILED', 'EXPIRED'], true) && $mappedStatus === 'PENDING') {
-                return true;
+                return [
+                    'order_id' => $order->id,
+                    'send_receipt' => false,
+                ];
             }
 
             $orderItems = $order->items;
@@ -1142,8 +1179,24 @@ class MerchandiseImplement implements MerchandiseService
                 $this->createOrderStockOut($order, $orderItems, $order->paid_at ?: now());
             }
 
-            return true;
+            return [
+                'order_id' => $order->id,
+                'send_receipt' => $mappedStatus === 'PAID' && !$order->receipt_email_sent_at,
+            ];
         });
+
+        if ($result === false) {
+            return false;
+        }
+
+        if ($result['send_receipt']) {
+            $this->sendMerchandiseReceiptEmail(
+                MerchandiseOrder::with('items')->findOrFail($result['order_id']),
+                $callbackData
+            );
+        }
+
+        return true;
     }
 
     public function getStockIns($limit = null)
@@ -2229,6 +2282,229 @@ class MerchandiseImplement implements MerchandiseService
             'cart_id',
             MerchandiseCart::where('cart_key', $cartKey)->select('id')
         )->sum('quantity');
+    }
+
+    private function sendMerchandiseInvoiceEmail(MerchandiseOrder $order): void
+    {
+        try {
+            $template = MerchandiseEmailTemplate::where('key', 'invoice')->firstOrFail();
+            $data = $this->merchandiseEmailData($order, $template, []);
+            $this->configureMerchandiseMail($order->branch_id);
+
+            Mail::to($order->email)->send(new AdmissionEmail($data));
+            $order->update(['invoice_email_sent_at' => now()]);
+        } catch (Throwable $exception) {
+            Log::error('Merchandise invoice email could not be sent.', [
+                'order_id' => $order->id,
+                'order_code' => $order->code,
+                'recipient' => $order->email,
+                'error' => $exception->getMessage(),
+            ]);
+        }
+    }
+
+    private function sendMerchandiseReceiptEmail(MerchandiseOrder $order, array $callbackData): void
+    {
+        $template = MerchandiseEmailTemplate::where('key', 'receipt')->firstOrFail();
+        $data = $this->merchandiseEmailData($order, $template, [
+            'payment_date' => !empty($callbackData['paid_at'])
+                ? Carbon::parse($callbackData['paid_at'])->setTimezone('Asia/Jakarta')->format('d M Y H:i')
+                : optional($order->paid_at)->setTimezone('Asia/Jakarta')->format('d M Y H:i'),
+        ]);
+        $pdfPath = $this->generateMerchandiseReceiptPdf($order, $callbackData['description'] ?? null);
+        $this->configureMerchandiseMail($order->branch_id);
+
+        Mail::to($order->email)->send(
+            (new AdmissionEmail($data))->attach($pdfPath, [
+                'as' => 'Receipt-' . $order->code . '.pdf',
+                'mime' => 'application/pdf',
+            ])
+        );
+
+        $order->update(['receipt_email_sent_at' => now()]);
+    }
+
+    private function merchandiseEmailData(
+        MerchandiseOrder $order,
+        MerchandiseEmailTemplate $template,
+        array $overrides
+    ): array {
+        $order->loadMissing('items');
+        $itemsHtml = '<table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse;width:100%">'
+            . '<thead><tr><th align="left">Product</th><th align="right">Qty</th><th align="right">Amount</th></tr></thead><tbody>';
+        $paymentRows = '';
+        foreach ($order->items as $item) {
+            $itemsHtml .= '<tr><td>' . e($item->product_name . ' - ' . $item->variant_name)
+                . '</td><td align="right">' . (int) $item->quantity
+                . '</td><td align="right">' . e($this->formatMerchandiseAmount($item->subtotal)) . '</td></tr>';
+            $paymentRows .= '<tr>'
+                . '<td style="padding:9px 7px;border-bottom:1px solid #f0f0f0;text-align:left;vertical-align:top;word-break:break-word">'
+                . e($item->product_name) . '<br><span style="font-size:11px;color:#666">' . e($item->variant_name) . '</span></td>'
+                . '<td style="padding:9px 5px;border-bottom:1px solid #f0f0f0;text-align:center;vertical-align:top">'
+                . (int) $item->quantity . '</td>'
+                . '<td style="padding:9px 6px;border-bottom:1px solid #f0f0f0;text-align:right;vertical-align:top;white-space:nowrap">'
+                . e($this->formatMerchandiseAmount($item->subtotal)) . '</td></tr>';
+        }
+        $itemsHtml .= '</tbody></table>';
+        $paymentTable = '<table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" '
+            . 'style="width:100%;max-width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0;border:1px solid #e8e4e0;border-radius:8px;overflow:hidden;font-size:13px;line-height:1.5">'
+            . '<thead><tr>'
+            . '<th width="56%" style="width:56%;padding:13px 10px;background-color:#faf9f7;color:#800000;text-align:left;border-bottom:1px solid #e8e4e0;font-size:13px">Product</th>'
+            . '<th width="12%" style="width:12%;padding:13px 3px;background-color:#faf9f7;color:#800000;text-align:center;border-bottom:1px solid #e8e4e0;font-size:13px">Qty</th>'
+            . '<th width="32%" style="width:32%;padding:13px 7px;background-color:#faf9f7;color:#800000;text-align:right;border-bottom:1px solid #e8e4e0;font-size:13px">Amount</th>'
+            . '</tr></thead><tbody>' . $paymentRows
+            . '<tr><td colspan="2" style="padding:10px 10px;border-top:1px solid #e8e4e0">Subtotal</td>'
+            . '<td style="padding:10px 7px;text-align:right;white-space:nowrap;border-top:1px solid #e8e4e0">'
+            . e($this->formatMerchandiseAmount($order->subtotal)) . '</td></tr>'
+            . '<tr><td colspan="2" style="padding:9px 10px">Discount</td>'
+            . '<td style="padding:9px 7px;text-align:right;white-space:nowrap">'
+            . ($order->discount_amount > 0 ? '-' : '') . e($this->formatMerchandiseAmount($order->discount_amount)) . '</td></tr>'
+            . '<tr><td colspan="2" style="padding:9px 10px;border-bottom:2px solid #e8e4e0">Admin fee</td>'
+            . '<td style="padding:9px 7px;text-align:right;white-space:nowrap;border-bottom:2px solid #e8e4e0">'
+            . e($this->formatMerchandiseAmount($order->bank_charger)) . '</td></tr>'
+            . '<tr><td colspan="2" style="padding:13px 10px;background-color:#fcfaf8;color:#800000;font-weight:bold">Total payment</td>'
+            . '<td style="padding:13px 7px;background-color:#fcfaf8;color:#800000;text-align:right;white-space:nowrap;font-weight:bold">'
+            . e($this->formatMerchandiseAmount($order->total_amount)) . '</td></tr>'
+            . '</tbody></table>';
+
+        $values = array_merge([
+            'parent_name' => e($order->parent_name),
+            'order_code' => e($order->code),
+            'order_date' => $this->formatMerchandiseDate($order->created_at),
+            'branch_name' => e($order->branch_name),
+            'portal_username' => e($order->portal_username),
+            'email' => e($order->email),
+            'phone' => e($order->phone),
+            'order_items' => $itemsHtml,
+            'payment_table' => $paymentTable,
+            'subtotal' => e($this->formatMerchandiseAmount($order->subtotal)),
+            'discount' => e($this->formatMerchandiseAmount($order->discount_amount)),
+            'admin_fee' => e($this->formatMerchandiseAmount($order->bank_charger)),
+            'total' => e($this->formatMerchandiseAmount($order->total_amount)),
+            'payment_url' => e($order->payment_url ?? ''),
+            'expires_at' => $this->formatMerchandiseDate($order->expires_at),
+            'payment_date' => $this->formatMerchandiseDate($order->paid_at),
+            'payment_status' => e($order->payment_status),
+        ], $overrides);
+
+        $body = $this->normalizeMerchandiseEmailBody($template->body);
+
+        return [
+            'subject' => $this->replaceMerchandiseEmailVariables($template->subject, $values),
+            'template' => 'email-template.merchandise',
+            'title' => $this->replaceMerchandiseEmailVariables($template->subject, $values),
+            'content' => $this->styleMerchandisePaymentButton(
+                $this->replaceMerchandiseEmailVariables($body, $values)
+            ),
+        ];
+    }
+
+    private function normalizeMerchandiseEmailBody(string $body): string
+    {
+        if (stripos($body, '{{ payment_table }}') !== false
+            || stripos($body, '{{payment_table}}') !== false
+            || stripos($body, '{payment_table}') !== false) {
+            return $body;
+        }
+
+        $legacyReplaced = false;
+        $normalized = preg_replace_callback('/<p\b[^>]*>[\s\S]*?<\/p>/i', function ($matches) use (&$legacyReplaced) {
+            if ($legacyReplaced) {
+                return $matches[0];
+            }
+
+            foreach (['subtotal', 'discount', 'admin_fee', 'total'] as $key) {
+                if (!preg_match('/\{\{\s*' . $key . '\s*\}\}/i', $matches[0])) {
+                    return $matches[0];
+                }
+            }
+
+            $legacyReplaced = true;
+
+            return '{{ payment_table }}';
+        }, $body);
+
+        if ($legacyReplaced) {
+            return str_ireplace(
+                ['{{ order_items }}', '{{order_items}}', '{order_items}'],
+                '',
+                $normalized
+            );
+        }
+
+        return $body;
+    }
+
+    private function styleMerchandisePaymentButton(string $body): string
+    {
+        return preg_replace_callback('/<a\b([^>]*)>(.*?)<\/a>/is', function ($matches) {
+            if (stripos(strip_tags($matches[2]), 'pay now') === false) {
+                return $matches[0];
+            }
+
+            $attributes = preg_replace('/\sstyle\s*=\s*(["\']).*?\1/is', '', $matches[1]);
+            $style = 'background-color:#800000;border:2px solid #800000;border-radius:8px;color:#ffffff;'
+                . 'display:block;margin:0 auto;font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:bold;'
+                . 'line-height:48px;text-align:center;text-decoration:none;width:260px;max-width:100%;'
+                . 'box-sizing:border-box;-webkit-text-size-adjust:none;';
+
+            return '<a' . $attributes . ' style="' . $style . '">' . $matches[2] . '</a>';
+        }, $body);
+    }
+
+    private function replaceMerchandiseEmailVariables(string $content, array $values): string
+    {
+        foreach ($values as $key => $value) {
+            $content = str_replace([
+                '{{ ' . $key . ' }}',
+                '{{' . $key . '}}',
+                '{' . $key . '}',
+            ], (string) $value, $content);
+        }
+
+        return $content;
+    }
+
+    private function configureMerchandiseMail($branchId): void
+    {
+        if (!EmailSetting::where('branch_id', $branchId)->exists()) {
+            throw new RuntimeException('Email settings are not configured for the order branch.');
+        }
+
+        setupMail($branchId);
+    }
+
+    private function generateMerchandiseReceiptPdf(MerchandiseOrder $order, ?string $description): string
+    {
+        $html = view('pdf.merchandise-receipt', [
+            'order' => $order,
+            'description' => $description ?: 'Merchandise order payment',
+            'logo' => imageToBase64(public_path('assets/images/Logo-all-branch.png')),
+        ])->render();
+
+        $pdf = new Dompdf();
+        $pdf->loadHtml($html);
+        $pdf->setPaper('A4');
+        $pdf->render();
+
+        $path = 'merchandise/' . $order->code . '/receipt-' . $order->code . '.pdf';
+        if (!Storage::disk('admission')->put($path, $pdf->output())) {
+            throw new RuntimeException('The Merchandise payment receipt PDF could not be saved.');
+        }
+
+        return Storage::disk('admission')->path($path);
+    }
+
+    private function formatMerchandiseAmount($amount): string
+    {
+        return 'Rp' . number_format((float) $amount, 0, ',', '.');
+    }
+
+    private function formatMerchandiseDate($date): string
+    {
+        return $date
+            ? Carbon::parse($date)->setTimezone('Asia/Jakarta')->format('d M Y H:i')
+            : '';
     }
 
     private function assertStockInData(array $data): void

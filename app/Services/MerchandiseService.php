@@ -20,6 +20,8 @@ interface MerchandiseService
     public function updateSellingPrice(array $data, $userId);
     public function getStoreSettings();
     public function updateStoreSettings(array $data);
+    public function getEmailTemplates();
+    public function updateEmailTemplate(string $key, array $data);
     public function getCatalogProducts();
     public function updateCatalogProduct(array $data);
     public function getPromotions();

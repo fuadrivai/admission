@@ -36,6 +36,7 @@ use App\Http\Controllers\SettingController;
 use App\Http\Controllers\SiswaEreportController;
 use App\Http\Controllers\UniformController;
 use App\Http\Controllers\MerchandiseController;
+use App\Http\Controllers\MerchandiseEmailTemplateController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -236,6 +237,13 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
 
         Route::prefix('merchandise')->name('merchandise.')->group(function () {
             Route::get('/', [MerchandiseController::class, 'dashboard'])->name('dashboard');
+            Route::get('email-templates', [MerchandiseEmailTemplateController::class, 'index'])->name('email-templates');
+            Route::get('email-templates/{key}/edit', [MerchandiseEmailTemplateController::class, 'edit'])
+                ->where('key', 'invoice|receipt')
+                ->name('email-templates.edit');
+            Route::put('email-templates/{key}', [MerchandiseEmailTemplateController::class, 'update'])
+                ->where('key', 'invoice|receipt')
+                ->name('email-templates.update');
             Route::get('store-settings', [MerchandiseController::class, 'storeSettings'])->name('store-settings');
             Route::put('store-settings', [MerchandiseController::class, 'updateStoreSettings'])->name('store-settings.update');
             Route::get('catalog', [MerchandiseController::class, 'catalog'])->name('catalog');

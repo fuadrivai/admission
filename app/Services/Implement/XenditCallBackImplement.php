@@ -65,7 +65,6 @@ class XenditCallBackImplement implements XenditCallBackService
         if (in_array('merchandise_orders', $tables, true)) {
             $this->merchandise($externalId, $data);
         }
-
         return response()->json(['message' => 'Callback processed'], 200);
     }
 
@@ -88,7 +87,6 @@ class XenditCallBackImplement implements XenditCallBackService
 
         if (!$transaction) {
             Log::warning("Enrolment transaction not found for Xendit invoice: {$externalId}");
-
             return;
         }
 

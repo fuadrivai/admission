@@ -18,6 +18,8 @@ class MerchandiseOrder extends Model
         'total_amount' => 'float',
         'expires_at' => 'datetime',
         'paid_at' => 'datetime',
+        'invoice_email_sent_at' => 'datetime',
+        'receipt_email_sent_at' => 'datetime',
     ];
 
     public function branch(): BelongsTo

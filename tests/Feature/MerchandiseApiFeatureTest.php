@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\User;
 use Tests\TestCase;
 
 class MerchandiseApiFeatureTest extends TestCase
@@ -118,5 +119,18 @@ class MerchandiseApiFeatureTest extends TestCase
     {
         $this->getJson('/api/v1/merchandise/orders/history?portal_username=someone')
             ->assertNotFound();
+    }
+
+    public function test_merchandise_email_templates_are_restricted_to_admins(): void
+    {
+        $this->get('/merchandise/email-templates')
+            ->assertRedirect(route('login'));
+
+        $user = new User();
+        $user->role = 'user';
+
+        $this->actingAs($user)
+            ->get('/merchandise/email-templates')
+            ->assertForbidden();
     }
 }
