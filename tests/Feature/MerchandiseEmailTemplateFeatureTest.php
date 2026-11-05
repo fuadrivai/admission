@@ -87,4 +87,83 @@ class MerchandiseEmailTemplateFeatureTest extends TestCase
         $this->assertStringContainsString('Tangerang Selatan – 15426', $html);
         $this->assertStringContainsString('padding:25px 20px;background-color:#f5f1ec;color:#777;font-size:12px;line-height:1.5', $html);
     }
+
+    public function test_payment_receipt_email_uses_uniform_payment_style(): void
+    {
+        $order = new MerchandiseOrder([
+            'parent_name' => 'Parent',
+            'code' => 'MERCH-TEST',
+            'branch_name' => 'Bintaro',
+            'email' => 'parent@example.com',
+            'phone' => '08123456789',
+            'portal_username' => 'parent',
+            'subtotal' => 150000,
+            'discount_amount' => 0,
+            'bank_charger' => 3663,
+            'total_amount' => 153663,
+            'payment_status' => 'PAID',
+        ]);
+        $order->setRelation('items', new Collection());
+        $template = new MerchandiseEmailTemplate([
+            'key' => 'receipt',
+            'subject' => 'Receipt {{ order_code }}',
+            'body' => '<p>{{ payment_table }}</p>',
+        ]);
+        $method = new ReflectionMethod(MerchandiseImplement::class, 'merchandiseEmailData');
+        $method->setAccessible(true);
+
+        $emailData = $method->invoke(new MerchandiseImplement(), $order, $template, [
+            'email_title' => 'Merchandise Payment Confirmation',
+        ]);
+        $html = view($emailData['template'], ['data' => $emailData])->render();
+
+        $this->assertSame('email-template.merchandise-payment', $emailData['template']);
+        $this->assertStringContainsString('Uniform Payment', file_get_contents(resource_path('views/email-template/uniform-payment.blade.php')));
+        $this->assertStringContainsString('Merchandise Payment Confirmation', $html);
+        $this->assertStringContainsString('We have received your merchandise payment', $html);
+        $this->assertStringContainsString('With warm regards', $html);
+        $this->assertStringContainsString('Home of The Champions', $html);
+        $this->assertStringContainsString('wa.me/6281291823247', $html);
+    }
+
+    public function test_merchandise_receipt_pdf_uses_uniform_receipt_layout_with_order_totals(): void
+    {
+        $order = new MerchandiseOrder([
+            'parent_name' => 'Parent',
+            'code' => 'MERCH-TEST',
+            'branch_name' => 'Bintaro',
+            'email' => 'parent@example.com',
+            'phone' => '08123456789',
+            'portal_username' => 'parent',
+            'subtotal' => 150000,
+            'discount_amount' => 0,
+            'bank_charger' => 3663,
+            'total_amount' => 153663,
+            'payment_status' => 'PAID',
+        ]);
+        $order->setRelation('items', new Collection([
+            new MerchandiseOrderItem([
+                'product_name' => 'Shall MHIS',
+                'variant_name' => 'Hijau / 1.5 Meter',
+                'quantity' => 1,
+                'unit_price' => 150000,
+                'subtotal' => 150000,
+            ]),
+        ]));
+
+        $html = view('pdf.merchandise-receipt', [
+            'order' => $order,
+            'description' => 'Merchandise order payment',
+            'logo' => 'data:image/png;base64,logo',
+        ])->render();
+
+        $this->assertStringContainsString('Merchandise Receipt', $html);
+        $this->assertStringContainsString('Customer Information', $html);
+        $this->assertStringContainsString('Payment Details', $html);
+        $this->assertStringContainsString('Transaction No:', $html);
+        $this->assertStringContainsString('Shall MHIS', $html);
+        $this->assertStringContainsString('Discount', $html);
+        $this->assertStringContainsString('TOTAL PAID', $html);
+        $this->assertStringContainsString('Rp 153.663', $html);
+    }
 }

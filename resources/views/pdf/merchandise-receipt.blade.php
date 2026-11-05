@@ -1,68 +1,253 @@
 <!doctype html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <title>Merchandise Payment Receipt</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Merchandise Receipt - Mutiara Harapan Islamic School</title>
     <style>
-        body { font-family: DejaVu Sans, sans-serif; color: #333; font-size: 12px; }
-        .header { border-bottom: 3px solid #800000; padding-bottom: 12px; margin-bottom: 20px; }
-        .logo { max-width: 150px; max-height: 65px; }
-        h1 { color: #800000; font-size: 22px; margin: 0; }
-        .muted { color: #666; }
-        table { width: 100%; border-collapse: collapse; margin-top: 16px; }
-        th { background: #800000; color: #fff; text-align: left; }
-        th, td { padding: 8px; border: 1px solid #ddd; }
-        .number { text-align: right; white-space: nowrap; }
-        .summary { width: 55%; margin-left: auto; }
-        .summary td { border: 0; padding: 5px 8px; }
-        .total { color: #800000; font-weight: bold; border-top: 1px solid #800000 !important; }
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            color: #333333;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #ffffff;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            width: 100%;
+            border-bottom: 3px solid #800000;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .header-table,
+        .invoice-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .header-left {
+            width: 50%;
+            vertical-align: top;
+        }
+
+        .header-right {
+            width: 50%;
+            text-align: right;
+            vertical-align: top;
+        }
+
+        .logo {
+            height: 70px;
+        }
+
+        .receipt-title {
+            color: #800000;
+            font-size: 26px;
+            font-weight: bold;
+            margin: 0 0 10px;
+            text-align: right;
+        }
+
+        .receipt-info {
+            color: #666666;
+            font-size: 12px;
+            margin: 4px 0;
+            text-align: right;
+        }
+
+        .section {
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            color: #800000;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 5px;
+        }
+
+        .info-box {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #800000;
+        }
+
+        .info-row {
+            margin-bottom: 5px;
+        }
+
+        .info-label {
+            font-weight: bold;
+            color: #666666;
+            font-size: 13px;
+        }
+
+        .invoice-table {
+            margin-top: 10px;
+        }
+
+        .invoice-table th {
+            background-color: #800000;
+            color: #ffffff;
+            text-align: left;
+            padding: 10px 9px;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .invoice-table td {
+            padding: 8px 9px;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 11px;
+        }
+
+        .amount {
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .total-row {
+            background-color: #fdf8f3;
+        }
+
+        .total-label,
+        .total-amount {
+            color: #800000;
+            font-weight: bold;
+        }
+
+        .total-label {
+            text-align: right;
+        }
+
+        .note-box {
+            background-color: #f9f7f4;
+            padding: 10px 14px;
+            border-radius: 5px;
+            border: 1px solid #e8e4e0;
+            font-size: 12px;
+            color: #555555;
+        }
+
+        .note-box p {
+            margin: 0 0 8px;
+        }
+
+        .note-box p:last-child {
+            margin-bottom: 0;
+        }
+
+        @media print {
+            .container {
+                padding: 15px;
+                max-width: 100%;
+            }
+
+            .header,
+            .total-row {
+                page-break-inside: avoid;
+            }
+        }
     </style>
 </head>
+
 <body>
-    <div class="header">
-        @if ($logo)
-            <img class="logo" src="{{ $logo }}" alt="MHIS">
-        @endif
-        <h1>Payment Receipt</h1>
-        <div class="muted">Mutiara Harapan Islamic School</div>
-    </div>
-
-    <table style="margin-top:0;border:0">
-        <tr>
-            <td style="border:0;padding:3px 0"><strong>Order number:</strong> {{ $order->code }}</td>
-            <td style="border:0;padding:3px 0"><strong>Payment date:</strong> {{ $order->paid_at ? $order->paid_at->copy()->setTimezone('Asia/Jakarta')->format('d M Y H:i') : now()->format('d M Y H:i') }}</td>
-        </tr>
-        <tr>
-            <td style="border:0;padding:3px 0"><strong>Parent:</strong> {{ $order->parent_name }}</td>
-            <td style="border:0;padding:3px 0"><strong>Branch:</strong> {{ $order->branch_name }}</td>
-        </tr>
-        <tr>
-            <td style="border:0;padding:3px 0"><strong>Portal username:</strong> {{ $order->portal_username }}</td>
-            <td style="border:0;padding:3px 0"><strong>Description:</strong> {{ $description }}</td>
-        </tr>
-    </table>
-
-    <table>
-        <thead>
-            <tr><th>Product</th><th class="number">Quantity</th><th class="number">Unit price</th><th class="number">Amount</th></tr>
-        </thead>
-        <tbody>
-            @foreach ($order->items as $item)
+    <div class="container">
+        <div class="header">
+            <table class="header-table">
                 <tr>
-                    <td>{{ $item->product_name }}<br><span class="muted">{{ $item->variant_name }}</span></td>
-                    <td class="number">{{ number_format($item->quantity) }}</td>
-                    <td class="number">Rp{{ number_format($item->unit_price, 0, ',', '.') }}</td>
-                    <td class="number">Rp{{ number_format($item->subtotal, 0, ',', '.') }}</td>
+                    <td class="header-left">
+                        @if ($logo)
+                            <img src="{{ $logo }}" alt="Mutiara Harapan Islamic School" class="logo" />
+                        @endif
+                    </td>
+                    <td class="header-right">
+                        <h1 class="receipt-title">Merchandise Receipt</h1>
+                        <div class="receipt-info"><strong>Transaction No:</strong> {{ $order->code }}</div>
+                        <div class="receipt-info"><strong>Payment Date:</strong>
+                            {{ $order->paid_at ? $order->paid_at->copy()->setTimezone('Asia/Jakarta')->format('d M Y H:i') : now()->format('d M Y H:i') }}
+                        </div>
+                    </td>
                 </tr>
-            @endforeach
-        </tbody>
-    </table>
+            </table>
+        </div>
 
-    <table class="summary">
-        <tr><td>Subtotal</td><td class="number">Rp{{ number_format($order->subtotal, 0, ',', '.') }}</td></tr>
-        <tr><td>Discount</td><td class="number">-Rp{{ number_format($order->discount_amount, 0, ',', '.') }}</td></tr>
-        <tr><td>Admin fee</td><td class="number">Rp{{ number_format($order->bank_charger, 0, ',', '.') }}</td></tr>
-        <tr><td class="total">Total paid</td><td class="number total">Rp{{ number_format($order->total_amount, 0, ',', '.') }}</td></tr>
-    </table>
+        <div class="section">
+            <div class="section-title">Customer Information</div>
+            <div class="info-box">
+                <div class="info-row"><span class="info-label">Parent Name:</span> {{ $order->parent_name }}</div>
+                <div class="info-row"><span class="info-label">Portal Username:</span> {{ $order->portal_username }}</div>
+                <div class="info-row"><span class="info-label">Email:</span> {{ $order->email }}</div>
+                <div class="info-row"><span class="info-label">Phone:</span> {{ $order->phone }}</div>
+                <div class="info-row"><span class="info-label">Branch:</span> {{ $order->branch_name }}</div>
+                <div class="info-row"><span class="info-label">Status:</span> PAID</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Payment Details</div>
+            <table class="invoice-table">
+                <thead>
+                    <tr>
+                        <th>Description</th>
+                        <th>Variant</th>
+                        <th class="amount">Qty</th>
+                        <th class="amount">Unit Price</th>
+                        <th class="amount">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($order->items as $item)
+                        <tr>
+                            <td>{{ $item->product_name }}</td>
+                            <td>{{ $item->variant_name }}</td>
+                            <td class="amount">{{ number_format($item->quantity) }}</td>
+                            <td class="amount">Rp {{ number_format($item->unit_price, 0, ',', '.') }}</td>
+                            <td class="amount">Rp {{ number_format($item->subtotal, 0, ',', '.') }}</td>
+                        </tr>
+                    @endforeach
+                    <tr>
+                        <td colspan="4">Subtotal</td>
+                        <td class="amount">Rp {{ number_format($order->subtotal, 0, ',', '.') }}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">Discount</td>
+                        <td class="amount">- Rp {{ number_format($order->discount_amount, 0, ',', '.') }}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">Admin Fee</td>
+                        <td class="amount">Rp {{ number_format($order->bank_charger, 0, ',', '.') }}</td>
+                    </tr>
+                    <tr class="total-row">
+                        <td colspan="4" class="total-label">TOTAL PAID</td>
+                        <td class="amount total-amount">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Note</div>
+            <div class="note-box">
+                <p>1. This receipt is proof of payment for a merchandise order at Mutiara Harapan Islamic School.</p>
+                <p>2. Please keep this receipt for your records.</p>
+                <p>3. Description: {{ $description }}</p>
+            </div>
+        </div>
+    </div>
 </body>
+
 </html>

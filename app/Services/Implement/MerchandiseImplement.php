@@ -2307,6 +2307,7 @@ class MerchandiseImplement implements MerchandiseService
     {
         $template = MerchandiseEmailTemplate::where('key', 'receipt')->firstOrFail();
         $data = $this->merchandiseEmailData($order, $template, [
+            'email_title' => 'Merchandise Payment Confirmation',
             'payment_date' => !empty($callbackData['paid_at'])
                 ? Carbon::parse($callbackData['paid_at'])->setTimezone('Asia/Jakarta')->format('d M Y H:i')
                 : optional($order->paid_at)->setTimezone('Asia/Jakarta')->format('d M Y H:i'),
@@ -2391,11 +2392,15 @@ class MerchandiseImplement implements MerchandiseService
 
         return [
             'subject' => $this->replaceMerchandiseEmailVariables($template->subject, $values),
-            'template' => 'email-template.merchandise',
-            'title' => $this->replaceMerchandiseEmailVariables($template->subject, $values),
+            'template' => $template->key === 'receipt'
+                ? 'email-template.merchandise-payment'
+                : 'email-template.merchandise',
+            'title' => $overrides['email_title']
+                ?? $this->replaceMerchandiseEmailVariables($template->subject, $values),
             'content' => $this->styleMerchandisePaymentButton(
                 $this->replaceMerchandiseEmailVariables($body, $values)
             ),
+            'parent_name' => e($order->parent_name),
         ];
     }
 
