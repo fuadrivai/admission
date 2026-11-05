@@ -56,7 +56,7 @@
                                     <input id="main-image" name="main_image" type="file" accept="image/jpeg,image/png,image/webp" {{ !$product || !$product->image_path ? 'required' : '' }}>
                                     <i class="bi bi-plus-lg"></i>
                                     @if ($product && $product->image_path)
-                                        <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($product->image_path) }}" alt="{{ $product->name }}">
+                                        <img src="/storage/{{ $product->image_path }}" alt="{{ $product->name }}">
                                     @endif
                                 </label>
                             </div>
@@ -67,7 +67,7 @@
                                     @foreach ($galleryImages as $image)
                                         <div class="text-center">
                                             <div class="variant-image-tile product-image-tile">
-                                                <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($image->image_path) }}" alt="Galeri {{ $product->name }}">
+                                                <img src="/storage/{{ $image->image_path }}" alt="Galeri {{ $product->name }}">
                                             </div>
                                             <div class="form-check d-inline-block mt-1">
                                                 <input class="form-check-input" type="checkbox" name="remove_images[]" value="{{ $image->id }}" id="remove-image-{{ $image->id }}">
@@ -132,7 +132,7 @@
                                     <input name="variants[{{ $index }}][image]" type="file" accept="image/jpeg,image/png,image/webp" {{ empty($variant['image_path']) ? 'required' : '' }}>
                                     <i class="bi bi-plus-lg"></i>
                                     @if (!empty($variant['image_path']))
-                                        <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($variant['image_path']) }}" alt="Gambar varian {{ $variant['name'] }}">
+                                        <img src="/storage/{{ $variant['image_path'] }}" alt="Gambar varian {{ $variant['name'] }}">
                                     @endif
                                 </label>
                             </div>
