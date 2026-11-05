@@ -43,7 +43,8 @@
         .btn-maroon { min-height:44px; border:1px solid var(--maroon); border-radius:8px; background:var(--maroon); color:#fff; font-size:.84rem; font-weight:700; }
         .btn-outline-maroon { min-height:44px; border:1px solid var(--maroon); border-radius:8px; background:#fff; color:var(--maroon); font-size:.84rem; font-weight:700; }
         .btn-maroon:disabled,.btn-outline-maroon:disabled { opacity:.55; }
-        .store-footer { padding:18px 16px calc(18px + env(safe-area-inset-bottom)); border-top:1px solid var(--line); background:#fff; color:#91878a; font-size:.73rem; text-align:center; }
+        body { min-height:100vh; min-height:100dvh; display:flex; flex-direction:column; }
+        .store-footer { margin-top:auto; padding:18px 16px calc(18px + env(safe-area-inset-bottom)); border-top:1px solid var(--line); background:#fff; color:#91878a; font-size:.73rem; text-align:center; }
         @media(max-width:700px) {
             .store-topbar-inner { width:calc(100% - 24px); min-height:57px; }
             .store-logo-wrap { width:76px; height:40px; padding:3px 5px; border-radius:7px; }
@@ -114,7 +115,7 @@
                                     data-preorder="{{ $variant->is_preorder ? '1' : '0' }}"
                                     data-expected="{{ $variant->preorder_expected_at ? $variant->preorder_expected_at->format('d M Y') : '' }}"
                                     data-image="{{ $variant->image_path ? '/storage/' . $variant->image_path : '' }}">
-                                    {{ $variant->color ? $variant->color . ' / ' : '' }}{{ $variant->name }}{{ $variant->is_preorder ? ' · Pre-order' : '' }} — Rp{{ number_format($variant->price, 0, ',', '.') }}
+                                    {{ $variant->color ? $variant->color . ' / ' : '' }}{{ $variant->name }}{{ $variant->is_preorder ? ' Â· Pre-order' : '' }} â€” Rp{{ number_format($variant->price, 0, ',', '.') }}
                                 </option>
                             @endforeach
                         </select>
@@ -134,7 +135,7 @@
             </div>
         </section>
     </main>
-    <footer class="store-footer">&copy; {{ date('Y') }} {{ $settings->store_name }} · Mutiara Harapan Islamic School</footer>
+    <footer class="store-footer">&copy; {{ date('Y') }} {{ $settings->store_name }} Â· Mutiara Harapan Islamic School</footer>
 
     @if ($variants->isNotEmpty())
         <script>
@@ -153,7 +154,7 @@
                     if (isPreorder) {
                         quantity.removeAttribute('max');
                         stockLabel.textContent = 'Pre-order' + (option.getAttribute('data-expected')
-                            ? ' · Expected availability ' + option.getAttribute('data-expected')
+                            ? ' Â· Expected availability ' + option.getAttribute('data-expected')
                             : '');
                     } else {
                         quantity.max = stock;

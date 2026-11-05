@@ -194,7 +194,8 @@
         .store-closed-icon { color: var(--store-maroon); font-size: 2rem; }
         .store-closed h2 { margin: 8px 0; font-size: 1.2rem; font-weight: 750; }
         .store-closed p { margin: 0; color: var(--store-muted); font-size: .9rem; }
-        .store-footer { padding: 18px 16px calc(18px + env(safe-area-inset-bottom)); border-top: 1px solid var(--store-line); background: #fff; color: #91878a; font-size: .73rem; text-align: center; }
+        body { min-height:100vh; min-height:100dvh; display:flex; flex-direction:column; }
+        .store-footer { margin-top:auto; padding: 18px 16px calc(18px + env(safe-area-inset-bottom)); border-top: 1px solid var(--store-line); background: #fff; color: #91878a; font-size: .73rem; text-align: center; }
         .store-pagination { display: flex; justify-content: center; margin-top: 24px; }
         .store-pagination nav { width: 100%; }
         .store-pagination .pagination { justify-content: center; margin-bottom: 0; }
@@ -338,7 +339,7 @@
     </main>
 
     <footer class="store-footer">
-        &copy; {{ date('Y') }} {{ $settings->store_name }} · Mutiara Harapan Islamic School
+        &copy; {{ date('Y') }} {{ $settings->store_name }} Â· Mutiara Harapan Islamic School
     </footer>
 
     @if ($settings->is_open)

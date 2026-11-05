@@ -40,7 +40,8 @@
         .summary-row > :last-child { text-align:right; white-space:nowrap; }
         .checkout-total { display:flex; justify-content:space-between; gap:10px; padding-top:13px; margin-top:8px; border-top:1px solid var(--line); font-size:.95rem; font-weight:780; }
         .checkout-submit { width:100%; min-height:45px; margin-top:13px; border:1px solid var(--maroon); border-radius:8px; background:var(--maroon); color:#fff; font-size:.88rem; font-weight:730; }
-        .store-footer { padding:18px 16px calc(18px + env(safe-area-inset-bottom)); border-top:1px solid var(--line); background:#fff; color:#91878a; font-size:.73rem; text-align:center; }
+        body { min-height:100vh; min-height:100dvh; display:flex; flex-direction:column; }
+        .store-footer { margin-top:auto; padding:18px 16px calc(18px + env(safe-area-inset-bottom)); border-top:1px solid var(--line); background:#fff; color:#91878a; font-size:.73rem; text-align:center; }
         @media(max-width:700px) {
             .store-topbar-inner { width:calc(100% - 24px); min-height:57px; }
             .store-logo-wrap { width:76px; height:40px; padding:3px 5px; border-radius:7px; }
@@ -97,7 +98,7 @@
                     <div class="text-success small mt-2">
                         Selected promotion:
                         <strong>{{ $promotionQuote['promotion']->name }}</strong>
-                        @if ($promotionQuote['promotion']->code) · {{ $promotionQuote['promotion']->code }} @endif
+                        @if ($promotionQuote['promotion']->code) Â· {{ $promotionQuote['promotion']->code }} @endif
                     </div>
                 @endif
             </section>
@@ -112,8 +113,8 @@
                                 @php($optionPromotion = $option['promotion'])
                                 <option value="{{ $optionPromotion->id }}" {{ (int) $selectedPromotionId === (int) $optionPromotion->id ? 'selected' : '' }}>
                                     {{ $optionPromotion->name }}
-                                    @if ($optionPromotion->code) · {{ $optionPromotion->code }} @endif
-                                    · {{ $option['discount_amount'] > 0 ? 'Save Rp' . number_format($option['discount_amount'], 0, ',', '.') : 'Free gift' }}
+                                    @if ($optionPromotion->code) Â· {{ $optionPromotion->code }} @endif
+                                    Â· {{ $option['discount_amount'] > 0 ? 'Save Rp' . number_format($option['discount_amount'], 0, ',', '.') : 'Free gift' }}
                                 </option>
                             @endforeach
                         </select>
@@ -130,7 +131,7 @@
                         <select name="gift_variant_id" class="form-select" aria-label="Choose a promotional gift" onchange="this.form.submit()">
                             @foreach ($promotionQuote['gift_options'] as $giftOption)
                                 <option value="{{ $giftOption['variant_id'] }}" {{ (string) ($promotionQuote['selected_gift_variant_id'] ?? '') === (string) $giftOption['variant_id'] ? 'selected' : '' }}>
-                                    {{ $giftOption['name'] }} · up to {{ $giftOption['quantity'] }} {{ \Illuminate\Support\Str::plural('item', $giftOption['quantity']) }}
+                                    {{ $giftOption['name'] }} Â· up to {{ $giftOption['quantity'] }} {{ \Illuminate\Support\Str::plural('item', $giftOption['quantity']) }}
                                 </option>
                             @endforeach
                         </select>
@@ -181,9 +182,9 @@
                                 <div>
                                     <div class="checkout-item-name">{{ $item->variant->product->name }}</div>
                                     <div class="checkout-item-detail">
-                                        {{ $item->variant->color ? $item->variant->color . ' / ' : '' }}{{ $item->variant->name }} · {{ $item->quantity }} {{ \Illuminate\Support\Str::plural('item', $item->quantity) }}
+                                        {{ $item->variant->color ? $item->variant->color . ' / ' : '' }}{{ $item->variant->name }} Â· {{ $item->quantity }} {{ \Illuminate\Support\Str::plural('item', $item->quantity) }}
                                         @if ($item->variant->is_preorder)
-                                            <br>Pre-order · Expected {{ $item->variant->preorder_expected_at ? $item->variant->preorder_expected_at->format('d M Y') : 'to be confirmed' }}
+                                            <br>Pre-order Â· Expected {{ $item->variant->preorder_expected_at ? $item->variant->preorder_expected_at->format('d M Y') : 'to be confirmed' }}
                                         @endif
                                     </div>
                                     @unless ($item->is_available)<div class="text-danger small">Insufficient stock</div>@endunless
@@ -196,7 +197,7 @@
                                 <div class="d-flex align-items-center justify-content-center rounded bg-light text-success"><i class="bi bi-gift"></i></div>
                                 <div>
                                     <div class="checkout-item-name">{{ $giftItem['name'] }}</div>
-                                    <div class="checkout-item-detail">Promotional gift · {{ $giftItem['quantity'] }} {{ \Illuminate\Support\Str::plural('item', $giftItem['quantity']) }}</div>
+                                    <div class="checkout-item-detail">Promotional gift Â· {{ $giftItem['quantity'] }} {{ \Illuminate\Support\Str::plural('item', $giftItem['quantity']) }}</div>
                                 </div>
                                 <div class="checkout-item-total">Free</div>
                             </div>
@@ -227,6 +228,6 @@
             </form>
         @endif
     </main>
-    <footer class="store-footer">&copy; {{ date('Y') }} {{ $settings->store_name }} · Mutiara Harapan Islamic School</footer>
+    <footer class="store-footer">&copy; {{ date('Y') }} {{ $settings->store_name }} Â· Mutiara Harapan Islamic School</footer>
 </body>
 </html>

@@ -44,7 +44,8 @@
         .btn-maroon { width:100%; min-height:44px; margin-top:10px; border:1px solid var(--maroon); border-radius:8px; background:var(--maroon); color:#fff; font-size:.88rem; font-weight:720; }
         .store-empty { padding:42px 18px; border:1px dashed #e2d5d9; border-radius:13px; background:#fff; color:var(--muted); text-align:center; }
         .store-empty i { display:block; margin-bottom:9px; color:#c4aeb5; font-size:2rem; }
-        .store-footer { padding:18px 16px calc(18px + env(safe-area-inset-bottom)); border-top:1px solid var(--line); background:#fff; color:#91878a; font-size:.73rem; text-align:center; }
+        body { min-height:100vh; min-height:100dvh; display:flex; flex-direction:column; }
+        .store-footer { margin-top:auto; padding:18px 16px calc(18px + env(safe-area-inset-bottom)); border-top:1px solid var(--line); background:#fff; color:#91878a; font-size:.73rem; text-align:center; }
         @media(max-width:700px) {
             .store-topbar-inner { width:calc(100% - 24px); min-height:57px; }
             .store-logo-wrap { width:76px; height:40px; padding:3px 5px; border-radius:7px; }
@@ -100,7 +101,7 @@
                                 <div class="cart-item-price">Rp{{ number_format($item->variant->price, 0, ',', '.') }} / item</div>
                                 @if ($item->variant->is_preorder)
                                     <div class="cart-item-stock text-warning-emphasis">
-                                        Pre-order · Expected availability {{ $item->variant->preorder_expected_at ? $item->variant->preorder_expected_at->format('d M Y') : 'to be confirmed' }}
+                                        Pre-order Â· Expected availability {{ $item->variant->preorder_expected_at ? $item->variant->preorder_expected_at->format('d M Y') : 'to be confirmed' }}
                                     </div>
                                 @else
                                     <div class="cart-item-stock">Available stock: {{ number_format($item->variant->available_stock) }}</div>
@@ -150,6 +151,6 @@
             </div>
         @endif
     </main>
-    <footer class="store-footer">&copy; {{ date('Y') }} {{ $settings->store_name }} · Mutiara Harapan Islamic School</footer>
+    <footer class="store-footer">&copy; {{ date('Y') }} {{ $settings->store_name }} Â· Mutiara Harapan Islamic School</footer>
 </body>
 </html>
