@@ -98,7 +98,13 @@
                                 <h2 class="cart-item-name">{{ $item->variant->product->name }}</h2>
                                 <div class="cart-item-variant">{{ $item->variant->color ? $item->variant->color . ' / ' : '' }}{{ $item->variant->name }}</div>
                                 <div class="cart-item-price">Rp{{ number_format($item->variant->price, 0, ',', '.') }} / item</div>
-                                <div class="cart-item-stock">Available stock: {{ number_format($item->variant->available_stock) }}</div>
+                                @if ($item->variant->is_preorder)
+                                    <div class="cart-item-stock text-warning-emphasis">
+                                        Pre-order · Expected availability {{ $item->variant->preorder_expected_at ? $item->variant->preorder_expected_at->format('d M Y') : 'to be confirmed' }}
+                                    </div>
+                                @else
+                                    <div class="cart-item-stock">Available stock: {{ number_format($item->variant->available_stock) }}</div>
+                                @endif
                                 @unless ($item->is_available)
                                     <div class="text-danger small mt-1">Quantity exceeds available stock. Adjust it to continue.</div>
                                 @endunless
@@ -109,7 +115,7 @@
                                     @method('PUT')
                                     <input type="hidden" name="items[0][id]" value="{{ $item->id }}">
                                     <input type="hidden" name="items[0][is_selected]" value="{{ $item->is_selected ? 1 : 0 }}">
-                                    <input type="number" name="items[0][quantity]" value="{{ $item->quantity }}" min="1" max="{{ max(1, $item->variant->available_stock) }}" aria-label="Quantity of {{ $item->variant->product->name }}" onchange="this.form.submit()">
+                                    <input type="number" name="items[0][quantity]" value="{{ $item->quantity }}" min="1" {{ $item->variant->is_preorder ? '' : 'max=' . max(1, $item->variant->available_stock) }} aria-label="Quantity of {{ $item->variant->product->name }}" onchange="this.form.submit()">
                                 </form>
                                 <form method="POST" action="{{ route('merchandise.public-cart.remove', ['itemId' => $item->id]) }}" class="mt-2 text-end">
                                     @csrf
@@ -121,6 +127,8 @@
                     @endforeach
                 </section>
                 <aside class="cart-summary">
+                    @php($hasSelectedPreorder = $items->contains(function ($item) { return $item->is_selected && $item->variant->is_preorder; }))
+                    @php($hasSelectedReadyStock = $items->contains(function ($item) { return $item->is_selected && !$item->variant->is_preorder; }))
                     <h2>Order Summary</h2>
                     <div class="summary-row"><span>Items</span><strong>{{ $totalItems }} {{ \Illuminate\Support\Str::plural('item', $totalItems) }}</strong></div>
                     <div class="summary-row"><span>Subtotal</span><strong>Rp{{ number_format($subtotal, 0, ',', '.') }}</strong></div>
@@ -131,6 +139,9 @@
                         <button class="btn-maroon" type="button" disabled>Select Items First</button>
                     @elseif ($items->contains(function ($item) { return $item->is_selected && !$item->is_available; }))
                         <button class="btn-maroon" type="button" disabled>Adjust Stock First</button>
+                    @elseif ($hasSelectedPreorder && $hasSelectedReadyStock)
+                        <div class="alert alert-warning small">Pre-order items must be checked out separately from ready-stock items. Change your selections to continue.</div>
+                        <button class="btn-maroon" type="button" disabled>Separate Your Items</button>
                     @else
                         <a class="btn-maroon d-flex justify-content-center align-items-center text-decoration-none" href="{{ route('merchandise.public-checkout') }}">Proceed to Checkout</a>
                     @endif

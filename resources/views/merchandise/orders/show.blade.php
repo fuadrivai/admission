@@ -20,7 +20,20 @@
         <span class="badge fs-6 {{ $statusInfo[1] }}">{{ $statusInfo[0] }}</span>
     </div>
 
-    @if ($order->stock_is_held)
+    @if ($order->order_type === 'PREORDER' && $order->display_payment_status === 'PENDING')
+        <div class="alert alert-warning">
+            Pre-order invoice is pending payment. Expected availability: {{ $order->preorder_expected_at ? $order->preorder_expected_at->format('d M Y') : 'to be confirmed' }}.
+            No physical stock is reserved before payment.
+        </div>
+    @elseif ($order->order_type === 'PREORDER' && $order->display_payment_status === 'PAID')
+        <div class="alert {{ $order->fulfillment_status === 'FULFILLED' ? 'alert-success' : 'alert-info' }}">
+            <i class="bi bi-box-seam"></i>
+            Pre-order · Expected availability {{ $order->preorder_expected_at ? $order->preorder_expected_at->format('d M Y') : 'to be confirmed' }}.
+            Fulfillment status: {{ str_replace('_', ' ', ucfirst(strtolower($order->fulfillment_status))) }}.
+            @if ($order->fulfilled_at) Fulfilled {{ $order->fulfilled_at->format('d M Y H:i') }}; stock was recorded out then.
+            @else Stock will be recorded out when the order is fulfilled. @endif
+        </div>
+    @elseif ($order->stock_is_held)
         <div class="alert alert-warning"><i class="bi bi-hourglass-split"></i> Stok sedang dicadangkan sampai {{ $order->expires_at ? $order->expires_at->format('d M Y H:i') : 'invoice kedaluwarsa' }}.</div>
     @elseif ($order->display_payment_status === 'PAID')
         <div class="alert alert-success"><i class="bi bi-check-circle"></i> Pembayaran berhasil{{ $order->paid_at ? ' pada ' . $order->paid_at->format('d M Y H:i') : '' }}. Stok telah dicatat keluar.</div>
@@ -42,6 +55,9 @@
                                         <td>
                                             <div class="fw-semibold">{{ $item->product_name }}</div>
                                             <div class="small text-muted">{{ $item->variant_name }}{{ $item->sku ? ' · ' . $item->sku : '' }}</div>
+                                            @if ($item->is_preorder)
+                                                <span class="badge bg-warning text-dark">Pre-order · {{ $item->preorder_expected_at ? $item->preorder_expected_at->format('d M Y') : 'ETA not set' }}</span>
+                                            @endif
                                         </td>
                                         <td class="text-end text-nowrap">{{ $item->unit_price > 0 ? 'Rp' . number_format($item->unit_price, 0, ',', '.') : 'Gratis' }}</td>
                                         <td class="text-end">{{ number_format($item->quantity) }}</td>

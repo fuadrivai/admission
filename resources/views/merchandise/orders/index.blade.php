@@ -81,6 +81,9 @@
                                 <td class="text-nowrap">
                                     <a class="fw-semibold" href="{{ route('merchandise.orders.show', $order->id) }}">{{ $order->code }}</a>
                                     <div class="small text-muted">{{ $order->created_at->format('d M Y H:i') }}</div>
+                                    @if ($order->order_type === 'PREORDER')
+                                        <span class="badge bg-warning text-dark">Pre-order</span>
+                                    @endif
                                 </td>
                                 <td>
                                     <div class="fw-semibold">{{ $order->parent_name }}</div>
@@ -94,7 +97,20 @@
                                     @endif
                                 </td>
                                 <td>
-                                    @if ($order->stock_is_held)
+                                    @if ($order->order_type === 'PREORDER')
+                                        @php
+                                            $fulfillmentLabels = [
+                                                'AWAITING_PAYMENT' => ['Awaiting payment', 'bg-secondary'],
+                                                'WAITING_FOR_STOCK' => ['Waiting for stock', 'bg-warning text-dark'],
+                                                'PARTIALLY_AVAILABLE' => ['Partially allocated', 'bg-info text-dark'],
+                                                'READY_FOR_FULFILLMENT' => ['Ready to fulfill', 'bg-primary'],
+                                                'FULFILLED' => ['Fulfilled', 'bg-success'],
+                                                'CANCELLED' => ['Cancelled', 'bg-secondary'],
+                                            ];
+                                            [$fulfillmentLabel, $fulfillmentClass] = $fulfillmentLabels[$order->fulfillment_status] ?? [$order->fulfillment_status, 'bg-secondary'];
+                                        @endphp
+                                        <span class="badge {{ $fulfillmentClass }}">{{ $fulfillmentLabel }}</span>
+                                    @elseif ($order->stock_is_held)
                                         <span class="badge bg-warning text-dark">Dicadangkan</span>
                                     @elseif ($order->display_payment_status === 'PAID')
                                         <span class="badge bg-success">Keluar</span>

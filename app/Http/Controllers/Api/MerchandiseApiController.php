@@ -219,6 +219,10 @@ class MerchandiseApiController extends Controller
                     return $this->cartItemData($item);
                 })->values(),
                 'items_count' => $data['totalItems'],
+                'order_type' => $data['order_type'],
+                'preorder_expected_at' => $data['preorder_expected_at']
+                    ? $data['preorder_expected_at']->toDateString()
+                    : null,
                 'subtotal' => $data['subtotal'],
                 'admin_fee' => $data['bank_charger'],
                 'total' => max(0, $data['subtotal'] - min(
@@ -269,6 +273,11 @@ class MerchandiseApiController extends Controller
             'data' => [
                 'order_reference' => $order->external_id,
                 'payment_status' => $order->payment_status,
+                'order_type' => $order->order_type,
+                'fulfillment_status' => $order->fulfillment_status,
+                'preorder_expected_at' => $order->preorder_expected_at
+                    ? $order->preorder_expected_at->toDateString()
+                    : null,
                 'amount' => $order->total_amount,
                 'expires_at' => $order->expires_at ? $order->expires_at->toIso8601String() : null,
                 'payment_url' => $order->payment_url,
@@ -300,6 +309,10 @@ class MerchandiseApiController extends Controller
                     'sku' => $variant->sku,
                     'price' => (float) $variant->price,
                     'available_stock' => (int) ($variant->available_stock ?? 0),
+                    'is_preorder' => (bool) $variant->is_preorder,
+                    'preorder_expected_at' => $variant->preorder_expected_at
+                        ? $variant->preorder_expected_at->toDateString()
+                        : null,
                     'image_url' => $this->imageUrl($variant->image_path),
                 ];
             })->values(),
@@ -353,6 +366,10 @@ class MerchandiseApiController extends Controller
             'is_selected' => (bool) $item->is_selected,
             'is_available' => (bool) $item->is_available,
             'available_stock' => (int) $variant->available_stock,
+            'is_preorder' => (bool) $variant->is_preorder,
+            'preorder_expected_at' => $variant->preorder_expected_at
+                ? $variant->preorder_expected_at->toDateString()
+                : null,
             'unit_price' => (float) $variant->price,
             'line_total' => (float) $item->line_total,
         ];

@@ -17,7 +17,7 @@
                         <thead>
                             <tr>
                                 <th>Produk</th><th>Kategori</th><th>Varian</th><th>SKU</th>
-                                <th>Status</th><th class="text-end">Stok tersedia</th>
+                                <th>Status</th><th class="text-end">Stok fisik</th><th class="text-end">Dialokasikan ke pre-order</th><th class="text-end">Tersedia untuk dijual</th>
                                 @if ($canViewCost)<th class="text-end">Nilai modal masuk</th>@endif
                             </tr>
                         </thead>
@@ -33,7 +33,9 @@
                                             {{ $variant->is_active && $variant->product->is_active && $variant->product->category->is_active ? 'Aktif' : 'Nonaktif' }}
                                         </span>
                                     </td>
-                                    <td class="text-end fw-semibold">{{ number_format($variant->current_stock) }} pcs</td>
+                                    <td class="text-end">{{ number_format($variant->physical_stock) }} pcs</td>
+                                    <td class="text-end">{{ number_format($variant->allocated_preorder_stock) }} pcs</td>
+                                    <td class="text-end fw-semibold">{{ number_format(max(0, $variant->available_for_sale)) }} pcs</td>
                                     @if ($canViewCost)
                                         <td class="text-end">Rp{{ number_format($variant->total_cost, 0, ',', '.') }}</td>
                                     @endif

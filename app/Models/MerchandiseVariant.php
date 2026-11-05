@@ -15,6 +15,8 @@ class MerchandiseVariant extends Model
         'low_stock_threshold' => 'integer',
         'online_stock_limit' => 'integer',
         'is_active' => 'boolean',
+        'is_preorder' => 'boolean',
+        'preorder_expected_at' => 'date',
     ];
 
     public function product(): BelongsTo

@@ -9,7 +9,7 @@
     @endif
 
     <div class="alert alert-light-primary">
-        Atur produk yang tampil di toko, periode penjualan, urutan, dan batas jumlah yang ditawarkan per varian.
+        Atur produk yang tampil di toko, periode penjualan, urutan, dan batas jumlah ready-stock yang ditawarkan per varian.
         Stok publik tidak pernah melebihi saldo Stock In. Kosongkan batas stok online untuk menggunakan seluruh stok fisik.
         Pemesanan dan pengurangan stok oleh transaksi online akan diaktifkan pada tahap Orders.
         Pastikan kategori produk aktif dan ditampilkan di toko.
@@ -60,11 +60,14 @@
                                             <td>
                                                 {{ $variant->color ? $variant->color . ' / ' : '' }}{{ $variant->name }}
                                                 @if (!$variant->is_active)<span class="badge bg-secondary">Nonaktif</span>@endif
+                                                @if ($variant->is_preorder)
+                                                    <span class="badge bg-warning text-dark">Pre-order · {{ $variant->preorder_expected_at ? $variant->preorder_expected_at->format('d M Y') : 'ETA not set' }}</span>
+                                                @endif
                                                 <input type="hidden" name="variants[{{ $loop->index }}][id]" value="{{ $variant->id }}">
                                             </td>
                                             <td>Rp{{ number_format($variant->price, 0, ',', '.') }}</td>
                                             <td style="max-width:250px">
-                                                <input type="number" min="0" max="4294967295" step="1" name="variants[{{ $loop->index }}][online_stock_limit]" class="form-control form-control-sm" value="{{ $variant->online_stock_limit }}" placeholder="Gunakan seluruh stok fisik">
+                                                <input type="number" min="0" max="4294967295" step="1" name="variants[{{ $loop->index }}][online_stock_limit]" class="form-control form-control-sm" value="{{ $variant->online_stock_limit }}" placeholder="Gunakan seluruh stok fisik" {{ $variant->is_preorder ? 'readonly' : '' }}>
                                             </td>
                                         </tr>
                                     @endforeach

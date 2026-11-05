@@ -93,6 +93,8 @@ class MerchandiseApiFeatureTest extends TestCase
         $response
             ->assertOk()
             ->assertJsonPath('openapi', '3.0.3')
+            ->assertJsonPath('components.schemas.Variant.properties.is_preorder.type', 'boolean')
+            ->assertJsonPath('components.schemas.Variant.properties.preorder_expected_at.format', 'date')
             ->assertJsonStructure([
                 'paths' => [
                     '/categories',

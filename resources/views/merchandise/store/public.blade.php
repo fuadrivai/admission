@@ -304,6 +304,9 @@
                         </div>
                         <div class="store-product-body">
                             <h2 class="store-product-name">{{ $product->name }}</h2>
+                            @if ($product->variants->contains('is_preorder', true))
+                                <span class="badge bg-warning text-dark">Pre-order available</span>
+                            @endif
                             @php
                                 $prices = $product->variants->pluck('price');
                                 $minimumPrice = $prices->min();

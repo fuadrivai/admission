@@ -18,6 +18,8 @@ class MerchandiseOrder extends Model
         'total_amount' => 'float',
         'expires_at' => 'datetime',
         'paid_at' => 'datetime',
+        'preorder_expected_at' => 'date',
+        'fulfilled_at' => 'datetime',
         'invoice_email_sent_at' => 'datetime',
         'receipt_email_sent_at' => 'datetime',
     ];
@@ -35,5 +37,10 @@ class MerchandiseOrder extends Model
     public function promotion(): BelongsTo
     {
         return $this->belongsTo(MerchandisePromotion::class, 'promotion_id');
+    }
+
+    public function fulfilledBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'fulfilled_by');
     }
 }

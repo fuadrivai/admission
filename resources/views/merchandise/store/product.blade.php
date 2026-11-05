@@ -111,8 +111,10 @@
                                 <option value="{{ $variant->id }}"
                                     data-price="{{ number_format($variant->price, 0, ',', '.') }}"
                                     data-stock="{{ $variant->available_stock }}"
+                                    data-preorder="{{ $variant->is_preorder ? '1' : '0' }}"
+                                    data-expected="{{ $variant->preorder_expected_at ? $variant->preorder_expected_at->format('d M Y') : '' }}"
                                     data-image="{{ $variant->image_path ? '/storage/' . $variant->image_path : '' }}">
-                                    {{ $variant->color ? $variant->color . ' / ' : '' }}{{ $variant->name }} — Rp{{ number_format($variant->price, 0, ',', '.') }}
+                                    {{ $variant->color ? $variant->color . ' / ' : '' }}{{ $variant->name }}{{ $variant->is_preorder ? ' · Pre-order' : '' }} — Rp{{ number_format($variant->price, 0, ',', '.') }}
                                 </option>
                             @endforeach
                         </select>
@@ -147,9 +149,17 @@
                     if (!selector) return;
                     var option = selector.options[selector.selectedIndex];
                     var stock = Number(option.getAttribute('data-stock'));
-                    quantity.max = stock;
-                    if (Number(quantity.value) > stock) quantity.value = stock;
-                    stockLabel.textContent = stock + ' available';
+                    var isPreorder = option.getAttribute('data-preorder') === '1';
+                    if (isPreorder) {
+                        quantity.removeAttribute('max');
+                        stockLabel.textContent = 'Pre-order' + (option.getAttribute('data-expected')
+                            ? ' · Expected availability ' + option.getAttribute('data-expected')
+                            : '');
+                    } else {
+                        quantity.max = stock;
+                        if (Number(quantity.value) > stock) quantity.value = stock;
+                        stockLabel.textContent = stock + ' available';
+                    }
                     priceLabel.textContent = 'Rp' + option.getAttribute('data-price');
                     var image = option.getAttribute('data-image');
                     if (image) {

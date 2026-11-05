@@ -10,6 +10,7 @@ use App\Models\EmailSetting;
 use App\Models\MerchandiseEmailTemplate;
 use App\Models\MerchandiseOrder;
 use App\Models\MerchandiseOrderItem;
+use App\Models\MerchandisePreorderAllocation;
 use App\Models\MerchandiseProduct;
 use App\Models\MerchandiseProductImage;
 use App\Models\MerchandisePromotion;
@@ -60,6 +61,7 @@ class MerchandiseImplement implements MerchandiseService
             ->select('variant_id')
             ->selectRaw('SUM(quantity) as sold_quantity')
             ->groupBy('variant_id');
+        $preorderAllocatedByVariant = $this->pendingPreorderAllocationsQuery();
 
         $lowStockVariants = MerchandiseVariant::query()
             ->with('product')
@@ -69,9 +71,14 @@ class MerchandiseImplement implements MerchandiseService
             ->leftJoinSub($stockOutByVariant, 'sold_totals', function ($join) {
                 $join->on('merchandise_variants.id', '=', 'sold_totals.variant_id');
             })
+            ->leftJoinSub($preorderAllocatedByVariant, 'preorder_allocated_totals', function ($join) {
+                $join->on('merchandise_variants.id', '=', 'preorder_allocated_totals.variant_id');
+            })
             ->select('merchandise_variants.*')
-            ->selectRaw('(COALESCE(stock_totals.current_stock, 0) - COALESCE(sold_totals.sold_quantity, 0)) as current_stock')
+            ->selectRaw('(COALESCE(stock_totals.current_stock, 0) - COALESCE(sold_totals.sold_quantity, 0) '
+                . '- COALESCE(preorder_allocated_totals.allocated_quantity, 0)) as current_stock')
             ->where('merchandise_variants.is_active', true)
+            ->where('merchandise_variants.is_preorder', false)
             ->whereHas('product', function ($query) {
                 $query->where('is_active', true)
                     ->whereHas('category', function ($categoryQuery) {
@@ -79,7 +86,8 @@ class MerchandiseImplement implements MerchandiseService
                     });
             })
             ->where('merchandise_variants.low_stock_threshold', '>', 0)
-            ->whereRaw('(COALESCE(stock_totals.current_stock, 0) - COALESCE(sold_totals.sold_quantity, 0)) <= merchandise_variants.low_stock_threshold')
+            ->whereRaw('(COALESCE(stock_totals.current_stock, 0) - COALESCE(sold_totals.sold_quantity, 0) '
+                . '- COALESCE(preorder_allocated_totals.allocated_quantity, 0)) <= merchandise_variants.low_stock_threshold')
             ->orderBy('current_stock')
             ->limit(10)
             ->get();
@@ -255,6 +263,11 @@ class MerchandiseImplement implements MerchandiseService
             ->select('variant_id')
             ->selectRaw('SUM(quantity) as sold_quantity, SUM(quantity * unit_cost) as sold_cost')
             ->groupBy('variant_id');
+        $physicalStockOutTotals = $this->physicalStockOutItemsQuery()
+            ->select('merchandise_stock_out_items.variant_id')
+            ->selectRaw('SUM(merchandise_stock_out_items.quantity) as physical_sold_quantity')
+            ->groupBy('merchandise_stock_out_items.variant_id');
+        $preorderAllocatedTotals = $this->pendingPreorderAllocationsQuery();
 
         return MerchandiseVariant::query()
             ->with('product.category')
@@ -264,8 +277,18 @@ class MerchandiseImplement implements MerchandiseService
             ->leftJoinSub($stockOutTotals, 'sold_totals', function ($join) {
                 $join->on('merchandise_variants.id', '=', 'sold_totals.variant_id');
             })
+            ->leftJoinSub($physicalStockOutTotals, 'physical_sold_totals', function ($join) {
+                $join->on('merchandise_variants.id', '=', 'physical_sold_totals.variant_id');
+            })
+            ->leftJoinSub($preorderAllocatedTotals, 'preorder_allocated_totals', function ($join) {
+                $join->on('merchandise_variants.id', '=', 'preorder_allocated_totals.variant_id');
+            })
             ->select('merchandise_variants.*')
+            ->selectRaw('(COALESCE(stock_totals.current_stock, 0) - COALESCE(physical_sold_totals.physical_sold_quantity, 0)) as physical_stock')
+            ->selectRaw('COALESCE(preorder_allocated_totals.allocated_quantity, 0) as allocated_preorder_stock')
             ->selectRaw('(COALESCE(stock_totals.current_stock, 0) - COALESCE(sold_totals.sold_quantity, 0)) as current_stock')
+            ->selectRaw('(COALESCE(stock_totals.current_stock, 0) - COALESCE(sold_totals.sold_quantity, 0) '
+                . '- COALESCE(preorder_allocated_totals.allocated_quantity, 0)) as available_for_sale')
             ->selectRaw('(COALESCE(stock_totals.total_cost, 0) - COALESCE(sold_totals.sold_cost, 0)) as total_cost')
             ->orderBy('product_id')
             ->orderBy('color')
@@ -517,6 +540,7 @@ class MerchandiseImplement implements MerchandiseService
             'held_items' => DB::table('merchandise_order_items')
                 ->join('merchandise_orders', 'merchandise_orders.id', '=', 'merchandise_order_items.order_id')
                 ->where('merchandise_orders.payment_status', 'PENDING')
+                ->where('merchandise_orders.order_type', '!=', 'PREORDER')
                 ->where('merchandise_orders.expires_at', '>', now())
                 ->sum('merchandise_order_items.quantity'),
         ];
@@ -538,6 +562,95 @@ class MerchandiseImplement implements MerchandiseService
         $order->setAttribute('stock_is_held', $this->isOrderStockHeld($order));
 
         return $order;
+    }
+
+    public function getPreorders()
+    {
+        $orders = MerchandiseOrder::with([
+            'items.preorderAllocations.stockInItem.stockIn',
+            'fulfilledBy',
+        ])
+            ->where('order_type', 'PREORDER')
+            ->where('payment_status', 'PAID')
+            ->orderByRaw("CASE fulfillment_status
+                WHEN 'READY_FOR_FULFILLMENT' THEN 0
+                WHEN 'PARTIALLY_AVAILABLE' THEN 1
+                WHEN 'WAITING_FOR_STOCK' THEN 2
+                ELSE 3 END")
+            ->orderBy('paid_at')
+            ->orderBy('id')
+            ->paginate(25);
+
+        foreach ($orders as $order) {
+            foreach ($order->items as $item) {
+                $item->setAttribute(
+                    'allocated_quantity',
+                    (int) $item->preorderAllocations->sum('quantity')
+                );
+            }
+        }
+
+        return [
+            'orders' => $orders,
+            'stats' => [
+                'waiting' => MerchandiseOrder::where('order_type', 'PREORDER')
+                    ->where('payment_status', 'PAID')
+                    ->where('fulfillment_status', 'WAITING_FOR_STOCK')
+                    ->count(),
+                'partial' => MerchandiseOrder::where('order_type', 'PREORDER')
+                    ->where('payment_status', 'PAID')
+                    ->where('fulfillment_status', 'PARTIALLY_AVAILABLE')
+                    ->count(),
+                'ready' => MerchandiseOrder::where('order_type', 'PREORDER')
+                    ->where('payment_status', 'PAID')
+                    ->where('fulfillment_status', 'READY_FOR_FULFILLMENT')
+                    ->count(),
+                'fulfilled' => MerchandiseOrder::where('order_type', 'PREORDER')
+                    ->where('payment_status', 'PAID')
+                    ->where('fulfillment_status', 'FULFILLED')
+                    ->count(),
+            ],
+        ];
+    }
+
+    public function fulfillPreorder($orderId, $userId)
+    {
+        return DB::transaction(function () use ($orderId, $userId) {
+            $order = MerchandiseOrder::with('items')
+                ->lockForUpdate()
+                ->findOrFail($orderId);
+
+            if ($order->order_type !== 'PREORDER' || $order->payment_status !== 'PAID') {
+                throw ValidationException::withMessages([
+                    'order' => 'Only paid pre-orders can be fulfilled.',
+                ]);
+            }
+            if ($order->fulfillment_status === 'FULFILLED') {
+                return $order;
+            }
+
+            foreach ($order->items as $item) {
+                $allocated = (int) MerchandisePreorderAllocation::where('order_item_id', $item->id)
+                    ->sum('quantity');
+                if ($allocated < (int) $item->quantity) {
+                    throw ValidationException::withMessages([
+                        'order' => 'All items must be allocated from Stock In before this order can be fulfilled.',
+                    ]);
+                }
+            }
+
+            if (!MerchandiseStockOut::where('order_id', $order->id)->exists()) {
+                $this->createOrderStockOut($order, $order->items, now());
+            }
+
+            $order->update([
+                'fulfillment_status' => 'FULFILLED',
+                'fulfilled_at' => now(),
+                'fulfilled_by' => $userId,
+            ]);
+
+            return $order->fresh(['items', 'fulfilledBy']);
+        });
     }
 
     private function orderStatusQuery(string $status)
@@ -585,7 +698,8 @@ class MerchandiseImplement implements MerchandiseService
 
     private function isOrderStockHeld(MerchandiseOrder $order): bool
     {
-        return $order->payment_status === 'PENDING'
+        return $order->order_type !== 'PREORDER'
+            && $order->payment_status === 'PENDING'
             && $order->expires_at
             && $order->expires_at->isFuture();
     }
@@ -787,7 +901,10 @@ class MerchandiseImplement implements MerchandiseService
                 && (!$product->sale_end_at || !$product->sale_end_at->isPast());
             $item->variant->setAttribute('available_stock', $available);
             $item->setAttribute('line_total', (float) $item->variant->price * $item->quantity);
-            $item->setAttribute('is_available', $isPublic && $item->quantity <= $available);
+            $item->setAttribute(
+                'is_available',
+                $isPublic && ($item->variant->is_preorder || $item->quantity <= $available)
+            );
             $cartCount += $item->quantity;
             if ($item->is_selected) {
                 $subtotal += $item->line_total;
@@ -820,23 +937,46 @@ class MerchandiseImplement implements MerchandiseService
                 'cart' => 'Select at least one item before proceeding to payment.',
             ]);
         }
+        $orderType = $this->cartOrderType($cartData['items']);
+        if ($orderType === 'PREORDER') {
+            $cartData['promotionOptions'] = [];
+            $cartData['promotionQuote'] = [
+                'promotion' => null,
+                'discount_amount' => 0,
+                'gift_items' => [],
+                'gift_options' => [],
+                'selected_gift_variant_id' => null,
+            ];
+            $cartData['selectedPromotionId'] = null;
+        } else {
+            $cartData['promotionOptions'] = $this->promotionOptions(
+                $cartData['items'],
+                $promotionCode
+            );
+            $cartData['promotionQuote'] = $this->promotionQuote(
+                $cartData['items'],
+                $promotionCode,
+                false,
+                $giftVariantId,
+                $promotionId
+            );
+            $cartData['selectedPromotionId'] = $cartData['promotionQuote']['promotion']
+                ? (int) $cartData['promotionQuote']['promotion']->id
+                : null;
+        }
         $cartData['branches'] = Branch::orderBy('name')->get()->filter(function ($branch) {
             return (bool) config('services.xendit.api_key_' . strtolower($branch->name));
         })->values();
-        $cartData['promotionOptions'] = $this->promotionOptions(
-            $cartData['items'],
-            $promotionCode
-        );
-        $cartData['promotionQuote'] = $this->promotionQuote(
-            $cartData['items'],
-            $promotionCode,
-            false,
-            $giftVariantId,
-            $promotionId
-        );
-        $cartData['selectedPromotionId'] = $cartData['promotionQuote']['promotion']
-            ? (int) $cartData['promotionQuote']['promotion']->id
-            : null;
+        $cartData['order_type'] = $orderType;
+        $cartData['preorder_expected_at'] = $cartData['items']
+            ->filter(function ($item) {
+                return $item->variant->preorder_expected_at !== null;
+            })
+            ->map(function ($item) {
+                return $item->variant->preorder_expected_at;
+            })
+            ->sort()
+            ->last();
 
         return $cartData;
     }
@@ -845,6 +985,11 @@ class MerchandiseImplement implements MerchandiseService
     {
         $cartData = $this->getCart($cartKey);
         $selectedItems = $cartData['items']->where('is_selected', true)->values();
+        if ($this->cartOrderType($selectedItems) === 'PREORDER') {
+            throw ValidationException::withMessages([
+                'promotion_code' => 'Promotions are not available for pre-orders.',
+            ]);
+        }
         $voucher = MerchandisePromotion::with([
             'applicableVariants',
             'giftOptions.variant.product',
@@ -867,6 +1012,11 @@ class MerchandiseImplement implements MerchandiseService
     {
         $cartData = $this->getCart($cartKey);
         $selectedItems = $cartData['items']->where('is_selected', true)->values();
+        if ($this->cartOrderType($selectedItems) === 'PREORDER') {
+            throw ValidationException::withMessages([
+                'promotion_id' => 'Promotions are not available for pre-orders.',
+            ]);
+        }
         $quote = $this->promotionQuote($selectedItems, $code, true, $giftVariantId);
         if (empty($quote['gift_items'])) {
             throw ValidationException::withMessages([
@@ -881,6 +1031,11 @@ class MerchandiseImplement implements MerchandiseService
     {
         $cartData = $this->getCart($cartKey);
         $selectedItems = $cartData['items']->where('is_selected', true)->values();
+        if ($this->cartOrderType($selectedItems) === 'PREORDER') {
+            throw ValidationException::withMessages([
+                'promotion_id' => 'Promotions are not available for pre-orders.',
+            ]);
+        }
         return $this->promotionQuote($selectedItems, $code, true, $giftVariantId, $promotionId);
     }
 
@@ -895,7 +1050,8 @@ class MerchandiseImplement implements MerchandiseService
             $item = $cart->items()->where('variant_id', $variant->id)->lockForUpdate()->first();
             $newQuantity = (int) $quantity + ($item ? (int) $item->quantity : 0);
 
-            if ($newQuantity > $this->availableStockForVariant($variant->id, null, true)) {
+            if (!$variant->is_preorder
+                && $newQuantity > $this->availableStockForVariant($variant->id, null, true)) {
                 throw ValidationException::withMessages([
                     'quantity' => 'The selected quantity exceeds available stock.',
                 ]);
@@ -923,7 +1079,8 @@ class MerchandiseImplement implements MerchandiseService
                 $item = $cart->items()->whereKey($itemData['id'])->lockForUpdate()->firstOrFail();
                 $variant = MerchandiseVariant::lockForUpdate()->findOrFail($item->variant_id);
                 $isSelected = (bool) $itemData['is_selected'];
-                if ($isSelected && (int) $itemData['quantity'] > $this->availableStockForVariant($variant->id, null, true)) {
+                if ($isSelected && !$variant->is_preorder
+                    && (int) $itemData['quantity'] > $this->availableStockForVariant($variant->id, null, true)) {
                     throw ValidationException::withMessages([
                         'items' => 'The quantity for ' . $item->variant->product->name . ' exceeds available stock.',
                     ]);
@@ -975,6 +1132,7 @@ class MerchandiseImplement implements MerchandiseService
             $subtotal = 0;
             $totalItems = 0;
             $cartLines = collect();
+            $preorderFlags = [];
             foreach ($cartItems as $cartItem) {
                 $variant = $variants->get($cartItem->variant_id);
                 if (!$variant) {
@@ -983,7 +1141,9 @@ class MerchandiseImplement implements MerchandiseService
                     ]);
                 }
                 $this->assertVariantPublic($variant);
-                if ($cartItem->quantity > $this->availableStockForVariant($variant->id, null, true)) {
+                $preorderFlags[] = (bool) $variant->is_preorder;
+                if (!$variant->is_preorder
+                    && $cartItem->quantity > $this->availableStockForVariant($variant->id, null, true)) {
                     throw ValidationException::withMessages([
                         'cart' => 'There is not enough stock for ' . $variant->product->name . '. Update your cart before paying.',
                     ]);
@@ -995,22 +1155,44 @@ class MerchandiseImplement implements MerchandiseService
                 $variant->setAttribute('available_stock', $this->availableStockForVariant($variant->id, null, true));
                 $cartLines->push($cartItem);
             }
+            if (count(array_unique($preorderFlags)) > 1) {
+                throw ValidationException::withMessages([
+                    'cart' => 'Pre-order items must be checked out separately from ready-stock items.',
+                ]);
+            }
+            $orderType = !empty($preorderFlags) && $preorderFlags[0] ? 'PREORDER' : 'READY';
+            if ($orderType === 'PREORDER'
+                && (!empty($data['promotion_code'])
+                    || !empty($data['promotion_id'])
+                    || !empty($data['promotion_gift_variant_id']))) {
+                throw ValidationException::withMessages([
+                    'promotion_code' => 'Promotions are not available for pre-orders.',
+                ]);
+            }
             if ($subtotal <= 0) {
                 throw ValidationException::withMessages([
                     'cart' => 'The payment total must be greater than Rp0 to create an invoice.',
                 ]);
             }
 
-            $promotionQuote = $this->promotionQuote(
-                $cartLines,
-                $data['promotion_code'] ?? null,
-                !empty($data['promotion_id'])
-                    || !empty($data['promotion_gift_variant_id']),
-                !empty($data['promotion_gift_variant_id'])
-                    ? (int) $data['promotion_gift_variant_id']
-                    : null,
-                !empty($data['promotion_id']) ? (int) $data['promotion_id'] : null
-            );
+            $promotionQuote = $orderType === 'PREORDER'
+                ? [
+                    'promotion' => null,
+                    'discount_amount' => 0,
+                    'gift_items' => [],
+                    'gift_options' => [],
+                    'selected_gift_variant_id' => null,
+                ]
+                : $this->promotionQuote(
+                    $cartLines,
+                    $data['promotion_code'] ?? null,
+                    !empty($data['promotion_id'])
+                        || !empty($data['promotion_gift_variant_id']),
+                    !empty($data['promotion_gift_variant_id'])
+                        ? (int) $data['promotion_gift_variant_id']
+                        : null,
+                    !empty($data['promotion_id']) ? (int) $data['promotion_id'] : null
+                );
             $promotion = $promotionQuote['promotion'] ?? null;
             if ($promotion) {
                 $promotion = MerchandisePromotion::with([
@@ -1062,6 +1244,11 @@ class MerchandiseImplement implements MerchandiseService
                 'discount_amount' => round($discountAmount, 2),
                 'total_amount' => round(max(0, $subtotal - $discountAmount) + $bankCharger, 2),
                 'payment_status' => 'PENDING',
+                'order_type' => $orderType,
+                'fulfillment_status' => $orderType === 'PREORDER' ? 'AWAITING_PAYMENT' : 'READY',
+                'preorder_expected_at' => $orderType === 'PREORDER'
+                    ? $cartLines->pluck('variant.preorder_expected_at')->filter()->sort()->last()
+                    : null,
                 'expires_at' => now()->addDay(),
             ]);
 
@@ -1076,6 +1263,8 @@ class MerchandiseImplement implements MerchandiseService
                     'quantity' => $cartItem->quantity,
                     'unit_price' => $variant->price,
                     'subtotal' => round((float) $variant->price * $cartItem->quantity, 2),
+                    'is_preorder' => (bool) $variant->is_preorder,
+                    'preorder_expected_at' => $variant->is_preorder ? $variant->preorder_expected_at : null,
                 ]);
             }
             foreach ($giftItems as $giftItem) {
@@ -1093,7 +1282,9 @@ class MerchandiseImplement implements MerchandiseService
                 ]);
             }
 
-            $this->createOrderStockOut($order, $order->items);
+            if ($orderType !== 'PREORDER') {
+                $this->createOrderStockOut($order, $order->items);
+            }
 
             return $order;
         });
@@ -1173,9 +1364,20 @@ class MerchandiseImplement implements MerchandiseService
                 'paid_at' => $mappedStatus === 'PAID'
                     ? (!empty($callbackData['paid_at']) ? Carbon::parse($callbackData['paid_at']) : now())
                     : null,
+                'fulfillment_status' => $order->order_type === 'PREORDER'
+                    ? ($mappedStatus === 'PAID' ? 'WAITING_FOR_STOCK' : 'CANCELLED')
+                    : $order->fulfillment_status,
             ]);
 
-            if ($mappedStatus === 'PAID' && !MerchandiseStockOut::where('order_id', $order->id)->exists()) {
+            if ($mappedStatus === 'PAID' && $order->order_type === 'PREORDER') {
+                    foreach ($orderItems->pluck('variant_id')->unique() as $variantId) {
+                        $this->allocateExistingPreorderStockForVariant((int) $variantId, null);
+                    }
+            }
+
+            if ($mappedStatus === 'PAID'
+                && $order->order_type !== 'PREORDER'
+                && !MerchandiseStockOut::where('order_id', $order->id)->exists()) {
                 $this->createOrderStockOut($order, $orderItems, $order->paid_at ?: now());
             }
 
@@ -1253,12 +1455,13 @@ class MerchandiseImplement implements MerchandiseService
                     ]);
                 }
 
-                MerchandiseStockInItem::create([
+                $stockInItem = MerchandiseStockInItem::create([
                     'stock_in_id' => $stockIn->id,
                     'variant_id' => $variant->id,
                     'quantity' => $item['quantity'],
                     'unit_cost' => $item['unit_cost'],
                 ]);
+                $this->allocatePreorderStock($stockInItem, $userId);
             }
 
             return $stockIn->load('items.variant.product');
@@ -1736,6 +1939,10 @@ class MerchandiseImplement implements MerchandiseService
                 'price' => $variantData['price'] ?? ($variant ? $variant->price : 0),
                 'low_stock_threshold' => $variantData['low_stock_threshold'] ?? 0,
                 'is_active' => $variantData['is_active'] ?? false,
+                'is_preorder' => $variantData['is_preorder'] ?? false,
+                'preorder_expected_at' => !empty($variantData['is_preorder'])
+                    ? ($variantData['preorder_expected_at'] ?? null)
+                    : null,
             ];
 
             if ($variant) {
@@ -1813,6 +2020,11 @@ class MerchandiseImplement implements MerchandiseService
                     'variants' => 'Setiap varian wajib memiliki gambar.',
                 ]);
             }
+            if (!empty($variantData['is_preorder']) && empty($variantData['preorder_expected_at'])) {
+                throw ValidationException::withMessages([
+                    'variants' => 'Setiap varian pre-order wajib memiliki estimasi tanggal barang tersedia.',
+                ]);
+            }
         }
     }
 
@@ -1858,6 +2070,7 @@ class MerchandiseImplement implements MerchandiseService
         $reservedTotals = DB::table('merchandise_order_items')
             ->join('merchandise_orders', 'merchandise_orders.id', '=', 'merchandise_order_items.order_id')
             ->where('merchandise_orders.payment_status', 'PENDING')
+            ->where('merchandise_orders.order_type', '!=', 'PREORDER')
             ->where('merchandise_orders.expires_at', '>', now())
             ->whereNotExists(function ($query) {
                 $query->selectRaw('1')
@@ -1867,6 +2080,7 @@ class MerchandiseImplement implements MerchandiseService
             ->select('merchandise_order_items.variant_id')
             ->selectRaw('SUM(merchandise_order_items.quantity) as reserved_quantity')
             ->groupBy('merchandise_order_items.variant_id');
+        $preorderAllocatedTotals = $this->pendingPreorderAllocationsQuery();
 
         $query->leftJoinSub($stockTotals, 'stock_totals', function ($join) {
             $join->on('merchandise_variants.id', '=', 'stock_totals.variant_id');
@@ -1874,19 +2088,27 @@ class MerchandiseImplement implements MerchandiseService
             $join->on('merchandise_variants.id', '=', 'sold_totals.variant_id');
         })->leftJoinSub($reservedTotals, 'reserved_totals', function ($join) {
             $join->on('merchandise_variants.id', '=', 'reserved_totals.variant_id');
+        })->leftJoinSub($preorderAllocatedTotals, 'preorder_allocated_totals', function ($join) {
+            $join->on('merchandise_variants.id', '=', 'preorder_allocated_totals.variant_id');
         });
 
-        $netStock = '(COALESCE(stock_totals.current_stock, 0) - COALESCE(sold_totals.sold_quantity, 0))';
+        $netStock = '(COALESCE(stock_totals.current_stock, 0) - COALESCE(sold_totals.sold_quantity, 0) '
+            . '- COALESCE(preorder_allocated_totals.allocated_quantity, 0))';
         $onlineStock = '(CASE WHEN merchandise_variants.online_stock_limit IS NOT NULL AND merchandise_variants.online_stock_limit < '
             . $netStock . ' THEN merchandise_variants.online_stock_limit ELSE ' . $netStock . ' END)';
         $availableStock = '(' . $onlineStock . ' - COALESCE(reserved_totals.reserved_quantity, 0))';
 
         $query->select('merchandise_variants.*')
-            ->selectRaw('CASE WHEN ' . $availableStock . ' > 0 THEN ' . $availableStock . ' ELSE 0 END as available_stock')
+            ->selectRaw('CASE WHEN merchandise_variants.is_preorder = 1 THEN 0 WHEN '
+                . $availableStock . ' > 0 THEN ' . $availableStock . ' ELSE 0 END as available_stock')
             ->where('merchandise_variants.is_active', true)
-            ->whereRaw($availableStock . ' > 0')
+            ->where(function ($variantQuery) use ($availableStock) {
+                $variantQuery->whereRaw($availableStock . ' > 0')
+                    ->orWhere('merchandise_variants.is_preorder', true);
+            })
             ->where(function ($variantQuery) {
                 $variantQuery->whereNull('merchandise_variants.online_stock_limit')
+                    ->orWhere('merchandise_variants.is_preorder', true)
                     ->orWhere('merchandise_variants.online_stock_limit', '>', 0);
             });
     }
@@ -1918,10 +2140,24 @@ class MerchandiseImplement implements MerchandiseService
             $stockOut = $stockOutQuery->sum('merchandise_stock_out_items.quantity');
         }
         $physicalStock = (int) $stockIn - (int) $stockOut;
+        $allocatedPreorderStock = (int) DB::table('merchandise_preorder_allocations')
+            ->join(
+                'merchandise_order_items as allocated_items',
+                'allocated_items.id',
+                '=',
+                'merchandise_preorder_allocations.order_item_id'
+            )
+            ->join('merchandise_orders as allocated_orders', 'allocated_orders.id', '=', 'allocated_items.order_id')
+            ->where('allocated_items.variant_id', $variantId)
+            ->where('allocated_orders.order_type', 'PREORDER')
+            ->where('allocated_orders.payment_status', 'PAID')
+            ->where('allocated_orders.fulfillment_status', '!=', 'FULFILLED')
+            ->sum('merchandise_preorder_allocations.quantity');
         $reservationQuery = DB::table('merchandise_order_items')
             ->join('merchandise_orders', 'merchandise_orders.id', '=', 'merchandise_order_items.order_id')
             ->where('merchandise_order_items.variant_id', $variantId)
             ->where('merchandise_orders.payment_status', 'PENDING')
+            ->where('merchandise_orders.order_type', '!=', 'PREORDER')
             ->where('merchandise_orders.expires_at', '>', now())
             ->whereNotExists(function ($query) {
                 $query->selectRaw('1')
@@ -1935,11 +2171,135 @@ class MerchandiseImplement implements MerchandiseService
         $reserved = $lockForUpdate
             ? (int) $reservationQuery->lockForUpdate()->get()->sum('quantity')
             : (int) $reservationQuery->sum('merchandise_order_items.quantity');
-        $available = $variant->online_stock_limit === null
-            ? $physicalStock
-            : min($physicalStock, (int) $variant->online_stock_limit);
+        $unallocatedStock = max(0, $physicalStock - $allocatedPreorderStock);
+        $available = $variant->is_preorder || $variant->online_stock_limit === null
+            ? $unallocatedStock
+            : min($unallocatedStock, (int) $variant->online_stock_limit);
 
         return max(0, $available - $reserved);
+    }
+
+    private function pendingPreorderAllocationsQuery()
+    {
+        return DB::table('merchandise_preorder_allocations')
+            ->join(
+                'merchandise_order_items as allocated_items',
+                'allocated_items.id',
+                '=',
+                'merchandise_preorder_allocations.order_item_id'
+            )
+            ->join('merchandise_orders as allocated_orders', 'allocated_orders.id', '=', 'allocated_items.order_id')
+            ->where('allocated_orders.order_type', 'PREORDER')
+            ->where('allocated_orders.payment_status', 'PAID')
+            ->where('allocated_orders.fulfillment_status', '!=', 'FULFILLED')
+            ->select('allocated_items.variant_id')
+            ->selectRaw('SUM(merchandise_preorder_allocations.quantity) as allocated_quantity')
+            ->groupBy('allocated_items.variant_id');
+    }
+
+    private function cartOrderType($items): string
+    {
+        $types = $items->map(function ($item) {
+            return (bool) $item->variant->is_preorder;
+        })->unique();
+
+        if ($types->count() > 1) {
+            throw ValidationException::withMessages([
+                'cart' => 'Pre-order items must be checked out separately from ready-stock items.',
+            ]);
+        }
+
+        return $types->first() ? 'PREORDER' : 'READY';
+    }
+
+    private function allocatePreorderStock(MerchandiseStockInItem $stockInItem, $userId): int
+    {
+        $alreadyAssigned = (int) MerchandisePreorderAllocation::where('stock_in_item_id', $stockInItem->id)
+            ->sum('quantity');
+        $remaining = max(0, (int) $stockInItem->quantity - $alreadyAssigned);
+        if ($remaining < 1) {
+            return 0;
+        }
+
+        $initialQuantity = $remaining;
+        $orderItems = MerchandiseOrderItem::query()
+            ->join('merchandise_orders as preorder_orders', 'preorder_orders.id', '=', 'merchandise_order_items.order_id')
+            ->where('variant_id', $stockInItem->variant_id)
+            ->where('preorder_orders.order_type', 'PREORDER')
+            ->where('preorder_orders.payment_status', 'PAID')
+            ->whereIn('preorder_orders.fulfillment_status', ['WAITING_FOR_STOCK', 'PARTIALLY_AVAILABLE'])
+            ->select('merchandise_order_items.*')
+            ->with('order')
+            ->orderBy('preorder_orders.paid_at')
+            ->orderBy('merchandise_order_items.order_id')
+            ->orderBy('merchandise_order_items.id')
+            ->lockForUpdate()
+            ->get();
+        $affectedOrderIds = [];
+
+        foreach ($orderItems as $orderItem) {
+            $alreadyAllocated = (int) MerchandisePreorderAllocation::where('order_item_id', $orderItem->id)
+                ->sum('quantity');
+            $needed = max(0, (int) $orderItem->quantity - $alreadyAllocated);
+            $quantity = min($remaining, $needed);
+            if ($quantity < 1) {
+                continue;
+            }
+
+            MerchandisePreorderAllocation::create([
+                'order_item_id' => $orderItem->id,
+                'stock_in_item_id' => $stockInItem->id,
+                'quantity' => $quantity,
+                'allocated_by' => $userId,
+            ]);
+            $remaining -= $quantity;
+            $affectedOrderIds[$orderItem->order_id] = true;
+            if ($remaining === 0) {
+                break;
+            }
+        }
+
+        foreach (array_keys($affectedOrderIds) as $orderId) {
+            $order = MerchandiseOrder::with('items')->findOrFail($orderId);
+            $allocatedUnits = 0;
+            $allItemsAllocated = true;
+            foreach ($order->items as $item) {
+                $quantity = (int) MerchandisePreorderAllocation::where('order_item_id', $item->id)
+                    ->sum('quantity');
+                $allocatedUnits += $quantity;
+                if ($quantity < (int) $item->quantity) {
+                    $allItemsAllocated = false;
+                }
+            }
+            $order->update([
+                'fulfillment_status' => $allItemsAllocated
+                    ? 'READY_FOR_FULFILLMENT'
+                    : ($allocatedUnits > 0 ? 'PARTIALLY_AVAILABLE' : 'WAITING_FOR_STOCK'),
+            ]);
+        }
+
+        return $initialQuantity - $remaining;
+    }
+
+    private function allocateExistingPreorderStockForVariant(int $variantId, $userId): void
+    {
+        $remaining = $this->availableStockForVariant($variantId, null, true);
+        if ($remaining < 1) {
+            return;
+        }
+
+        $stockInItems = MerchandiseStockInItem::where('variant_id', $variantId)
+            ->orderBy('id')
+            ->lockForUpdate()
+            ->get();
+
+        foreach ($stockInItems as $stockInItem) {
+            if ($remaining < 1) {
+                break;
+            }
+            $allocated = $this->allocatePreorderStock($stockInItem, $userId);
+            $remaining -= $allocated;
+        }
     }
 
     private function activeStockOutItemsQuery()
@@ -2335,12 +2695,18 @@ class MerchandiseImplement implements MerchandiseService
             . '<thead><tr><th align="left">Product</th><th align="right">Qty</th><th align="right">Amount</th></tr></thead><tbody>';
         $paymentRows = '';
         foreach ($order->items as $item) {
-            $itemsHtml .= '<tr><td>' . e($item->product_name . ' - ' . $item->variant_name)
+            $preorderLabel = $item->is_preorder
+                ? '<br><span style="font-size:11px;color:#8a5a00">Pre-order · Expected '
+                    . e($item->preorder_expected_at ? $item->preorder_expected_at->format('d M Y') : 'to be confirmed')
+                    . '</span>'
+                : '';
+            $itemsHtml .= '<tr><td>' . e($item->product_name . ' - ' . $item->variant_name) . $preorderLabel
                 . '</td><td align="right">' . (int) $item->quantity
                 . '</td><td align="right">' . e($this->formatMerchandiseAmount($item->subtotal)) . '</td></tr>';
             $paymentRows .= '<tr>'
                 . '<td style="padding:9px 7px;border-bottom:1px solid #f0f0f0;text-align:left;vertical-align:top;word-break:break-word">'
-                . e($item->product_name) . '<br><span style="font-size:11px;color:#666">' . e($item->variant_name) . '</span></td>'
+                . e($item->product_name) . '<br><span style="font-size:11px;color:#666">' . e($item->variant_name) . '</span>'
+                . $preorderLabel . '</td>'
                 . '<td style="padding:9px 5px;border-bottom:1px solid #f0f0f0;text-align:center;vertical-align:top">'
                 . (int) $item->quantity . '</td>'
                 . '<td style="padding:9px 6px;border-bottom:1px solid #f0f0f0;text-align:right;vertical-align:top;white-space:nowrap">'

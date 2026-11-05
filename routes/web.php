@@ -283,6 +283,9 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
 
             Route::get('orders', [MerchandiseController::class, 'orders'])->name('orders');
             Route::get('orders/{id}', [MerchandiseController::class, 'showOrder'])->name('orders.show');
+            Route::get('preorders', [MerchandiseController::class, 'preorders'])->name('preorders');
+            Route::post('preorders/{id}/fulfill', [MerchandiseController::class, 'fulfillPreorder'])
+                ->name('preorders.fulfill');
         });
 
         Route::prefix('price')->name('price.')->group(function () {

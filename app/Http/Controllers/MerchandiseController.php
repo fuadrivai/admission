@@ -187,6 +187,25 @@ class MerchandiseController extends Controller
         ]);
     }
 
+    public function preorders()
+    {
+        $this->ensureCostAccess();
+
+        return view('merchandise.preorders.index', array_merge(
+            ['title' => 'Pre-order Fulfillment'],
+            $this->merchandiseService->getPreorders()
+        ));
+    }
+
+    public function fulfillPreorder(Request $request, $id)
+    {
+        $this->ensureCostAccess();
+        $this->merchandiseService->fulfillPreorder($id, $request->user()->id);
+
+        return redirect()->route('merchandise.preorders')
+            ->with('success', 'Pre-order marked as fulfilled and stock movement recorded.');
+    }
+
     public function applyPromotion(Request $request)
     {
         $data = $request->validate([
@@ -311,6 +330,13 @@ class MerchandiseController extends Controller
             session('merchandise_promotion_gift_variant_id'),
             session('merchandise_selected_promotion_id')
         );
+        if (($checkoutData['order_type'] ?? null) === 'PREORDER') {
+            session()->forget([
+                'merchandise_promotion_code',
+                'merchandise_promotion_gift_variant_id',
+                'merchandise_selected_promotion_id',
+            ]);
+        }
         if (!empty($checkoutData['selectedPromotionId'])) {
             session(['merchandise_selected_promotion_id' => $checkoutData['selectedPromotionId']]);
         } else {
@@ -727,7 +753,7 @@ class MerchandiseController extends Controller
             'name' => ['required', 'string', 'max:150'],
             'description' => ['nullable', 'string', 'max:2000'],
             'main_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
-            'gallery_images' => ['nullable', 'array'],
+            'gallery_images' => ['nullable', 'array', 'max:3'],
             'gallery_images.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
             'remove_images' => ['nullable', 'array'],
             'remove_images.*' => ['integer', 'exists:merchandise_product_images,id'],
@@ -739,6 +765,8 @@ class MerchandiseController extends Controller
             'variants.*.price' => ['required', 'numeric', 'min:0', 'max:9999999999.99'],
             'variants.*.low_stock_threshold' => ['nullable', 'integer', 'min:0'],
             'variants.*.is_active' => ['nullable', 'boolean'],
+            'variants.*.is_preorder' => ['nullable', 'boolean'],
+            'variants.*.preorder_expected_at' => ['nullable', 'date_format:Y-m-d'],
         ], $variantRules));
         if (!$productId && !$request->hasFile('main_image')) {
             $validator->errors()->add('main_image', 'Gambar utama produk wajib diunggah.');
@@ -753,10 +781,24 @@ class MerchandiseController extends Controller
                 break;
             }
         }
-        $validator->after(function ($validator) use ($request) {
+        $validator->after(function ($validator) use ($request, $productId) {
+            $existing = $productId
+                ? MerchandiseProductImage::where('product_id', $productId)
+                    ->whereNotIn('id', $request->input('remove_images', []))
+                    ->count()
+                : 0;
+            if ($existing + count($request->file('gallery_images', [])) > 3) {
+                $validator->errors()->add('gallery_images', 'Gambar tambahan maksimal 3.');
+            }
             $combinations = [];
             $skus = [];
             foreach ($request->input('variants', []) as $index => $variant) {
+                if (!empty($variant['is_preorder']) && empty($variant['preorder_expected_at'])) {
+                    $validator->errors()->add(
+                        "variants.$index.preorder_expected_at",
+                        'Enter an expected availability date for each pre-order variant.'
+                    );
+                }
                 $combination = mb_strtolower(trim($variant['name'] ?? '') . '|' . trim($variant['color'] ?? ''));
                 if (isset($combinations[$combination])) {
                     $validator->errors()->add("variants.$index.name", 'Kombinasi nama varian dan warna harus unik.');

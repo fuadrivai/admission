@@ -146,7 +146,7 @@ class MerchandiseApiDocumentationController extends Controller
                     'get' => [
                         'tags' => ['Checkout'],
                         'summary' => 'Preview checkout',
-                        'description' => 'Calculates the latest stock, totals, eligible promotions, gift options, and payment branches.',
+                        'description' => 'Calculates current totals, promotions, and payment branches. For a pre-order cart, returns order_type=PREORDER and preorder_expected_at; pre-orders cannot be mixed with ready-stock items and promotions do not apply.',
                         'security' => [['CartToken' => []]],
                         'parameters' => [
                             [
@@ -175,7 +175,7 @@ class MerchandiseApiDocumentationController extends Controller
                     'post' => [
                         'tags' => ['Checkout'],
                         'summary' => 'Create order and payment invoice',
-                        'description' => 'Creates an order using server-calculated prices and stock, then creates a Xendit invoice. Open payment_url to complete payment.',
+                        'description' => 'Creates an order using server-calculated prices and stock, then creates a Xendit invoice. Pre-orders require full payment, cannot be mixed with ready-stock items, and are allocated from later Stock In records. Open payment_url to complete payment.',
                         'security' => [['CartToken' => []]],
                         'requestBody' => $this->requestBody('CreateOrderInput'),
                         'responses' => [
@@ -266,6 +266,16 @@ class MerchandiseApiDocumentationController extends Controller
                             'sku' => ['type' => 'string', 'nullable' => true],
                             'price' => ['type' => 'number', 'format' => 'float'],
                             'available_stock' => ['type' => 'integer'],
+                            'is_preorder' => [
+                                'type' => 'boolean',
+                                'description' => 'When true, the item is accepted as a pre-order and is not constrained by current available_stock.',
+                            ],
+                            'preorder_expected_at' => [
+                                'type' => 'string',
+                                'format' => 'date',
+                                'nullable' => true,
+                                'description' => 'Estimated date this pre-order item will be available.',
+                            ],
                             'image_url' => ['type' => 'string', 'format' => 'uri', 'nullable' => true],
                         ],
                     ],
@@ -282,6 +292,26 @@ class MerchandiseApiDocumentationController extends Controller
                             ],
                             'images' => ['type' => 'array', 'items' => ['type' => 'string', 'format' => 'uri']],
                             'variants' => ['type' => 'array', 'items' => ['$ref' => '#/components/schemas/Variant']],
+                        ],
+                    ],
+                    'CartItem' => [
+                        'type' => 'object',
+                        'properties' => [
+                            'id' => ['type' => 'integer'],
+                            'product_id' => ['type' => 'integer'],
+                            'product_name' => ['type' => 'string'],
+                            'variant_id' => ['type' => 'integer'],
+                            'variant_name' => ['type' => 'string'],
+                            'sku' => ['type' => 'string', 'nullable' => true],
+                            'image_url' => ['type' => 'string', 'format' => 'uri', 'nullable' => true],
+                            'quantity' => ['type' => 'integer'],
+                            'is_selected' => ['type' => 'boolean'],
+                            'is_available' => ['type' => 'boolean'],
+                            'available_stock' => ['type' => 'integer'],
+                            'is_preorder' => ['type' => 'boolean'],
+                            'preorder_expected_at' => ['type' => 'string', 'format' => 'date', 'nullable' => true],
+                            'unit_price' => ['type' => 'number'],
+                            'line_total' => ['type' => 'number'],
                         ],
                     ],
                     'Pagination' => [
@@ -355,7 +385,7 @@ class MerchandiseApiDocumentationController extends Controller
                         'cart_token' => ['type' => 'string', 'minLength' => 64, 'maxLength' => 64],
                     ]),
                     'CartResponse' => $this->successSchema([
-                        'items' => ['type' => 'array', 'items' => ['type' => 'object']],
+                        'items' => ['type' => 'array', 'items' => ['$ref' => '#/components/schemas/CartItem']],
                         'items_count' => ['type' => 'integer'],
                         'cart_count' => ['type' => 'integer'],
                         'subtotal' => ['type' => 'number'],
@@ -364,8 +394,10 @@ class MerchandiseApiDocumentationController extends Controller
                         'store_is_open' => ['type' => 'boolean'],
                     ]),
                     'CheckoutResponse' => $this->successSchema([
-                        'items' => ['type' => 'array', 'items' => ['type' => 'object']],
+                        'items' => ['type' => 'array', 'items' => ['$ref' => '#/components/schemas/CartItem']],
                         'items_count' => ['type' => 'integer'],
+                        'order_type' => ['type' => 'string', 'enum' => ['READY', 'PREORDER']],
+                        'preorder_expected_at' => ['type' => 'string', 'format' => 'date', 'nullable' => true],
                         'subtotal' => ['type' => 'number'],
                         'admin_fee' => ['type' => 'number'],
                         'total' => ['type' => 'number'],
@@ -376,6 +408,9 @@ class MerchandiseApiDocumentationController extends Controller
                     'OrderResponse' => $this->successSchema([
                         'order_reference' => ['type' => 'string'],
                         'payment_status' => ['type' => 'string', 'example' => 'PENDING'],
+                        'order_type' => ['type' => 'string', 'enum' => ['READY', 'PREORDER']],
+                        'fulfillment_status' => ['type' => 'string'],
+                        'preorder_expected_at' => ['type' => 'string', 'format' => 'date', 'nullable' => true],
                         'amount' => ['type' => 'number'],
                         'expires_at' => ['type' => 'string', 'format' => 'date-time', 'nullable' => true],
                         'payment_url' => ['type' => 'string', 'format' => 'uri'],

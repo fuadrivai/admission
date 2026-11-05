@@ -207,13 +207,15 @@
                             </ul>
                         </li>
                         @if (auth()->user()->role === 'admin')
-                            <li class="submenu-item has-sub {{ Request::is('merchandise/promotions*') || Request::is('merchandise/orders*') ? 'active' : '' }}">
+                            <li class="submenu-item has-sub {{ Request::is('merchandise/promotions*') || Request::is('merchandise/orders*') || Request::is('merchandise/preorders*') ? 'active' : '' }}">
                                 <a href="#" class="submenu-link">Sales</a>
                                 <ul class="submenu">
                                     <li class="submenu-item"><a href="{{ route('merchandise.promotions') }}"
                                             class="submenu-link {{ Request::is('merchandise/promotions*') ? 'text-red' : '' }}">Promotions</a></li>
                                     <li class="submenu-item"><a href="{{ route('merchandise.orders') }}"
                                             class="submenu-link {{ Request::is('merchandise/orders*') ? 'text-red' : '' }}">Order Management</a></li>
+                                    <li class="submenu-item"><a href="{{ route('merchandise.preorders') }}"
+                                            class="submenu-link {{ Request::is('merchandise/preorders*') ? 'text-red' : '' }}">Pre-order Fulfillment</a></li>
                                 </ul>
                             </li>
                             <li class="submenu-item"><a href="{{ route('merchandise.reports') }}"

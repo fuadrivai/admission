@@ -212,7 +212,12 @@
                 <tbody>
                     @foreach ($order->items as $item)
                         <tr>
-                            <td>{{ $item->product_name }}</td>
+                            <td>
+                                {{ $item->product_name }}
+                                @if ($item->is_preorder)
+                                    <br><small>Pre-order · Expected {{ $item->preorder_expected_at ? $item->preorder_expected_at->format('d M Y') : 'to be confirmed' }}</small>
+                                @endif
+                            </td>
                             <td>{{ $item->variant_name }}</td>
                             <td class="amount">{{ number_format($item->quantity) }}</td>
                             <td class="amount">Rp {{ number_format($item->unit_price, 0, ',', '.') }}</td>
@@ -244,7 +249,10 @@
             <div class="note-box">
                 <p>1. This receipt is proof of payment for a merchandise order at Mutiara Harapan Islamic School.</p>
                 <p>2. Please keep this receipt for your records.</p>
-                <p>3. Description: {{ $description }}</p>
+                @if ($order->order_type === 'PREORDER')
+                    <p>3. This pre-order will be allocated from incoming stock. Expected availability: {{ $order->preorder_expected_at ? $order->preorder_expected_at->format('d M Y') : 'to be confirmed' }}.</p>
+                @endif
+                <p>{{ $order->order_type === 'PREORDER' ? '4' : '3' }}. Description: {{ $description }}</p>
             </div>
         </div>
     </div>

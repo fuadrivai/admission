@@ -72,6 +72,13 @@
                 return $option['promotion']->type === 'voucher'
                     && strtoupper((string) $option['promotion']->code) === strtoupper((string) session('merchandise_promotion_code'));
             }))
+            @if ($order_type === 'PREORDER')
+                <div class="alert alert-warning">
+                    <strong>Pre-order:</strong> Full payment is required now. Your order will be allocated when the next Stock In is recorded.
+                    Expected availability: {{ $preorder_expected_at ? \Illuminate\Support\Carbon::parse($preorder_expected_at)->format('d M Y') : 'to be confirmed' }}.
+                    Pre-orders are checked out separately from ready-stock items, and promotions are not available for pre-orders.
+                </div>
+            @else
             <section class="checkout-card mb-3">
                 <h2 class="mb-2">Promo Code</h2>
                 <form method="POST" action="{{ route('merchandise.public-checkout.promotion') }}" class="d-flex flex-wrap gap-2">
@@ -130,6 +137,7 @@
                     </form>
                 </section>
             @endif
+            @endif
             <form method="POST" action="{{ route('merchandise.public-checkout.submit') }}">
                 @csrf
                 <div class="checkout-layout">
@@ -172,7 +180,12 @@
                                 <img src="/storage/{{ $item->variant->image_path ?: $item->variant->product->image_path }}" alt="">
                                 <div>
                                     <div class="checkout-item-name">{{ $item->variant->product->name }}</div>
-                                    <div class="checkout-item-detail">{{ $item->variant->color ? $item->variant->color . ' / ' : '' }}{{ $item->variant->name }} · {{ $item->quantity }} {{ \Illuminate\Support\Str::plural('item', $item->quantity) }}</div>
+                                    <div class="checkout-item-detail">
+                                        {{ $item->variant->color ? $item->variant->color . ' / ' : '' }}{{ $item->variant->name }} · {{ $item->quantity }} {{ \Illuminate\Support\Str::plural('item', $item->quantity) }}
+                                        @if ($item->variant->is_preorder)
+                                            <br>Pre-order · Expected {{ $item->variant->preorder_expected_at ? $item->variant->preorder_expected_at->format('d M Y') : 'to be confirmed' }}
+                                        @endif
+                                    </div>
                                     @unless ($item->is_available)<div class="text-danger small">Insufficient stock</div>@endunless
                                 </div>
                                 <div class="checkout-item-total">Rp{{ number_format($item->line_total, 0, ',', '.') }}</div>
@@ -196,7 +209,14 @@
                         @endif
                         <div class="summary-row"><span>Admin fee</span><strong>Rp{{ number_format($bank_charger, 0, ',', '.') }}</strong></div>
                         <div class="checkout-total"><span>Total payment</span><span>Rp{{ number_format(max(0, $subtotal - min($subtotal, $promotionQuote['discount_amount'])) + $bank_charger, 0, ',', '.') }}</span></div>
-                        <div class="text-muted small mt-2">Payment is processed securely through Xendit. Stock is reserved while the invoice is active (up to 24 hours) and deducted only after payment succeeds.</div>
+                        <div class="text-muted small mt-2">
+                            Payment is processed securely through Xendit.
+                            @if ($order_type === 'PREORDER')
+                                This order will wait for incoming stock after payment succeeds.
+                            @else
+                                Stock is reserved while the invoice is active (up to 24 hours) and deducted only after payment succeeds.
+                            @endif
+                        </div>
                         <button class="checkout-submit" type="submit" {{ $hasUnavailableItem || $branches->isEmpty() ? 'disabled' : '' }}>
                             Continue to Payment <i class="bi bi-arrow-right ms-1"></i>
                         </button>
