@@ -150,6 +150,8 @@
         }
         .store-product-card:hover { transform: translateY(-2px); box-shadow: 0 9px 24px rgba(45, 22, 29, .09); }
         .store-product-media { position: relative; overflow: hidden; aspect-ratio: 1 / .88; background: #f1edef; }
+        .store-product-preorder { position: absolute; right: 8px; bottom: 8px; padding: 4px 10px; border-radius: 999px; background: #ffc107; color: #212529; font-size: .72rem; font-weight: 700; box-shadow: 0 2px 6px rgba(0,0,0,.25); }
+        .store-product-soldout { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(33,37,41,.55); color: #fff; font-size: .95rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
         .store-product-image { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform .35s ease; }
         .store-product-card:hover .store-product-image { transform: scale(1.035); }
         .store-placeholder { width: 100%; height: 100%; display: grid; place-items: center; color: #b6a9ad; font-size: 2.8rem; }
@@ -295,6 +297,12 @@
                         data-store-product
                         data-category="{{ $product->category->id }}"
                         data-search="{{ \Illuminate\Support\Str::lower($product->name . ' ' . $product->description . ' ' . $product->category->name . ' ' . $product->variants->map(function ($variant) { return $variant->name . ' ' . $variant->color . ' ' . $variant->sku; })->implode(' ')) }}">
+                        @php
+                            $soldOut = $product->variants->every(function ($variant) { return (int) $variant->available_stock < 1; });
+                            $prices = $product->variants->pluck('price');
+                            $minimumPrice = $prices->min();
+                            $maximumPrice = $prices->max();
+                        @endphp
                         <div class="store-product-media">
                             @if ($product->image_path)
                                 <img class="store-product-image" src="/storage/{{ $product->image_path }}" alt="{{ $product->name }}" loading="lazy">
@@ -302,17 +310,14 @@
                                 <div class="store-placeholder" aria-hidden="true"><i class="bi bi-bag"></i></div>
                             @endif
                             <span class="store-product-category">{{ $product->category->name }}</span>
+                            @if ($soldOut)
+                                <span class="store-product-soldout">Sold out</span>
+                            @elseif ($product->variants->contains('is_preorder', true))
+                                <span class="store-product-preorder">Pre-order</span>
+                            @endif
                         </div>
                         <div class="store-product-body">
                             <h2 class="store-product-name">{{ $product->name }}</h2>
-                            @if ($product->variants->contains('is_preorder', true))
-                                <span class="badge bg-warning text-dark">Pre-order available</span>
-                            @endif
-                            @php
-                                $prices = $product->variants->pluck('price');
-                                $minimumPrice = $prices->min();
-                                $maximumPrice = $prices->max();
-                            @endphp
                             <div class="store-product-price">
                                 Rp{{ number_format($minimumPrice, 0, ',', '.') }} - Rp{{ number_format($maximumPrice, 0, ',', '.') }}
                             </div>
@@ -339,7 +344,7 @@
     </main>
 
     <footer class="store-footer">
-        &copy; {{ date('Y') }} {{ $settings->store_name }} Â· Mutiara Harapan Islamic School
+        &copy; {{ date('Y') }} {{ $settings->store_name }} · Mutiara Harapan Islamic School
     </footer>
 
     @if ($settings->is_open)

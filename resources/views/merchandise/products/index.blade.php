@@ -35,9 +35,9 @@
                                         <div class="mb-1">
                                             <span class="fw-semibold">{{ $variant->color ? $variant->color . ' / ' : '' }}{{ $variant->name }}</span>
                                             @if ($variant->sku)<small class="text-muted">({{ $variant->sku }})</small>@endif
-                                            <span class="text-muted">Â· Rp{{ number_format($variant->price, 0, ',', '.') }}</span>
+                                            <span class="text-muted">· Rp{{ number_format($variant->price, 0, ',', '.') }}</span>
                                             @if ($variant->is_preorder)
-                                                <span class="badge bg-warning text-dark">Pre-order Â· {{ $variant->preorder_expected_at ? $variant->preorder_expected_at->format('d M Y') : 'ETA not set' }}</span>
+                                                <span class="badge bg-warning text-dark">Pre-order · {{ $variant->preorder_expected_at ? $variant->preorder_expected_at->format('d M Y') : 'ETA not set' }}</span>
                                             @endif
                                             @unless ($variant->is_active)<span class="badge bg-light-secondary text-secondary">Nonaktif</span>@endunless
                                         </div>

@@ -309,6 +309,7 @@ class MerchandiseApiController extends Controller
                     'sku' => $variant->sku,
                     'price' => (float) $variant->price,
                     'available_stock' => (int) ($variant->available_stock ?? 0),
+                    'is_sold_out' => (int) ($variant->available_stock ?? 0) < 1,
                     'is_preorder' => (bool) $variant->is_preorder,
                     'preorder_expected_at' => $variant->preorder_expected_at
                         ? $variant->preorder_expected_at->toDateString()

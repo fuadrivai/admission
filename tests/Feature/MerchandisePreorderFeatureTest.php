@@ -153,6 +153,60 @@ class MerchandisePreorderFeatureTest extends TestCase
         $this->assertDatabaseMissing('merchandise_stock_outs', ['order_id' => $unpaidOrder->id]);
     }
 
+    public function test_stock_in_cost_can_be_corrected_with_audit_trail(): void
+    {
+        $stockInId = DB::table('merchandise_stock_ins')->insertGetId([
+            'stock_in_date' => '2026-11-01', 'created_at' => now(), 'updated_at' => now(),
+        ]);
+        $itemId = DB::table('merchandise_stock_in_items')->insertGetId([
+            'stock_in_id' => $stockInId, 'variant_id' => 1, 'quantity' => 5, 'unit_cost' => 300000,
+            'created_at' => now(), 'updated_at' => now(),
+        ]);
+        $service = new MerchandiseImplement();
+
+        $service->correctStockInCost($itemId, 60000, 'Salah input', 1);
+
+        $this->assertSame(60000.0, (float) DB::table('merchandise_stock_in_items')->where('id', $itemId)->value('unit_cost'));
+        $this->assertDatabaseHas('merchandise_stock_in_cost_corrections', [
+            'stock_in_item_id' => $itemId, 'old_unit_cost' => 300000, 'new_unit_cost' => 60000, 'reason' => 'Salah input',
+        ]);
+
+        $this->expectException(ValidationException::class);
+        $service->correctStockInCost($itemId, -1, 'x', 1);
+    }
+
+    public function test_preorder_quota_is_stock_in_minus_active_preorders(): void
+    {
+        $service = new MerchandiseImplement();
+        $categoryId = DB::table('merchandise_categories')->insertGetId([
+            'name' => 'Uniform', 'is_active' => true, 'created_at' => now(), 'updated_at' => now(),
+        ]);
+        $productId = DB::table('merchandise_products')->insertGetId([
+            'category_id' => $categoryId, 'name' => 'School Jacket', 'is_active' => true,
+            'created_at' => now(), 'updated_at' => now(),
+        ]);
+        $variantId = DB::table('merchandise_variants')->insertGetId([
+            'product_id' => $productId, 'name' => 'Medium', 'color' => 'Navy', 'price' => 250000,
+            'is_active' => true, 'is_preorder' => true, 'created_at' => now(), 'updated_at' => now(),
+        ]);
+        $quota = new ReflectionMethod(MerchandiseImplement::class, 'preorderQuotaForVariant');
+        $quota->setAccessible(true);
+
+        $this->assertSame(0, $quota->invoke($service, $variantId));
+
+        $service->postStockIn([
+            'stock_in_date' => '2026-11-05',
+            'items' => [['variant_id' => $variantId, 'quantity' => 5, 'unit_cost' => 60000]],
+        ], null);
+        $this->assertSame(5, $quota->invoke($service, $variantId));
+
+        $this->createOrder($variantId, 'PAID', 3);
+        $this->assertSame(2, $quota->invoke($service, $variantId));
+
+        $this->createOrder($variantId, 'PAID', 2);
+        $this->assertSame(0, $quota->invoke($service, $variantId));
+    }
+
     private function createOrder(int $variantId, string $paymentStatus, int $quantity): MerchandiseOrder
     {
         $order = MerchandiseOrder::unguarded(fn () => MerchandiseOrder::create([
@@ -237,6 +291,7 @@ class MerchandisePreorderFeatureTest extends TestCase
             $table->string('fulfillment_status');
             $table->date('preorder_expected_at')->nullable();
             $table->dateTime('paid_at')->nullable();
+            $table->dateTime('expires_at')->nullable();
             $table->dateTime('fulfilled_at')->nullable();
             $table->unsignedBigInteger('fulfilled_by')->nullable();
             $table->timestamps();
@@ -267,6 +322,15 @@ class MerchandisePreorderFeatureTest extends TestCase
             $table->unsignedBigInteger('variant_id');
             $table->unsignedInteger('quantity');
             $table->decimal('unit_cost', 12, 2);
+            $table->timestamps();
+        });
+        Schema::create('merchandise_stock_in_cost_corrections', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('stock_in_item_id');
+            $table->decimal('old_unit_cost', 15, 2);
+            $table->decimal('new_unit_cost', 15, 2);
+            $table->string('reason', 255);
+            $table->unsignedBigInteger('corrected_by')->nullable();
             $table->timestamps();
         });
         Schema::create('merchandise_preorder_allocations', function (Blueprint $table) {

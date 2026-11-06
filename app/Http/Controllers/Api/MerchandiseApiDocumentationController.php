@@ -268,7 +268,7 @@ class MerchandiseApiDocumentationController extends Controller
                             'available_stock' => ['type' => 'integer'],
                             'is_preorder' => [
                                 'type' => 'boolean',
-                                'description' => 'When true, the item is accepted as a pre-order and is not constrained by current available_stock.',
+                                'description' => 'When true, the item is a pre-order. available_stock is the remaining pre-order quota (stock-in quantity minus active pre-orders).',
                             ],
                             'preorder_expected_at' => [
                                 'type' => 'string',

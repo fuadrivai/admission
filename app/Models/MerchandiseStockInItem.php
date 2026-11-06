@@ -25,6 +25,11 @@ class MerchandiseStockInItem extends Model
         return $this->belongsTo(MerchandiseVariant::class, 'variant_id');
     }
 
+    public function costCorrections(): HasMany
+    {
+        return $this->hasMany(MerchandiseStockInCostCorrection::class, 'stock_in_item_id');
+    }
+
     public function preorderAllocations(): HasMany
     {
         return $this->hasMany(MerchandisePreorderAllocation::class, 'stock_in_item_id');

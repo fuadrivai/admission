@@ -268,6 +268,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
             Route::get('stock-in', [MerchandiseController::class, 'stockIns'])->name('stock-ins');
             Route::get('stock-in/create', [MerchandiseController::class, 'createStockIn'])->name('stock-ins.create');
             Route::post('stock-in', [MerchandiseController::class, 'storeStockIn'])->name('stock-ins.store');
+            Route::post('stock-in/items/{itemId}/cost', [MerchandiseController::class, 'correctStockInCost'])->name('stock-ins.correct-cost');
             Route::get('stock-opname', [MerchandiseController::class, 'stockOpnames'])->name('stock-opnames');
             Route::get('stock-opname/create', [MerchandiseController::class, 'createStockOpname'])->name('stock-opnames.create');
             Route::post('stock-opname', [MerchandiseController::class, 'storeStockOpname'])->name('stock-opnames.store');

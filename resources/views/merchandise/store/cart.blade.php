@@ -101,7 +101,7 @@
                                 <div class="cart-item-price">Rp{{ number_format($item->variant->price, 0, ',', '.') }} / item</div>
                                 @if ($item->variant->is_preorder)
                                     <div class="cart-item-stock text-warning-emphasis">
-                                        Pre-order Â· Expected availability {{ $item->variant->preorder_expected_at ? $item->variant->preorder_expected_at->format('d M Y') : 'to be confirmed' }}
+                                        Pre-order · Expected availability {{ $item->variant->preorder_expected_at ? $item->variant->preorder_expected_at->format('d M Y') : 'to be confirmed' }} · {{ number_format($item->variant->available_stock) }} slots left
                                     </div>
                                 @else
                                     <div class="cart-item-stock">Available stock: {{ number_format($item->variant->available_stock) }}</div>
@@ -116,7 +116,7 @@
                                     @method('PUT')
                                     <input type="hidden" name="items[0][id]" value="{{ $item->id }}">
                                     <input type="hidden" name="items[0][is_selected]" value="{{ $item->is_selected ? 1 : 0 }}">
-                                    <input type="number" name="items[0][quantity]" value="{{ $item->quantity }}" min="1" {{ $item->variant->is_preorder ? '' : 'max=' . max(1, $item->variant->available_stock) }} aria-label="Quantity of {{ $item->variant->product->name }}" onchange="this.form.submit()">
+                                    <input type="number" name="items[0][quantity]" value="{{ $item->quantity }}" min="1" {{ 'max=' . max(1, $item->variant->available_stock) }} aria-label="Quantity of {{ $item->variant->product->name }}" onchange="this.form.submit()">
                                 </form>
                                 <form method="POST" action="{{ route('merchandise.public-cart.remove', ['itemId' => $item->id]) }}" class="mt-2 text-end">
                                     @csrf
@@ -151,6 +151,6 @@
             </div>
         @endif
     </main>
-    <footer class="store-footer">&copy; {{ date('Y') }} {{ $settings->store_name }} Â· Mutiara Harapan Islamic School</footer>
+    <footer class="store-footer">&copy; {{ date('Y') }} {{ $settings->store_name }} · Mutiara Harapan Islamic School</footer>
 </body>
 </html>

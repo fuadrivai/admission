@@ -129,7 +129,7 @@
                             @if (!empty($variant['id']))<input type="hidden" name="variants[{{ $index }}][id]" value="{{ $variant['id'] }}">@endif
                             <div class="col-auto">
                                 <label class="variant-image-tile" title="Gambar varian">
-                                    <input name="variants[{{ $index }}][image]" type="file" accept="image/jpeg,image/png,image/webp" {{ empty($variant['image_path']) ? 'required' : '' }}>
+                                    <input name="variants[{{ $index }}][image]" type="file" accept="image/jpeg,image/png,image/webp">
                                     <i class="bi bi-plus-lg"></i>
                                     @if (!empty($variant['image_path']))
                                         <img src="/storage/{{ $variant['image_path'] }}" alt="Gambar varian {{ $variant['name'] }}">
@@ -138,14 +138,14 @@
                             </div>
                             <div class="col-md-2"><label class="form-label">Ukuran / nama varian</label><input name="variants[{{ $index }}][name]" class="form-control" maxlength="100" required value="{{ $variant['name'] ?? '' }}"></div>
                             <div class="col-md-1"><label class="form-label">Warna</label><input name="variants[{{ $index }}][color]" class="form-control" maxlength="80" value="{{ $variant['color'] ?? '' }}"></div>
-                            <div class="col-md-1"><label class="form-label">SKU</label><input name="variants[{{ $index }}][sku]" class="form-control" maxlength="64" value="{{ $variant['sku'] ?? '' }}"></div>
+                            <div class="col-md-1"><label class="form-label">SKU</label><input name="variants[{{ $index }}][sku]" class="form-control" maxlength="64" placeholder="Otomatis" value="{{ $variant['sku'] ?? '' }}"></div>
                             <div class="col-md-2"><label class="form-label">Harga jual (Rp)</label><input name="variants[{{ $index }}][price]" class="form-control" type="number" min="0" step="0.01" required value="{{ $variant['price'] ?? '' }}"></div>
                             <div class="col-md-2"><label class="form-label">Batas stok</label><input name="variants[{{ $index }}][low_stock_threshold]" class="form-control" type="number" min="0" step="1" value="{{ $variant['low_stock_threshold'] ?? 0 }}"></div>
                             <div class="col-md-1">
                                 <input type="hidden" name="variants[{{ $index }}][is_active]" value="0">
                                 <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="variants[{{ $index }}][is_active]" value="1" id="variant-active-{{ $index }}" {{ !array_key_exists('is_active', $variant) || $variant['is_active'] ? 'checked' : '' }}><label class="form-check-label" for="variant-active-{{ $index }}">Aktif</label></div>
                             </div>
-                            <div class="col-md-1"><button class="btn btn-outline-danger w-100" type="button" data-remove-variant aria-label="Hapus varian"><i class="bi bi-trash"></i></button></div>
+                            <div class="col-md-1 d-flex gap-1"><button class="btn btn-outline-secondary px-2" type="button" data-copy-variant title="Salin varian" aria-label="Salin varian"><i class="bi bi-files"></i></button><button class="btn btn-outline-danger px-2" type="button" data-remove-variant aria-label="Hapus varian"><i class="bi bi-trash"></i></button></div>
                         </div>
                         <div class="row g-3 mb-3 align-items-center" data-preorder-settings>
                             <div class="col-md-3">
@@ -191,29 +191,65 @@
             var list = document.getElementById('variant-list');
             var nextIndex = {{ count($variantRows) }};
 
-            document.getElementById('add-variant').addEventListener('click', function () {
+            function esc(value) {
+                return String(value === undefined || value === null ? '' : value)
+                    .replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+            }
+
+            function addVariantRow(v) {
+                v = v || {};
                 var index = nextIndex++;
+                var preorder = !!v.preorder;
                 var row = document.createElement('div');
                 row.className = 'row g-2 align-items-end mb-3 border-bottom pb-3';
                 row.setAttribute('data-variant-row', '');
                 row.innerHTML =
-                    '<div class="col-auto"><label class="variant-image-tile" title="Gambar varian"><input name="variants[' + index + '][image]" type="file" accept="image/jpeg,image/png,image/webp" required><i class="bi bi-plus-lg"></i></label></div>' +
-                    '<div class="col-md-2"><label class="form-label">Ukuran / nama varian</label><input name="variants[' + index + '][name]" class="form-control" maxlength="100" required></div>' +
-                    '<div class="col-md-1"><label class="form-label">Warna</label><input name="variants[' + index + '][color]" class="form-control" maxlength="80"></div>' +
-                    '<div class="col-md-1"><label class="form-label">SKU</label><input name="variants[' + index + '][sku]" class="form-control" maxlength="64"></div>' +
-                    '<div class="col-md-2"><label class="form-label">Harga jual (Rp)</label><input name="variants[' + index + '][price]" class="form-control" type="number" min="0" step="0.01" required></div>' +
-                    '<div class="col-md-2"><label class="form-label">Batas stok</label><input name="variants[' + index + '][low_stock_threshold]" class="form-control" type="number" min="0" step="1" value="0"></div>' +
+                    '<div class="col-auto"><label class="variant-image-tile" title="Gambar varian (opsional)"><input name="variants[' + index + '][image]" type="file" accept="image/jpeg,image/png,image/webp"><i class="bi bi-plus-lg"></i></label></div>' +
+                    '<div class="col-md-2"><label class="form-label">Ukuran / nama varian</label><input name="variants[' + index + '][name]" class="form-control" maxlength="100" required value="' + esc(v.name) + '"></div>' +
+                    '<div class="col-md-1"><label class="form-label">Warna</label><input name="variants[' + index + '][color]" class="form-control" maxlength="80" value="' + esc(v.color) + '"></div>' +
+                    '<div class="col-md-1"><label class="form-label">SKU</label><input name="variants[' + index + '][sku]" class="form-control" maxlength="64" placeholder="Otomatis"></div>' +
+                    '<div class="col-md-2"><label class="form-label">Harga jual (Rp)</label><input name="variants[' + index + '][price]" class="form-control" type="number" min="0" step="0.01" required value="' + esc(v.price) + '"></div>' +
+                    '<div class="col-md-2"><label class="form-label">Batas stok</label><input name="variants[' + index + '][low_stock_threshold]" class="form-control" type="number" min="0" step="1" value="' + esc(v.threshold === undefined ? 0 : v.threshold) + '"></div>' +
                     '<div class="col-md-1"><input type="hidden" name="variants[' + index + '][is_active]" value="0"><div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="variants[' + index + '][is_active]" value="1" id="variant-active-' + index + '" checked><label class="form-check-label" for="variant-active-' + index + '">Aktif</label></div></div>' +
-                    '<div class="col-md-1"><button class="btn btn-outline-danger w-100" type="button" data-remove-variant aria-label="Hapus varian"><i class="bi bi-trash"></i></button></div>';
+                    '<div class="col-md-1 d-flex gap-1"><button class="btn btn-outline-secondary px-2" type="button" data-copy-variant title="Salin varian" aria-label="Salin varian"><i class="bi bi-files"></i></button><button class="btn btn-outline-danger px-2" type="button" data-remove-variant aria-label="Hapus varian"><i class="bi bi-trash"></i></button></div>';
                 list.appendChild(row);
                 var preorderSettings = document.createElement('div');
                 preorderSettings.className = 'row g-3 mb-3 align-items-center';
                 preorderSettings.setAttribute('data-preorder-settings', '');
                 preorderSettings.innerHTML =
-                    '<div class="col-md-3"><input type="hidden" name="variants[' + index + '][is_preorder]" value="0"><div class="form-check form-switch"><input class="form-check-input preorder-toggle" type="checkbox" name="variants[' + index + '][is_preorder]" value="1" id="variant-preorder-' + index + '"><label class="form-check-label" for="variant-preorder-' + index + '">Sell as pre-order</label></div></div>' +
-                    '<div class="col-md-6 d-flex align-items-center gap-2"><label class="form-label mb-0 text-nowrap" for="variant-preorder-date-' + index + '">Expected availability</label><input class="form-control preorder-date" style="max-width:200px" type="date" name="variants[' + index + '][preorder_expected_at]" id="variant-preorder-date-' + index + '" disabled></div>' +
+                    '<div class="col-md-3"><input type="hidden" name="variants[' + index + '][is_preorder]" value="0"><div class="form-check form-switch"><input class="form-check-input preorder-toggle" type="checkbox" name="variants[' + index + '][is_preorder]" value="1" id="variant-preorder-' + index + '"' + (preorder ? ' checked' : '') + '><label class="form-check-label" for="variant-preorder-' + index + '">Sell as pre-order</label></div></div>' +
+                    '<div class="col-md-6 d-flex align-items-center gap-2"><label class="form-label mb-0 text-nowrap" for="variant-preorder-date-' + index + '">Expected availability</label><input class="form-control preorder-date" style="max-width:200px" type="date" name="variants[' + index + '][preorder_expected_at]" id="variant-preorder-date-' + index + '" value="' + esc(v.preorderDate) + '"' + (preorder ? ' required' : ' disabled') + '></div>' +
                     '<div class="col-md-12"><small class="text-muted">Pre-order quantity is not limited by current physical stock. Stock In will allocate received items to paid orders in order.</small></div>';
                 list.appendChild(preorderSettings);
+                return row;
+            }
+
+            function field(row, name) {
+                return row.querySelector('[name$="[' + name + ']"]:not([type=hidden])');
+            }
+
+            document.getElementById('add-variant').addEventListener('click', function () {
+                addVariantRow();
+            });
+
+            list.addEventListener('click', function (event) {
+                var copyButton = event.target.closest('[data-copy-variant]');
+                if (!copyButton) return;
+                var source = copyButton.closest('[data-variant-row]');
+                var settings = source.nextElementSibling;
+                var toggle = settings ? settings.querySelector('.preorder-toggle') : null;
+                var date = settings ? settings.querySelector('.preorder-date') : null;
+                var copy = addVariantRow({
+                    name: '',
+                    color: field(source, 'color').value,
+                    price: field(source, 'price').value,
+                    threshold: field(source, 'low_stock_threshold').value,
+                    preorder: toggle ? toggle.checked : false,
+                    preorderDate: date ? date.value : ''
+                });
+                var nameInput = field(copy, 'name');
+                nameInput.focus();
+                nameInput.scrollIntoView({ block: 'center', behavior: 'smooth' });
             });
 
             list.addEventListener('click', function (event) {

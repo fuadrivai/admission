@@ -55,6 +55,7 @@ interface MerchandiseService
     public function getStockIns($limit = null);
     public function getStockInVariants();
     public function postStockIn(array $data, $userId);
+    public function correctStockInCost($stockInItemId, $unitCost, $reason, $userId);
     public function getStockOpnames();
     public function getStockOpnameVariants();
     public function showStockOpname($id);

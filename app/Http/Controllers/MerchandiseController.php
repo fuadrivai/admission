@@ -516,12 +516,6 @@ class MerchandiseController extends Controller
     {
         $product = $this->merchandiseService->showProduct($id);
         $data = $this->validateProduct($request, $id);
-        foreach ($data['variants'] as &$variant) {
-            if (!empty($variant['id'])) {
-                $variant['price'] = $product->variants->firstWhere('id', $variant['id'])->price;
-            }
-        }
-        unset($variant);
         $data['id'] = $id;
         $this->merchandiseService->putProduct($data);
 
@@ -623,6 +617,19 @@ class MerchandiseController extends Controller
         $this->merchandiseService->postStockIn($data, $request->user()->id);
 
         return redirect()->route('merchandise.stock-ins')->with('success', 'Stock In berhasil dicatat.');
+    }
+
+    public function correctStockInCost(Request $request, $itemId)
+    {
+        $this->ensureCostAccess();
+
+        $data = $request->validate([
+            'unit_cost' => ['required', 'numeric', 'min:0', 'max:9999999999.99'],
+            'reason' => ['required', 'string', 'max:255'],
+        ]);
+        $this->merchandiseService->correctStockInCost($itemId, $data['unit_cost'], $data['reason'], $request->user()->id);
+
+        return redirect()->route('merchandise.stock-ins')->with('success', 'Harga modal Stock In berhasil dikoreksi.');
     }
 
     public function stockOpnames()
@@ -738,14 +745,7 @@ class MerchandiseController extends Controller
 
             $variantRules["variants.$index.sku"] = ['nullable', 'string', 'max:64', $skuRule];
             $variantRules["variants.$index.name"] = $nameRules;
-            $hasVariantImage = !empty($variant['id'])
-                && MerchandiseVariant::whereKey($variant['id'])->whereNotNull('image_path')->exists();
-            $variantRules["variants.$index.image"] = [
-                $hasVariantImage ? 'nullable' : 'required',
-                'image',
-                'mimes:jpg,jpeg,png,webp',
-                'max:5120',
-            ];
+            $variantRules["variants.$index.image"] = ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'];
         }
 
         $validator = Validator::make($request->all(), array_merge([

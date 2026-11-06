@@ -103,6 +103,8 @@
                     <div class="product-price" id="product-price">Rp{{ number_format($variants->first()->price, 0, ',', '.') }}</div>
                 @endif
                 <div class="product-description">{{ $product->description ?: 'Official merchandise from Mutiara Harapan Islamic School.' }}</div>
+                @php($allSoldOut = $variants->every(function ($variant) { return (int) $variant->available_stock < 1; }))
+                @php($defaultVariantId = optional($variants->first(function ($variant) { return (int) $variant->available_stock > 0; }))->id)
                 @if ($settings->is_open && $variants->isNotEmpty())
                     <form class="product-form" method="POST" action="{{ route('merchandise.public-cart.add', ['productId' => $product->id]) }}">
                         @csrf
@@ -110,21 +112,26 @@
                         <select id="variant-id" name="variant_id" class="form-select" required>
                             @foreach ($variants as $variant)
                                 <option value="{{ $variant->id }}"
+                                    {{ (int) $variant->available_stock < 1 ? 'disabled' : '' }}
+                                    {{ $variant->id === $defaultVariantId ? 'selected' : '' }}
                                     data-price="{{ number_format($variant->price, 0, ',', '.') }}"
                                     data-stock="{{ $variant->available_stock }}"
                                     data-preorder="{{ $variant->is_preorder ? '1' : '0' }}"
                                     data-expected="{{ $variant->preorder_expected_at ? $variant->preorder_expected_at->format('d M Y') : '' }}"
                                     data-image="{{ $variant->image_path ? '/storage/' . $variant->image_path : '' }}">
-                                    {{ $variant->color ? $variant->color . ' / ' : '' }}{{ $variant->name }}{{ $variant->is_preorder ? ' Â· Pre-order' : '' }} â€” Rp{{ number_format($variant->price, 0, ',', '.') }}
+                                    {{ $variant->color ? $variant->color . ' / ' : '' }}{{ $variant->name }}{{ $variant->is_preorder ? ' · Pre-order' : '' }} — Rp{{ number_format($variant->price, 0, ',', '.') }}{{ (int) $variant->available_stock < 1 ? ' — Sold out' : '' }}
                                 </option>
                             @endforeach
                         </select>
                         <div class="product-stock" id="product-stock"></div>
                         <label for="quantity" class="form-label">Quantity</label>
-                        <input id="quantity" name="quantity" class="form-control" type="number" min="1" value="1" required>
+                        <input id="quantity" name="quantity" class="form-control" type="number" min="1" value="1" required {{ $allSoldOut ? 'disabled' : '' }}>
+                        @if ($allSoldOut)
+                            <div class="alert alert-secondary mt-3 mb-0">Sold out. This product is currently unavailable for purchase.</div>
+                        @endif
                         <div class="product-actions mt-3">
-                            <button class="btn-outline-maroon" type="submit"><i class="bi bi-cart-plus me-1"></i> Add to Cart</button>
-                            <button class="btn-maroon" type="submit" name="buy_now" value="1"><i class="bi bi-lightning-fill me-1"></i> Buy Now</button>
+                            <button class="btn-outline-maroon" type="submit" {{ $allSoldOut ? 'disabled' : '' }}><i class="bi bi-cart-plus me-1"></i> Add to Cart</button>
+                            <button class="btn-maroon" type="submit" name="buy_now" value="1" {{ $allSoldOut ? 'disabled' : '' }}><i class="bi bi-lightning-fill me-1"></i> Buy Now</button>
                         </div>
                     </form>
                 @elseif (!$settings->is_open)
@@ -135,7 +142,7 @@
             </div>
         </section>
     </main>
-    <footer class="store-footer">&copy; {{ date('Y') }} {{ $settings->store_name }} Â· Mutiara Harapan Islamic School</footer>
+    <footer class="store-footer">&copy; {{ date('Y') }} {{ $settings->store_name }} · Mutiara Harapan Islamic School</footer>
 
     @if ($variants->isNotEmpty())
         <script>
@@ -151,10 +158,14 @@
                     var option = selector.options[selector.selectedIndex];
                     var stock = Number(option.getAttribute('data-stock'));
                     var isPreorder = option.getAttribute('data-preorder') === '1';
-                    if (isPreorder) {
-                        quantity.removeAttribute('max');
-                        stockLabel.textContent = 'Pre-order' + (option.getAttribute('data-expected')
-                            ? ' Â· Expected availability ' + option.getAttribute('data-expected')
+                    if (stock < 1) {
+                        quantity.max = 1;
+                        stockLabel.textContent = 'Sold out';
+                    } else if (isPreorder) {
+                        quantity.max = stock;
+                        if (Number(quantity.value) > stock) quantity.value = stock;
+                        stockLabel.textContent = 'Pre-order · ' + stock + ' slots left' + (option.getAttribute('data-expected')
+                            ? ' · Expected availability ' + option.getAttribute('data-expected')
                             : '');
                     } else {
                         quantity.max = stock;
