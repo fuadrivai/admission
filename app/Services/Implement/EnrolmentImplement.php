@@ -724,6 +724,22 @@ class EnrolmentImplement implements EnrolmentService
             }
         }
 
+        if (in_array($request->dp_status, ['paid', 'unpaid'], true)) {
+            $dpPaymentQuery = function ($transactionQuery) {
+                $transactionQuery
+                    ->whereRaw('UPPER(payment_status) IN (?, ?, ?)', ['PAID', 'SETTLED', 'COMPLETED'])
+                    ->whereHas('details', function ($detailsQuery) {
+                        $detailsQuery->where('type', 'dp');
+                    });
+            };
+
+            if ($request->dp_status === 'paid') {
+                $query->whereHas('transactions', $dpPaymentQuery);
+            } else {
+                $query->whereDoesntHave('transactions', $dpPaymentQuery);
+            }
+        }
+
         if ($request->source_data && $request->source_data !== 'all') {
             $query->where('source_data', $request->source_data);
         }
@@ -771,6 +787,20 @@ class EnrolmentImplement implements EnrolmentService
             })->count(),
             'expired' => (clone $query)->whereHas('transactions', function ($transactionQuery) {
                 $transactionQuery->whereRaw('UPPER(payment_status) = ?', ['EXPIRED']);
+            })->count(),
+            'dp_paid' => (clone $query)->whereHas('transactions', function ($transactionQuery) {
+                $transactionQuery
+                    ->whereRaw('UPPER(payment_status) IN (?, ?, ?)', ['PAID', 'SETTLED', 'COMPLETED'])
+                    ->whereHas('details', function ($detailsQuery) {
+                        $detailsQuery->where('type', 'dp');
+                    });
+            })->count(),
+            'dp_unpaid' => (clone $query)->whereDoesntHave('transactions', function ($transactionQuery) {
+                $transactionQuery
+                    ->whereRaw('UPPER(payment_status) IN (?, ?, ?)', ['PAID', 'SETTLED', 'COMPLETED'])
+                    ->whereHas('details', function ($detailsQuery) {
+                        $detailsQuery->where('type', 'dp');
+                    });
             })->count(),
             'cancelled' => (clone $query)->where('status', 'Cancelled')->count(),
             'total' => $totalFiltered,

@@ -25,6 +25,20 @@
         </div>
         <div class="row text-center gy-2">
             <div class="col-6 col-md">
+                <div class="small text-muted">DP lunas</div>
+                <div class="h5 mb-0 text-success">{{ $summary['dp_paid'] ?? 0 }}</div>
+            </div>
+            <div class="col-6 col-md">
+                <div class="small text-muted">Belum lunas DP</div>
+                <div class="h5 mb-0 text-warning">{{ $summary['dp_unpaid'] ?? 0 }}</div>
+            </div>
+            <div class="col-12">
+                <small class="text-muted">“Belum lunas” berarti belum ada transaksi DP berstatus lunas. DP bisa belum dibuat, masih menunggu, atau kedaluwarsa.</small>
+            </div>
+            <hr>
+        </div>
+        <div class="row text-center gy-2">
+            <div class="col-6 col-md">
                 <div class="small text-muted">Total Visit</div>
                 <div class="h5 mb-0">{{ $summary['visitSummary']['visit'] ?? 0 }}</div>
             </div>
@@ -78,6 +92,15 @@
                     </div>
                 </div>
                 <div class="col-md-6 text-end" style="vertical-align: middle">
+                    @php
+                        $hasPaidDp = $enrolment->transactions->contains(function ($transaction) {
+                            return in_array(strtoupper((string) $transaction->payment_status), ['PAID', 'SETTLED', 'COMPLETED'], true)
+                                && $transaction->details->contains('type', 'dp');
+                        });
+                    @endphp
+                    <span class="badge me-1 {{ $hasPaidDp ? 'text-bg-success' : 'text-bg-warning' }}">
+                        {{ $hasPaidDp ? 'DP lunas' : 'Belum lunas DP' }}
+                    </span>
                     @if (auth()->user()->role !== 'user' && $enrolment->canCreateDp())
                         <a href="{{ route('enrolment.dp.index', ['code' => $enrolment->code]) }}"
                             class="btn btn-sm btn-warning me-1 dp-ready-button" title="Enrolment siap membayar DP">

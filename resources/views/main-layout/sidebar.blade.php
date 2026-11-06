@@ -23,6 +23,12 @@
                         <span>Dashboard</span>
                     </a>
                 </li>
+                <li class="sidebar-item {{ Request::is('admission-monitoring*') ? 'active' : '' }}">
+                    <a href="{{ route('admission-monitoring.index') }}" class="sidebar-link">
+                        <i class="bi bi-kanban-fill"></i>
+                        <span>Admission Monitoring</span>
+                    </a>
+                </li>
 
                 @if (!auth()->check() || auth()->user()->role != 'user')
                     <li

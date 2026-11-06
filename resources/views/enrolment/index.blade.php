@@ -175,6 +175,17 @@
                                 </select>
                             </div>
                         </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="filter-dp-status">Status pembayaran DP</label>
+                                <select id="filter-dp-status" name="filter-dp-status" class="form-select"
+                                    style="width: 100%">
+                                    <option value="all" {{ request('dp_status') === 'all' || !in_array(request('dp_status'), ['paid', 'unpaid'], true) ? 'selected' : '' }}>Semua</option>
+                                    <option value="paid" {{ request('dp_status') === 'paid' ? 'selected' : '' }}>Sudah lunas DP</option>
+                                    <option value="unpaid" {{ request('dp_status') === 'unpaid' ? 'selected' : '' }}>Belum lunas DP</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                     <div class="row">
                         <div class="col-md-3">
@@ -400,7 +411,7 @@
                 }, 400);
             });
 
-            $('#filter-level, #filter-branch, #filter-status, #filter-source-data, #filter-ay, #filter-archive')
+            $('#filter-level, #filter-branch, #filter-status, #filter-dp-status, #filter-source-data, #filter-ay, #filter-archive')
                 .on('change keyup', function() {
                     loadEnrolments();
                 });
@@ -676,6 +687,7 @@
                 level: $('#filter-level').val(),
                 grade: $('#filter-grade').val(),
                 status: $('#filter-status').val(),
+                dp_status: $('#filter-dp-status').val(),
                 source_data: $('#filter-source-data').val(),
                 data_from: $('#filter-data-from').val(),
                 regis_place: $('#filter-regis-place').val(),
@@ -697,6 +709,7 @@
                 level: $('#filter-level').val(),
                 grade: $('#filter-grade').val(),
                 status: $('#filter-status').val(),
+                dp_status: $('#filter-dp-status').val(),
                 source_data: $('#filter-source-data').val(),
                 data_from: $('#filter-data-from').val(),
                 regis_place: $('#filter-regis-place').val(),

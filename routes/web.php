@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdmissionController;
 use App\Http\Controllers\AdmissionDocumentController;
+use App\Http\Controllers\AdmissionMonitoringController;
 use App\Http\Controllers\AdmissionStatementController;
 use App\Http\Controllers\AdmissionStatementDocumentController;
 use App\Http\Controllers\AuthController;
@@ -153,6 +154,8 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
 
     Route::group(['middleware' => 'auth'], function () {
         Route::get('/', [HomeController::class, 'index'])->name('home');
+        Route::get('/admission-monitoring', [AdmissionMonitoringController::class, 'index'])
+            ->name('admission-monitoring.index');
 
         Route::post('/logout', [AuthController::class, 'logout']);
 
