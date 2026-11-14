@@ -57,6 +57,31 @@
 
     <div class="card">
         <div class="card-body">
+            @if ($errors->has('google_sheet'))
+                <div class="alert alert-danger">{{ $errors->first('google_sheet') }}</div>
+            @endif
+            @if (session('success'))
+                <div class="alert alert-success">{{ session('success') }}</div>
+            @endif
+            <div class="d-flex flex-wrap justify-content-end gap-2 mb-3">
+                @if (session('google_sheet_url') || $googleSheetUrl)
+                    <a class="btn btn-outline-success" href="{{ session('google_sheet_url') ?: $googleSheetUrl }}"
+                        target="_blank" rel="noopener noreferrer">
+                        <i class="bi bi-table"></i> Open Google Sheet
+                    </a>
+                @endif
+                <form method="POST" action="{{ route('merchandise.orders.google-sheet') }}">
+                    @csrf
+                    <input type="hidden" name="search" value="{{ $filters['search'] }}">
+                    <input type="hidden" name="status" value="{{ $filters['status'] }}">
+                    <button class="btn btn-success" type="submit">
+                        <i class="bi bi-cloud-arrow-up"></i> Sync Google Sheet
+                    </button>
+                </form>
+                <a class="btn btn-primary" href="{{ route('merchandise.orders.export', request()->query()) }}">
+                    <i class="bi bi-download"></i> Export Excel
+                </a>
+            </div>
             <form method="GET" action="{{ route('merchandise.orders') }}" class="row g-2 mb-3">
                 <div class="col-md-6">
                     <input type="search" name="search" value="{{ $filters['search'] }}" class="form-control" placeholder="Cari nomor pesanan, nama, email, telepon, username, atau cabang">

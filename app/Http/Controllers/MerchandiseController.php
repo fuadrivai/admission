@@ -2,12 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\MerchandiseOrderExport;
+use App\Google\MerchandiseOrderGoogleSheetService;
 use App\Models\MerchandiseCategory;
+use App\Models\GoogleSheetMaster;
 use App\Models\MerchandiseProductImage;
 use App\Models\MerchandiseProduct;
 use App\Models\MerchandiseVariant;
 use App\Services\MerchandiseService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -165,16 +170,62 @@ class MerchandiseController extends Controller
     public function orders(Request $request)
     {
         $this->ensureCostAccess();
-        $filters = $request->validate([
-            'search' => ['nullable', 'string', 'max:150'],
-            'status' => ['nullable', Rule::in(['all', 'pending', 'paid', 'expired', 'failed'])],
-        ]);
+        $filters = $this->validateOrderFilters($request);
         $data = $this->merchandiseService->getOrders($filters);
 
         return view('merchandise.orders.index', array_merge(
-            ['title' => 'Order Management'],
+            [
+                'title' => 'Order Management',
+                'googleSheetUrl' => GoogleSheetMaster::where('integration_key', 'merchandise_orders')
+                    ->value('google_sheet_url'),
+            ],
             $data
         ));
+    }
+
+    public function exportOrders(Request $request)
+    {
+        $this->ensureCostAccess();
+        $filters = $this->validateOrderFilters($request);
+        $orders = $this->merchandiseService->getOrdersForExport($filters);
+
+        return Excel::download(
+            new MerchandiseOrderExport($orders),
+            'merchandise-orders-' . now()->format('Y-m-d-His') . '.xlsx'
+        );
+    }
+
+    public function syncOrdersToGoogleSheet(
+        Request $request,
+        MerchandiseOrderGoogleSheetService $googleSheet
+    ) {
+        $this->ensureCostAccess();
+        $filters = $this->validateOrderFilters($request);
+
+        try {
+            $url = $googleSheet->sync($this->merchandiseService->getOrdersForExport($filters));
+        } catch (\Exception $exception) {
+            Log::error('Merchandise orders Google Sheets sync failed.', [
+                'exception' => $exception->getMessage(),
+            ]);
+
+            return redirect()->route('merchandise.orders', $filters)
+                ->withErrors([
+                    'google_sheet' => 'Google Sheets sync failed. Check the application log and confirm Google API authorization.',
+                ]);
+        }
+
+        return redirect()->route('merchandise.orders', $filters)
+            ->with('success', 'Orders synced to Google Sheets.')
+            ->with('google_sheet_url', $url);
+    }
+
+    private function validateOrderFilters(Request $request): array
+    {
+        return $request->validate([
+            'search' => ['nullable', 'string', 'max:150'],
+            'status' => ['nullable', Rule::in(['all', 'pending', 'paid', 'expired', 'failed'])],
+        ]);
     }
 
     public function showOrder($id)

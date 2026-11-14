@@ -508,24 +508,8 @@ class MerchandiseImplement implements MerchandiseService
 
     public function getOrders(array $filters = [])
     {
-        $query = MerchandiseOrder::query()
-            ->orderByDesc('created_at')
-            ->orderByDesc('id');
-
-        if (!empty($filters['search'])) {
-            $search = trim($filters['search']);
-            $query->where(function ($orderQuery) use ($search) {
-                $orderQuery->where('code', 'like', '%' . $search . '%')
-                    ->orWhere('parent_name', 'like', '%' . $search . '%')
-                    ->orWhere('email', 'like', '%' . $search . '%')
-                    ->orWhere('phone', 'like', '%' . $search . '%')
-                    ->orWhere('portal_username', 'like', '%' . $search . '%')
-                    ->orWhere('branch_name', 'like', '%' . $search . '%');
-            });
-        }
-
         $status = $filters['status'] ?? 'all';
-        $this->applyOrderStatusFilter($query, $status);
+        $query = $this->ordersQuery($filters);
         $orders = $query->paginate(25)->withQueryString();
         foreach ($orders as $order) {
             $order->setAttribute('display_payment_status', $this->effectiveOrderStatus($order));
@@ -554,6 +538,41 @@ class MerchandiseImplement implements MerchandiseService
                 'status' => $status,
             ],
         ];
+    }
+
+    public function getOrdersForExport(array $filters = [])
+    {
+        $orders = $this->ordersQuery($filters)->with('items')->get();
+
+        foreach ($orders as $order) {
+            $order->setAttribute('display_payment_status', $this->effectiveOrderStatus($order));
+            $order->setAttribute('stock_is_held', $this->isOrderStockHeld($order));
+        }
+
+        return $orders;
+    }
+
+    private function ordersQuery(array $filters = [])
+    {
+        $query = MerchandiseOrder::query()
+            ->orderByDesc('created_at')
+            ->orderByDesc('id');
+
+        if (!empty($filters['search'])) {
+            $search = trim($filters['search']);
+            $query->where(function ($orderQuery) use ($search) {
+                $orderQuery->where('code', 'like', '%' . $search . '%')
+                    ->orWhere('parent_name', 'like', '%' . $search . '%')
+                    ->orWhere('email', 'like', '%' . $search . '%')
+                    ->orWhere('phone', 'like', '%' . $search . '%')
+                    ->orWhere('portal_username', 'like', '%' . $search . '%')
+                    ->orWhere('branch_name', 'like', '%' . $search . '%');
+            });
+        }
+
+        $this->applyOrderStatusFilter($query, $filters['status'] ?? 'all');
+
+        return $query;
     }
 
     public function showOrder($id)

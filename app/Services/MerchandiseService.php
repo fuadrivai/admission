@@ -31,6 +31,7 @@ interface MerchandiseService
     public function putPromotion(array $data);
     public function deletePromotion($id);
     public function getOrders(array $filters = []);
+    public function getOrdersForExport(array $filters = []);
     public function showOrder($id);
     public function getPreorders();
     public function fulfillPreorder($orderId, $userId);

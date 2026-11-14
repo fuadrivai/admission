@@ -744,9 +744,34 @@ class EnrolmentImplement implements EnrolmentService
             $query->where('source_data', $request->source_data);
         }
 
-        if ($request->data_from && $request->data_from !== 'all') {
-            $query->whereHas('transactions', function ($transactionQuery) use ($request) {
+        $filterByTransactionSource = $request->data_from && $request->data_from !== 'all';
+        $filterByTransactionDate = $filterByTransactionSource && $request->start_date;
+
+        if ($filterByTransactionSource) {
+            $transactionStart = $filterByTransactionDate
+                ? Carbon::createFromFormat('d F Y', $request->start_date)->format('Y-m-d')
+                : null;
+            $transactionEnd = $filterByTransactionDate && $request->end_date
+                ? Carbon::createFromFormat('d F Y', $request->end_date)->format('Y-m-d')
+                : $transactionStart;
+
+            $query->whereHas('transactions', function ($transactionQuery) use (
+                $request,
+                $filterByTransactionDate,
+                $transactionStart,
+                $transactionEnd
+            ) {
                 $transactionQuery->where('data_from', $request->data_from);
+
+                if ($filterByTransactionDate) {
+                    $transactionQuery->whereRaw(
+                        'COALESCE(payment_date, created_at) BETWEEN ? AND ?',
+                        [
+                            $transactionStart . ' 00:00:00',
+                            $transactionEnd . ' 23:59:59',
+                        ]
+                    );
+                }
             });
         }
 
@@ -759,7 +784,7 @@ class EnrolmentImplement implements EnrolmentService
             $query->where('academic_year_id', $request->academic_year);
         }
 
-        if ($request->start_date && $request->start_date != '') {
+        if ($request->start_date && !$filterByTransactionDate) {
             $startDate = Carbon::createFromFormat('d F Y', $request->start_date)->format('Y-m-d');
             $endate = null;
             if ($request->end_date && $request->end_date != '') {
