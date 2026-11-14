@@ -94,41 +94,18 @@
                     </a>
                 </p>
                 <div class="collapse" id="collapse-filter">
+                    <div class="mb-3">
+                        <h6 class="mb-1">Data Enrolment</h6>
+                        <small class="text-muted">Menyaring data utama Enrolment.</small>
+                    </div>
                     <div class="row">
-                        {{-- <div class="col-md-3">
-                            <div class="form-group">
-                                <label for="filter-archive">Record</label>
-                                <select id="filter-archive" name="filter-archive" class="form-select"
-                                    style="width: 100%">
-                                    <option value="active" selected>Active enrolments</option>
-                                    <option value="merged">Merged archive</option>
-                                    <option value="all">All records</option>
-                                </select>
-                            </div>
-                        </div> --}}
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="filter-name">Search</label>
-                                <input placeholder="code, child name, parent name, email, phone" type="text"
+                                <input placeholder="Kode enrolment, nama anak/orang tua, email, telepon" type="text"
                                     class="form-control" id="filter-name" name="filter-name">
                             </div>
                         </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label for="filter-start-date">Start date</label>
-                                <input type="text"name="filter-start-date" class="form-control date-picker"
-                                    id="filter-start-date">
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <lable for="filter-end-date">End date</lable>
-                                <input disabled type="text" class="form-control date-picker" id="filter-end-date"
-                                    name="filter-end-date">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label for="filter-source-data">Parent</label>
@@ -140,54 +117,6 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label for="filter-data-from">Payment Source</label>
-                                <select id="filter-data-from" name="filter-data-from" class="form-select"
-                                    style="width: 100%">
-                                    <option value="all">All</option>
-                                    <option value="custom_form">Custom Payment</option>
-                                    <option value="web_form">Dashboard</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label for="filter-regis-place">Place</label>
-                                <select id="filter-regis-place" disabled name="filter-regis-place" class="form-select"
-                                    style="width: 100%">
-                                    <option value="all">All</option>
-                                    <option value="Openday">Openday</option>
-                                    <option value="Exhibition">Exhibition</option>
-                                    <option value="School">School</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label for="filter-status">Status</label>
-                                <select id="filter-status" name="filter-status" class="form-select" style="width: 100%">
-                                    <option value="all">All status</option>
-                                    <option value="PENDING">Pending</option>
-                                    <option value="PAID">Paid</option>
-                                    <option value="EXPIRED">Expired</option>
-                                    <option value="CANCELLED">Cancel</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label for="filter-dp-status">Status pembayaran DP</label>
-                                <select id="filter-dp-status" name="filter-dp-status" class="form-select"
-                                    style="width: 100%">
-                                    <option value="all" {{ request('dp_status') === 'all' || !in_array(request('dp_status'), ['paid', 'unpaid'], true) ? 'selected' : '' }}>Semua</option>
-                                    <option value="paid" {{ request('dp_status') === 'paid' ? 'selected' : '' }}>Sudah lunas DP</option>
-                                    <option value="unpaid" {{ request('dp_status') === 'unpaid' ? 'selected' : '' }}>Belum lunas DP</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label for="filter-branch">Branch</label>
@@ -221,6 +150,92 @@
                                 <label for="filter-ay">Academic Year</label>
                                 <select id="filter-ay" name="filter-ay" class="form-select" style="width: 100%">
                                     <option value="all">All Academic Years</option>
+                                </select>
+                            </div>
+                        </div>
+                        {{-- <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="filter-enrolment-status">Enrolment Status</label>
+                                <select id="filter-enrolment-status" name="filter-enrolment-status"
+                                    class="form-select" style="width: 100%">
+                                    <option value="all">All enrolments</option>
+                                    <option value="active">Active</option>
+                                    <option value="cancelled">Cancelled</option>
+                                </select>
+                            </div>
+                        </div> --}}
+                    </div>
+                    <hr class="my-3">
+                    <div class="mb-3">
+                        <h6 class="mb-1">Payment</h6>
+                        <small class="text-muted">Filter ini mencari transaksi terkait. Rentang tanggal berlaku untuk semua
+                            sumber; tanggal pembayaran digunakan, atau tanggal transaksi dibuat jika tanggal pembayaran
+                            kosong.</small>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="filter-data-from">Payment Source</label>
+                                <select id="filter-data-from" name="filter-data-from" class="form-select"
+                                    style="width: 100%">
+                                    <option value="all">All sources</option>
+                                    <option value="custom_form">Custom Payment</option>
+                                    <option value="web_form">Dashboard</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="filter-start-date">Start transaction date</label>
+                                <input type="text" name="filter-start-date" class="form-control date-picker"
+                                    id="filter-start-date">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="filter-end-date">End transaction date</label>
+                                <input disabled type="text" class="form-control date-picker" id="filter-end-date"
+                                    name="filter-end-date">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="filter-regis-place">Place</label>
+                                <select id="filter-regis-place" disabled name="filter-regis-place" class="form-select"
+                                    style="width: 100%">
+                                    <option value="all">All</option>
+                                    <option value="Openday">Openday</option>
+                                    <option value="Exhibition">Exhibition</option>
+                                    <option value="School">School</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="filter-payment-status">Payment Status</label>
+                                <select id="filter-payment-status" name="filter-payment-status" class="form-select"
+                                    style="width: 100%">
+                                    <option value="all">All payment statuses</option>
+                                    <option value="PENDING">Pending</option>
+                                    <option value="PAID">Paid</option>
+                                    <option value="EXPIRED">Expired</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="filter-dp-status">DP / Other Payment Status</label>
+                                <select id="filter-dp-status" name="filter-dp-status" class="form-select"
+                                    style="width: 100%">
+                                    <option value="all"
+                                        {{ request('dp_status') === 'all' || !in_array(request('dp_status'), ['paid', 'pending', 'expired'], true) ? 'selected' : '' }}>
+                                        All</option>
+                                    <option value="paid" {{ request('dp_status') === 'paid' ? 'selected' : '' }}>Paid
+                                    </option>
+                                    <option value="pending" {{ request('dp_status') === 'pending' ? 'selected' : '' }}>
+                                        Pending</option>
+                                    <option value="expired" {{ request('dp_status') === 'expired' ? 'selected' : '' }}>
+                                        Expired</option>
                                 </select>
                             </div>
                         </div>
@@ -411,7 +426,7 @@
                 }, 400);
             });
 
-            $('#filter-level, #filter-branch, #filter-status, #filter-dp-status, #filter-source-data, #filter-ay, #filter-archive')
+            $('#filter-level, #filter-branch, #filter-payment-status, #filter-enrolment-status, #filter-dp-status, #filter-source-data, #filter-ay, #filter-archive')
                 .on('change keyup', function() {
                     loadEnrolments();
                 });
@@ -489,7 +504,8 @@
                 const showCopyResult = function(success) {
                     toastify(
                         success ? 'Success' : 'Error',
-                        success ? 'Kode enrolment berhasil disalin' : 'Kode enrolment gagal disalin',
+                        success ? 'Kode enrolment berhasil disalin' :
+                        'Kode enrolment gagal disalin',
                         success ? 'success' : 'error'
                     );
                 };
@@ -686,7 +702,8 @@
                 branch: $('#filter-branch').val(),
                 level: $('#filter-level').val(),
                 grade: $('#filter-grade').val(),
-                status: $('#filter-status').val(),
+                status: $('#filter-payment-status').val(),
+                enrolment_status: $('#filter-enrolment-status').val(),
                 dp_status: $('#filter-dp-status').val(),
                 source_data: $('#filter-source-data').val(),
                 data_from: $('#filter-data-from').val(),
@@ -708,7 +725,8 @@
                 academic_year: $('#filter-ay').val(),
                 level: $('#filter-level').val(),
                 grade: $('#filter-grade').val(),
-                status: $('#filter-status').val(),
+                status: $('#filter-payment-status').val(),
+                enrolment_status: $('#filter-enrolment-status').val(),
                 dp_status: $('#filter-dp-status').val(),
                 source_data: $('#filter-source-data').val(),
                 data_from: $('#filter-data-from').val(),

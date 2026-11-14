@@ -698,9 +698,6 @@ class EnrolmentImplement implements EnrolmentService
                 ->orWhere('parent_name', 'like', '%'.$request->search.'%')
                 ->orWhere('email', 'like', '%'.$request->search.'%')
                 ->orWhere('child_name', 'like', '%'.$request->search.'%')
-                ->orWhereHas('transactions', function ($transactionQuery) use ($request) {
-                    $transactionQuery->where('invoice_id', 'like', '%'.$request->search.'%');
-                })
                 ->orWhere('phone_number', 'like', '%'.$request->search.'%');
                 });
         }
@@ -714,56 +711,83 @@ class EnrolmentImplement implements EnrolmentService
         if ($request->grade && $request->grade !== 'all') {
             $query->where('grade_id', $request->grade);
         }
-        if ($request->status && $request->status !== 'all') {
-            if (strtoupper($request->status) === 'CANCELLED') {
-                $query->where('status', 'Cancelled');
-            } else {
-                $query->whereHas('transactions', function ($transactionQuery) use ($request) {
-                    $transactionQuery->whereRaw('UPPER(payment_status) = ?', [strtoupper($request->status)]);
-                });
-            }
-        }
-
-        if (in_array($request->dp_status, ['paid', 'unpaid'], true)) {
-            $dpPaymentQuery = function ($transactionQuery) {
-                $transactionQuery
-                    ->whereRaw('UPPER(payment_status) IN (?, ?, ?)', ['PAID', 'SETTLED', 'COMPLETED'])
-                    ->whereHas('details', function ($detailsQuery) {
-                        $detailsQuery->where('type', 'dp');
-                    });
-            };
-
-            if ($request->dp_status === 'paid') {
-                $query->whereHas('transactions', $dpPaymentQuery);
-            } else {
-                $query->whereDoesntHave('transactions', $dpPaymentQuery);
-            }
+        $enrolmentStatus = strtolower((string) $request->input('enrolment_status', 'all'));
+        $legacyStatus = strtoupper((string) $request->input('status', 'all'));
+        if ($enrolmentStatus !== 'all' && $enrolmentStatus !== '') {
+            $query->whereRaw('LOWER(status) = ?', [$enrolmentStatus]);
+        } elseif ($legacyStatus === 'CANCELLED') {
+            $query->where('status', 'Cancelled');
         }
 
         if ($request->source_data && $request->source_data !== 'all') {
             $query->where('source_data', $request->source_data);
         }
 
-        $filterByTransactionSource = $request->data_from && $request->data_from !== 'all';
-        $filterByTransactionDate = $filterByTransactionSource && $request->start_date;
+        if ($request->academic_year && $request->academic_year !== 'all') {
+            $query->where('academic_year_id', $request->academic_year);
+        }
 
-        if ($filterByTransactionSource) {
-            $transactionStart = $filterByTransactionDate
-                ? Carbon::createFromFormat('d F Y', $request->start_date)->format('Y-m-d')
-                : null;
-            $transactionEnd = $filterByTransactionDate && $request->end_date
+        $paymentStatus = strtoupper((string) $request->input('status', 'all'));
+        $hasPaymentStatus = $paymentStatus !== '' && $paymentStatus !== 'ALL' && $paymentStatus !== 'CANCELLED';
+        $dpStatus = strtolower((string) $request->input('dp_status', 'all'));
+        $hasDpStatus = in_array($dpStatus, ['paid', 'pending', 'expired'], true);
+        $paymentSource = $request->input('data_from', 'all');
+        $hasPaymentSource = $paymentSource !== '' && $paymentSource !== 'all';
+        $paymentPlace = $request->input('regis_place', 'all');
+        $hasPaymentPlace = $paymentPlace !== '' && $paymentPlace !== 'all';
+        $hasTransactionDate = (bool) $request->input('start_date');
+        $transactionStart = null;
+        $transactionEnd = null;
+
+        if ($hasTransactionDate) {
+            $transactionStart = Carbon::createFromFormat('d F Y', $request->start_date)->format('Y-m-d');
+            $transactionEnd = $request->end_date
                 ? Carbon::createFromFormat('d F Y', $request->end_date)->format('Y-m-d')
                 : $transactionStart;
+        }
 
+        if ($hasPaymentSource || $hasTransactionDate || $hasPaymentStatus || $hasDpStatus || $hasPaymentPlace) {
             $query->whereHas('transactions', function ($transactionQuery) use (
-                $request,
-                $filterByTransactionDate,
+                $paymentStatus,
+                $hasPaymentStatus,
+                $dpStatus,
+                $hasDpStatus,
+                $paymentSource,
+                $hasPaymentSource,
+                $paymentPlace,
+                $hasPaymentPlace,
+                $hasTransactionDate,
                 $transactionStart,
                 $transactionEnd
             ) {
-                $transactionQuery->where('data_from', $request->data_from);
+                if ($hasPaymentSource) {
+                    $transactionQuery->where('data_from', $paymentSource);
+                }
 
-                if ($filterByTransactionDate) {
+                if ($hasPaymentStatus) {
+                    $transactionQuery->whereRaw('UPPER(payment_status) = ?', [$paymentStatus]);
+                }
+
+                if ($hasDpStatus) {
+                    if ($dpStatus === 'paid') {
+                        $transactionQuery->whereRaw(
+                            'UPPER(payment_status) IN (?, ?, ?)',
+                            ['PAID', 'SETTLED', 'COMPLETED']
+                        );
+                    } else {
+                        $transactionQuery->whereRaw('UPPER(payment_status) = ?', [strtoupper($dpStatus)]);
+                    }
+
+                    $transactionQuery->whereHas('details', function ($detailsQuery) {
+                        $detailsQuery->where('type', '!=', 'enrolment');
+                    });
+                }
+
+                if ($hasPaymentPlace) {
+                    $transactionQuery->where('payment_place', $paymentPlace);
+                }
+
+                if ($hasTransactionDate) {
                     $transactionQuery->whereRaw(
                         'COALESCE(payment_date, created_at) BETWEEN ? AND ?',
                         [
@@ -775,25 +799,6 @@ class EnrolmentImplement implements EnrolmentService
             });
         }
 
-        if ($request->regis_place && $request->regis_place !== 'all') {
-            $query->whereHas('transactions', function ($transactionQuery) use ($request) {
-                $transactionQuery->where('payment_place', $request->regis_place);
-            });
-        }
-        if ($request->academic_year && $request->academic_year !== 'all') {
-            $query->where('academic_year_id', $request->academic_year);
-        }
-
-        if ($request->start_date && !$filterByTransactionDate) {
-            $startDate = Carbon::createFromFormat('d F Y', $request->start_date)->format('Y-m-d');
-            $endate = null;
-            if ($request->end_date && $request->end_date != '') {
-                $endate = Carbon::createFromFormat('d F Y', $request->end_date)->format('Y-m-d');
-                $query->whereBetween('created_at', [$startDate ." 00:00:00", $endate ." 23:59:59"]);
-            }else{
-                $query->whereBetween('created_at', [$startDate ." 00:00:00", $startDate ." 23:59:59"]);
-            }
-        }
         return $query;
     }
 
@@ -817,14 +822,21 @@ class EnrolmentImplement implements EnrolmentService
                 $transactionQuery
                     ->whereRaw('UPPER(payment_status) IN (?, ?, ?)', ['PAID', 'SETTLED', 'COMPLETED'])
                     ->whereHas('details', function ($detailsQuery) {
-                        $detailsQuery->where('type', 'dp');
+                        $detailsQuery->where('type', '!=', 'enrolment');
                     });
             })->count(),
-            'dp_unpaid' => (clone $query)->whereDoesntHave('transactions', function ($transactionQuery) {
+            'dp_pending' => (clone $query)->whereHas('transactions', function ($transactionQuery) {
                 $transactionQuery
-                    ->whereRaw('UPPER(payment_status) IN (?, ?, ?)', ['PAID', 'SETTLED', 'COMPLETED'])
+                    ->whereRaw('UPPER(payment_status) = ?', ['PENDING'])
                     ->whereHas('details', function ($detailsQuery) {
-                        $detailsQuery->where('type', 'dp');
+                        $detailsQuery->where('type', '!=', 'enrolment');
+                    });
+            })->count(),
+            'dp_expired' => (clone $query)->whereHas('transactions', function ($transactionQuery) {
+                $transactionQuery
+                    ->whereRaw('UPPER(payment_status) = ?', ['EXPIRED'])
+                    ->whereHas('details', function ($detailsQuery) {
+                        $detailsQuery->where('type', '!=', 'enrolment');
                     });
             })->count(),
             'cancelled' => (clone $query)->where('status', 'Cancelled')->count(),
