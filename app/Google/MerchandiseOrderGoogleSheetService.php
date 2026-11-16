@@ -81,9 +81,11 @@ class MerchandiseOrderGoogleSheetService
 
     private function writeOrders(string $spreadsheetId, Collection $orders): void
     {
-        $values = [$this->headings()];
+        $values = [array_values($this->headings())];
         foreach ($orders as $order) {
-            $values[] = $this->orderRow($order);
+            $values[] = array_values(array_map(function ($value) {
+                return $value === null ? '' : $value;
+            }, $this->orderRow($order)));
         }
 
         $this->sheets()->spreadsheets_values->update(
@@ -149,8 +151,8 @@ class MerchandiseOrderGoogleSheetService
             (float) $order->discount_amount,
             (float) $order->bank_charger,
             (float) $order->total_amount,
-            optional($order->paid_at)->format('Y-m-d H:i:s'),
-            optional($order->expires_at)->format('Y-m-d H:i:s'),
+            optional($order->paid_at)->format('Y-m-d H:i:s') ?: '',
+            optional($order->expires_at)->format('Y-m-d H:i:s') ?: '',
         ];
     }
 

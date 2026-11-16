@@ -3,18 +3,19 @@
 namespace Tests\Feature;
 
 use App\Exports\MerchandiseOrderExport;
-use App\Models\MerchandiseOrder;
-use App\Models\MerchandiseOrderItem;
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
+use ReflectionMethod;
+use Google\Service\Sheets;
 use Tests\TestCase;
 
 class MerchandiseOrderExportTest extends TestCase
 {
     public function test_order_export_includes_order_and_item_details(): void
     {
-        $order = new MerchandiseOrder([
+        $order = (object) [
             'code' => 'MERCH-TEST',
-            'created_at' => '2026-11-14 10:00:00',
+            'created_at' => Carbon::parse('2026-11-14 10:00:00'),
             'order_type' => 'PREORDER',
             'parent_name' => 'Parent Name',
             'email' => 'parent@example.com',
@@ -27,16 +28,17 @@ class MerchandiseOrderExportTest extends TestCase
             'discount_amount' => 0,
             'bank_charger' => 1500,
             'total_amount' => 241500,
-            'expires_at' => '2026-11-15 10:00:00',
-        ]);
-        $order->setAttribute('display_payment_status', 'PAID');
-        $order->setRelation('items', new Collection([
-            new MerchandiseOrderItem([
-                'product_name' => 'Shall MHIS',
-                'variant_name' => 'Kuning / 1.5 Meter',
-                'quantity' => 2,
+            'paid_at' => null,
+            'expires_at' => null,
+            'display_payment_status' => 'PAID',
+            'items' => new Collection([
+                (object) [
+                    'product_name' => 'Shall MHIS',
+                    'variant_name' => 'Kuning / 1.5 Meter',
+                    'quantity' => 2,
+                ],
             ]),
-        ]));
+        ];
 
         $export = new MerchandiseOrderExport(collect([$order]));
         $row = $export->map($order);
@@ -46,6 +48,22 @@ class MerchandiseOrderExportTest extends TestCase
         $this->assertSame('MERCH-TEST', $row[0]);
         $this->assertSame('PAID', $row[8]);
         $this->assertSame('Shall MHIS - Kuning / 1.5 Meter x 2', $row[10]);
-        $this->assertSame(241500.0, $row[15]);
+        $this->assertEquals(241500, $row[15]);
+
+        $googleRowMethod = new ReflectionMethod(
+            \App\Google\MerchandiseOrderGoogleSheetService::class,
+            'orderRow'
+        );
+        $googleRowMethod->setAccessible(true);
+        $googleRow = $googleRowMethod->invoke(new \App\Google\MerchandiseOrderGoogleSheetService(), $order);
+
+        $this->assertSame('', $googleRow[16]);
+        $this->assertSame('', $googleRow[17]);
+        $this->assertSame(range(0, 17), array_keys($googleRow));
+
+        $payload = json_decode(json_encode((new Sheets\ValueRange([
+            'values' => [$export->headings(), $googleRow],
+        ]))->toSimpleObject()), true);
+        $this->assertSame(range(0, 17), array_keys($payload['values'][1]));
     }
 }
