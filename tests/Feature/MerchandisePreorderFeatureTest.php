@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Http\Controllers\Api\MerchandiseApiController;
+use App\Google\MerchandiseOrderGoogleSheetService;
 use App\Models\MerchandiseCartItem;
 use App\Models\MerchandiseCategory;
 use App\Models\MerchandiseOrder;
@@ -205,6 +206,98 @@ class MerchandisePreorderFeatureTest extends TestCase
 
         $this->createOrder($variantId, 'PAID', 2);
         $this->assertSame(0, $quota->invoke($service, $variantId));
+    }
+
+    public function test_only_expired_orders_can_be_deleted_with_their_google_sheet_row(): void
+    {
+        $now = now();
+        $orderId = DB::table('merchandise_orders')->insertGetId([
+            'code' => 'MERCH-EXPIRED-1',
+            'external_id' => 'MERCH-EXPIRED-1',
+            'branch_id' => 1,
+            'branch_name' => 'Bintaro',
+            'parent_name' => 'Parent',
+            'email' => 'parent@example.com',
+            'phone' => '08123456789',
+            'portal_username' => 'P100',
+            'total_items' => 1,
+            'subtotal' => 100000,
+            'total_amount' => 100000,
+            'payment_status' => 'PENDING',
+            'order_type' => 'READY',
+            'fulfillment_status' => 'READY',
+            'expires_at' => $now->copy()->subMinute(),
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+        $itemId = DB::table('merchandise_order_items')->insertGetId([
+            'order_id' => $orderId,
+            'variant_id' => 1,
+            'product_name' => 'Jacket',
+            'variant_name' => 'Medium',
+            'quantity' => 1,
+            'unit_price' => 100000,
+            'subtotal' => 100000,
+            'is_preorder' => false,
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+        $stockOutId = DB::table('merchandise_stock_outs')->insertGetId([
+            'order_id' => $orderId,
+            'stock_out_at' => $now,
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+        DB::table('merchandise_stock_out_items')->insert([
+            'stock_out_id' => $stockOutId,
+            'variant_id' => 1,
+            'quantity' => 1,
+            'unit_cost' => 50000,
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+
+        $googleSheet = \Mockery::mock(MerchandiseOrderGoogleSheetService::class);
+        $googleSheet->shouldReceive('deleteOrder')
+            ->once()
+            ->with('MERCH-EXPIRED-1')
+            ->andReturn(true);
+        app()->instance(MerchandiseOrderGoogleSheetService::class, $googleSheet);
+
+        $service = new MerchandiseImplement();
+        $service->deleteExpiredOrder($orderId);
+
+        $this->assertDatabaseMissing('merchandise_orders', ['id' => $orderId]);
+        $this->assertDatabaseMissing('merchandise_order_items', ['id' => $itemId]);
+        $this->assertDatabaseMissing('merchandise_stock_outs', ['id' => $stockOutId]);
+        $this->assertDatabaseMissing('merchandise_stock_out_items', ['stock_out_id' => $stockOutId]);
+
+        $activeOrderId = DB::table('merchandise_orders')->insertGetId([
+            'code' => 'MERCH-PENDING-1',
+            'external_id' => 'MERCH-PENDING-1',
+            'branch_id' => 1,
+            'branch_name' => 'Bintaro',
+            'parent_name' => 'Parent',
+            'email' => 'parent@example.com',
+            'phone' => '08123456789',
+            'portal_username' => 'P100',
+            'total_items' => 1,
+            'subtotal' => 100000,
+            'total_amount' => 100000,
+            'payment_status' => 'PENDING',
+            'order_type' => 'READY',
+            'fulfillment_status' => 'READY',
+            'expires_at' => $now->copy()->addHour(),
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+
+        try {
+            $service->deleteExpiredOrder($activeOrderId);
+            $this->fail('A pending order must not be deleted.');
+        } catch (ValidationException $exception) {
+            $this->assertDatabaseHas('merchandise_orders', ['id' => $activeOrderId]);
+        }
     }
 
     private function createOrder(int $variantId, string $paymentStatus, int $quantity): MerchandiseOrder

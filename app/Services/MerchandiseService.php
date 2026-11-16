@@ -33,6 +33,7 @@ interface MerchandiseService
     public function getOrders(array $filters = []);
     public function getOrdersForExport(array $filters = []);
     public function showOrder($id);
+    public function deleteExpiredOrder($orderId);
     public function getPreorders();
     public function fulfillPreorder($orderId, $userId);
     public function getPublicStore($cartKey, array $filters = []);

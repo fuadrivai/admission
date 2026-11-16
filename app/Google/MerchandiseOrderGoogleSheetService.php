@@ -105,6 +105,53 @@ class MerchandiseOrderGoogleSheetService
         );
     }
 
+    public function deleteOrder(string $orderCode): bool
+    {
+        $master = GoogleSheetMaster::where('integration_key', self::MASTER_KEY)->first();
+        if (!$master || empty($master->google_sheet_url)) {
+            return false;
+        }
+
+        $spreadsheetId = $this->parseSpreadsheetId($master->google_sheet_url);
+        $this->ensureSheet($spreadsheetId);
+        $existingCodes = $this->sheets()->spreadsheets_values
+            ->get($spreadsheetId, self::SHEET_NAME . '!A2:A')
+            ->getValues() ?: [];
+        $rowNumbers = [];
+
+        foreach ($existingCodes as $index => $existingCode) {
+            if (isset($existingCode[0]) && (string) $existingCode[0] === $orderCode) {
+                $rowNumbers[] = $index + 2;
+            }
+        }
+
+        if (!$rowNumbers) {
+            return false;
+        }
+
+        $sheetId = $this->ordersSheetId($spreadsheetId);
+        $requests = [];
+        foreach (array_reverse($rowNumbers) as $rowNumber) {
+            $requests[] = [
+                'deleteDimension' => [
+                    'range' => [
+                        'sheetId' => $sheetId,
+                        'dimension' => 'ROWS',
+                        'startIndex' => $rowNumber - 1,
+                        'endIndex' => $rowNumber,
+                    ],
+                ],
+            ];
+        }
+
+        $this->sheets()->spreadsheets->batchUpdate(
+            $spreadsheetId,
+            new Sheets\BatchUpdateSpreadsheetRequest(['requests' => $requests])
+        );
+
+        return true;
+    }
+
     private function spreadsheetId(GoogleSheetMaster $master): string
     {
         if (empty($master->google_sheet_url)) {
@@ -247,6 +294,21 @@ class MerchandiseOrderGoogleSheetService
                 ]],
             ])
         );
+    }
+
+    private function ordersSheetId(string $spreadsheetId): int
+    {
+        $spreadsheet = $this->sheets()->spreadsheets->get($spreadsheetId, [
+            'fields' => 'sheets.properties(sheetId,title)',
+        ]);
+
+        foreach ($spreadsheet->getSheets() as $sheet) {
+            if ($sheet->getProperties()->getTitle() === self::SHEET_NAME) {
+                return (int) $sheet->getProperties()->getSheetId();
+            }
+        }
+
+        throw new RuntimeException('The Merchandise Orders sheet tab could not be found.');
     }
 
     private function ensurePermissions(string $spreadsheetId): void

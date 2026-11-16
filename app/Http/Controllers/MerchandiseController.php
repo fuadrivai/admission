@@ -238,6 +238,16 @@ class MerchandiseController extends Controller
         ]);
     }
 
+    public function destroyExpiredOrder($id)
+    {
+        $this->ensureCostAccess();
+        $this->merchandiseService->deleteExpiredOrder($id);
+
+        return redirect()
+            ->route('merchandise.orders', ['status' => 'expired'])
+            ->with('success', 'Expired order and its Google Sheet row were deleted.');
+    }
+
     public function preorders()
     {
         $this->ensureCostAccess();

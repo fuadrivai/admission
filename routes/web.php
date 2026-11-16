@@ -289,6 +289,8 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
             Route::get('orders/export', [MerchandiseController::class, 'exportOrders'])->name('orders.export');
             Route::post('orders/google-sheet', [MerchandiseController::class, 'syncOrdersToGoogleSheet'])
                 ->name('orders.google-sheet');
+            Route::delete('orders/{id}', [MerchandiseController::class, 'destroyExpiredOrder'])
+                ->name('orders.destroy-expired');
             Route::get('orders/{id}', [MerchandiseController::class, 'showOrder'])->name('orders.show');
             Route::get('preorders', [MerchandiseController::class, 'preorders'])->name('preorders');
             Route::post('preorders/{id}/fulfill', [MerchandiseController::class, 'fulfillPreorder'])

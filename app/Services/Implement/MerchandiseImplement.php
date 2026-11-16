@@ -586,6 +586,52 @@ class MerchandiseImplement implements MerchandiseService
         return $order;
     }
 
+    public function deleteExpiredOrder($orderId)
+    {
+        $sheetRowDeleted = false;
+
+        try {
+            return DB::transaction(function () use ($orderId, &$sheetRowDeleted) {
+                $order = MerchandiseOrder::with('items')->lockForUpdate()->findOrFail($orderId);
+                if ($this->effectiveOrderStatus($order) !== 'EXPIRED') {
+                    throw ValidationException::withMessages([
+                        'order' => 'Only expired orders can be deleted.',
+                    ]);
+                }
+
+                $sheetRowDeleted = app(MerchandiseOrderGoogleSheetService::class)
+                    ->deleteOrder($order->code);
+
+                $itemIds = $order->items->pluck('id');
+                MerchandisePreorderAllocation::whereIn('order_item_id', $itemIds)->delete();
+                $order->items()->delete();
+
+                $stockOuts = MerchandiseStockOut::where('order_id', $order->id)->get();
+                foreach ($stockOuts as $stockOut) {
+                    $stockOut->items()->delete();
+                    $stockOut->delete();
+                }
+
+                $order->delete();
+
+                return true;
+            });
+        } catch (Throwable $exception) {
+            if ($sheetRowDeleted) {
+                try {
+                    app(MerchandiseOrderGoogleSheetService::class)->syncOrder((int) $orderId);
+                } catch (Throwable $restoreException) {
+                    Log::error('Deleted Merchandise order row could not be restored to Google Sheets.', [
+                        'order_id' => $orderId,
+                        'exception' => $restoreException->getMessage(),
+                    ]);
+                }
+            }
+
+            throw $exception;
+        }
+    }
+
     public function getPreorders()
     {
         $orders = MerchandiseOrder::with([

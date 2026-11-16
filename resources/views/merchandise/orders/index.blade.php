@@ -60,6 +60,9 @@
             @if ($errors->has('google_sheet'))
                 <div class="alert alert-danger">{{ $errors->first('google_sheet') }}</div>
             @endif
+            @if ($errors->has('order'))
+                <div class="alert alert-danger">{{ $errors->first('order') }}</div>
+            @endif
             @if (session('success'))
                 <div class="alert alert-success">{{ session('success') }}</div>
             @endif
@@ -148,7 +151,17 @@
                                 </td>
                                 <td class="text-end">{{ number_format($order->total_items) }}</td>
                                 <td class="text-end text-nowrap">Rp{{ number_format($order->total_amount, 0, ',', '.') }}</td>
-                                <td class="text-end"><a class="btn btn-sm btn-outline-primary" href="{{ route('merchandise.orders.show', $order->id) }}">Detail</a></td>
+                                <td class="text-end text-nowrap">
+                                    <a class="btn btn-sm btn-outline-primary" href="{{ route('merchandise.orders.show', $order->id) }}">Detail</a>
+                                    @if ($order->display_payment_status === 'EXPIRED')
+                                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                            data-bs-toggle="modal" data-bs-target="#delete-expired-order-modal"
+                                            data-delete-url="{{ route('merchandise.orders.destroy-expired', $order->id) }}"
+                                            data-order-code="{{ $order->code }}">
+                                            Delete
+                                        </button>
+                                    @endif
+                                </td>
                             </tr>
                         @empty
                             <tr><td colspan="8" class="text-center text-muted py-5">Belum ada pesanan yang sesuai filter.</td></tr>
@@ -159,4 +172,32 @@
             {{ $orders->links() }}
         </div>
     </div>
+
+    <div class="modal fade" id="delete-expired-order-modal" tabindex="-1" aria-labelledby="delete-expired-order-title" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <form id="delete-expired-order-form" method="POST" class="modal-content">
+                @csrf
+                @method('DELETE')
+                <div class="modal-header">
+                    <h5 class="modal-title" id="delete-expired-order-title">Delete expired order?</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Order <strong id="delete-expired-order-code"></strong> will be permanently deleted from the system and Google Sheet.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Delete order</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('delete-expired-order-modal').addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+            document.getElementById('delete-expired-order-form').action = button.getAttribute('data-delete-url');
+            document.getElementById('delete-expired-order-code').textContent = button.getAttribute('data-order-code');
+        });
+    </script>
 @endsection
