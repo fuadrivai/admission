@@ -3,6 +3,7 @@
 namespace App\Google;
 
 use App\Models\GoogleSheetMaster;
+use App\Models\MerchandiseOrder;
 use Google\Client;
 use Google\Service\Drive;
 use Google\Service\Sheets;
@@ -33,10 +34,75 @@ class MerchandiseOrderGoogleSheetService
         $spreadsheetId = $this->spreadsheetId($master);
 
         $this->ensureSheet($spreadsheetId);
-        $this->ensurePermissions($spreadsheetId);
         $this->writeOrders($spreadsheetId, $orders);
+        $this->ensurePermissions($spreadsheetId);
 
         return $master->google_sheet_url;
+    }
+
+    public function syncOrder(int $orderId): void
+    {
+        $master = GoogleSheetMaster::where('integration_key', self::MASTER_KEY)->first();
+        if (! $master || empty($master->google_sheet_url)) {
+            return;
+        }
+
+        $spreadsheetId = $this->parseSpreadsheetId($master->google_sheet_url);
+        $this->ensureSheet($spreadsheetId);
+
+        $order = MerchandiseOrder::with('items')->findOrFail($orderId);
+        $order->setAttribute(
+            'display_payment_status',
+            $order->payment_status === 'PENDING'
+                && $order->expires_at
+                && $order->expires_at->isPast()
+                    ? 'EXPIRED'
+                    : strtoupper($order->payment_status)
+        );
+        $row = $this->normalizedRow($this->orderRow($order));
+
+        $header = $this->sheets()->spreadsheets_values
+            ->get($spreadsheetId, self::SHEET_NAME . '!A1:R1')
+            ->getValues() ?: [];
+        if (empty($header)) {
+            $this->sheets()->spreadsheets_values->update(
+                $spreadsheetId,
+                self::SHEET_NAME . '!A1:R1',
+                new Sheets\ValueRange(['values' => [$this->headings()]]),
+                ['valueInputOption' => 'RAW']
+            );
+        } elseif ($header[0] !== $this->headings()) {
+            throw new RuntimeException('The Google Sheet header does not match the Merchandise Orders report.');
+        }
+
+        $existingCodes = $this->sheets()->spreadsheets_values
+            ->get($spreadsheetId, self::SHEET_NAME . '!A2:A')
+            ->getValues() ?: [];
+        $rowNumber = null;
+        foreach ($existingCodes as $index => $existingCode) {
+            if (isset($existingCode[0]) && (string) $existingCode[0] === (string) $order->code) {
+                $rowNumber = $index + 2;
+                break;
+            }
+        }
+
+        if ($rowNumber === null) {
+            $this->sheets()->spreadsheets_values->append(
+                $spreadsheetId,
+                self::SHEET_NAME . '!A1',
+                new Sheets\ValueRange(['values' => [$row]]),
+                ['valueInputOption' => 'RAW']
+            );
+
+            return;
+        }
+
+        $this->sheets()->spreadsheets_values->update(
+            $spreadsheetId,
+            self::SHEET_NAME . '!A' . $rowNumber . ':R' . $rowNumber,
+            new Sheets\ValueRange(['values' => [$row]]),
+            ['valueInputOption' => 'RAW']
+        );
     }
 
     private function spreadsheetId(GoogleSheetMaster $master): string
@@ -83,9 +149,7 @@ class MerchandiseOrderGoogleSheetService
     {
         $values = [array_values($this->headings())];
         foreach ($orders as $order) {
-            $values[] = array_values(array_map(function ($value) {
-                return $value === null ? '' : $value;
-            }, $this->orderRow($order)));
+            $values[] = $this->normalizedRow($this->orderRow($order));
         }
 
         $this->sheets()->spreadsheets_values->update(
@@ -100,6 +164,13 @@ class MerchandiseOrderGoogleSheetService
             self::SHEET_NAME . '!A' . (count($values) + 1) . ':R',
             new Sheets\ClearValuesRequest()
         );
+    }
+
+    private function normalizedRow(array $row): array
+    {
+        return array_values(array_map(function ($value) {
+            return $value === null ? '' : $value;
+        }, $row));
     }
 
     private function headings(): array
@@ -202,63 +273,12 @@ class MerchandiseOrderGoogleSheetService
                 'emailAddress' => $email,
             ]);
 
-            if (isset($existing[$key])) {
-                if ($existing[$key]->getRole() !== 'writer') {
-                    $this->drive()->permissions->update($spreadsheetId, $existing[$key]->getId(), $permission);
-                }
-            } else {
+            if (!isset($existing[$key])) {
                 $this->drive()->permissions->create($spreadsheetId, $permission, [
                     'sendNotificationEmail' => false,
                 ]);
             }
         }
-
-        $ownerKey = Str::lower(self::OWNER_EMAIL);
-        $existing = $this->permissionsByEmail($spreadsheetId);
-        if (! isset($existing[$ownerKey]) || $existing[$ownerKey]->getRole() !== 'owner') {
-            $permission = new Drive\Permission([
-                'type' => 'user',
-                'role' => 'owner',
-                'emailAddress' => self::OWNER_EMAIL,
-            ]);
-
-            if (isset($existing[$ownerKey])) {
-                $this->drive()->permissions->update(
-                    $spreadsheetId,
-                    $existing[$ownerKey]->getId(),
-                    $permission,
-                    ['transferOwnership' => true]
-                );
-            } else {
-                $this->drive()->permissions->create(
-                    $spreadsheetId,
-                    $permission,
-                    ['transferOwnership' => true]
-                );
-            }
-        }
-
-        $allowedEditors = array_map('strtolower', array_merge(self::EDITOR_EMAILS, [self::OWNER_EMAIL]));
-        foreach ($this->listPermissions($spreadsheetId) as $permission) {
-            $email = Str::lower((string) $permission->getEmailAddress());
-            if (in_array($permission->getRole(), ['commenter', 'writer'], true)
-                && ! in_array($email, $allowedEditors, true)) {
-                $permission->setRole('reader');
-                $this->drive()->permissions->update($spreadsheetId, $permission->getId(), $permission);
-            }
-        }
-    }
-
-    private function permissionsByEmail(string $spreadsheetId): array
-    {
-        $permissions = [];
-        foreach ($this->listPermissions($spreadsheetId) as $permission) {
-            if ($permission->getType() === 'user') {
-                $permissions[Str::lower((string) $permission->getEmailAddress())] = $permission;
-            }
-        }
-
-        return $permissions;
     }
 
     private function listPermissions(string $spreadsheetId): array

@@ -3,10 +3,12 @@
 namespace App\Services\Implement;
 
 use App\Mail\AdmissionEmail;
+use App\Google\MerchandiseOrderGoogleSheetService;
 use App\Models\MerchandiseCategory;
 use App\Models\MerchandiseCart;
 use App\Models\MerchandiseCartItem;
 use App\Models\EmailSetting;
+use App\Models\GoogleSheetMaster;
 use App\Models\MerchandiseEmailTemplate;
 use App\Models\MerchandiseOrder;
 use App\Models\MerchandiseOrderItem;
@@ -635,7 +637,7 @@ class MerchandiseImplement implements MerchandiseService
 
     public function fulfillPreorder($orderId, $userId)
     {
-        return DB::transaction(function () use ($orderId, $userId) {
+        $order = DB::transaction(function () use ($orderId, $userId) {
             $order = MerchandiseOrder::with('items')
                 ->lockForUpdate()
                 ->findOrFail($orderId);
@@ -671,6 +673,10 @@ class MerchandiseImplement implements MerchandiseService
 
             return $order->fresh(['items', 'fulfilledBy']);
         });
+
+        $this->syncOrderToGoogleSheet($order->id);
+
+        return $order;
     }
 
     private function orderStatusQuery(string $status)
@@ -1317,6 +1323,7 @@ class MerchandiseImplement implements MerchandiseService
             ], $branch->name);
         } catch (ConnectionException $exception) {
             $order->update(['payment_status' => 'FAILED']);
+            $this->syncOrderToGoogleSheet($order->id);
             throw ValidationException::withMessages([
                 'payment' => 'Unable to connect to Xendit. Please try again.',
             ]);
@@ -1324,6 +1331,7 @@ class MerchandiseImplement implements MerchandiseService
 
         if (!empty($xendit['success']) && $xendit['success'] === false) {
             $order->update(['payment_status' => 'FAILED']);
+            $this->syncOrderToGoogleSheet($order->id);
             throw ValidationException::withMessages([
                 'payment' => 'Failed to create the Xendit invoice: ' . ($xendit['message'] ?? 'Unknown Xendit error.'),
             ]);
@@ -1331,6 +1339,7 @@ class MerchandiseImplement implements MerchandiseService
         if (empty($xendit['status']) || empty($xendit['invoice_url'])
             || empty($xendit['created']) || empty($xendit['expiry_date'])) {
             $order->update(['payment_status' => 'FAILED']);
+            $this->syncOrderToGoogleSheet($order->id);
             throw ValidationException::withMessages([
                 'payment' => 'The Xendit response was incomplete. Please try again.',
             ]);
@@ -1343,7 +1352,10 @@ class MerchandiseImplement implements MerchandiseService
         $this->sendMerchandiseInvoiceEmail($order->fresh('items'));
         MerchandiseCart::where('cart_key', $cartKey)->firstOrFail()->items()->whereIn('id', $cartItemIds)->delete();
 
-        return $order->fresh();
+        $order = $order->fresh();
+        $this->syncOrderToGoogleSheet($order->id);
+
+        return $order;
     }
 
     public function processOrderPaymentCallback(string $externalId, array $callbackData)
@@ -1353,7 +1365,8 @@ class MerchandiseImplement implements MerchandiseService
             ? 'PAID'
             : (in_array($status, ['EXPIRED', 'FAILED'], true) ? $status : 'PENDING');
 
-        $result = DB::transaction(function () use ($externalId, $callbackData, $mappedStatus) {
+        $affectedOrderIds = [];
+        $result = DB::transaction(function () use ($externalId, $callbackData, $mappedStatus, &$affectedOrderIds) {
             $order = MerchandiseOrder::where('external_id', $externalId)->lockForUpdate()->first();
             if (!$order) {
                 return false;
@@ -1389,7 +1402,11 @@ class MerchandiseImplement implements MerchandiseService
 
             if ($mappedStatus === 'PAID' && $order->order_type === 'PREORDER') {
                     foreach ($orderItems->pluck('variant_id')->unique() as $variantId) {
-                        $this->allocateExistingPreorderStockForVariant((int) $variantId, null);
+                        $this->allocateExistingPreorderStockForVariant(
+                            (int) $variantId,
+                            null,
+                            $affectedOrderIds
+                        );
                     }
             }
 
@@ -1407,6 +1424,11 @@ class MerchandiseImplement implements MerchandiseService
 
         if ($result === false) {
             return false;
+        }
+
+        $this->syncOrderToGoogleSheet((int) $result['order_id']);
+        foreach (array_keys($affectedOrderIds) as $orderId) {
+            $this->syncOrderToGoogleSheet((int) $orderId);
         }
 
         if ($result['send_receipt']) {
@@ -1447,8 +1469,9 @@ class MerchandiseImplement implements MerchandiseService
     public function postStockIn(array $data, $userId)
     {
         $this->assertStockInData($data);
+        $affectedOrderIds = [];
 
-        return DB::transaction(function () use ($data, $userId) {
+        $stockIn = DB::transaction(function () use ($data, $userId, &$affectedOrderIds) {
             $stockIn = MerchandiseStockIn::create([
                 'stock_in_date' => $data['stock_in_date'],
                 'notes' => $data['notes'] ?? null,
@@ -1479,11 +1502,17 @@ class MerchandiseImplement implements MerchandiseService
                     'quantity' => $item['quantity'],
                     'unit_cost' => $item['unit_cost'],
                 ]);
-                $this->allocatePreorderStock($stockInItem, $userId);
+                $this->allocatePreorderStock($stockInItem, $userId, $affectedOrderIds);
             }
 
             return $stockIn->load('items.variant.product');
         });
+
+        foreach (array_keys($affectedOrderIds) as $orderId) {
+            $this->syncOrderToGoogleSheet((int) $orderId);
+        }
+
+        return $stockIn;
     }
 
     public function correctStockInCost($stockInItemId, $unitCost, $reason, $userId)
@@ -2305,7 +2334,11 @@ class MerchandiseImplement implements MerchandiseService
         return $types->first() ? 'PREORDER' : 'READY';
     }
 
-    private function allocatePreorderStock(MerchandiseStockInItem $stockInItem, $userId): int
+    private function allocatePreorderStock(
+        MerchandiseStockInItem $stockInItem,
+        $userId,
+        array &$changedOrderIds
+    ): int
     {
         $alreadyAssigned = (int) MerchandisePreorderAllocation::where('stock_in_item_id', $stockInItem->id)
             ->sum('quantity');
@@ -2369,12 +2402,17 @@ class MerchandiseImplement implements MerchandiseService
                     ? 'READY_FOR_FULFILLMENT'
                     : ($allocatedUnits > 0 ? 'PARTIALLY_AVAILABLE' : 'WAITING_FOR_STOCK'),
             ]);
+            $changedOrderIds[$orderId] = true;
         }
 
         return $initialQuantity - $remaining;
     }
 
-    private function allocateExistingPreorderStockForVariant(int $variantId, $userId): void
+    private function allocateExistingPreorderStockForVariant(
+        int $variantId,
+        $userId,
+        array &$changedOrderIds
+    ): void
     {
         $remaining = $this->availableStockForVariant($variantId, null, true);
         if ($remaining < 1) {
@@ -2390,7 +2428,7 @@ class MerchandiseImplement implements MerchandiseService
             if ($remaining < 1) {
                 break;
             }
-            $allocated = $this->allocatePreorderStock($stockInItem, $userId);
+            $allocated = $this->allocatePreorderStock($stockInItem, $userId, $changedOrderIds);
             $remaining -= $allocated;
         }
     }
@@ -2752,6 +2790,25 @@ class MerchandiseImplement implements MerchandiseService
                 'order_code' => $order->code,
                 'recipient' => $order->email,
                 'error' => $exception->getMessage(),
+            ]);
+        }
+    }
+
+    private function syncOrderToGoogleSheet(int $orderId): void
+    {
+        try {
+            $master = GoogleSheetMaster::where('integration_key', 'merchandise_orders')->first();
+            $googleSheet = app(MerchandiseOrderGoogleSheetService::class);
+            if (!$master || empty($master->google_sheet_url)) {
+                $googleSheet->sync($this->getOrdersForExport());
+                return;
+            }
+
+            $googleSheet->syncOrder($orderId);
+        } catch (Throwable $exception) {
+            Log::error('Automatic Merchandise order Google Sheets sync failed.', [
+                'order_id' => $orderId,
+                'exception' => $exception->getMessage(),
             ]);
         }
     }
