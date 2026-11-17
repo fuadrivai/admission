@@ -24,6 +24,7 @@ Route::prefix('v1/merchandise')
     ->group(function () {
     Route::get('/store', [MerchandiseApiController::class, 'store']);
     Route::get('/categories', [MerchandiseApiController::class, 'categories']);
+    Route::get('/divisions', [MerchandiseApiController::class, 'divisions']);
     Route::get('/products', [MerchandiseApiController::class, 'products']);
     Route::get('/products/{productId}', [MerchandiseApiController::class, 'product'])
         ->whereNumber('productId');

@@ -565,6 +565,8 @@ class MerchandiseImplement implements MerchandiseService
             $query->where(function ($orderQuery) use ($search) {
                 $orderQuery->where('code', 'like', '%' . $search . '%')
                     ->orWhere('parent_name', 'like', '%' . $search . '%')
+                    ->orWhere('child_name', 'like', '%' . $search . '%')
+                    ->orWhere('division_name', 'like', '%' . $search . '%')
                     ->orWhere('email', 'like', '%' . $search . '%')
                     ->orWhere('phone', 'like', '%' . $search . '%')
                     ->orWhere('portal_username', 'like', '%' . $search . '%')
@@ -1302,9 +1304,12 @@ class MerchandiseImplement implements MerchandiseService
                 'branch_id' => $branch->id,
                 'branch_name' => $branch->name,
                 'parent_name' => $data['parent_name'],
+                'child_name' => $data['child_name'] ?? null,
                 'email' => $data['email'],
                 'phone' => $data['phone'],
                 'portal_username' => $data['portal_username'],
+                'division_id' => $data['division_id'] ?? null,
+                'division_name' => $data['division_name'] ?? null,
                 'total_items' => $totalItems + collect($giftItems)->sum('quantity'),
                 'subtotal' => round($subtotal, 2),
                 'bank_charger' => round($bankCharger, 2),

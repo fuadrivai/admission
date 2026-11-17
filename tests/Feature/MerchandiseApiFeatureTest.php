@@ -64,6 +64,14 @@ class MerchandiseApiFeatureTest extends TestCase
             ->assertJsonStructure(['data' => ['categories']]);
     }
 
+    public function test_division_endpoint_lists_divisions(): void
+    {
+        $this->getJson('/api/v1/merchandise/divisions')
+            ->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonStructure(['data' => ['divisions']]);
+    }
+
     public function test_product_list_supports_pagination_and_category_filter(): void
     {
         $this->getJson('/api/v1/merchandise/products?page=1&category_id=1')
@@ -98,6 +106,7 @@ class MerchandiseApiFeatureTest extends TestCase
             ->assertJsonStructure([
                 'paths' => [
                     '/categories',
+                    '/divisions',
                     '/products',
                     '/products/{productId}',
                 ],
@@ -112,9 +121,31 @@ class MerchandiseApiFeatureTest extends TestCase
             $response->json('paths./carts/items/{itemId}.put.requestBody.content.application/json.schema.$ref')
         );
         $this->assertSame(
+            ['branch_id', 'parent_name', 'child_name', 'email', 'phone', 'portal_username', 'division'],
+            $response->json('components.schemas.CreateOrderInput.required')
+        );
+        $this->assertSame(
+            '#/components/schemas/Division',
+            $response->json('components.schemas.CheckoutResponse.properties.data.properties.divisions.items.$ref')
+        );
+        $this->assertSame(
+            '#/components/schemas/DivisionsResponse',
+            $response->json('paths./divisions.get.responses.200.content.application/json.schema.$ref')
+        );
+        $this->assertSame(
             '#/components/schemas/CreateOrderInput',
             $response->json('paths./orders.post.requestBody.content.application/json.schema.$ref')
         );
+    }
+
+    public function test_order_creation_requires_child_name_and_free_text_division(): void
+    {
+        $cartToken = $this->postJson('/api/v1/merchandise/carts')->json('data.cart_token');
+
+        $this->withHeader('X-Cart-Token', $cartToken)
+            ->postJson('/api/v1/merchandise/orders', [])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['child_name', 'division']);
     }
 
     public function test_order_history_is_not_exposed_by_username_only(): void

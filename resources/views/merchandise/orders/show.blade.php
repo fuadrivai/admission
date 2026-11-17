@@ -86,10 +86,12 @@
                 <div class="card-body">
                     <dl class="row mb-0">
                         <dt class="col-sm-5">Nama</dt><dd class="col-sm-7">{{ $order->parent_name }}</dd>
+                        <dt class="col-sm-5">Nama Anak</dt><dd class="col-sm-7">{{ $order->child_name ?: '-' }}</dd>
                         <dt class="col-sm-5">Email</dt><dd class="col-sm-7"><a href="mailto:{{ $order->email }}">{{ $order->email }}</a></dd>
                         <dt class="col-sm-5">Telepon</dt><dd class="col-sm-7"><a href="tel:{{ $order->phone }}">{{ $order->phone }}</a></dd>
                         <dt class="col-sm-5">Username Portal</dt><dd class="col-sm-7">{{ $order->portal_username }}</dd>
                         <dt class="col-sm-5">Cabang</dt><dd class="col-sm-7">{{ $order->branch_name }}</dd>
+                        <dt class="col-sm-5">Division</dt><dd class="col-sm-7">{{ $order->division_name ?: '-' }}</dd>
                     </dl>
                 </div>
             </div>

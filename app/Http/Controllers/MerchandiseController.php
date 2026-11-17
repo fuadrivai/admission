@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Exports\MerchandiseOrderExport;
 use App\Google\MerchandiseOrderGoogleSheetService;
 use App\Models\MerchandiseCategory;
+use App\Models\Division;
 use App\Models\GoogleSheetMaster;
 use App\Models\MerchandiseProductImage;
 use App\Models\MerchandiseProduct;
@@ -405,7 +406,10 @@ class MerchandiseController extends Controller
         }
 
         return view('merchandise.store.checkout', array_merge(
-            ['title' => 'Checkout'],
+            [
+                'title' => 'Checkout',
+                'divisions' => Division::orderBy('name')->get(['id', 'name']),
+            ],
             $checkoutData
         ));
     }
@@ -415,10 +419,19 @@ class MerchandiseController extends Controller
         $data = $request->validate([
             'branch_id' => ['required', 'integer', 'exists:branches,id'],
             'parent_name' => ['required', 'string', 'max:150'],
+            'child_name' => ['required', 'string', 'max:150'],
             'email' => ['required', 'email', 'max:150'],
             'phone' => ['required', 'string', 'max:40'],
             'portal_username' => ['required', 'string', 'max:100'],
+            'division_id' => ['required', 'integer', 'exists:divisions,id'],
         ]);
+        $division = Division::find($data['division_id']);
+        if (!$division) {
+            throw ValidationException::withMessages([
+                'division_id' => 'The selected division is no longer available.',
+            ]);
+        }
+        $data['division_name'] = $division->name;
         $data['promotion_code'] = session('merchandise_promotion_code');
         $data['promotion_gift_variant_id'] = session('merchandise_promotion_gift_variant_id');
         $data['promotion_id'] = session('merchandise_selected_promotion_id');

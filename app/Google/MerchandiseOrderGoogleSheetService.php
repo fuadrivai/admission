@@ -62,15 +62,30 @@ class MerchandiseOrderGoogleSheetService
         $row = $this->normalizedRow($this->orderRow($order));
 
         $header = $this->sheets()->spreadsheets_values
-            ->get($spreadsheetId, self::SHEET_NAME . '!A1:R1')
+            ->get($spreadsheetId, self::SHEET_NAME . '!A1:T1')
             ->getValues() ?: [];
         if (empty($header)) {
             $this->sheets()->spreadsheets_values->update(
                 $spreadsheetId,
-                self::SHEET_NAME . '!A1:R1',
+                self::SHEET_NAME . '!A1:T1',
                 new Sheets\ValueRange(['values' => [$this->headings()]]),
                 ['valueInputOption' => 'RAW']
             );
+        } elseif (in_array($header[0], [$this->legacyHeadings(), $this->previousHeadings()], true)) {
+            $orders = MerchandiseOrder::with('items')->orderBy('id')->get();
+            foreach ($orders as $existingOrder) {
+                $existingOrder->setAttribute(
+                    'display_payment_status',
+                    $existingOrder->payment_status === 'PENDING'
+                        && $existingOrder->expires_at
+                        && $existingOrder->expires_at->isPast()
+                            ? 'EXPIRED'
+                            : strtoupper($existingOrder->payment_status)
+                );
+            }
+            $this->writeOrders($spreadsheetId, $orders);
+
+            return;
         } elseif ($header[0] !== $this->headings()) {
             throw new RuntimeException('The Google Sheet header does not match the Merchandise Orders report.');
         }
@@ -99,7 +114,7 @@ class MerchandiseOrderGoogleSheetService
 
         $this->sheets()->spreadsheets_values->update(
             $spreadsheetId,
-            self::SHEET_NAME . '!A' . $rowNumber . ':R' . $rowNumber,
+            self::SHEET_NAME . '!A' . $rowNumber . ':T' . $rowNumber,
             new Sheets\ValueRange(['values' => [$row]]),
             ['valueInputOption' => 'RAW']
         );
@@ -201,14 +216,14 @@ class MerchandiseOrderGoogleSheetService
 
         $this->sheets()->spreadsheets_values->update(
             $spreadsheetId,
-            self::SHEET_NAME . '!A1:R' . count($values),
+            self::SHEET_NAME . '!A1:T' . count($values),
             new Sheets\ValueRange(['values' => $values]),
             ['valueInputOption' => 'RAW']
         );
 
         $this->sheets()->spreadsheets_values->clear(
             $spreadsheetId,
-            self::SHEET_NAME . '!A' . (count($values) + 1) . ':R',
+            self::SHEET_NAME . '!A' . (count($values) + 1) . ':T',
             new Sheets\ClearValuesRequest()
         );
     }
@@ -227,6 +242,58 @@ class MerchandiseOrderGoogleSheetService
             'Order Date',
             'Order Type',
             'Parent Name',
+            'Child Name',
+            'Email',
+            'Phone',
+            'Portal Username',
+            'Branch',
+            'Division',
+            'Payment Status',
+            'Fulfillment Status',
+            'Items',
+            'Item Count',
+            'Subtotal (IDR)',
+            'Discount (IDR)',
+            'Admin Fee (IDR)',
+            'Total (IDR)',
+            'Paid At',
+            'Invoice Expires At',
+        ];
+    }
+
+    private function legacyHeadings(): array
+    {
+        return [
+            'Order Number',
+            'Order Date',
+            'Order Type',
+            'Parent Name',
+            'Email',
+            'Phone',
+            'Portal Username',
+            'Branch',
+            'Payment Status',
+            'Fulfillment Status',
+            'Items',
+            'Item Count',
+            'Subtotal (IDR)',
+            'Discount (IDR)',
+            'Admin Fee (IDR)',
+            'Total (IDR)',
+            'Paid At',
+            'Invoice Expires At',
+        ];
+    }
+
+    private function previousHeadings(): array
+    {
+        return [
+            'Order Number',
+            'Order Date',
+            'Order Type',
+            'Parent Name',
+            'Child Name',
+            'Division',
             'Email',
             'Phone',
             'Portal Username',
@@ -257,10 +324,12 @@ class MerchandiseOrderGoogleSheetService
             optional($order->created_at)->format('Y-m-d H:i:s'),
             (string) $order->order_type,
             (string) $order->parent_name,
+            (string) $order->child_name,
             (string) $order->email,
             (string) $order->phone,
             (string) $order->portal_username,
             (string) $order->branch_name,
+            (string) $order->division_name,
             (string) $order->display_payment_status,
             (string) $order->fulfillment_status,
             $items,

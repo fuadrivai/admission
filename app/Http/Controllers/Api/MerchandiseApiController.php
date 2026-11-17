@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Division;
 use App\Services\MerchandiseService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -70,6 +71,22 @@ class MerchandiseApiController extends Controller
                             'id' => $category->id,
                             'name' => $category->name,
                             'description' => $category->description,
+                        ];
+                    })->values(),
+            ],
+        ]);
+    }
+
+    public function divisions()
+    {
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'divisions' => Division::orderBy('name')->get(['id', 'name'])
+                    ->map(function ($division) {
+                        return [
+                            'id' => $division->id,
+                            'name' => $division->name,
                         ];
                     })->values(),
             ],
@@ -249,6 +266,9 @@ class MerchandiseApiController extends Controller
                 'branches' => $data['branches']->map(function ($branch) {
                     return ['id' => $branch->id, 'name' => $branch->name];
                 })->values(),
+                'divisions' => Division::orderBy('name')->get(['id', 'name'])->map(function ($division) {
+                    return ['id' => $division->id, 'name' => $division->name];
+                })->values(),
             ],
         ]);
     }
@@ -259,13 +279,16 @@ class MerchandiseApiController extends Controller
         $data = $request->validate([
             'branch_id' => ['required', 'integer', 'exists:branches,id'],
             'parent_name' => ['required', 'string', 'max:150'],
+            'child_name' => ['required', 'string', 'max:150'],
             'email' => ['required', 'email', 'max:150'],
             'phone' => ['required', 'string', 'max:40'],
             'portal_username' => ['required', 'string', 'max:100'],
+            'division' => ['required', 'string', 'max:255'],
             'promotion_code' => ['nullable', 'string', 'max:50'],
             'promotion_id' => ['nullable', 'integer', 'exists:merchandise_promotions,id'],
             'promotion_gift_variant_id' => ['nullable', 'integer', 'exists:merchandise_variants,id'],
         ]);
+        $data['division_name'] = $data['division'];
         $order = $this->merchandiseService->createOrderAndInvoice($cartToken, $data);
 
         return response()->json([

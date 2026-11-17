@@ -149,6 +149,10 @@
                                 <label for="parent-name" class="form-label">Parent or guardian name</label>
                                 <input id="parent-name" name="parent_name" class="form-control" value="{{ old('parent_name') }}" maxlength="150" required autocomplete="name">
                             </div>
+                            <div class="full-width">
+                                <label for="child-name" class="form-label">Child's name</label>
+                                <input id="child-name" name="child_name" class="form-control" value="{{ old('child_name') }}" maxlength="150" required>
+                            </div>
                             <div>
                                 <label for="email" class="form-label">Email</label>
                                 <input id="email" name="email" class="form-control" type="email" value="{{ old('email') }}" maxlength="150" required autocomplete="email">
@@ -162,11 +166,20 @@
                                 <input id="portal-username" name="portal_username" class="form-control" value="{{ old('portal_username') }}" maxlength="100" required autocomplete="username">
                             </div>
                             <div>
-                                <label for="branch-id" class="form-label">Payment branch</label>
+                                <label for="branch-id" class="form-label">Branch</label>
                                 <select id="branch-id" name="branch_id" class="form-select" required>
                                     <option value="">Select a branch</option>
                                     @foreach ($branches as $branch)
                                         <option value="{{ $branch->id }}" {{ (string) old('branch_id') === (string) $branch->id ? 'selected' : '' }}>{{ $branch->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div>
+                                <label for="division-id" class="form-label">Division</label>
+                                <select id="division-id" name="division_id" class="form-select" required>
+                                    <option value="">Select a division</option>
+                                    @foreach ($divisions as $division)
+                                        <option value="{{ $division->id }}" {{ (string) old('division_id') === (string) $division->id ? 'selected' : '' }}>{{ $division->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -218,10 +231,11 @@
                                 Stock is reserved while the invoice is active (up to 24 hours) and deducted only after payment succeeds.
                             @endif
                         </div>
-                        <button class="checkout-submit" type="submit" {{ $hasUnavailableItem || $branches->isEmpty() ? 'disabled' : '' }}>
+                        <button class="checkout-submit" type="submit" {{ $hasUnavailableItem || $branches->isEmpty() || $divisions->isEmpty() ? 'disabled' : '' }}>
                             Continue to Payment <i class="bi bi-arrow-right ms-1"></i>
                         </button>
                         @if ($branches->isEmpty())<div class="text-danger small mt-2">No payment branches are currently available.</div>@endif
+                        @if ($divisions->isEmpty())<div class="text-danger small mt-2">No divisions are currently available.</div>@endif
                         <a class="btn btn-light w-100 mt-2" href="{{ route('merchandise.public-cart') }}">Back to Cart</a>
                     </aside>
                 </div>

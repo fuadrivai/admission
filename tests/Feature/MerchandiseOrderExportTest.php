@@ -18,6 +18,8 @@ class MerchandiseOrderExportTest extends TestCase
             'created_at' => Carbon::parse('2026-11-14 10:00:00'),
             'order_type' => 'PREORDER',
             'parent_name' => 'Parent Name',
+            'child_name' => 'Child Name',
+            'division_name' => 'Primary',
             'email' => 'parent@example.com',
             'phone' => '08123456789',
             'portal_username' => 'P100',
@@ -43,12 +45,15 @@ class MerchandiseOrderExportTest extends TestCase
         $export = new MerchandiseOrderExport(collect([$order]));
         $row = $export->map($order);
 
-        $this->assertCount(18, $export->headings());
-        $this->assertCount(18, $row);
+        $this->assertCount(20, $export->headings());
+        $this->assertCount(20, $row);
         $this->assertSame('MERCH-TEST', $row[0]);
-        $this->assertSame('PAID', $row[8]);
-        $this->assertSame('Shall MHIS - Kuning / 1.5 Meter x 2', $row[10]);
-        $this->assertEquals(241500, $row[15]);
+        $this->assertSame('Child Name', $row[4]);
+        $this->assertSame('Bintaro', $row[8]);
+        $this->assertSame('Primary', $row[9]);
+        $this->assertSame('PAID', $row[10]);
+        $this->assertSame('Shall MHIS - Kuning / 1.5 Meter x 2', $row[12]);
+        $this->assertEquals(241500, $row[17]);
 
         $googleRowMethod = new ReflectionMethod(
             \App\Google\MerchandiseOrderGoogleSheetService::class,
@@ -57,13 +62,25 @@ class MerchandiseOrderExportTest extends TestCase
         $googleRowMethod->setAccessible(true);
         $googleRow = $googleRowMethod->invoke(new \App\Google\MerchandiseOrderGoogleSheetService(), $order);
 
-        $this->assertSame('', $googleRow[16]);
-        $this->assertSame('', $googleRow[17]);
-        $this->assertSame(range(0, 17), array_keys($googleRow));
+        $googleHeadingsMethod = new ReflectionMethod(
+            \App\Google\MerchandiseOrderGoogleSheetService::class,
+            'headings'
+        );
+        $googleHeadingsMethod->setAccessible(true);
+        $this->assertSame(
+            $export->headings(),
+            $googleHeadingsMethod->invoke(new \App\Google\MerchandiseOrderGoogleSheetService())
+        );
+        $this->assertSame('Child Name', $googleRow[4]);
+        $this->assertSame('Bintaro', $googleRow[8]);
+        $this->assertSame('Primary', $googleRow[9]);
+        $this->assertSame('', $googleRow[18]);
+        $this->assertSame('', $googleRow[19]);
+        $this->assertSame(range(0, 19), array_keys($googleRow));
 
         $payload = json_decode(json_encode((new Sheets\ValueRange([
             'values' => [$export->headings(), $googleRow],
         ]))->toSimpleObject()), true);
-        $this->assertSame(range(0, 17), array_keys($payload['values'][1]));
+        $this->assertSame(range(0, 19), array_keys($payload['values'][1]));
     }
 }

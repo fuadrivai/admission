@@ -30,6 +30,7 @@ class CreateMerchandiseCartAndOrderTables extends Migration
             $table->foreignId('branch_id')->constrained('branches')->onDelete('restrict');
             $table->string('branch_name', 100);
             $table->string('parent_name', 150);
+            $table->string('child_name', 150)->nullable();
             $table->string('email', 150);
             $table->string('phone', 40);
             $table->string('portal_username', 100);

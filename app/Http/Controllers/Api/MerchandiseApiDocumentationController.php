@@ -51,6 +51,16 @@ class MerchandiseApiDocumentationController extends Controller
                         ],
                     ],
                 ],
+                '/divisions' => [
+                    'get' => [
+                        'tags' => ['Checkout'],
+                        'summary' => 'List divisions',
+                        'description' => 'Returns configured divisions for reference. Order creation accepts division as free text.',
+                        'responses' => [
+                            '200' => $this->response('Division list', 'DivisionsResponse'),
+                        ],
+                    ],
+                ],
                 '/products' => [
                     'get' => [
                         'tags' => ['Store'],
@@ -146,7 +156,7 @@ class MerchandiseApiDocumentationController extends Controller
                     'get' => [
                         'tags' => ['Checkout'],
                         'summary' => 'Preview checkout',
-                        'description' => 'Calculates current totals, promotions, and payment branches. For a pre-order cart, returns order_type=PREORDER and preorder_expected_at; pre-orders cannot be mixed with ready-stock items and promotions do not apply.',
+                        'description' => 'Calculates current totals, promotions, payment branches, and available divisions. For a pre-order cart, returns order_type=PREORDER and preorder_expected_at; pre-orders cannot be mixed with ready-stock items and promotions do not apply.',
                         'security' => [['CartToken' => []]],
                         'parameters' => [
                             [
@@ -175,7 +185,7 @@ class MerchandiseApiDocumentationController extends Controller
                     'post' => [
                         'tags' => ['Checkout'],
                         'summary' => 'Create order and payment invoice',
-                        'description' => 'Creates an order using server-calculated prices and stock, then creates a Xendit invoice. Pre-orders require full payment, cannot be mixed with ready-stock items, and are allocated from later Stock In records. Open payment_url to complete payment.',
+                        'description' => 'Creates an order using server-calculated prices and stock, then creates a Xendit invoice. Provide the child name and division as free text, for example "Primary". Pre-orders require full payment, cannot be mixed with ready-stock items, and are allocated from later Stock In records. Open payment_url to complete payment.',
                         'security' => [['CartToken' => []]],
                         'requestBody' => $this->requestBody('CreateOrderInput'),
                         'responses' => [
@@ -345,18 +355,30 @@ class MerchandiseApiDocumentationController extends Controller
                     ],
                     'CreateOrderInput' => [
                         'type' => 'object',
-                        'required' => ['branch_id', 'parent_name', 'email', 'phone', 'portal_username'],
+                        'required' => ['branch_id', 'parent_name', 'child_name', 'email', 'phone', 'portal_username', 'division'],
                         'properties' => [
                             'branch_id' => ['type' => 'integer'],
                             'parent_name' => ['type' => 'string', 'maxLength' => 150],
+                            'child_name' => ['type' => 'string', 'maxLength' => 150],
                             'email' => ['type' => 'string', 'format' => 'email'],
                             'phone' => ['type' => 'string', 'maxLength' => 40],
                             'portal_username' => ['type' => 'string', 'maxLength' => 100],
+                            'division' => ['type' => 'string', 'maxLength' => 255, 'example' => 'Primary'],
                             'promotion_code' => ['type' => 'string', 'maxLength' => 50],
                             'promotion_id' => ['type' => 'integer'],
                             'promotion_gift_variant_id' => ['type' => 'integer'],
                         ],
                     ],
+                    'Division' => [
+                        'type' => 'object',
+                        'properties' => [
+                            'id' => ['type' => 'integer'],
+                            'name' => ['type' => 'string'],
+                        ],
+                    ],
+                    'DivisionsResponse' => $this->successSchema([
+                        'divisions' => ['type' => 'array', 'items' => ['$ref' => '#/components/schemas/Division']],
+                    ]),
                     'StoreOverviewResponse' => $this->successSchema([
                         'store' => ['type' => 'object', 'properties' => [
                             'name' => ['type' => 'string'],
@@ -404,6 +426,7 @@ class MerchandiseApiDocumentationController extends Controller
                         'promotions' => ['type' => 'array', 'items' => ['type' => 'object']],
                         'selected_promotion' => ['type' => 'object', 'nullable' => true],
                         'branches' => ['type' => 'array', 'items' => ['type' => 'object']],
+                        'divisions' => ['type' => 'array', 'items' => ['$ref' => '#/components/schemas/Division']],
                     ]),
                     'OrderResponse' => $this->successSchema([
                         'order_reference' => ['type' => 'string'],

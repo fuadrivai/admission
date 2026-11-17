@@ -87,7 +87,7 @@
             </div>
             <form method="GET" action="{{ route('merchandise.orders') }}" class="row g-2 mb-3">
                 <div class="col-md-6">
-                    <input type="search" name="search" value="{{ $filters['search'] }}" class="form-control" placeholder="Cari nomor pesanan, nama, email, telepon, username, atau cabang">
+                    <input type="search" name="search" value="{{ $filters['search'] }}" class="form-control" placeholder="Cari nomor pesanan, nama anak/orang tua, divisi, email, telepon, username, atau cabang">
                 </div>
                 <div class="col-md-3">
                     <select name="status" class="form-select">
@@ -109,6 +109,7 @@
                             <th>Pesanan</th>
                             <th>Pembeli</th>
                             <th>Cabang</th>
+                            <th>Divisi</th>
                             <th>Status Pembayaran</th>
                             <th>Stok</th>
                             <th class="text-end">Jumlah</th>
@@ -129,9 +130,11 @@
                                 </td>
                                 <td>
                                     <div class="fw-semibold">{{ $order->parent_name }}</div>
+                                    <div class="small">{{ $order->child_name ?: '-' }}</div>
                                     <div class="small text-muted">{{ $order->email }} · {{ $order->phone }}</div>
                                 </td>
                                 <td>{{ $order->branch_name }}</td>
+                                <td>{{ $order->division_name ?: '-' }}</td>
                                 <td>
                                     <span class="badge {{ $statusInfo[1] }}">{{ $statusInfo[0] }}</span>
                                     @if ($order->display_payment_status === 'PENDING' && $order->expires_at)
@@ -164,7 +167,7 @@
                                 </td>
                             </tr>
                         @empty
-                            <tr><td colspan="8" class="text-center text-muted py-5">Belum ada pesanan yang sesuai filter.</td></tr>
+                            <tr><td colspan="9" class="text-center text-muted py-5">Belum ada pesanan yang sesuai filter.</td></tr>
                         @endforelse
                     </tbody>
                 </table>
