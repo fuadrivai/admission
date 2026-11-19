@@ -73,7 +73,7 @@
                                 onsubmit="return confirm('Create a draft copy of this event, including its form, email templates, and pricing? Registrations and its Google Sheet link will not be copied.');">
                                 @csrf
                                 <button type="submit" class="btn btn-sm btn-make-copy">
-                                    <i class="fa fa-copy"></i> Make Copy
+                                    <i class="fa fa-copy"></i> Make a Copy
                                 </button>
                             </form>
                         @endif
