@@ -2,6 +2,7 @@
 
 namespace App\Exports;
 
+use Illuminate\Support\Enumerable;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -33,12 +34,12 @@ class EventRegistrationExport implements FromCollection, WithHeadings, WithMappi
             ->get();
     }
 
-    public function collection()
+    public function collection(): Enumerable
     {
         return $this->registrations;
     }
 
-    public function map($registration): array
+    public function map(mixed $registration): array
     {
         $row = [
             ++$this->rowNumber,

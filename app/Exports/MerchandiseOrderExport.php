@@ -2,6 +2,7 @@
 
 namespace App\Exports;
 
+use Illuminate\Support\Enumerable;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
@@ -15,7 +16,7 @@ class MerchandiseOrderExport implements FromCollection, WithHeadings, WithMappin
         $this->orders = $orders;
     }
 
-    public function collection()
+    public function collection(): Enumerable
     {
         return $this->orders;
     }
@@ -46,7 +47,7 @@ class MerchandiseOrderExport implements FromCollection, WithHeadings, WithMappin
         ];
     }
 
-    public function map($order): array
+    public function map(mixed $order): array
     {
         $items = $order->items->map(function ($item) {
             $name = trim(($item->product_name ?: '') . ' - ' . ($item->variant_name ?: ''), ' -');

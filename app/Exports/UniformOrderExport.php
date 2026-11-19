@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use Carbon\Carbon;
+use Illuminate\Support\Enumerable;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -42,12 +43,12 @@ class UniformOrderExport implements
         $this->orders = $rows;
     }
 
-    public function collection()
+    public function collection(): Enumerable
     {
         return $this->orders;
     }
 
-    public function map($item): array
+    public function map(mixed $item): array
     {
         $order = $item['order'];
         $detail = $item['detail'];

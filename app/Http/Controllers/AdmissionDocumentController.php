@@ -13,7 +13,8 @@ use Spatie\PdfToImage\Pdf as PdfToImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
-use Intervention\Image\Facades\Image;
+use Intervention\Image\Encoders\JpegEncoder;
+use Intervention\Image\Laravel\Facades\Image;
 use Illuminate\Support\Str;
 use Imagick;
 use ImagickPixel;
@@ -110,13 +111,10 @@ class AdmissionDocumentController extends Controller
 
                 if (in_array($ext, ['jpg', 'jpeg', 'png'])) {
 
-                    $image = Image::make($file)
-                        ->orientate() // fix rotasi iPhone
-                        ->resize(1000, null, function ($constraint) {
-                            $constraint->aspectRatio();
-                            $constraint->upsize();
-                        })
-                        ->encode('jpg', 60); // compress (0–100)
+                    $image = Image::decode($file)
+                        ->orient()
+                        ->scaleDown(width: 1000)
+                        ->encode(new JpegEncoder(quality: 60));
 
                     Storage::disk('admission')->put($path, (string) $image);
 

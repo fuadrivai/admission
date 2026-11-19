@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use Carbon\Carbon;
+use Illuminate\Support\Enumerable;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -26,12 +27,12 @@ class SchoolVisitExport implements
         $this->visits = $data;
     }
 
-    public function collection()
+    public function collection(): Enumerable
     {
         return $this->visits;
     }
 
-    public function map($visit): array
+    public function map(mixed $visit): array
     {
         $prospect = $visit->prospect;
         $enrolment = optional($prospect)->enrolment;
