@@ -758,6 +758,16 @@
 
             // Handle event option card (checkbox) selection
             $('.event-options-group input[type="checkbox"]').on('change', function() {
+                const $group = $(this).closest('.event-options-group');
+                if ($group.data('checkbox-mode') === 'single' && $(this).is(':checked')) {
+                    $group.find('input[type="checkbox"]').not(this).prop('checked', false).each(function() {
+                        $(this).closest('.event-option-card').removeClass('is-selected');
+                        if ($(this).is('[data-other-toggle]')) {
+                            syncOtherInput($(this).data('other-toggle'));
+                        }
+                    });
+                }
+
                 $(this)
                     .closest('.event-option-card')
                     .toggleClass('is-selected', $(this).is(':checked'));
@@ -909,6 +919,30 @@
                 refreshDependentFields($(this).data('dependent-on'));
             });
 
+            function checkboxGroupError($group) {
+                const $checkboxes = $group.find('input[type="checkbox"]');
+                const $options = $checkboxes.not('[data-other-toggle]');
+                const selectedCount = $checkboxes.filter(':checked').length;
+                const selectedOptionCount = $options.filter(':checked').length;
+                const mode = $group.data('checkbox-mode') || 'multiple';
+                const isRequired = String($group.data('checkbox-required')) === '1';
+
+                if (mode === 'single' && selectedCount > 1) {
+                    return 'Please select only one option.';
+                }
+
+                if (mode === 'all' && (isRequired || selectedOptionCount > 0) &&
+                    selectedOptionCount !== $options.length) {
+                    return 'Please check all options.';
+                }
+
+                if (isRequired && selectedCount === 0) {
+                    return 'Please select at least one option.';
+                }
+
+                return '';
+            }
+
             // Form Validation
             function validateForm() {
                 let isValid = true;
@@ -951,17 +985,17 @@
 
                     // Validate field
                     if (fieldType === 'checkbox') {
-                        if (fieldValue === 0) {
+                        const $fieldBlock = $field.closest('.field-block');
+                        const $optionsGroup = $fieldBlock.find('.event-options-group');
+                        const errorMessage = checkboxGroupError($optionsGroup);
+                        if (errorMessage) {
                             isValid = false;
-                            const $fieldBlock = $field.closest('.field-block');
-                            if ($fieldBlock.length) {
-                                $fieldBlock.addClass('has-error');
-                                const $optionsGroup = $fieldBlock.find('.event-options-group');
-                                $optionsGroup.addClass('has-error');
-                                $optionsGroup.after(
-                                    '<div class="invalid-feedback field-error" style="display: block;">Please select at least one option.</div>'
-                                );
-                            }
+                            $fieldBlock.addClass('has-error');
+                            $optionsGroup.addClass('has-error');
+                            $optionsGroup.after(
+                                '<div class="invalid-feedback field-error" style="display: block;">' +
+                                errorMessage + '</div>'
+                            );
                         }
                     } else if (fieldType === 'radio') {
                         if (!fieldValue) {
@@ -1005,6 +1039,21 @@
                         }
                     }
                 });
+
+                $form.find('.event-options-group[data-checkbox-mode="all"][data-checkbox-required="0"]')
+                    .each(function() {
+                        const $optionsGroup = $(this);
+                        const errorMessage = checkboxGroupError($optionsGroup);
+                        if (errorMessage) {
+                            isValid = false;
+                            $optionsGroup.closest('.field-block').addClass('has-error');
+                            $optionsGroup.addClass('has-error');
+                            $optionsGroup.after(
+                                '<div class="invalid-feedback field-error" style="display: block;">' +
+                                errorMessage + '</div>'
+                            );
+                        }
+                    });
 
                 $form.find('[data-other-input]').filter(':enabled').each(function() {
                     const $input = $(this);
@@ -1067,8 +1116,7 @@
                     fieldValue = $('form').find('input[name="' + fieldName + '"]:checked').val();
                     isFieldValid = !!fieldValue;
                 } else if (fieldType === 'checkbox') {
-                    fieldValue = $('form').find('input[name="' + fieldName + '"]:checked').length;
-                    isFieldValid = fieldValue > 0;
+                    isFieldValid = !checkboxGroupError($fieldBlock.find('.event-options-group'));
                 } else {
                     isFieldValid = fieldValue && fieldValue.trim() !== '';
                 }

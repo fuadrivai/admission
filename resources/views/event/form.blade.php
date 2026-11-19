@@ -40,6 +40,23 @@
         .overlay.show {
             display: block;
         }
+
+        .btn-make-copy {
+            border: 0;
+            border-radius: 0.5rem;
+            background: linear-gradient(135deg, #6366f1, #7c3aed);
+            color: #fff;
+            box-shadow: 0 2px 6px rgba(99, 102, 241, 0.25);
+            transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+        }
+
+        .btn-make-copy:hover,
+        .btn-make-copy:focus {
+            background: linear-gradient(135deg, #4f46e5, #6d28d9);
+            color: #fff;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.35);
+        }
     </style>
 @endsection
 
@@ -51,6 +68,15 @@
 
                 @if (isset($event))
                     <div class="d-flex gap-2">
+                        @if (request()->routeIs('event.edit') && auth()->user()->role !== 'user')
+                            <form method="POST" action="{{ route('event.copy', $event) }}"
+                                onsubmit="return confirm('Create a draft copy of this event, including its form, email templates, and pricing? Registrations and its Google Sheet link will not be copied.');">
+                                @csrf
+                                <button type="submit" class="btn btn-sm btn-make-copy">
+                                    <i class="fa fa-copy"></i> Make Copy
+                                </button>
+                            </form>
+                        @endif
                         <a href="{{ route('event.forms.index', $event) }}" class="btn btn-sm btn-outline-primary">
                             <i class="fa fa-sliders"></i> Form Setting
                         </a>
@@ -199,6 +225,8 @@
 
     <script>
         $(document).ready(function() {
+            const reloadAfterSave = @json(request()->routeIs('event.edit'));
+
             function toggleAvailabilityFields() {
                 var availabilityType = $('#availability_type').val();
                 var $activeUntilWrapper = $('#active_until_wrapper');
@@ -293,7 +321,11 @@
 
                         // Redirect after 1 second
                         setTimeout(function() {
-                            window.location.href = '/event';
+                            if (reloadAfterSave) {
+                                window.location.reload();
+                            } else {
+                                window.location.href = @json(route('event.index'));
+                            }
                         }, 1000);
                     },
                     error: function(xhr) {

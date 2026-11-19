@@ -159,6 +159,7 @@
                     @php
                         $oldLabel = old('label', $formField->label ?? '');
                         $oldType = old('type', $formField->type ?? 'text');
+                        $oldCheckboxMode = old('checkbox_mode', $formField->checkbox_mode ?? 'multiple');
                         $oldDependsOnFieldId = old('depends_on_field_id', $formField->depends_on_field_id ?? '');
                         $oldFieldKey = old('field_key', $formField->field_key ?? '');
                         $oldOptions = old('options_json', $formField->options_json ?? '');
@@ -189,6 +190,22 @@
                                     </option>
                                 @endforeach
                             </select>
+                        </div>
+
+                        <div class="mb-4" id="checkbox-mode-wrapper" style="display: none;">
+                            <label class="field-label" for="checkbox_mode">Checkbox Selection Rule</label>
+                            <select id="checkbox_mode" name="checkbox_mode" class="modern-select">
+                                <option value="multiple" {{ $oldCheckboxMode === 'multiple' ? 'selected' : '' }}>
+                                    Choose one or more options
+                                </option>
+                                <option value="all" {{ $oldCheckboxMode === 'all' ? 'selected' : '' }}>
+                                    All options must be checked
+                                </option>
+                                <option value="single" {{ $oldCheckboxMode === 'single' ? 'selected' : '' }}>
+                                    Only one option can be checked
+                                </option>
+                            </select>
+                            <small class="mini-note">The rule is also enforced when the form is submitted.</small>
                         </div>
 
                         <div class="mb-4" id="options-wrapper">
@@ -380,9 +397,11 @@ SD C">{{ $oldOptionsText }}</textarea>
         function toggleOptions() {
             const type = $('#type').val();
             const optionsWrapper = $('#options-wrapper');
+            const checkboxModeWrapper = $('#checkbox-mode-wrapper');
             const allowOtherWrapper = $('#allow-other-wrapper');
             const dependsOnWrapper = $('#depends-on-wrapper');
             const shouldShow = ['select', 'radio', 'checkbox'].includes(type);
+            checkboxModeWrapper.toggle(type === 'checkbox');
             const shouldShowDependency = type === 'select';
             optionsWrapper.toggle(shouldShow);
             allowOtherWrapper.toggle(shouldShow);

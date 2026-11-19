@@ -6,6 +6,7 @@ use App\Google\EventRegistrationGoogleSheetService;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class EventFormFeatureTest extends TestCase
@@ -67,12 +68,14 @@ class EventFormFeatureTest extends TestCase
         $this->put(route('event.update', $event), array_merge($eventData, [
             'slug' => $event->slug,
             'google_sheet_url' => $updatedUrl,
-        ]))->assertRedirect(route('event.index'));
+        ]))->assertRedirect(route('event.edit', $event));
 
         $this->assertSame($updatedUrl, $event->fresh()->google_sheet_url);
         $this->get(route('event.edit', $event))
             ->assertOk()
-            ->assertSee($updatedUrl);
+            ->assertSee($updatedUrl)
+            ->assertSee('const reloadAfterSave = true;', false)
+            ->assertSee('window.location.reload();', false);
     }
 
     public function test_event_google_sheet_url_must_be_a_valid_url(): void
@@ -93,6 +96,125 @@ class EventFormFeatureTest extends TestCase
             ])
             ->assertRedirect(route('event.create'))
             ->assertSessionHasErrors('google_sheet_url');
+    }
+
+    public function test_event_index_defaults_to_all_statuses_and_keeps_explicit_filters(): void
+    {
+        $this->actingAs(User::create([
+            'name' => 'Admin User',
+            'email' => 'admin-' . uniqid() . '@example.com',
+            'password' => bcrypt('secret123'),
+        ]));
+
+        foreach ([
+            ['title' => 'Draft event', 'status' => 'DRAFT'],
+            ['title' => 'Published event', 'status' => 'PUBLISHED'],
+            ['title' => 'Closed event', 'status' => 'CLOSED'],
+        ] as $eventData) {
+            \App\Models\Event::create(array_merge($eventData, [
+                'slug' => Str::slug($eventData['title']) . '-' . uniqid(),
+            ]));
+        }
+
+        $this->get(route('event.index'))
+            ->assertOk()
+            ->assertSee('value="all" selected', false)
+            ->assertSee('Draft event')
+            ->assertSee('Published event')
+            ->assertSee('Closed event');
+
+        $this->get(route('event.index', ['status' => 'PUBLISHED']))
+            ->assertOk()
+            ->assertSee('Published event')
+            ->assertDontSee('Draft event')
+            ->assertDontSee('Closed event');
+    }
+
+    public function test_event_copy_includes_form_email_and_pricing_but_not_registrations(): void
+    {
+        $this->actingAs(User::create([
+            'name' => 'Admin User',
+            'email' => 'admin-' . uniqid() . '@example.com',
+            'password' => bcrypt('secret123'),
+        ]));
+
+        $sourceSlug = 'open-house-2026-' . uniqid();
+        $event = \App\Models\Event::create([
+            'title' => 'Open House 2026',
+            'slug' => $sourceSlug,
+            'status' => 'PUBLISHED',
+            'availability_type' => 'ALWAYS',
+            'google_sheet_url' => 'https://docs.google.com/spreadsheets/d/source/edit',
+        ]);
+
+        $this->get(route('event.index'))->assertDontSee('Make Copy');
+        $this->get(route('event.edit', $event))
+            ->assertOk()
+            ->assertSee('Make Copy');
+
+        $parentField = $event->fields()->create([
+            'field_key' => 'location',
+            'label' => 'Location',
+            'type' => 'select',
+            'options_json' => ['North', 'South'],
+            'order_index' => 1,
+            'is_active' => true,
+        ]);
+
+        $dependentField = $event->fields()->create([
+            'field_key' => 'room',
+            'label' => 'Room',
+            'type' => 'select',
+            'options_json' => ['North' => ['Room A'], 'South' => ['Room B']],
+            'depends_on_field_id' => $parentField->id,
+            'order_index' => 2,
+            'is_active' => true,
+        ]);
+
+        $event->emailTemplates()->create([
+            'key' => 'registration_confirmation',
+            'subject' => 'Registration confirmed',
+            'body' => 'Hello {{name}}',
+        ]);
+
+        $event->priceOptions()->create([
+            'code' => 'regular',
+            'name' => 'Regular',
+            'amount' => 100000,
+            'currency' => 'IDR',
+            'is_active' => true,
+            'order_index' => 1,
+            'quota' => 20,
+            'sold_count' => 4,
+        ]);
+
+        $event->registrations()->create([
+            'code' => 'REG-COPY-' . uniqid(),
+            'status' => 'SUBMITTED',
+            'amount' => 100000,
+            'registered_at' => now(),
+        ]);
+
+        $response = $this->post(route('event.copy', $event));
+
+        $copy = \App\Models\Event::where('slug', $sourceSlug . '-copy')->firstOrFail();
+        $response->assertRedirect(route('event.edit', $copy))
+            ->assertSessionHas('success');
+        $this->assertSame('Open House 2026 (Copy)', $copy->title);
+        $this->assertSame('DRAFT', $copy->status);
+        $this->assertNull($copy->google_sheet_url);
+        $this->assertSame(2, $copy->fields()->count());
+        $this->assertSame(1, $copy->emailTemplates()->count());
+        $this->assertSame(1, $copy->priceOptions()->count());
+        $this->assertSame(0, $copy->registrations()->count());
+
+        $copiedParent = $copy->fields()->where('field_key', 'location')->firstOrFail();
+        $copiedDependent = $copy->fields()->where('field_key', 'room')->firstOrFail();
+        $this->assertNotSame($parentField->id, $copiedParent->id);
+        $this->assertSame($copiedParent->id, $copiedDependent->depends_on_field_id);
+        $this->assertSame(['North' => ['Room A'], 'South' => ['Room B']], $copiedDependent->options_json);
+        $this->assertSame('Hello {{name}}', $copy->emailTemplates()->first()->body);
+        $this->assertSame(0, $copy->priceOptions()->first()->sold_count);
     }
 
     public function test_public_event_registration_route_is_available_for_published_event(): void
@@ -174,6 +296,127 @@ class EventFormFeatureTest extends TestCase
             'type' => 'attachment',
             'is_required' => true,
         ]);
+    }
+
+    public function test_checkbox_selection_mode_can_be_saved_and_updated(): void
+    {
+        $event = \App\Models\Event::create([
+            'title' => 'Checkbox Mode Event',
+            'slug' => 'checkbox-mode-' . uniqid(),
+            'status' => 'PUBLISHED',
+            'intro_html' => '<p>Welcome</p>',
+        ]);
+
+        $this->actingAs(User::create([
+            'name' => 'Admin User',
+            'email' => 'admin-' . uniqid() . '@example.com',
+            'password' => bcrypt('secret123'),
+        ]));
+
+        $this->post(route('event.forms.store', $event), [
+            'field_key' => 'declaration',
+            'label' => 'Declaration',
+            'type' => 'checkbox',
+            'checkbox_mode' => 'all',
+            'options_json' => ['Statement 1', 'Statement 2'],
+        ])->assertRedirect(route('event.forms.index', $event));
+
+        $field = $event->fields()->where('field_key', 'declaration')->firstOrFail();
+        $this->assertSame('all', $field->checkbox_mode);
+
+        $this->get(route('event.forms.edit', [$event, $field]))
+            ->assertOk()
+            ->assertSee('value="all" selected', false)
+            ->assertSee('Checkbox Selection Rule');
+
+        $this->put(route('event.forms.update', [$event, $field]), [
+            'field_key' => 'declaration',
+            'label' => 'Declaration',
+            'type' => 'checkbox',
+            'checkbox_mode' => 'single',
+            'options_json' => ['Statement 1', 'Statement 2'],
+        ])->assertRedirect(route('event.forms.index', $event));
+
+        $this->assertSame('single', $field->fresh()->checkbox_mode);
+    }
+
+    public function test_checkbox_all_mode_requires_every_option(): void
+    {
+        $slug = 'checkbox-all-' . uniqid();
+        $event = \App\Models\Event::create([
+            'title' => 'Checkbox All Event',
+            'slug' => $slug,
+            'status' => 'PUBLISHED',
+            'intro_html' => '',
+        ]);
+        $field = $event->fields()->create([
+            'field_key' => 'declaration',
+            'label' => 'Declaration',
+            'type' => 'checkbox',
+            'checkbox_mode' => 'all',
+            'is_required' => true,
+            'options_json' => ['Statement 1', 'Statement 2'],
+            'is_active' => true,
+        ]);
+
+        $this->from('/events/' . $slug)
+            ->post('/events/' . $slug . '/register', [
+                'declaration' => ['Statement 1'],
+            ])
+            ->assertRedirect('/events/' . $slug)
+            ->assertSessionHasErrors('declaration');
+
+        $this->assertSame(0, $event->registrations()->count());
+
+        $this->post('/events/' . $slug . '/register', [
+            'declaration' => ['Statement 1', 'Statement 2'],
+        ])->assertRedirect();
+
+        $registration = $event->registrations()->firstOrFail();
+        $this->assertDatabaseHas('event_field_answers', [
+            'event_registration_id' => $registration->id,
+            'event_field_id' => $field->id,
+            'value' => json_encode(['Statement 1', 'Statement 2']),
+        ]);
+    }
+
+    public function test_checkbox_single_mode_rejects_multiple_options(): void
+    {
+        $slug = 'checkbox-single-' . uniqid();
+        $event = \App\Models\Event::create([
+            'title' => 'Checkbox Single Event',
+            'slug' => $slug,
+            'status' => 'PUBLISHED',
+            'intro_html' => '',
+        ]);
+        $event->fields()->create([
+            'field_key' => 'favorite',
+            'label' => 'Favorite',
+            'type' => 'checkbox',
+            'checkbox_mode' => 'single',
+            'is_required' => true,
+            'options_json' => ['Option 1', 'Option 2'],
+            'is_active' => true,
+        ]);
+
+        $this->get('/events/' . $slug)
+            ->assertOk()
+            ->assertSee('data-checkbox-mode="single"', false);
+
+        $this->from('/events/' . $slug)
+            ->post('/events/' . $slug . '/register', [
+                'favorite' => ['Option 1', 'Option 2'],
+            ])
+            ->assertRedirect('/events/' . $slug)
+            ->assertSessionHasErrors('favorite');
+
+        $this->assertSame(0, $event->registrations()->count());
+
+        $this->post('/events/' . $slug . '/register', [
+            'favorite' => ['Option 2'],
+        ])->assertRedirect();
+
+        $this->assertSame(1, $event->registrations()->count());
     }
 
     public function test_event_registration_store_saves_attachment_file_to_event_disk(): void

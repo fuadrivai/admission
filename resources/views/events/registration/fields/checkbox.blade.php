@@ -9,7 +9,9 @@
         <span class="required-asterisk">*</span>
     @endif
 </label>
-<div class="event-options-group{{ $hasError ? ' has-error' : '' }}">
+<div class="event-options-group{{ $hasError ? ' has-error' : '' }}"
+    data-checkbox-mode="{{ $field->checkbox_mode ?: 'multiple' }}"
+    data-checkbox-required="{{ $field->is_required ? '1' : '0' }}">
     @foreach ($options as $index => $option)
         @php
             $value = $option['value'] ?? $option;
@@ -40,6 +42,11 @@
         </label>
     @endif
 </div>
+@if ($field->checkbox_mode === 'all')
+    <small class="form-text text-muted">All options must be checked.</small>
+@elseif ($field->checkbox_mode === 'single')
+    <small class="form-text text-muted">Select only one option.</small>
+@endif
 @error($field->field_key)
     <div class="invalid-feedback">{{ $message }}</div>
 @enderror

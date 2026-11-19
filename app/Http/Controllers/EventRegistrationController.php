@@ -104,6 +104,25 @@ class EventRegistrationController extends Controller
 
         $validator->after(function ($validator) use ($fields, $request) {
             foreach ($fields as $field) {
+                if ($field->type === 'checkbox') {
+                    $value = $request->input($field->field_key, []);
+                    if (is_array($value)) {
+                        $selectedValues = array_values(array_unique(array_filter($value, 'is_scalar')));
+                        $mode = $field->checkbox_mode ?: 'multiple';
+
+                        if ($mode === 'single' && count($selectedValues) > 1) {
+                            $validator->errors()->add($field->field_key, 'Please select only one option.');
+                        }
+
+                        if ($mode === 'all' && ($field->is_required || count($selectedValues) > 0)) {
+                            $missingOptions = array_diff($this->allowedOptionValues($field), $selectedValues);
+                            if ($missingOptions) {
+                                $validator->errors()->add($field->field_key, 'Please check all options.');
+                            }
+                        }
+                    }
+                }
+
                 if (! $field->allow_other || ! in_array($field->type, ['select', 'radio', 'checkbox'], true)) {
                     continue;
                 }
@@ -367,7 +386,12 @@ class EventRegistrationController extends Controller
 
                 return array_merge($base, ['string', Rule::in($allowed)]);
             case 'checkbox':
-                return $field->is_required ? ['required', 'array'] : ['nullable', 'array'];
+                $rules = $field->is_required ? ['required', 'array'] : ['nullable', 'array'];
+                if ($field->checkbox_mode === 'single') {
+                    $rules[] = 'max:1';
+                }
+
+                return $rules;
             default:
                 return array_merge($base, ['string']);
         }

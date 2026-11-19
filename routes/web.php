@@ -317,6 +317,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
         Route::prefix('event')->name('event.')->group(function () {
             Route::get('datatables', [EventController::class, 'datatables'])->name('datatables');
             Route::get('get', [EventController::class, 'get'])->name('get');
+            Route::post('{event}/copy', [EventController::class, 'copy'])->name('copy');
 
             Route::prefix('{event}/forms')->name('forms.')->group(function () {
                 Route::get('/', [EventFormController::class, 'index'])->name('index');

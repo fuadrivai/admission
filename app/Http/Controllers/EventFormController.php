@@ -64,6 +64,7 @@ class EventFormController extends Controller
             'field_key' => ['required', 'string', 'max:100', 'unique:event_fields,field_key,NULL,id,event_id,' . $event->id],
             'label' => ['required', 'string', 'max:150'],
             'type' => ['required', 'in:text,textarea,select,radio,checkbox,email,phone,number,date,attachment'],
+            'checkbox_mode' => ['nullable', 'in:multiple,all,single'],
             'is_required' => ['nullable', 'boolean'],
             'is_primary_email' => ['nullable', 'boolean'],
             'allow_other' => ['nullable', 'boolean'],
@@ -83,6 +84,9 @@ class EventFormController extends Controller
             'field_key' => $validated['field_key'],
             'label' => $validated['label'],
             'type' => $validated['type'],
+            'checkbox_mode' => $validated['type'] === 'checkbox'
+                ? ($validated['checkbox_mode'] ?? 'multiple')
+                : 'multiple',
             'is_required' => (bool) ($validated['is_required'] ?? false),
             'is_primary_email' => (bool) ($validated['is_primary_email'] ?? false),
             'allow_other' => in_array($validated['type'], ['select', 'radio', 'checkbox'], true)
@@ -117,6 +121,7 @@ class EventFormController extends Controller
             'field_key' => ['required', 'string', 'max:100', 'unique:event_fields,field_key,' . $eventForm->id . ',id,event_id,' . $event->id],
             'label' => ['required', 'string', 'max:150'],
             'type' => ['required', 'in:text,textarea,select,radio,checkbox,email,phone,number,date,attachment'],
+            'checkbox_mode' => ['nullable', 'in:multiple,all,single'],
             'is_required' => ['nullable', 'boolean'],
             'is_primary_email' => ['nullable', 'boolean'],
             'allow_other' => ['nullable', 'boolean'],
@@ -132,6 +137,9 @@ class EventFormController extends Controller
             'field_key' => $validated['field_key'],
             'label' => $validated['label'],
             'type' => $validated['type'],
+            'checkbox_mode' => $validated['type'] === 'checkbox'
+                ? ($validated['checkbox_mode'] ?? 'multiple')
+                : 'multiple',
             'is_required' => (bool) ($validated['is_required'] ?? false),
             'is_primary_email' => (bool) ($validated['is_primary_email'] ?? false),
             'allow_other' => in_array($validated['type'], ['select', 'radio', 'checkbox'], true)

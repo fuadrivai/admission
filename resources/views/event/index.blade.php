@@ -83,11 +83,11 @@
                         <div class="col-md-4">
                             <label for="event-filter-status">Status</label>
                             <select id="event-filter-status" class="form-select">
-                                <option value="all" {{ request('status', 'PUBLISHED') === 'all' ? 'selected' : '' }}>All
+                                <option value="all" {{ request('status', 'all') === 'all' ? 'selected' : '' }}>All
                                     statuses</option>
                                 <option value="DRAFT" {{ request('status') === 'DRAFT' ? 'selected' : '' }}>Draft</option>
                                 <option value="PUBLISHED"
-                                    {{ request('status', 'PUBLISHED') === 'PUBLISHED' ? 'selected' : '' }}>Published
+                                    {{ request('status', 'all') === 'PUBLISHED' ? 'selected' : '' }}>Published
                                 </option>
                                 <option value="CLOSED" {{ request('status') === 'CLOSED' ? 'selected' : '' }}>Closed
                                 </option>

@@ -23,7 +23,7 @@ class EventController extends Controller
     {
         $query = Event::with('branch')->withCount('registrations')->orderByDesc('id');
 
-        $status = request('status', 'PUBLISHED');
+        $status = request('status', 'all');
 
         if (request()->filled('search')) {
             $search = request('search');
@@ -156,6 +156,61 @@ class EventController extends Controller
         return redirect()->route('event.index')->with('success', 'Event created successfully.');
     }
 
+    public function copy(Event $event)
+    {
+        abort_if(Auth::user()->role === 'user', 403);
+
+        $copy = DB::transaction(function () use ($event) {
+            $fields = $event->fields()->orderBy('order_index')->orderBy('id')->get();
+            $emailTemplates = $event->emailTemplates()->get();
+            $priceOptions = $event->priceOptions()->get();
+
+            $copy = $event->replicate();
+            $copy->title = Str::limit($event->title, 248, '') . ' (Copy)';
+            $copy->slug = $this->eventCopySlug($event);
+            $copy->status = 'DRAFT';
+            $copy->created_by = Auth::id();
+            if (array_key_exists('uuid', $event->getAttributes())) {
+                $copy->uuid = (string) Str::uuid();
+            }
+            if (array_key_exists('google_sheet_url', $event->getAttributes())) {
+                $copy->google_sheet_url = null;
+            }
+            $copy->save();
+
+            $fieldIds = [];
+            foreach ($fields as $field) {
+                $fieldCopy = $field->replicate();
+                $fieldCopy->depends_on_field_id = null;
+                $copy->fields()->save($fieldCopy);
+                $fieldIds[$field->id] = $fieldCopy->id;
+            }
+
+            foreach ($fields as $field) {
+                if ($field->depends_on_field_id && isset($fieldIds[$field->depends_on_field_id])) {
+                    $copy->fields()
+                        ->whereKey($fieldIds[$field->id])
+                        ->update(['depends_on_field_id' => $fieldIds[$field->depends_on_field_id]]);
+                }
+            }
+
+            foreach ($emailTemplates as $emailTemplate) {
+                $copy->emailTemplates()->save($emailTemplate->replicate());
+            }
+
+            foreach ($priceOptions as $priceOption) {
+                $priceOptionCopy = $priceOption->replicate();
+                $priceOptionCopy->sold_count = 0;
+                $copy->priceOptions()->save($priceOptionCopy);
+            }
+
+            return $copy;
+        });
+
+        return redirect()->route('event.edit', $copy)
+            ->with('success', 'Event copied as a draft. Registrations and Google Sheet settings were not copied.');
+    }
+
     public function show(Event $event)
     {
         return view('event.form', ['title' => 'Event Detail', 'event' => $event, 'branches' => Branch::orderBy('name')->get()]);
@@ -220,7 +275,7 @@ class EventController extends Controller
             return response()->json(['message' => 'Event updated successfully.']);
         }
 
-        return redirect()->route('event.index')->with('success', 'Event updated successfully.');
+        return redirect()->route('event.edit', $event)->with('success', 'Event updated successfully.');
     }
 
     public function deleteMany(Request $request)
@@ -283,6 +338,20 @@ class EventController extends Controller
 
             $event->delete();
         });
+    }
+
+    private function eventCopySlug(Event $event): string
+    {
+        $base = Str::slug($event->slug) ?: 'event';
+        $copyNumber = 1;
+
+        do {
+            $suffix = $copyNumber === 1 ? '-copy' : '-copy-' . $copyNumber;
+            $slug = substr($base, 0, 255 - strlen($suffix)) . $suffix;
+            $copyNumber++;
+        } while (Event::where('slug', $slug)->exists());
+
+        return $slug;
     }
 
     /**
