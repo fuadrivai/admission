@@ -37,6 +37,7 @@ Route::prefix('v1/merchandise')
     Route::delete('/carts/items/{itemId}', [MerchandiseApiController::class, 'removeCartItem'])
         ->whereNumber('itemId');
     Route::get('/carts/checkout', [MerchandiseApiController::class, 'checkout']);
+    Route::get('/orders', [MerchandiseApiController::class, 'orders']);
     Route::post('/orders', [MerchandiseApiController::class, 'createOrder']);
     });
 Route::get('/v1/merchandise/openapi.json', MerchandiseApiDocumentationController::class);

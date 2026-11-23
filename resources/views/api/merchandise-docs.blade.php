@@ -32,7 +32,8 @@
     <aside class="docs-note">
         No account login is required to use this API. Cart and checkout endpoints require the anonymous
         <code>X-Cart-Token</code> returned by <code>POST /carts</code>; this token identifies your cart and is not a login credential.
-        A Portal username alone is not verified identity, so this API does not expose order history by username.
+        Order history can be looked up by Portal username, but the username alone is not verified identity.
+        The public endpoint returns order summaries only and does not include customer contact details or payment URLs.
     </aside>
     <div id="swagger-ui"></div>
     <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>

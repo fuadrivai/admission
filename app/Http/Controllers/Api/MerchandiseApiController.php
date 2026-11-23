@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Division;
+use App\Models\MerchandiseOrder;
 use App\Services\MerchandiseService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -306,6 +307,56 @@ class MerchandiseApiController extends Controller
                 'payment_url' => $order->payment_url,
             ],
         ], 201);
+    }
+
+    public function orders(Request $request)
+    {
+        $filters = $request->validate([
+            'portal_username' => ['required', 'string', 'max:100'],
+            'page' => ['nullable', 'integer', 'min:1'],
+        ]);
+        $orders = MerchandiseOrder::query()
+            ->select([
+                'id',
+                'code',
+                'created_at',
+                'order_type',
+                'payment_status',
+                'fulfillment_status',
+                'preorder_expected_at',
+                'total_items',
+                'total_amount',
+            ])
+            ->where('portal_username', $filters['portal_username'])
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->paginate(20);
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'orders' => $orders->getCollection()->map(function (MerchandiseOrder $order) {
+                    return [
+                        'order_reference' => $order->code,
+                        'created_at' => $order->created_at ? $order->created_at->toIso8601String() : null,
+                        'order_type' => $order->order_type,
+                        'payment_status' => $order->payment_status,
+                        'fulfillment_status' => $order->fulfillment_status,
+                        'preorder_expected_at' => $order->preorder_expected_at
+                            ? $order->preorder_expected_at->toDateString()
+                            : null,
+                        'total_items' => (int) $order->total_items,
+                        'total_amount' => (float) $order->total_amount,
+                    ];
+                })->values(),
+                'pagination' => [
+                    'current_page' => $orders->currentPage(),
+                    'last_page' => $orders->lastPage(),
+                    'per_page' => $orders->perPage(),
+                    'total' => $orders->total(),
+                ],
+            ],
+        ]);
     }
 
     private function productData($product, $variants = null): array

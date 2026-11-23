@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
 class MerchandiseApiFeatureTest extends TestCase
@@ -53,7 +55,8 @@ class MerchandiseApiFeatureTest extends TestCase
             ->assertSee('openapi.json')
             ->assertSee('No account login is required')
             ->assertSee('not a login credential')
-            ->assertSee('does not expose order history by username');
+            ->assertSee('username alone is not verified identity')
+            ->assertSee('does not include customer contact details or payment URLs');
     }
 
     public function test_category_endpoint_lists_public_categories(): void
@@ -148,10 +151,93 @@ class MerchandiseApiFeatureTest extends TestCase
             ->assertJsonValidationErrors(['child_name', 'division']);
     }
 
-    public function test_order_history_is_not_exposed_by_username_only(): void
+    public function test_order_history_requires_a_portal_username(): void
     {
-        $this->getJson('/api/v1/merchandise/orders/history?portal_username=someone')
-            ->assertNotFound();
+        $this->getJson('/api/v1/merchandise/orders')
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('portal_username');
+    }
+
+    public function test_order_history_filters_by_exact_portal_username_and_returns_only_summaries(): void
+    {
+        config([
+            'database.default' => 'sqlite',
+            'database.connections.sqlite.database' => ':memory:',
+        ]);
+        DB::purge('sqlite');
+
+        Schema::connection('sqlite')->create('merchandise_orders', function ($table) {
+            $table->id();
+            $table->string('portal_username');
+            $table->string('code');
+            $table->timestamps();
+            $table->string('order_type');
+            $table->string('payment_status');
+            $table->string('fulfillment_status');
+            $table->date('preorder_expected_at')->nullable();
+            $table->unsignedInteger('total_items');
+            $table->decimal('total_amount', 12, 2);
+            $table->string('email')->nullable();
+            $table->string('phone')->nullable();
+            $table->text('payment_url')->nullable();
+        });
+
+        DB::connection('sqlite')->table('merchandise_orders')->insert([
+            [
+                'portal_username' => 'P100',
+                'code' => 'MATCH-001',
+                'created_at' => '2026-11-20 10:00:00',
+                'updated_at' => '2026-11-20 10:00:00',
+                'order_type' => 'READY',
+                'payment_status' => 'PAID',
+                'fulfillment_status' => 'READY',
+                'total_items' => 2,
+                'total_amount' => 250000,
+                'email' => 'private@example.com',
+                'phone' => '08123456789',
+                'payment_url' => 'https://payments.example/invoice',
+            ],
+            [
+                'portal_username' => 'P100-OTHER',
+                'code' => 'NO-MATCH',
+                'created_at' => '2026-11-21 10:00:00',
+                'updated_at' => '2026-11-21 10:00:00',
+                'order_type' => 'READY',
+                'payment_status' => 'PENDING',
+                'fulfillment_status' => 'READY',
+                'total_items' => 1,
+                'total_amount' => 100000,
+                'email' => null,
+                'phone' => null,
+                'payment_url' => null,
+            ],
+        ]);
+
+        $response = $this->getJson('/api/v1/merchandise/orders?portal_username=P100');
+        $response
+            ->assertOk()
+            ->assertJsonCount(1, 'data.orders')
+            ->assertJsonPath('data.orders.0.order_reference', 'MATCH-001')
+            ->assertJsonPath('data.orders.0.total_items', 2)
+            ->assertJsonPath('data.pagination.total', 1);
+
+        $orderSummary = $response->json('data.orders.0');
+        $this->assertArrayNotHasKey('email', $orderSummary);
+        $this->assertArrayNotHasKey('phone', $orderSummary);
+        $this->assertArrayNotHasKey('payment_url', $orderSummary);
+    }
+
+    public function test_order_history_endpoint_is_documented(): void
+    {
+        $response = $this->getJson('/api/v1/merchandise/openapi.json');
+
+        $response->assertOk()
+            ->assertJsonPath('paths./orders.get.summary', 'List orders by Portal username')
+            ->assertJsonPath('paths./orders.get.parameters.0.$ref', '#/components/parameters/PortalUsername')
+            ->assertJsonPath(
+                'paths./orders.get.responses.200.content.application/json.schema.$ref',
+                '#/components/schemas/OrderHistoryResponse'
+            );
     }
 
     public function test_merchandise_email_templates_are_restricted_to_admins(): void

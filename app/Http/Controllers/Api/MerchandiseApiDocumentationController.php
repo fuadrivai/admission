@@ -22,6 +22,7 @@ class MerchandiseApiDocumentationController extends Controller
                 ['name' => 'Store', 'description' => 'Public catalog, category, and product browsing'],
                 ['name' => 'Cart', 'description' => 'Anonymous mobile cart managed with a cart token'],
                 ['name' => 'Checkout', 'description' => 'Promotion preview and payment order creation'],
+                ['name' => 'Orders', 'description' => 'Public order history lookup'],
             ],
             'paths' => [
                 '/store' => [
@@ -182,6 +183,19 @@ class MerchandiseApiDocumentationController extends Controller
                     ],
                 ],
                 '/orders' => [
+                    'get' => [
+                        'tags' => ['Orders'],
+                        'summary' => 'List orders by Portal username',
+                        'description' => 'Returns order summaries matching the exact Portal username. This endpoint is public and the username alone does not verify identity; the response excludes customer contact details and payment URLs.',
+                        'parameters' => [
+                            ['$ref' => '#/components/parameters/PortalUsername'],
+                            ['$ref' => '#/components/parameters/OrdersPage'],
+                        ],
+                        'responses' => [
+                            '200' => $this->response('Paginated order summaries', 'OrderHistoryResponse'),
+                            '422' => $this->response('Invalid query parameters', 'ValidationError'),
+                        ],
+                    ],
                     'post' => [
                         'tags' => ['Checkout'],
                         'summary' => 'Create order and payment invoice',
@@ -221,6 +235,19 @@ class MerchandiseApiDocumentationController extends Controller
                         'name' => 'page',
                         'in' => 'query',
                         'description' => 'One-based page number. Page size is 24.',
+                        'schema' => ['type' => 'integer', 'minimum' => 1, 'default' => 1],
+                    ],
+                    'PortalUsername' => [
+                        'name' => 'portal_username',
+                        'in' => 'query',
+                        'required' => true,
+                        'description' => 'Exact Portal username used to filter orders.',
+                        'schema' => ['type' => 'string', 'maxLength' => 100],
+                    ],
+                    'OrdersPage' => [
+                        'name' => 'page',
+                        'in' => 'query',
+                        'description' => 'One-based page number. Page size is 20.',
                         'schema' => ['type' => 'integer', 'minimum' => 1, 'default' => 1],
                     ],
                     'OptionalCartToken' => [
@@ -438,6 +465,34 @@ class MerchandiseApiDocumentationController extends Controller
                         'expires_at' => ['type' => 'string', 'format' => 'date-time', 'nullable' => true],
                         'payment_url' => ['type' => 'string', 'format' => 'uri'],
                     ]),
+                    'OrderHistoryResponse' => $this->successSchema([
+                        'orders' => [
+                            'type' => 'array',
+                            'items' => ['$ref' => '#/components/schemas/OrderSummary'],
+                        ],
+                        'pagination' => [
+                            'type' => 'object',
+                            'properties' => [
+                                'current_page' => ['type' => 'integer'],
+                                'last_page' => ['type' => 'integer'],
+                                'per_page' => ['type' => 'integer'],
+                                'total' => ['type' => 'integer'],
+                            ],
+                        ],
+                    ]),
+                    'OrderSummary' => [
+                        'type' => 'object',
+                        'properties' => [
+                            'order_reference' => ['type' => 'string'],
+                            'created_at' => ['type' => 'string', 'format' => 'date-time', 'nullable' => true],
+                            'order_type' => ['type' => 'string', 'enum' => ['READY', 'PREORDER']],
+                            'payment_status' => ['type' => 'string'],
+                            'fulfillment_status' => ['type' => 'string'],
+                            'preorder_expected_at' => ['type' => 'string', 'format' => 'date', 'nullable' => true],
+                            'total_items' => ['type' => 'integer'],
+                            'total_amount' => ['type' => 'number'],
+                        ],
+                    ],
                 ],
             ],
         ]);
