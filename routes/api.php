@@ -38,6 +38,7 @@ Route::prefix('v1/merchandise')
         ->whereNumber('itemId');
     Route::get('/carts/checkout', [MerchandiseApiController::class, 'checkout']);
     Route::get('/orders', [MerchandiseApiController::class, 'orders']);
+    Route::get('/orders/{id}', [MerchandiseApiController::class, 'order_details'])->whereNumber('id');
     Route::post('/orders', [MerchandiseApiController::class, 'createOrder']);
     });
 Route::get('/v1/merchandise/openapi.json', MerchandiseApiDocumentationController::class);

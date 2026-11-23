@@ -316,17 +316,6 @@ class MerchandiseApiController extends Controller
             'page' => ['nullable', 'integer', 'min:1'],
         ]);
         $orders = MerchandiseOrder::query()
-            ->select([
-                'id',
-                'code',
-                'created_at',
-                'order_type',
-                'payment_status',
-                'fulfillment_status',
-                'preorder_expected_at',
-                'total_items',
-                'total_amount',
-            ])
             ->where('portal_username', $filters['portal_username'])
             ->orderByDesc('created_at')
             ->orderByDesc('id')
@@ -335,20 +324,7 @@ class MerchandiseApiController extends Controller
         return response()->json([
             'success' => true,
             'data' => [
-                'orders' => $orders->getCollection()->map(function (MerchandiseOrder $order) {
-                    return [
-                        'order_reference' => $order->code,
-                        'created_at' => $order->created_at ? $order->created_at->toIso8601String() : null,
-                        'order_type' => $order->order_type,
-                        'payment_status' => $order->payment_status,
-                        'fulfillment_status' => $order->fulfillment_status,
-                        'preorder_expected_at' => $order->preorder_expected_at
-                            ? $order->preorder_expected_at->toDateString()
-                            : null,
-                        'total_items' => (int) $order->total_items,
-                        'total_amount' => (float) $order->total_amount,
-                    ];
-                })->values(),
+                'orders' => $orders->getCollection(),
                 'pagination' => [
                     'current_page' => $orders->currentPage(),
                     'last_page' => $orders->lastPage(),
@@ -358,6 +334,24 @@ class MerchandiseApiController extends Controller
             ],
         ]);
     }
+
+    public function order_details($id)
+    {
+        $order = MerchandiseOrder::find($id)->load('items.variant.product.category', 'branch', 'promotion', 'fulfilledBy');
+
+        if (!$order) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Order not found',
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' =>  $order,
+        ]);
+    }
+
 
     private function productData($product, $variants = null): array
     {

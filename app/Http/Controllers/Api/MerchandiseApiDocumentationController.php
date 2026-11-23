@@ -186,13 +186,13 @@ class MerchandiseApiDocumentationController extends Controller
                     'get' => [
                         'tags' => ['Orders'],
                         'summary' => 'List orders by Portal username',
-                        'description' => 'Returns order summaries matching the exact Portal username. This endpoint is public and the username alone does not verify identity; the response excludes customer contact details and payment URLs.',
+                        'description' => 'Returns paginated merchandise_orders records matching the exact Portal username. This public endpoint returns all order columns, including customer contact details and payment_url. A Portal username alone does not verify identity.',
                         'parameters' => [
                             ['$ref' => '#/components/parameters/PortalUsername'],
                             ['$ref' => '#/components/parameters/OrdersPage'],
                         ],
                         'responses' => [
-                            '200' => $this->response('Paginated order summaries', 'OrderHistoryResponse'),
+                            '200' => $this->response('Paginated order records', 'OrderHistoryResponse'),
                             '422' => $this->response('Invalid query parameters', 'ValidationError'),
                         ],
                     ],
@@ -205,6 +205,25 @@ class MerchandiseApiDocumentationController extends Controller
                         'responses' => [
                             '201' => $this->response('Order and invoice created', 'OrderResponse'),
                             '422' => $this->response('Invalid checkout data or invoice creation failed', 'ValidationError'),
+                        ],
+                    ],
+                ],
+                '/orders/{id}' => [
+                    'get' => [
+                        'tags' => ['Orders'],
+                        'summary' => 'Get order details',
+                        'description' => 'Returns the complete merchandise order record and loaded relations (items with variant, product, and category; branch; promotion; and fulfilled_by) for the given database ID. This public endpoint may include customer contact and payment information.',
+                        'parameters' => [
+                            [
+                                'name' => 'id',
+                                'in' => 'path',
+                                'required' => true,
+                                'schema' => ['type' => 'integer', 'minimum' => 1],
+                            ],
+                        ],
+                        'responses' => [
+                            '200' => $this->response('Order and related records', 'OrderDetailResponse'),
+                            '404' => $this->response('Order not found', 'OrderNotFoundResponse'),
                         ],
                     ],
                 ],
@@ -468,7 +487,7 @@ class MerchandiseApiDocumentationController extends Controller
                     'OrderHistoryResponse' => $this->successSchema([
                         'orders' => [
                             'type' => 'array',
-                            'items' => ['$ref' => '#/components/schemas/OrderSummary'],
+                            'items' => ['$ref' => '#/components/schemas/OrderRecord'],
                         ],
                         'pagination' => [
                             'type' => 'object',
@@ -480,17 +499,135 @@ class MerchandiseApiDocumentationController extends Controller
                             ],
                         ],
                     ]),
-                    'OrderSummary' => [
+                    'OrderFields' => [
                         'type' => 'object',
                         'properties' => [
-                            'order_reference' => ['type' => 'string'],
-                            'created_at' => ['type' => 'string', 'format' => 'date-time', 'nullable' => true],
-                            'order_type' => ['type' => 'string', 'enum' => ['READY', 'PREORDER']],
+                            'id' => ['type' => 'integer'],
+                            'code' => ['type' => 'string'],
+                            'external_id' => ['type' => 'string'],
+                            'branch_id' => ['type' => 'integer'],
+                            'branch_name' => ['type' => 'string'],
+                            'parent_name' => ['type' => 'string'],
+                            'child_name' => ['type' => 'string', 'nullable' => true],
+                            'email' => ['type' => 'string', 'format' => 'email'],
+                            'phone' => ['type' => 'string'],
+                            'portal_username' => ['type' => 'string'],
+                            'division_id' => ['type' => 'integer', 'nullable' => true],
+                            'division_name' => ['type' => 'string', 'nullable' => true],
+                            'total_items' => ['type' => 'integer'],
+                            'subtotal' => ['type' => 'number'],
+                            'bank_charger' => ['type' => 'number'],
+                            'promotion_id' => ['type' => 'integer', 'nullable' => true],
+                            'promotion_name' => ['type' => 'string', 'nullable' => true],
+                            'promotion_code' => ['type' => 'string', 'nullable' => true],
+                            'discount_amount' => ['type' => 'number'],
+                            'total_amount' => ['type' => 'number'],
                             'payment_status' => ['type' => 'string'],
+                            'payment_url' => ['type' => 'string', 'nullable' => true],
+                            'expires_at' => ['type' => 'string', 'format' => 'date-time', 'nullable' => true],
+                            'paid_at' => ['type' => 'string', 'format' => 'date-time', 'nullable' => true],
+                            'order_type' => ['type' => 'string', 'enum' => ['READY', 'PREORDER']],
                             'fulfillment_status' => ['type' => 'string'],
                             'preorder_expected_at' => ['type' => 'string', 'format' => 'date', 'nullable' => true],
-                            'total_items' => ['type' => 'integer'],
-                            'total_amount' => ['type' => 'number'],
+                            'fulfilled_at' => ['type' => 'string', 'format' => 'date-time', 'nullable' => true],
+                            'invoice_email_sent_at' => ['type' => 'string', 'format' => 'date-time', 'nullable' => true],
+                            'receipt_email_sent_at' => ['type' => 'string', 'format' => 'date-time', 'nullable' => true],
+                            'created_at' => ['type' => 'string', 'format' => 'date-time', 'nullable' => true],
+                            'updated_at' => ['type' => 'string', 'format' => 'date-time', 'nullable' => true],
+                        ],
+                    ],
+                    'OrderRecord' => [
+                        'allOf' => [
+                            ['$ref' => '#/components/schemas/OrderFields'],
+                            [
+                                'type' => 'object',
+                                'properties' => [
+                                    'fulfilled_by' => ['type' => 'integer', 'nullable' => true],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'OrderDetailResponse' => [
+                        'type' => 'object',
+                        'required' => ['success', 'data'],
+                        'properties' => [
+                            'success' => ['type' => 'boolean', 'example' => true],
+                            'data' => ['$ref' => '#/components/schemas/OrderDetailData'],
+                        ],
+                    ],
+                    'OrderDetailData' => [
+                        'allOf' => [
+                            ['$ref' => '#/components/schemas/OrderFields'],
+                            [
+                                'type' => 'object',
+                                'properties' => [
+                                    'items' => [
+                                        'type' => 'array',
+                                        'items' => ['$ref' => '#/components/schemas/OrderItemRecord'],
+                                    ],
+                                    'branch' => [
+                                        'type' => 'object',
+                                        'nullable' => true,
+                                        'additionalProperties' => true,
+                                    ],
+                                    'promotion' => [
+                                        'type' => 'object',
+                                        'nullable' => true,
+                                        'additionalProperties' => true,
+                                    ],
+                                    'fulfilled_by' => [
+                                        'type' => 'object',
+                                        'nullable' => true,
+                                        'additionalProperties' => true,
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'OrderItemRecord' => [
+                        'type' => 'object',
+                        'properties' => [
+                            'id' => ['type' => 'integer'],
+                            'order_id' => ['type' => 'integer'],
+                            'variant_id' => ['type' => 'integer'],
+                            'product_name' => ['type' => 'string'],
+                            'variant_name' => ['type' => 'string'],
+                            'sku' => ['type' => 'string', 'nullable' => true],
+                            'image_path' => ['type' => 'string', 'nullable' => true],
+                            'quantity' => ['type' => 'integer'],
+                            'unit_price' => ['type' => 'number'],
+                            'subtotal' => ['type' => 'number'],
+                            'is_preorder' => ['type' => 'boolean'],
+                            'preorder_expected_at' => ['type' => 'string', 'format' => 'date', 'nullable' => true],
+                            'created_at' => ['type' => 'string', 'format' => 'date-time', 'nullable' => true],
+                            'updated_at' => ['type' => 'string', 'format' => 'date-time', 'nullable' => true],
+                            'variant' => [
+                                'type' => 'object',
+                                'nullable' => true,
+                                'additionalProperties' => true,
+                                'properties' => [
+                                    'product' => [
+                                        'type' => 'object',
+                                        'nullable' => true,
+                                        'additionalProperties' => true,
+                                        'properties' => [
+                                            'category' => [
+                                                'type' => 'object',
+                                                'nullable' => true,
+                                                'additionalProperties' => true,
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'OrderNotFoundResponse' => [
+                        'type' => 'object',
+                        'required' => ['success', 'message'],
+                        'properties' => [
+                            'success' => ['type' => 'boolean', 'example' => false],
+                            'message' => ['type' => 'string', 'example' => 'Order not found'],
                         ],
                     ],
                 ],

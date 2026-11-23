@@ -56,7 +56,7 @@ class MerchandiseApiFeatureTest extends TestCase
             ->assertSee('No account login is required')
             ->assertSee('not a login credential')
             ->assertSee('username alone is not verified identity')
-            ->assertSee('does not include customer contact details or payment URLs');
+            ->assertSee('Both may include customer contact details and payment URLs.');
     }
 
     public function test_category_endpoint_lists_public_categories(): void
@@ -237,6 +237,22 @@ class MerchandiseApiFeatureTest extends TestCase
             ->assertJsonPath(
                 'paths./orders.get.responses.200.content.application/json.schema.$ref',
                 '#/components/schemas/OrderHistoryResponse'
+            )
+            ->assertJsonPath(
+                'paths./orders/{id}.get.parameters.0.name',
+                'id'
+            )
+            ->assertJsonPath(
+                'paths./orders/{id}.get.responses.200.content.application/json.schema.$ref',
+                '#/components/schemas/OrderDetailResponse'
+            )
+            ->assertJsonPath(
+                'paths./orders/{id}.get.responses.404.content.application/json.schema.$ref',
+                '#/components/schemas/OrderNotFoundResponse'
+            )
+            ->assertJsonPath(
+                'components.schemas.OrderDetailData.allOf.1.properties.items.type',
+                'array'
             );
     }
 
