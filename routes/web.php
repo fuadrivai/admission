@@ -35,6 +35,7 @@ use App\Http\Controllers\ProspectController;
 use App\Http\Controllers\SchoolVisitController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\SiswaEreportController;
+use App\Http\Controllers\StudentTrackingController;
 use App\Http\Controllers\UniformController;
 use App\Http\Controllers\MerchandiseController;
 use App\Http\Controllers\MerchandiseEmailTemplateController;
@@ -154,6 +155,8 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
 
     Route::group(['middleware' => 'auth'], function () {
         Route::get('/', [HomeController::class, 'index'])->name('home');
+        Route::get('/student-tracking/{prospect}', [StudentTrackingController::class, 'show'])
+            ->name('student-tracking.show');
         Route::get('/admission-monitoring', [AdmissionMonitoringController::class, 'index'])
             ->name('admission-monitoring.index');
 

@@ -7,6 +7,7 @@ use App\Models\Enrolment;
 use App\Models\Level;
 use App\Models\Observation;
 use App\Models\ProspectActivity;
+use App\Models\Prospects;
 use App\Models\SchoolVisit;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -15,8 +16,72 @@ class HomeController extends Controller
 {
     public function index(Request $request)
     {
+        $validated = $request->validate([
+            'search' => ['nullable', 'string', 'max:120'],
+        ]);
         $branches  = Branch::orderBy('name')->get();
-        $branchId  = $request->input('branch_id'); // null = All
+        $branchId  = $request->input('branch_id') ?: null; // null = All
+
+        $studentSearch = trim($validated['search'] ?? '');
+        $studentSearchResults = collect();
+        $studentSearchCount = 0;
+        $branchRestricted = $request->user()->role === 'user' || (bool) $branchId;
+        $searchBranchIds = $request->user()->role === 'user'
+            ? [(int) ($request->user()->branch_id ?: 0)]
+            : ($branchId ? [(int) $branchId] : []);
+
+        if ($studentSearch !== '' && (!$branchRestricted || $searchBranchIds)) {
+            $studentSearchQuery = Prospects::query()
+                ->where(function ($query) use ($studentSearch) {
+                    $like = '%' . $studentSearch . '%';
+                    $query->where('code', 'like', $like)
+                        ->orWhere('child_name', 'like', $like)
+                        ->orWhere('parent_name', 'like', $like)
+                        ->orWhere('email', 'like', $like)
+                        ->orWhere('phone_number', 'like', $like);
+                });
+
+            if ($branchRestricted) {
+                $studentSearchQuery->where(function ($query) use ($searchBranchIds) {
+                    $query->whereHas('schoolVisit', function ($visitQuery) use ($searchBranchIds) {
+                        $visitQuery->whereIn('branch_id', $searchBranchIds);
+                    })->orWhereHas('enrolment', function ($enrolmentQuery) use ($searchBranchIds) {
+                        $enrolmentQuery->whereIn('branch_id', $searchBranchIds);
+                    })->orWhereHas('obsservation', function ($observationQuery) use ($searchBranchIds) {
+                        $observationQuery->whereIn('branch_id', $searchBranchIds);
+                    });
+                });
+            }
+
+            $studentSearchCount = (clone $studentSearchQuery)->count();
+            $studentSearchResults = $studentSearchQuery
+                ->with([
+                    'schoolVisit' => function ($query) use ($searchBranchIds) {
+                        $query->when($searchBranchIds, function ($query) use ($searchBranchIds) {
+                            $query->whereIn('branch_id', $searchBranchIds);
+                        })->orderByDesc('created_at')
+                            ->select('id', 'prospects_id', 'status', 'branch_id', 'academic_year_id');
+                    },
+                    'enrolment' => function ($query) use ($searchBranchIds) {
+                        $query->when($searchBranchIds, function ($query) use ($searchBranchIds) {
+                            $query->whereIn('branch_id', $searchBranchIds);
+                        })->orderByDesc('created_at')
+                            ->select('id', 'prospects_id', 'status', 'branch_id', 'academic_year_id');
+                    },
+                    'obsservation' => function ($query) use ($searchBranchIds) {
+                        $query->when($searchBranchIds, function ($query) use ($searchBranchIds) {
+                            $query->whereIn('branch_id', $searchBranchIds);
+                        })->orderByDesc('created_at')
+                            ->select('id', 'prospects_id', 'status', 'branch_id');
+                    },
+                ])
+                ->orderByDesc('created_at')
+                ->take(8)
+                ->get([
+                    'id', 'code', 'child_name', 'parent_name', 'email',
+                    'phone_number', 'source_module', 'created_at',
+                ]);
+        }
 
         $metrics = $this->dashboardMetrics($branchId);
 
@@ -36,6 +101,9 @@ class HomeController extends Controller
             'title'    => 'Dashboard',
             'branches' => $branches,
             'selectedBranch' => $branchId,
+            'studentSearch' => $studentSearch,
+            'studentSearchResults' => $studentSearchResults,
+            'studentSearchCount' => $studentSearchCount,
             'recentActivities' => $recentActivities,
         ], $metrics));
     }

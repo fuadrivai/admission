@@ -66,6 +66,7 @@ class AdmissionController extends Controller
             $query->where('payment_status', $request->status);
         }
 
+        $query->orderByDesc('created_at')->orderByDesc('id');
         $admissions = $query->paginate(request('perpage')??10)->withQueryString();
 
         if ($request->ajax()) {

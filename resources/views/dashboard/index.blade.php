@@ -3,6 +3,44 @@
 @section('content-style')
     <link rel="stylesheet"
         href="/assets/static/css/dashboard.css?v={{ filemtime(public_path('assets/static/css/dashboard.css')) }}">
+    <style>
+        .home-student-search {
+            margin-bottom: 1.5rem;
+            padding: 1rem 1.15rem;
+            border: 1px solid #e8edf3;
+            border-radius: 14px;
+            background: #fff;
+            box-shadow: 0 5px 18px rgba(27, 47, 76, .035);
+        }
+
+        .home-student-search .form-control {
+            min-height: 44px;
+        }
+
+        .home-student-search-result {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: .8rem 0;
+            border-bottom: 1px solid #eef1f5;
+        }
+
+        .home-student-search-result:last-child {
+            padding-bottom: 0;
+            border-bottom: 0;
+        }
+
+        .home-student-search-result > div {
+            min-width: 0;
+        }
+
+        @media (max-width: 575.98px) {
+            .home-student-search-result {
+                align-items: flex-start;
+            }
+        }
+    </style>
 @endsection
 
 @section('content-child')
@@ -13,16 +51,21 @@
             </div>
             <div class="d-flex align-items-center gap-2 flex-wrap">
                 <div class="db-branch-filter">
-                    <select id="branchFilter" class="form-select form-select-sm"
-                        onchange="window.location.href = this.value ? '{{ request()->url() }}?branch_id=' + this.value : '{{ request()->url() }}'">
-                        <option value="" {{ is_null($selectedBranch) ? 'selected' : '' }}>All Branches</option>
-                        @foreach ($branches as $branch)
-                            <option value="{{ $branch->id }}"
-                                {{ (string) $selectedBranch === (string) $branch->id ? 'selected' : '' }}>
-                                {{ $branch->name }}
-                            </option>
-                        @endforeach
-                    </select>
+                    <form method="GET" action="{{ route('home') }}">
+                        @if ($studentSearch !== '')
+                            <input type="hidden" name="search" value="{{ $studentSearch }}">
+                        @endif
+                        <select id="branchFilter" name="branch_id" class="form-select form-select-sm"
+                            onchange="this.form.submit()">
+                            <option value="" {{ is_null($selectedBranch) ? 'selected' : '' }}>All Branches</option>
+                            @foreach ($branches as $branch)
+                                <option value="{{ $branch->id }}"
+                                    {{ (string) $selectedBranch === (string) $branch->id ? 'selected' : '' }}>
+                                    {{ $branch->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </form>
                 </div>
                 <div class="db-date-badge">
                     <i class="bi bi-calendar3"></i>
@@ -30,6 +73,111 @@
                 </div>
             </div>
         </div>
+
+        <section class="home-student-search" aria-labelledby="home-student-search-title">
+            <form method="GET" action="{{ route('home') }}" role="search">
+                @if ($selectedBranch)
+                    <input type="hidden" name="branch_id" value="{{ $selectedBranch }}">
+                @endif
+                <label id="home-student-search-title" for="home-student-search-input" class="form-label fw-semibold mb-2">
+                    Cari anak atau pendaftar
+                </label>
+                <div class="row g-2">
+                    <div class="col">
+                        <input
+                            class="form-control"
+                            id="home-student-search-input"
+                            name="search"
+                            type="search"
+                            value="{{ $studentSearch }}"
+                            placeholder="Nama anak, kode Prospect/Enrolment, nama orang tua, email, atau nomor telepon"
+                            maxlength="120"
+                            autocomplete="off"
+                        >
+                    </div>
+                    <div class="col-auto">
+                        <button class="btn btn-success h-100 px-4" type="submit">
+                            <i class="bi bi-search me-1" aria-hidden="true"></i> Cari
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            @if ($studentSearch !== '')
+                <div class="border-top mt-3 pt-3" role="status" aria-live="polite">
+                    <div class="d-flex flex-wrap justify-content-between align-items-baseline gap-2 mb-1">
+                        <strong>Hasil pencarian “{{ $studentSearch }}”</strong>
+                        <span class="small text-muted">
+                            {{ number_format($studentSearchCount) }} data ditemukan
+                        </span>
+                    </div>
+                    @forelse ($studentSearchResults as $result)
+                        @php
+                            $visitSearchStatus = strtolower((string) optional($result->schoolVisit)->status);
+                            $enrolmentSearchStatus = strtoupper((string) optional($result->enrolment)->status);
+                            $observationSearchStatus = strtolower((string) optional($result->obsservation)->status);
+                            $visitSearchClass = !$result->schoolVisit
+                                ? 'text-bg-secondary'
+                                : ($visitSearchStatus === 'present'
+                                    ? 'text-bg-success'
+                                    : ($visitSearchStatus === 'registered' ? 'text-bg-warning' : 'text-bg-danger'));
+                            $enrolmentSearchClass = !$result->enrolment
+                                ? 'text-bg-secondary'
+                                : ($enrolmentSearchStatus === 'ACTIVE' ? 'text-bg-success' : 'text-bg-danger');
+                            $observationSearchClass = !$result->obsservation
+                                ? 'text-bg-secondary'
+                                : ($observationSearchStatus === 'present'
+                                    ? 'text-bg-success'
+                                    : ($observationSearchStatus === 'registered' ? 'text-bg-warning' : 'text-bg-danger'));
+                        @endphp
+                        <div class="home-student-search-result">
+                            <div>
+                                <a class="fw-semibold" href="{{ route('student-tracking.show', $result->id) }}">
+                                    {{ $result->child_name ?: 'Nama anak belum diisi' }}
+                                </a>
+                                <div class="small text-muted mt-1">
+                                    Kode: {{ $result->code ?: '-' }}
+                                    · Orang tua: {{ $result->parent_name ?: '-' }}
+                                    · {{ $result->phone_number ?: '-' }}
+                                    @if ($result->email)
+                                        · {{ $result->email }}
+                                    @endif
+                                </div>
+                                <div class="d-flex flex-wrap gap-1 mt-2">
+                                    <span class="badge rounded-pill text-bg-light border text-dark">
+                                        Prospect
+                                    </span>
+                                    <span class="badge rounded-pill {{ $visitSearchClass }}">
+                                        School Visit {{ $result->schoolVisit ? ucfirst($result->schoolVisit->status) : 'belum ada' }}
+                                    </span>
+                                    <span class="badge rounded-pill {{ $enrolmentSearchClass }}">
+                                        Enrolment {{ $result->enrolment ? ucfirst($result->enrolment->status) : 'belum ada' }}
+                                    </span>
+                                    <span class="badge rounded-pill {{ $observationSearchClass }}">
+                                        Observation {{ $result->obsservation ? ucfirst($result->obsservation->status) : 'belum ada' }}
+                                    </span>
+                                </div>
+                            </div>
+                            <a class="btn btn-outline-success btn-sm flex-shrink-0"
+                                href="{{ route('student-tracking.show', $result->id) }}">
+                                Buka tracking
+                            </a>
+                        </div>
+                    @empty
+                        <p class="small text-muted mb-0 mt-2">
+                            Tidak ada data Prospect yang cocok pada cabang yang dipilih.
+                        </p>
+                    @endforelse
+                    @if ($studentSearchCount > $studentSearchResults->count())
+                        <p class="small text-muted mb-0 mt-2">
+                            Menampilkan {{ $studentSearchResults->count() }} hasil terbaru dari
+                            {{ number_format($studentSearchCount) }} data. Perjelas kata kunci untuk mempersempit hasil.
+                        </p>
+                    @endif
+                </div>
+            @endif
+        </section>
+
         <div class="row g-4 mb-4">
             <div class="col-xl-3 col-sm-6">
                 <div class="kpi-card c-primary card h-100">
