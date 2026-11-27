@@ -511,7 +511,7 @@ class MerchandiseImplement implements MerchandiseService
     public function getOrders(array $filters = [])
     {
         $status = $filters['status'] ?? 'all';
-        $query = $this->ordersQuery($filters);
+        $query = $this->ordersQuery($filters)->with('items');
         $orders = $query->paginate(25)->withQueryString();
         foreach ($orders as $order) {
             $order->setAttribute('display_payment_status', $this->effectiveOrderStatus($order));
@@ -1369,7 +1369,7 @@ class MerchandiseImplement implements MerchandiseService
                 'external_id' => $order->external_id,
                 'amount' => $order->total_amount,
                 'payer_email' => $order->email,
-                'description' => 'MHIS Merchandise Order ' . $order->code,
+                'description' => 'MHIS Merchandise Order - ' . $order->child_name,
                 'invoice_duration' => 60 * 60 * 24,
             ], $branch->name);
         } catch (ConnectionException $exception) {
@@ -2974,7 +2974,7 @@ class MerchandiseImplement implements MerchandiseService
     private function normalizeMerchandiseEmailBody(string $body): string
     {
         if (stripos($body, '{{ payment_table }}') !== false
-            || stripos($body, '{{payment_table}}') !== false
+            || stripos($body, '{{ payment_table }}') !== false
             || stripos($body, '{payment_table}') !== false) {
             return $body;
         }
@@ -2998,7 +2998,7 @@ class MerchandiseImplement implements MerchandiseService
 
         if ($legacyReplaced) {
             return str_ireplace(
-                ['{{ order_items }}', '{{order_items}}', '{order_items}'],
+                ['{{ order_items }}', '{{ order_items }}', '{order_items}'],
                 '',
                 $normalized
             );
@@ -3029,7 +3029,7 @@ class MerchandiseImplement implements MerchandiseService
         foreach ($values as $key => $value) {
             $content = str_replace([
                 '{{ ' . $key . ' }}',
-                '{{' . $key . '}}',
+                '{{ ' . $key . ' }}',
                 '{' . $key . '}',
             ], (string) $value, $content);
         }

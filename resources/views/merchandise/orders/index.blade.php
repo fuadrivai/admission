@@ -155,6 +155,11 @@
                                 <td class="text-end">{{ number_format($order->total_items) }}</td>
                                 <td class="text-end text-nowrap">Rp{{ number_format($order->total_amount, 0, ',', '.') }}</td>
                                 <td class="text-end text-nowrap">
+                                    <button class="btn btn-sm btn-outline-secondary" type="button"
+                                        data-bs-toggle="collapse" data-bs-target="#order-items-{{ $order->id }}"
+                                        aria-expanded="false" aria-controls="order-items-{{ $order->id }}">
+                                        Item
+                                    </button>
                                     <a class="btn btn-sm btn-outline-primary" href="{{ route('merchandise.orders.show', $order->id) }}">Detail</a>
                                     @if ($order->display_payment_status === 'EXPIRED')
                                         <button type="button" class="btn btn-sm btn-outline-danger"
@@ -164,6 +169,46 @@
                                             Delete
                                         </button>
                                     @endif
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="9" class="p-0 border-0">
+                                    <div class="collapse" id="order-items-{{ $order->id }}">
+                                        <div class="bg-light border-bottom px-3 py-2">
+                                            <div class="fw-semibold small mb-2">Rincian item pesanan</div>
+                                            <div class="table-responsive">
+                                                <table class="table table-sm table-borderless align-middle mb-0">
+                                                    <thead>
+                                                        <tr class="text-muted">
+                                                            <th>Produk / Varian</th>
+                                                            <th class="text-end">Qty</th>
+                                                            <th class="text-end">Harga Satuan</th>
+                                                            <th class="text-end">Subtotal</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @forelse ($order->items as $item)
+                                                            <tr>
+                                                                <td>
+                                                                    <div class="fw-semibold">{{ $item->product_name }}</div>
+                                                                    <div class="small text-muted">
+                                                                        {{ $item->variant_name }}{{ $item->sku ? ' · ' . $item->sku : '' }}
+                                                                    </div>
+                                                                </td>
+                                                                <td class="text-end">{{ number_format($item->quantity) }}</td>
+                                                                <td class="text-end text-nowrap">
+                                                                    {{ $item->unit_price > 0 ? 'Rp' . number_format($item->unit_price, 0, ',', '.') : 'Gratis' }}
+                                                                </td>
+                                                                <td class="text-end text-nowrap">Rp{{ number_format($item->subtotal, 0, ',', '.') }}</td>
+                                                            </tr>
+                                                        @empty
+                                                            <tr><td colspan="4" class="text-muted">Tidak ada item.</td></tr>
+                                                        @endforelse
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </td>
                             </tr>
                         @empty
